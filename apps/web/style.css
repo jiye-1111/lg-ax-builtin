@@ -331,7 +331,7 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .studio[data-view="plan"] .plan-pane,
 .studio[data-view="3d"] .view-pane { inset: 0; z-index: 1; }
 /* 작은 쪽은 오른쪽 패널 아래 미니맵 칸으로 옮긴다 (가운데 화면을 가리지 않게) */
-.minimap { --mini-h: 200px; flex: none; position: relative; height: var(--mini-h); border-top: 1px solid var(--line-soft); background: var(--drafting); border-radius: 0 0 var(--r-sheet) var(--r-sheet); overflow: hidden; }
+.minimap { --mini-h: 200px; flex: none; margin-top: auto; position: relative; height: var(--mini-h); border-top: 1px solid var(--line-soft); background: var(--drafting); border-radius: 0 0 var(--r-sheet) var(--r-sheet); overflow: hidden; }
 .minimap[hidden] { display: none; }
 .minimap .pane { position: absolute; inset: 0; }
 .minimap .plan-pane .plan { background: var(--drafting); }
