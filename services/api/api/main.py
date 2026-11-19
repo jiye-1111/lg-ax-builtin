@@ -121,6 +121,12 @@ class SiteIn(BaseModel):
     region: Optional[str] = None
 
 
+class RouterIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    center_xz: list[float] = Field(min_length=2, max_length=2)
+    band: str = "5"
+
+
 class HiddenIn(BaseModel):
     hidden: bool = True
 
@@ -247,6 +253,23 @@ def set_site(pid: str, body: SiteIn, s: Service = S):
 @app.get("/api/projects/{pid}/sim/daylight")
 def daylight(pid: str, date: str, time: Optional[str] = None, s: Service = S):
     return s.daylight(pid, date, time)
+
+
+@app.put("/api/projects/{pid}/router")
+def set_router(pid: str, body: RouterIn, s: Service = S):
+    return s.set_router(pid, body.center_xz, body.band)
+
+
+@app.get("/api/projects/{pid}/sim/wifi")
+def wifi(pid: str, band: Optional[str] = None, s: Service = S):
+    return s.wifi(pid, band)
+
+
+@app.get("/api/projects/{pid}/sim/wifi/best")
+def wifi_best(pid: str, band: str = "5", s: Service = S):
+    if band not in ("2.4", "5"):
+        raise HTTPException(422, "band는 2.4 또는 5")
+    return s.wifi_best(pid, band)
 
 
 @app.get("/api/regions")

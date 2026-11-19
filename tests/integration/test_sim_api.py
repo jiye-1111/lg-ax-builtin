@@ -43,3 +43,17 @@ def test_site_and_daylight(c, pid):
 def test_regions_listed(c):
     rs = c.get("/api/regions").json()
     assert "서울" in rs and all({"lat", "lon"} <= set(v) for v in rs.values())
+
+
+def test_wifi_flow(c, pid):
+    assert c.get(f"/api/projects/{pid}/sim/wifi").status_code == 422  # 공유기 위치 먼저
+    best = c.get(f"/api/projects/{pid}/sim/wifi/best", params={"band": "5"})
+    assert best.status_code == 200, best.text
+    spot = best.json()["center_xz"]
+    r = c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "5"})
+    assert r.status_code == 200 and r.json()["scene_state"]["router"]["center_xz"] == spot
+    assert c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "6"}).status_code == 422
+    c.post(f"/api/projects/{pid}/zones", json={"purpose": "kitchen", "polygon_m": [[-5.5, 1], [-4, 1], [-4, 4], [-5.5, 4]]})
+    w = c.get(f"/api/projects/{pid}/sim/wifi").json()
+    assert w["values"] and w["assumptions"] and w["zones"][0]["share"]
+    assert w["min_dbm"] == pytest.approx(best.json()["min_dbm"], abs=3)

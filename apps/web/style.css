@@ -178,3 +178,4 @@ button.sw.on { box-shadow: 0 0 0 2px var(--ink); }
 .plan .compass circle { fill: #fff; stroke: #3c3f44; }
 .plan .compass path { fill: var(--accent); }
 .plan #overlay { pointer-events: none; }
+.plan .router circle { fill: #fff; stroke: #2a6fb0; }

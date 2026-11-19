@@ -567,6 +567,11 @@ async function customer(pid) {
     if (!pv) return;
     const p = pv.toWorld(e);
     if (mode === "move") {
+      if (armedRouter) {
+        armedRouter = false;
+        guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
+        return;
+      }
       if (armed) { placeAt(armed, p); return; }
       const g = e.target.closest("[data-pl]");
       if (g) {
@@ -831,7 +836,45 @@ async function customer(pid) {
     if (project.site?.north_deg == null) draw();
     await runDaylight();
   };
-  const SIMS = { daylight: daylightCtl };
+  // ---- 살아 보기: 와이파이 ----
+  let armedRouter = false, band = "5";
+  const WCOLOR = { good: "#1f7a4d", ok: "#e0a800", weak: "#b3261e" };
+  const WLABEL = { good: "좋음", ok: "보통", weak: "약함" };
+  const runWifi = async () => {
+    const box = document.getElementById("simres");
+    const rt = project.scene_state.router;
+    if (!rt) { setOverlay(""); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
+    const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
+    const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
+    const [x0, y0] = g.origin, c = g.cell_m, cells = [];
+    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.28"/>`); }));
+    const [rx, ry] = g.router, r = pv.sw(9);
+    setOverlay(cells.join("") + `<g class="router"><circle cx="${rx}" cy="${ry}" r="${r}" style="stroke-width:${pv.sw(2)}px"/><text x="${rx}" y="${ry}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">📶</text></g>`);
+    const pct = (v) => `${Math.round((v || 0) * 100)}%`;
+    box.innerHTML = `
+      <p style="margin:0 0 6px">${["good", "ok", "weak"].map((k) => `<span class="badge" style="background:${WCOLOR[k]}22;color:${WCOLOR[k]}">${WLABEL[k]} ${pct(g.share[k])}</span>`).join(" ")} · 가장 약한 곳 <b>${g.min_dbm} dBm</b></p>
+      ${g.zones.length ? `<ul class="reasons">${g.zones.map((z) => `<li>${esc(z.name)}: ${z.min_dbm == null ? "영역 안 칸 없음" : `가장 약한 곳 ${z.min_dbm} dBm · 약함 ${pct(z.share.weak)}`}</li>`).join("")}</ul>` : `<p class="muted" style="font-size:12px;margin:0">영역을 그리면 영역별 요약도 보여 드려요.</p>`}
+      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</p>`;
+  };
+  const wifiCtl = async () => {
+    document.getElementById("simctl").innerHTML = `
+      <div class="row" style="margin-top:8px">
+        <div class="tabs" style="margin:0"><button data-band="5" class="${band === "5" ? "on" : ""}">5 GHz</button><button data-band="2.4" class="${band === "2.4" ? "on" : ""}">2.4 GHz</button></div>
+        <button class="small ghost" id="putRouter">${armedRouter ? "놓을 자리를 누르세요…" : "공유기 놓기"}</button>
+        <button class="small ghost" id="bestRouter">추천 자리 찾기</button></div>
+      <div id="simres" style="margin-top:8px"></div>`;
+    document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = () => { band = b.dataset.band; wifiCtl(); }));
+    document.getElementById("putRouter").onclick = () => { armedRouter = !armedRouter; armed = null; mode = "move"; syncMode(); wifiCtl(); };
+    document.getElementById("bestRouter").onclick = guard(async (e) => {
+      e.target.disabled = true; e.target.textContent = "찾는 중…";
+      const b = await api(`/api/projects/${pid}/sim/wifi/best?band=${band}`);
+      project = await put(`/api/projects/${pid}/router`, { center_xz: b.center_xz, band });
+      toast(`가장 약한 곳이 ${b.min_dbm} dBm가 되는 자리로 옮겼습니다`);
+      wifiCtl();
+    });
+    await runWifi();
+  };
+  const SIMS = { daylight: daylightCtl, wifi: wifiCtl };
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
@@ -851,6 +894,7 @@ async function customer(pid) {
     document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
     draw();
     if (sim === "daylight" && document.getElementById("simres")) guard(runDaylight)();
+    if (sim === "wifi" && document.getElementById("simres")) guard(runWifi)();
     renderInspector();
     renderPlacements();
     renderZones();

@@ -526,6 +526,61 @@ class Service:
                 "patches": [{**x, "polygon": [[round(a, 3), round(b, 3)] for a, b in x["polygon"]]} for x in sun_patches(room, s, when)],
                 "daily": daily, "assumptions": daily.pop("assumptions") + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
+    # ---- 살아 보기: 와이파이 (S7) ----
+    METAL = ("refrigerator", "kimchi_refrigerator")
+
+    def _metal_blockers(self, p: dict) -> list:
+        from recommender.pose import rect
+        import math as _m
+        out = []
+        for x in p["scene_state"]["placements"]:
+            try:
+                cat = self.catalog.get(x["sku"]).category
+            except KeyError:
+                continue
+            if cat in self.METAL and x.get("size_m"):
+                out.append(rect(tuple(x["center_xz"]), x["yaw_rad"] - _m.pi / 2, x["size_m"][0], x["size_m"][2]))
+        return out
+
+    def set_router(self, pid: str, center_xz, band: str = "5") -> dict:
+        if band not in ("2.4", "5"):
+            raise Invalid("band는 2.4 또는 5")
+        if len(center_xz) != 2:
+            raise Invalid("center_xz는 [x, z]")
+        p = self.get_project(pid)
+        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band}
+        return self._save_project(p)
+
+    def wifi(self, pid: str, band: str | None = None) -> dict:
+        from sim.wifi import WifiConfig, coverage, grade
+
+        p = self.get_project(pid)
+        rt = p["scene_state"].get("router")
+        if not rt:
+            raise Invalid("와이파이를 보려면 먼저 평면도에 공유기를 놓으세요 (또는 추천 자리 찾기)")
+        cfg = WifiConfig.from_env(band or rt.get("band", "5"))
+        room = self.get_room(pid)
+        g = coverage(room, tuple(rt["center_xz"]), cfg, blockers=self._metal_blockers(p))
+        from sim.daylight import _inside
+        zones = []
+        for z in self.list_zones(pid):
+            vs = [g["values"][j][i] for j in range(g["ny"]) for i in range(g["nx"])
+                  if g["values"][j][i] is not None and _inside((g["origin"][0] + (i + .5) * g["cell_m"], g["origin"][1] + (j + .5) * g["cell_m"]), z["polygon_m"])]
+            share = {k: round(sum(1 for v in vs if grade(v, cfg) == k) / len(vs), 3) for k in ("good", "ok", "weak")} if vs else {}
+            zones.append({"zone_id": z["zone_id"], "name": z.get("name") or z["purpose"], "share": share,
+                          "min_dbm": min(vs) if vs else None})
+        g["zones"] = zones
+        g["band"] = cfg.band
+        return g
+
+    def wifi_best(self, pid: str, band: str = "5") -> dict:
+        from sim.wifi import WifiConfig, best_router_spot
+
+        p = self.get_project(pid)
+        cfg = WifiConfig.from_env(band)
+        spot, worst = best_router_spot(self.get_room(pid), cfg, cell_m=0.25, blockers=self._metal_blockers(p))
+        return {"center_xz": [round(spot[0], 3), round(spot[1], 3)], "min_dbm": round(worst, 1), "band": band}
+
     def remove_product(self, pid: str, zone_id: str, sku: str) -> dict:
         p = self.get_project(pid)
         p["scene_state"]["placements"] = [x for x in p["scene_state"]["placements"]
