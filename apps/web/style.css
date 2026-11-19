@@ -179,3 +179,6 @@ button.sw.on { box-shadow: 0 0 0 2px var(--ink); }
 .plan .compass path { fill: var(--accent); }
 .plan #overlay { pointer-events: none; }
 .plan .router circle { fill: #fff; stroke: #2a6fb0; }
+.plan .route { fill: none; stroke: #2a6fb0; stroke-linecap: round; stroke-linejoin: round; stroke-opacity: .85; }
+.plan .narrow { fill: var(--nofit); fill-opacity: .8; }
+.plan .mark circle { fill: #fff; stroke: #3c3f44; }

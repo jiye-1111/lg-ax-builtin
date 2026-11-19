@@ -39,3 +39,11 @@
 | `move_product` | `placement_id`, `center_xz?`, `yaw_rad?`, `snap`, `color?` | 옮기기·돌리기·색 바꾸기 후 다시 판정 |
 | `list_placements` | - | 놓인 제품 목록 |
 | `hide_object` | `object_id`, `hidden` | 기존 가구 치우기/되돌리기 |
+
+## 살아 보기 도구 (2026-11-19)
+| 도구 | 입력 | 하는 일 |
+|---|---|---|
+| `set_site` | `north_deg?`, `region?` | 북쪽 방향(평면도 위쪽 기준 시계 방향 각도), 시·도 |
+| `daylight` | `date`, `time?` | 해 높이·방위, 볕 드는 창, 제품 자리별 하루 직사 시간 (격자는 웹에서만) |
+| `wifi_coverage` | `band`, `router_xz?`, `auto_place` | 좋음·보통·약함 비율, 가장 약한 곳, 영역별 요약 |
+| `flow_routes` | - | 현관 → 제품 앞 경로 길이, 가장 좁은 폭, 작업 삼각형 |

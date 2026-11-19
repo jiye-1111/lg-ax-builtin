@@ -12,7 +12,8 @@ from core import config
 USDZ = (config.ROOT / "data" / "samples" / "synthetic_room.usdz").read_bytes()
 EXPECTED_TOOLS = {"list_projects", "get_room", "list_zones", "create_zone", "set_style", "search_catalog",
                   "check_fit", "recommend", "apply_material", "place_product", "remove_product", "render",
-                  "place_at", "move_product", "list_placements", "hide_object"}
+                  "place_at", "move_product", "list_placements", "hide_object",
+                  "set_site", "daylight", "wifi_coverage", "flow_routes"}
 
 
 @pytest.fixture()
@@ -81,6 +82,20 @@ async def test_free_placement_tools(svc):
             assert objs[0]["object_id"] in svc.list_projects()[-1]["scene_state"]["hidden_objects"]
         bad = await c.call_tool("place_at", {"sku": "DEMO-RF-01", "center_xz": [1.0]})
         assert bad.is_error
+
+
+@pytest.mark.anyio
+async def test_living_simulation_tools(svc):
+    async with Client(srv.mcp) as c:
+        assert (await c.call_tool("daylight", {"date": "2026-12-21"})).is_error  # 북쪽 먼저
+        _data(await c.call_tool("set_site", {"north_deg": 0, "region": "서울"}))
+        d = _data(await c.call_tool("daylight", {"date": "2026-12-21", "time": "12:00"}))
+        assert "values" not in d and d["sun"]["altitude_deg"] > 20 and d["assumptions"]  # 격자는 빼고 요약만
+        w = _data(await c.call_tool("wifi_coverage", {"auto_place": True}))
+        assert w["router"] and set(w["share"]) == {"good", "ok", "weak"} and "values" not in w
+        _data(await c.call_tool("place_at", {"sku": "DEMO-RF-01", "center_xz": [1.0, 0.5]}))
+        f = _data(await c.call_tool("flow_routes", {}))
+        assert f["routes"] and all("path" not in r for r in f["routes"].values())
 
 
 @pytest.mark.anyio

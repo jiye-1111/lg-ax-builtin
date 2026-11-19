@@ -44,3 +44,15 @@
 | GET | `/api/projects/{pid}/files/floorplan` | 도면 파일 |
 
 실측 `PUT /api/projects/{pid}/walls/{wid}/measured`의 `by`는 `technician` 또는 `customer`. 고객도 직접 넣을 수 있다.
+
+## 살아 보기 (참고용 근사, `services/sim`)
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | `/api/regions` | 시·도 대표 위도·경도 |
+| PUT | `/api/projects/{pid}/site` | `{north_deg, region}` |
+| GET | `/api/projects/{pid}/sim/daylight?date=YYYY-MM-DD&time=HH:MM` | 해 위치, 그 시각 볕 드는 사각형, 하루 직사 시간 격자(0.25 m), 제품 자리 값, 가정 |
+| PUT | `/api/projects/{pid}/router` | `{center_xz, band: "5" \| "2.4"}` |
+| GET | `/api/projects/{pid}/sim/wifi?band=` | 신호 격자(dBm), 비율, 영역별, 가정 |
+| GET | `/api/projects/{pid}/sim/wifi/best?band=` | 가장 약한 곳이 제일 센 공유기 자리 |
+| PUT/DELETE | `/api/projects/{pid}/marks/{sink\|entrance}` | 싱크·현관 위치 |
+| GET | `/api/projects/{pid}/sim/flow` | 현관 → 제품 앞(정면 0.35 m) 경로, 길이, 가장 좁은 폭, 좁은 점, 작업 삼각형 |

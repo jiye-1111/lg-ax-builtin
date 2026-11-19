@@ -4,6 +4,7 @@
 |------|------|--------|
 | [room-json.md](room-json.md) | 내부 표준 방 데이터 `room.json` | `tests/unit/test_converter.py` |
 | [usdz-converter.md](usdz-converter.md) | USDZ → room.json 변환기, USDZ 구조 분석 절차 | `tests/unit/test_converter.py` |
+| [sim.md](sim.md) | 채광·와이파이·동선 근사 모델 | `tests/unit/test_solar.py` 외 |
 | [usdz-analysis-2026-11-18.md](usdz-analysis-2026-11-18.md) | 실제 UGScan 내보내기 구조 분석 (첫 샘플) | `tests/unit/test_converter_real.py` |
 | [fit-rules.md](fit-rules.md) | 빌트인 적합 판정 규칙 | `tests/unit/test_fit.py` |
 | [cmf.md](cmf.md) | 색상·재질 매칭 | `tests/unit/test_cmf.py` |

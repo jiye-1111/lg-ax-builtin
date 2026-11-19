@@ -581,6 +581,70 @@ class Service:
         spot, worst = best_router_spot(self.get_room(pid), cfg, cell_m=0.25, blockers=self._metal_blockers(p))
         return {"center_xz": [round(spot[0], 3), round(spot[1], 3)], "min_dbm": round(worst, 1), "band": band}
 
+    # ---- 살아 보기: 동선 (S8) ----
+    MARKS = {"sink": "싱크", "entrance": "현관"}
+
+    def set_mark(self, pid: str, name: str, center_xz=None) -> dict:
+        if name not in self.MARKS:
+            raise NotFound(f"표시 이름은 {', '.join(self.MARKS)}")
+        p = self.get_project(pid)
+        marks = p["scene_state"].setdefault("marks", {})
+        if center_xz is None:
+            marks.pop(name, None)
+        else:
+            if len(center_xz) != 2:
+                raise Invalid("center_xz는 [x, z]")
+            marks[name] = [float(center_xz[0]), float(center_xz[1])]
+        return self._save_project(p)
+
+    def flow(self, pid: str) -> dict:
+        import math as _m
+
+        from recommender.pose import rect
+        from sim.flow import FlowConfig, plan_routes
+
+        p, room = self.get_project(pid), self.get_room(pid)
+        marks = p["scene_state"].get("marks") or {}
+        if "entrance" in marks:  # 고객이 현관을 직접 찍었으면 그 자리 가장 가까운 문을 현관으로
+            ex, ey = marks["entrance"]
+            doors = [o for o in room.openings if o.type in ("door", "opening") and o.wall_id]
+            if doors:
+                def dpos(o):
+                    w = room.wall(o.wall_id)
+                    L = _m.dist(w.start, w.end) or 1
+                    u = (o.offset_m + o.width_m / 2) / L
+                    return (w.start[0] + (w.end[0] - w.start[0]) * u, w.start[1] + (w.end[1] - w.start[1]) * u)
+                keep = min(doors, key=lambda o: _m.dist(dpos(o), (ex, ey)))
+                room = room.model_copy(update={"openings": [o for o in room.openings if o.type == "window" or o is keep]})
+        targets, extra, names, cats = {}, [], {}, {}
+        for x in p["scene_state"]["placements"]:
+            if not x.get("size_m") or not x.get("placement_id"):
+                continue
+            w, _, d = x["size_m"]
+            yaw = x["yaw_rad"]
+            extra.append(rect(tuple(x["center_xz"]), yaw - _m.pi / 2, w, d))
+            reach = d / 2 + 0.35  # 제품 정면 앞에 서는 자리
+            targets[x["placement_id"]] = (x["center_xz"][0] + _m.cos(yaw) * reach, x["center_xz"][1] + _m.sin(yaw) * reach)
+            try:
+                prod = self.catalog.get(x["sku"])
+                names[x["placement_id"]], cats[x["placement_id"]] = prod.name, prod.category
+            except KeyError:
+                names[x["placement_id"]] = x["sku"]
+        for k, v in marks.items():
+            if k != "entrance":
+                targets[k] = tuple(v)
+                names[k] = self.MARKS[k]
+        tri = None
+        fr = next((k for k, c in cats.items() if c in ("refrigerator", "kimchi_refrigerator")), None)
+        ck = next((k for k, c in cats.items() if c == "cooktop"), None)
+        if fr and ck and "sink" in targets:
+            tri = (fr, "sink", ck)
+        out = plan_routes(room, targets, FlowConfig.from_env(), hidden=p["scene_state"].get("hidden_objects") or [],
+                          extra=extra, triangle=tri)
+        out["names"] = names
+        out["marks"] = marks
+        return out
+
     def remove_product(self, pid: str, zone_id: str, sku: str) -> dict:
         p = self.get_project(pid)
         p["scene_state"]["placements"] = [x for x in p["scene_state"]["placements"]

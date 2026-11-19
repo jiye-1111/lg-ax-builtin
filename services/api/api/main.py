@@ -272,6 +272,26 @@ def wifi_best(pid: str, band: str = "5", s: Service = S):
     return s.wifi_best(pid, band)
 
 
+class MarkIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    center_xz: list[float] = Field(min_length=2, max_length=2)
+
+
+@app.put("/api/projects/{pid}/marks/{name}")
+def set_mark(pid: str, name: str, body: MarkIn, s: Service = S):
+    return s.set_mark(pid, name, body.center_xz)
+
+
+@app.delete("/api/projects/{pid}/marks/{name}")
+def del_mark(pid: str, name: str, s: Service = S):
+    return s.set_mark(pid, name, None)
+
+
+@app.get("/api/projects/{pid}/sim/flow")
+def flow(pid: str, s: Service = S):
+    return s.flow(pid)
+
+
 @app.get("/api/regions")
 def regions():
     from sim.regions import REGIONS

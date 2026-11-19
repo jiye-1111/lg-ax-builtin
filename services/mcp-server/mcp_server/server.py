@@ -20,13 +20,14 @@ from mcp.server.mcpserver import Image, MCPServer
 
 from core.service import Invalid, NotFound, Service
 
-INSTRUCTIONS = """LG 빌트인 가전 공간 설계 도구입니다. 기사가 스캔한 방(project)에서 영역(zone)별로
-설치 가능한 LG 제품과 어울리는 색상·재질(CMF)을 찾습니다.
+INSTRUCTIONS = """LG 빌트인 가상 리모델링 도구입니다. 고객이 LiDAR로 스캔한 집(project)에 LG 제품을 골라 놓아 보고
+(place_at·move_product), 어울리는 색상·재질(CMF)을 찾고, 채광·와이파이·동선(daylight·wifi_coverage·flow_routes)을 확인합니다.
 규칙:
 1) 치수 적합 판정(fit/conditional/no_fit/unknown)과 점수는 반드시 check_fit·recommend 결과를 그대로 전하세요. 직접 계산하거나 추정하지 마세요.
 2) 카탈로그에 없는 제품·치수를 만들지 마세요. null 값은 "공개 정보 없음"으로 말하세요.
 3) 스타일 요청(예: "화이트 우드 톤 미니멀")은 대표색 3~5개(#RRGGBB)와 재질 키워드(wood, matte, glass, metal, stone...)로 바꿔 set_style로 저장한 뒤 recommend를 호출하세요.
-4) 스캔값(source=scanned) 기반 판정은 '후보'입니다. 실측이 필요하다고 안내하세요.
+4) 판정 이유(reasons)를 그대로 전하세요. 스캔값 기반이라 오차가 있을 수 있고, 줄자 실측은 선택입니다.
+6) 채광·와이파이·동선은 참고용 근사입니다. 결과의 assumptions를 함께 말하세요. 채광은 set_site로 북쪽 방향이 필요합니다.
 5) demo_only=true 제품은 시연용 가상 데이터임을 밝히세요.
 결과는 고객 웹 화면(customer_url)에도 실시간으로 반영됩니다."""
 
@@ -238,6 +239,56 @@ def hide_object(object_id: Annotated[str, Field(description="get_room의 기존 
     """스캔된 기존 가구를 치운다(hidden=false면 되돌림). 치운 가구는 판정·3D에서 빠진다."""
     r = svc().set_object_hidden(_pid(project_id), object_id, hidden)
     return {"hidden_objects": r["scene_state"].get("hidden_objects", []), "placements": r["scene_state"]["placements"]}
+
+
+@mcp.tool()
+@_wrap
+def set_site(north_deg: Annotated[Optional[float], Field(ge=0, lt=360, description="평면도 위쪽에서 북쪽까지 시계 방향 각도")] = None,
+             region: Annotated[Optional[str], Field(description="시·도 (예: 서울, 부산, 경기)")] = None,
+             project_id: PID = None) -> dict:
+    """집의 북쪽 방향과 지역을 저장한다 (채광 계산용)."""
+    return svc().set_site(_pid(project_id), north_deg, region)["site"]
+
+
+@mcp.tool()
+@_wrap
+def daylight(date: Annotated[str, Field(description="YYYY-MM-DD")], time: Annotated[Optional[str], Field(description="HH:MM (한국 시간)")] = None,
+             project_id: PID = None) -> dict:
+    """그 날 창으로 드는 직사광: 해 높이·방위, 볕 드는 창, 놓은 제품 자리별 하루 직사 시간. 참고용 근사."""
+    d = svc().daylight(_pid(project_id), date, time)
+    daily = d.pop("daily")
+    vals = [v for row in daily["values"] for v in row if v is not None]
+    d["sunlit_share"] = round(sum(1 for v in vals if v > 0) / len(vals), 3) if vals else 0
+    d["max_hours"] = max(vals) if vals else 0
+    d["placement_hours"] = daily["points"]
+    d["patches"] = [x["opening_id"] for x in d["patches"]]
+    return d
+
+
+@mcp.tool()
+@_wrap
+def wifi_coverage(band: Annotated[str, Field(pattern=r"^(2\.4|5)$")] = "5",
+                  router_xz: Annotated[Optional[list[float]], Field(min_length=2, max_length=2, description="공유기 위치 [x, z]. 생략 시 저장된 위치")] = None,
+                  auto_place: Annotated[bool, Field(description="true면 가장 약한 곳이 제일 센 자리로 공유기를 옮긴다")] = False,
+                  project_id: PID = None) -> dict:
+    """와이파이 신호 요약(좋음·보통·약함 비율, 가장 약한 곳, 영역별). 참고용 근사."""
+    pid = _pid(project_id)
+    if auto_place:
+        router_xz = svc().wifi_best(pid, band)["center_xz"]
+    if router_xz is not None:
+        svc().set_router(pid, router_xz, band)
+    g = svc().wifi(pid, band)
+    return {k: g[k] for k in ("router", "band", "share", "min_dbm", "zones", "assumptions")}
+
+
+@mcp.tool()
+@_wrap
+def flow_routes(project_id: PID = None) -> dict:
+    """현관에서 놓은 제품 앞까지 동선: 길이, 가장 좁은 통로 폭, 좁은 곳 개수, 주방 작업 삼각형. 참고용 근사."""
+    f = svc().flow(_pid(project_id))
+    routes = {k: {"name": f["names"].get(k, k), "reachable": r["reachable"], "length_m": r["length_m"],
+                  "min_width_m": r["min_width_m"], "narrow_points": len(r["narrow"])} for k, r in f["routes"].items()}
+    return {"entrance": f["entrance"], "routes": routes, "triangle": f.get("triangle"), "assumptions": f["assumptions"]}
 
 
 @mcp.tool()

@@ -57,3 +57,18 @@ def test_wifi_flow(c, pid):
     w = c.get(f"/api/projects/{pid}/sim/wifi").json()
     assert w["values"] and w["assumptions"] and w["zones"][0]["share"]
     assert w["min_dbm"] == pytest.approx(best.json()["min_dbm"], abs=3)
+
+
+def test_flow_routes_to_placed_products(c, pid):
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": "G646GBB031", "center_xz": [0.5, -6.2], "yaw_rad": 1.57}).json()["placement"]
+    assert c.put(f"/api/projects/{pid}/marks/sink", json={"center_xz": [-1.0, -6.3]}).status_code == 200
+    assert c.put(f"/api/projects/{pid}/marks/../x", json={"center_xz": [0, 0]}).status_code in (404, 405, 422)
+    assert c.put(f"/api/projects/{pid}/marks/bathroom", json={"center_xz": [0, 0]}).status_code == 404
+    r = c.get(f"/api/projects/{pid}/sim/flow")
+    assert r.status_code == 200, r.text
+    f = r.json()
+    assert f["entrance"]["opening_id"] == "d1"
+    route = f["routes"][pl["placement_id"]]
+    assert set(route) >= {"reachable", "length_m", "min_width_m", "narrow", "path"}
+    assert "sink" in f["routes"] and f["assumptions"]
+    assert c.delete(f"/api/projects/{pid}/marks/sink").status_code == 200

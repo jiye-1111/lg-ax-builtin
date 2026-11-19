@@ -567,6 +567,11 @@ async function customer(pid) {
     if (!pv) return;
     const p = pv.toWorld(e);
     if (mode === "move") {
+      if (armedMark) {
+        const name = armedMark; armedMark = null;
+        guard(async () => { project = await put(`/api/projects/${pid}/marks/${name}`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
+        return;
+      }
       if (armedRouter) {
         armedRouter = false;
         guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
@@ -874,7 +879,45 @@ async function customer(pid) {
     });
     await runWifi();
   };
-  const SIMS = { daylight: daylightCtl, wifi: wifiCtl };
+  // ---- 살아 보기: 동선 ----
+  let armedMark = null;
+  const runFlow = async () => {
+    const box = document.getElementById("simres");
+    const f = await api(`/api/projects/${pid}/sim/flow`);
+    const parts = [];
+    const lw = pv.sw(3);
+    for (const [k, r] of Object.entries(f.routes)) {
+      if (!r.reachable) continue;
+      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px"/>`);
+      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="${pv.sw(5)}"/>`);
+    }
+    if (f.entrance) { const [x, y] = f.entrance.point; parts.push(`<g class="mark"><circle cx="${x}" cy="${y}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚪</text></g>`); }
+    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(`<g class="mark"><circle cx="${v[0]}" cy="${v[1]}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${v[0]}" y="${v[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚰</text></g>`);
+    setOverlay(parts.join(""));
+    const rows = Object.entries(f.routes).map(([k, r]) => {
+      const nm = esc(f.names[k] || k);
+      if (!r.reachable) return `<li><span class="badge no_fit">못 감</span> ${nm}: 현관에서 갈 길이 막혔어요</li>`;
+      const bad = r.min_width_m < 0.9;
+      return `<li><span class="badge ${bad ? "conditional" : "fit"}">${bad ? "좁음" : "여유"}</span> ${nm}: ${r.length_m} m · 가장 좁은 곳 ${r.min_width_m} m</li>`;
+    }).join("");
+    const t = f.triangle;
+    box.innerHTML = `
+      ${rows ? `<ul class="reasons">${rows}</ul>` : `<p class="muted" style="margin:0">제품을 놓으면 현관에서 제품 앞까지 동선을 그려 드려요.</p>`}
+      ${t ? `<p style="margin:6px 0 0">주방 작업 삼각형(냉장고·싱크·쿡탑) 합계 <b>${t.perimeter_m} m</b> (${t.legs_m.join(" / ")} m) <span class="badge ${t.ok ? "fit" : "conditional"}">${t.ok ? "권장 범위" : "권장 범위 밖"}</span></p>` : ""}
+      <p class="muted" style="font-size:12px;margin:6px 0 0">빨간 점 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</p>`;
+  };
+  const flowCtl = async () => {
+    document.getElementById("simctl").innerHTML = `
+      <div class="row" style="margin-top:8px">
+        <button class="small ghost" id="mkEnt">${armedMark === "entrance" ? "현관 쪽을 누르세요…" : "현관 지정"}</button>
+        <button class="small ghost" id="mkSink">${armedMark === "sink" ? "싱크 자리를 누르세요…" : "싱크 위치 지정"}</button>
+        <span class="muted" style="font-size:12px">싱크를 지정하고 냉장고·쿡탑을 놓으면 작업 삼각형을 계산해요.</span></div>
+      <div id="simres" style="margin-top:8px"></div>`;
+    document.getElementById("mkEnt").onclick = () => { armedMark = armedMark === "entrance" ? null : "entrance"; armed = null; mode = "move"; syncMode(); flowCtl(); };
+    document.getElementById("mkSink").onclick = () => { armedMark = armedMark === "sink" ? null : "sink"; armed = null; mode = "move"; syncMode(); flowCtl(); };
+    await runFlow();
+  };
+  const SIMS = { daylight: daylightCtl, wifi: wifiCtl, flow: flowCtl };
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
@@ -895,6 +938,7 @@ async function customer(pid) {
     draw();
     if (sim === "daylight" && document.getElementById("simres")) guard(runDaylight)();
     if (sim === "wifi" && document.getElementById("simres")) guard(runWifi)();
+    if (sim === "flow" && document.getElementById("simres")) guard(runFlow)();
     renderInspector();
     renderPlacements();
     renderZones();
