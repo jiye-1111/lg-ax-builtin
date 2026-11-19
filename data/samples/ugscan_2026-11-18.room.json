@@ -1,0 +1,626 @@
+{
+  "units": "m",
+  "source": "ugscan_roomplan_usdz",
+  "walls": [
+    {
+      "wall_id": "w1",
+      "start": [
+        0.9951,
+        -6.7929
+      ],
+      "end": [
+        1.2237,
+        0.3012
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 7.0978,
+        "height_m": 2.78
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w2",
+      "start": [
+        -5.5046,
+        4.2093
+      ],
+      "end": [
+        1.2116,
+        3.9929
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 6.7198,
+        "height_m": 2.78
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w3",
+      "start": [
+        -5.6947,
+        -6.6574
+      ],
+      "end": [
+        1.0725,
+        -6.8755
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 6.7707,
+        "height_m": 2.8927
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w4",
+      "start": [
+        0.5668,
+        0.1623
+      ],
+      "end": [
+        0.5956,
+        1.0547
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 0.8929,
+        "height_m": 2.78
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w5",
+      "start": [
+        0.4894,
+        0.2448
+      ],
+      "end": [
+        1.1412,
+        0.2238
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 0.6521,
+        "height_m": 2.8927
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w6",
+      "start": [
+        0.513,
+        0.9773
+      ],
+      "end": [
+        1.2738,
+        0.9528
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 0.7611,
+        "height_m": 2.78
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w7",
+      "start": [
+        1.1964,
+        1.0354
+      ],
+      "end": [
+        1.2942,
+        4.0703
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 3.0365,
+        "height_m": 2.78
+      },
+      "measured": null
+    },
+    {
+      "wall_id": "w8",
+      "start": [
+        -5.7773,
+        -6.7348
+      ],
+      "end": [
+        -5.4273,
+        4.1268
+      ],
+      "thickness_m": 0.16,
+      "scanned": {
+        "length_m": 10.8672,
+        "height_m": 2.78
+      },
+      "measured": null
+    }
+  ],
+  "openings": [
+    {
+      "opening_id": "win1",
+      "type": "window",
+      "wall_id": "w1",
+      "offset_m": 3.918,
+      "width_m": 2.8649,
+      "height_m": 2.1343,
+      "sill_m": 0.4741
+    },
+    {
+      "opening_id": "win2",
+      "type": "window",
+      "wall_id": "w1",
+      "offset_m": 0.0774,
+      "width_m": 2.8495,
+      "height_m": 2.0415,
+      "sill_m": 0.4586
+    },
+    {
+      "opening_id": "win3",
+      "type": "window",
+      "wall_id": "w3",
+      "offset_m": 1.5346,
+      "width_m": 2.8184,
+      "height_m": 1.5449,
+      "sill_m": 1.073
+    },
+    {
+      "opening_id": "win4",
+      "type": "window",
+      "wall_id": "w7",
+      "offset_m": 0.0642,
+      "width_m": 2.7031,
+      "height_m": 2.5816,
+      "sill_m": 0.1684
+    },
+    {
+      "opening_id": "d1",
+      "type": "door",
+      "wall_id": "w8",
+      "offset_m": 9.8091,
+      "width_m": 0.9072,
+      "height_m": 2.2298,
+      "sill_m": 0.0
+    }
+  ],
+  "objects": [
+    {
+      "object_id": "o1",
+      "category": "storage",
+      "bbox_m": {
+        "w": 3.3248,
+        "h": 1.9933,
+        "d": 0.4331
+      },
+      "position": [
+        -0.5934,
+        0.9966,
+        3.7544
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o2",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5213,
+        "h": 0.6155,
+        "d": 0.4625
+      },
+      "position": [
+        -3.222,
+        0.3078,
+        3.5276
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o3",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.6493,
+        "h": 0.5825,
+        "d": 0.6132
+      },
+      "position": [
+        -3.4762,
+        0.2913,
+        -2.9505
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o4",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5634,
+        "h": 0.6073,
+        "d": 0.5108
+      },
+      "position": [
+        -1.5342,
+        0.3037,
+        -2.0529
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o5",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5894,
+        "h": 0.8281,
+        "d": 0.5332
+      },
+      "position": [
+        0.1391,
+        0.4141,
+        -2.5881
+      ],
+      "yaw_rad": 1.2153
+    },
+    {
+      "object_id": "o6",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5664,
+        "h": 0.9211,
+        "d": 0.502
+      },
+      "position": [
+        -0.8926,
+        0.4605,
+        0.6074
+      ],
+      "yaw_rad": 1.5635
+    },
+    {
+      "object_id": "o7",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5817,
+        "h": 0.6261,
+        "d": 0.5344
+      },
+      "position": [
+        0.3341,
+        0.313,
+        -4.6438
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o8",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5634,
+        "h": 0.6073,
+        "d": 0.5108
+      },
+      "position": [
+        -0.5447,
+        0.3037,
+        -2.0848
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o9",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5634,
+        "h": 0.6073,
+        "d": 0.5108
+      },
+      "position": [
+        -0.5283,
+        0.3037,
+        -1.5755
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o10",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.6461,
+        "h": 0.5889,
+        "d": 0.6159
+      },
+      "position": [
+        -4.3454,
+        0.2945,
+        0.0966
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o11",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.6492,
+        "h": 0.5825,
+        "d": 0.6132
+      },
+      "position": [
+        -4.3989,
+        0.2913,
+        -2.9208
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o12",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5634,
+        "h": 0.6073,
+        "d": 0.5108
+      },
+      "position": [
+        -1.5177,
+        0.3037,
+        -1.5436
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o13",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5817,
+        "h": 0.6261,
+        "d": 0.5344
+      },
+      "position": [
+        -0.6735,
+        0.313,
+        -4.6114
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o14",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5817,
+        "h": 0.6261,
+        "d": 0.5344
+      },
+      "position": [
+        -1.4616,
+        0.313,
+        -5.5924
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o15",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5817,
+        "h": 0.6261,
+        "d": 0.5344
+      },
+      "position": [
+        0.0498,
+        0.313,
+        -5.6411
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o16",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5213,
+        "h": 0.6155,
+        "d": 0.4625
+      },
+      "position": [
+        -3.8551,
+        0.3078,
+        3.773
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o17",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.6461,
+        "h": 0.5889,
+        "d": 0.6159
+      },
+      "position": [
+        -4.3654,
+        0.2945,
+        -0.5251
+      ],
+      "yaw_rad": 1.5389
+    },
+    {
+      "object_id": "o18",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5174,
+        "h": 0.8647,
+        "d": 0.469
+      },
+      "position": [
+        -5.1427,
+        0.4324,
+        -4.202
+      ],
+      "yaw_rad": -1.422
+    },
+    {
+      "object_id": "o19",
+      "category": "chair",
+      "bbox_m": {
+        "w": 0.5817,
+        "h": 0.6261,
+        "d": 0.5344
+      },
+      "position": [
+        -1.681,
+        0.313,
+        -4.5789
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o20",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.8463,
+        "h": 0.7281,
+        "d": 0.7642
+      },
+      "position": [
+        -3.9469,
+        0.3641,
+        -3.2257
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o21",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.6333,
+        "h": 0.799,
+        "d": 0.6035
+      },
+      "position": [
+        -1.2276,
+        0.3995,
+        -0.3701
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o22",
+      "category": "table",
+      "bbox_m": {
+        "w": 2.1118,
+        "h": 0.7077,
+        "d": 0.5728
+      },
+      "position": [
+        -4.3313,
+        0.3538,
+        1.2502
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o23",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.4376,
+        "h": 0.7694,
+        "d": 0.606
+      },
+      "position": [
+        -3.2148,
+        0.3847,
+        3.7523
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o24",
+      "category": "table",
+      "bbox_m": {
+        "w": 2.3147,
+        "h": 0.7257,
+        "d": 0.6431
+      },
+      "position": [
+        -0.7185,
+        0.3629,
+        -3.325
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o25",
+      "category": "table",
+      "bbox_m": {
+        "w": 2.1576,
+        "h": 0.7361,
+        "d": 0.8158
+      },
+      "position": [
+        -4.3554,
+        0.3681,
+        -0.2142
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o26",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.945,
+        "h": 0.735,
+        "d": 0.7195
+      },
+      "position": [
+        -4.0459,
+        0.3675,
+        -1.6905
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o27",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.0931,
+        "h": 0.7826,
+        "d": 0.6907
+      },
+      "position": [
+        0.5876,
+        0.3913,
+        -6.233
+      ],
+      "yaw_rad": 1.5386
+    },
+    {
+      "object_id": "o28",
+      "category": "table",
+      "bbox_m": {
+        "w": 1.9799,
+        "h": 0.7591,
+        "d": 0.6786
+      },
+      "position": [
+        -1.0312,
+        0.3796,
+        -1.8142
+      ],
+      "yaw_rad": -0.0322
+    },
+    {
+      "object_id": "o29",
+      "category": "table",
+      "bbox_m": {
+        "w": 3.0242,
+        "h": 0.7826,
+        "d": 1.1804
+      },
+      "position": [
+        -0.6897,
+        0.3913,
+        -5.1141
+      ],
+      "yaw_rad": -0.0322
+    }
+  ]
+}

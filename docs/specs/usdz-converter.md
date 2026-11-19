@@ -5,12 +5,15 @@
 ## 처리
 1. Stage 열기 → `metersPerUnit`으로 m 환산, `upAxis` Z면 Y-up으로 회전.
 2. 프림 순회. **이름에 숫자가 있고 `CLASSIFY_RULES`에 맞는 첫 프림**을 요소 1개로 보고 자손은 건너뜀.
+   - `_grp`로 끝나는 프림은 컨테이너(요소 아님), `Section_grp`는 통째로 무시.
    - `^wall` → 벽, `^door` → 문, `^window` → 창, `^opening` → 개구부, `^(floor|ceiling)` → 무시, 그 밖 `이름+숫자` → 오브젝트(분류 = 이름 snake_case).
 3. 요소 아래 모든 지오메트리의 로컬 extent 8꼭짓점 × 월드 변환 → 평면 투영 PCA로 방향 박스(OBB).
-   - 벽: 주축 = 벽 방향, 길이·두께·높이. 개구부: 가장 가까운 벽, offset. 오브젝트: bbox·위치·yaw.
+   - 벽: 주축 = 벽 방향, 길이·두께·높이. 개구부: 같은 `_grp` 안의 벽(없으면 가장 가까운 벽), offset. 오브젝트: bbox·위치·yaw.
 
-## 현재 상태 — ⚠️ 실제 UGScan 구조 미확인
-- 합성 픽스처(`worker/fixtures.py`)는 Apple RoomPlan 내보내기 관례를 **가정**한 구조다:
+## 현재 상태
+- 실제 UGScan 파일 1개로 검증함 → [usdz-analysis-2026-11-18.md](usdz-analysis-2026-11-18.md).
+  `/RoomPlan/Mesh_grp/Arch_grp/Wall_N_grp/{WallN, WindowK, DoorK}`, `Object_grp/<Category>_grp/<Category>N`.
+- 합성 픽스처(`worker/fixtures.py`)는 처음에 가정했던 구조로, 회전·단위 테스트용으로 남겨 둔다:
   `/Room/Architecture/Walls/Wall0 (Xform) └ Wall0_geom (Cube|Mesh)`, `Doors/Door0`, `Windows/Window0`, `/Room/Object/Storage/Storage0`.
 - 테스트: 회전(23°, −40°)·원점 이동·cm 단위·Cube/Mesh 지오메트리에서 치수가 1mm 이내로 복원되는지.
 

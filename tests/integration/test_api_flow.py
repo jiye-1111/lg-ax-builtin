@@ -95,3 +95,14 @@ def test_validation_errors(client):
     assert c.put(f"/api/projects/{pid}/walls/nope/measured", json={"length_m": 3}).status_code == 404
     assert c.put(f"/api/projects/{pid}/style", json={"palette": ["red"]}).status_code == 422
     assert c.post(f"/api/projects/{pid}/materials", json={"target": "roof", "hex_color": "#FFFFFF"}).status_code == 422
+
+
+def test_real_ugscan_upload_builds_scene(client):
+    real = main.config.ROOT / "data" / "samples" / "ugscan_2026-11-18.usdz"
+    with open(real, "rb") as f:
+        r = client.post("/api/projects", files={"file": ("ugscan.usdz", f, "model/vnd.usdz+zip")})
+    assert r.status_code == 201, r.text
+    pid = r.json()["project_id"]
+    room = client.get(f"/api/projects/{pid}/room").json()
+    assert len(room["walls"]) == 8 and len(room["openings"]) == 5
+    assert client.get(f"/api/projects/{pid}/files/scene.glb").status_code == 200

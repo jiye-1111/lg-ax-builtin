@@ -1,10 +1,13 @@
 """USDZ(RoomPlan 계열) → 내부 표준 room.json (기획 §8.2). Blender 없이 usd-core(pxr)로 처리.
 
 분류 규칙은 프림 이름 기반이며 CLASSIFY_RULES로 바꿀 수 있다.
-- 이름이 규칙에 맞고 숫자를 포함한 프림(예: Wall0, Wall_0_grp, Door3)을 요소 1개로 본다.
+- 이름이 규칙에 맞고 숫자를 포함한 프림(예: Wall0, Door3, Storage0)을 요소 1개로 본다.
 - 이미 요소로 잡힌 프림의 자손은 건너뛴다 (지오메트리 자식 중복 방지).
-- 'Walls', 'Architecture'처럼 숫자 없는 컨테이너는 요소가 아니다.
-⚠️ 실제 UGScan USDZ 구조는 미확인(기획 §8.2 [확인 필요]). 샘플 확보 후 규칙을 보정한다.
+- 'Walls', 'Architecture'처럼 숫자 없는 컨테이너와 '_grp'로 끝나는 그룹은 요소가 아니다.
+  실제 UGScan 내보내기는 Wall_N_grp 안에 WallN·WindowK·DoorK가 함께 들어 있어서,
+  그룹을 요소로 잡으면 문·창이 사라진다. 같은 그룹의 벽에 개구부를 붙인다.
+- Section_grp(방 구역 라벨)는 가구가 아니므로 통째로 건너뛴다.
+구조 분석: docs/specs/usdz-analysis-2026-11-18.md
 """
 from __future__ import annotations
 
@@ -29,7 +32,9 @@ CLASSIFY_RULES: list[tuple[str, str]] = [
 
 
 def classify(name: str) -> tuple[str, str] | None:
-    if not re.search(r"\d", name):
+    if re.match(r"(?i)^section_grp$", name):
+        return "skip", "skip"
+    if re.search(r"(?i)_grp$", name) or not re.search(r"\d", name):
         return None
     for pat, kind in CLASSIFY_RULES:
         m = re.match(pat, name)
@@ -98,7 +103,7 @@ def convert_stage(stage: Usd.Stage) -> Room:
     scale = UsdGeom.GetStageMetersPerUnit(stage) or 1.0
     up = UsdGeom.GetStageUpAxis(stage)
 
-    elements: list[tuple[str, str, str, np.ndarray]] = []  # (kind, category, name, corners)
+    elements: list[tuple[str, str, str, np.ndarray]] = []  # (kind, category, parent path, corners)
     it = iter(Usd.PrimRange(stage.GetPseudoRoot()))
     for prim in it:
         if not prim.IsA(UsdGeom.Imageable):
@@ -112,29 +117,33 @@ def convert_stage(stage: Usd.Stage) -> Room:
             continue
         corners = _obb_corners(prim, scale, up)
         if len(corners):
-            elements.append((kind, cat, prim.GetName(), corners))
+            elements.append((kind, cat, str(prim.GetParent().GetPath()), corners))
 
     walls_raw = [e for e in elements if e[0] == "wall"]
     floor_y = min((e[3][:, 1].min() for e in walls_raw), default=0.0)
 
     walls: list[Wall] = []
-    for i, (_, _, _, cs) in enumerate(walls_raw):
+    wall_by_group: dict[str, Wall] = {}
+    for i, (_, _, parent, cs) in enumerate(walls_raw):
         center, axis, length, thick, (y0, y1) = _plan_obb(cs)
         s, e = center - axis * length / 2, center + axis * length / 2
         walls.append(Wall(
             wall_id=f"w{i + 1}", start=(_r(s[0]), _r(s[1])), end=(_r(e[0]), _r(e[1])),
             thickness_m=_r(thick), scanned=ScannedDims(length_m=_r(length), height_m=_r(y1 - floor_y)),
         ))
+        if parent.endswith("_grp"):
+            wall_by_group[parent] = walls[-1]
 
     openings: list[Opening] = []
     objects: list[RoomObject] = []
     counters: dict[str, int] = {}
-    for kind, cat, _, cs in elements:
+    for kind, cat, parent, cs in elements:
         if kind == "wall":
             continue
         center, axis, length, depth, (y0, y1) = _plan_obb(cs)
         if kind in ("door", "window", "opening"):
-            wall, u = _nearest_wall(walls, center)
+            own = wall_by_group.get(parent)
+            wall, u = _nearest_wall([own] if own else walls, center)
             counters[kind] = counters.get(kind, 0) + 1
             prefix = {"door": "d", "window": "win", "opening": "op"}[kind]
             openings.append(Opening(

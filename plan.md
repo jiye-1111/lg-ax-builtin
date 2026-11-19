@@ -37,16 +37,18 @@
 - ✅ T0.1 저장소 골격(§10.2), `pyproject.toml`, `.env.example`
 - ✅ T0.2 `CLAUDE.md` / `AGENTS.md`(동일 내용), `.mcp.json`, `.codex/config.toml`
 - ✅ T0.3 `docs/specs/` 구성요소별 스펙 (room-json, fit-rules, cmf, mcp-tools, api)
-- ⏳ T0.4 UGScan 실제 샘플 USDZ 2~3개 + 줄자 실측 기록 → `data/samples/` (**팀 작업, 아이폰 필요**)
+- 🔶 T0.4 UGScan 실제 샘플 USDZ 2~3개 + 줄자 실측 기록 → `data/samples/` (**팀 작업, 아이폰 필요**)
+  - 1개 확보: `ugscan_2026-11-18.usdz` (강의실 약 7×10.9 m). 줄자 실측은 아직
 
 ### Phase 1 — 변환기 (blender-worker) TDD
 - ✅ T1.1 합성 RoomPlan형 USDZ 픽스처 생성기 (`data/samples/synthetic_room.usdz`)
-  - Apple RoomPlan 내보내기 관례(`Architecture/Walls/Wall0`, `Doors`, `Windows`, `Object/...`)를 흉내낸 **가정 구조** ⚠️ 실제 UGScan 파일로 검증 필요
+  - Apple RoomPlan 내보내기 관례(`Architecture/Walls/Wall0`, `Doors`, `Windows`, `Object/...`)를 흉내낸 **가정 구조** → 실제 파일과 다른 점은 `docs/specs/usdz-analysis-2026-11-18.md`
 - ✅ T1.2 USDZ → `room.json` 변환기: 프림 이름 기반 분류, 월드 변환 bbox → 벽 시작/끝/길이/높이, 개구부의 벽 할당·offset, 오브젝트 bbox
 - ✅ T1.3 `room.json` 스키마 검증 (pydantic)
 - ✅ T1.4 glb 생성: Blender 있으면 bpy, 없으면 순수 Python 박스 glb
 - ✅ T1.5 bpy 스크립트: USDZ import → 재질 적용 → 렌더 PNG → glb export (Blender 설치 PC에서 실행)
-- ⏳ T1.6 실제 UGScan 샘플로 변환기 보정 (T0.4 이후)
+- ✅ T1.6 실제 UGScan 샘플로 변환기 보정: `_grp` 컨테이너 처리, 같은 그룹 벽에 문·창 할당, `Section_grp` 제외
+  - ⏳ 줄자 실측과 오차 비교 → 마진 기본값(Q7)
 
 ### Phase 2 — recommender TDD
 - ✅ T2.1 치수 선택: measured 우선, 출처 표시
