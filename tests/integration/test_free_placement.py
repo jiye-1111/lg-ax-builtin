@@ -78,3 +78,22 @@ def test_zone_placement_still_works_and_gets_id(c, pid):
     r = c.post(f"/api/projects/{pid}/placements", json={"zone_id": z["zone_id"], "sku": SKU})
     if r.status_code == 200:
         assert r.json()["scene_state"]["placements"][0]["placement_id"]
+
+
+def test_hide_all_furniture_at_once_and_restore(c, pid):
+    room = c.get(f"/api/projects/{pid}/room").json()
+    every = {o["object_id"] for o in room["objects"]}
+    r = c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    assert r.status_code == 200, r.text
+    assert set(c.get(f"/api/projects/{pid}").json()["scene_state"]["hidden_objects"]) == every
+    r = c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": False})
+    assert r.status_code == 200
+    assert c.get(f"/api/projects/{pid}").json()["scene_state"]["hidden_objects"] == []
+
+
+def test_hide_some_furniture_by_ids(c, pid):
+    chairs = [o["object_id"] for o in c.get(f"/api/projects/{pid}/room").json()["objects"] if o["category"] == "chair"][:3]
+    r = c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True, "object_ids": chairs})
+    assert r.status_code == 200
+    assert sorted(c.get(f"/api/projects/{pid}").json()["scene_state"]["hidden_objects"]) == sorted(chairs)
+    assert c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True, "object_ids": ["nope"]}).status_code == 404
