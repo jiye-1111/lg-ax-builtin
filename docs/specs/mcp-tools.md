@@ -31,3 +31,11 @@
 - 서버 `instructions`에 규칙: 판정·점수 재계산 금지, 없는 제품·치수 금지, 스캔 기반은 '후보', 가상 데이터 고지.
 - 임의 코드 실행 도구 없음 (기획 §6.2).
 - 완료 기준: 같은 프롬프트로 Claude Code·Codex 양쪽 호출 성공 (manual-qa.md).
+
+## 자유 배치 도구 (2026-11-19)
+| 도구 | 입력 | 하는 일 |
+|---|---|---|
+| `place_at` | `sku`, `center_xz` [x, z], `yaw_rad`, `snap`, `color?` | 지정한 자리·방향에 놓고 판정·이유 반환 |
+| `move_product` | `placement_id`, `center_xz?`, `yaw_rad?`, `snap`, `color?` | 옮기기·돌리기·색 바꾸기 후 다시 판정 |
+| `list_placements` | - | 놓인 제품 목록 |
+| `hide_object` | `object_id`, `hidden` | 기존 가구 치우기/되돌리기 |

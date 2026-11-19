@@ -26,6 +26,16 @@
 - 상태는 `core.service.Service`가 SQLite(`storage/app.sqlite3`)와 `storage/projects/<pid>/`에 저장.
 - 고객 링크 `/#/c/<pid>?t=<token>` (시연용, 실제 인증 아님).
 
+## 자유 배치
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| POST | `/api/projects/{pid}/placements` | `{sku, center_xz, yaw_rad, snap, color}` 그 자리에 놓기. `zone_id`만 주면 예전처럼 영역 자동 배치 |
+| POST | `/api/projects/{pid}/pose-check` | 저장 없이 판정만 (`placement_id`를 주면 그 배치는 장애물에서 뺌) |
+| PATCH | `/api/projects/{pid}/placements/{plid}` | 옮기기·돌리기·색 |
+| DELETE | `/api/projects/{pid}/placements/{plid}` | 빼기 |
+| PUT | `/api/projects/{pid}/objects/{oid}/hidden` | `{hidden}` 기존 가구 치우기 |
+| GET | `/api/samples/{name}` | 샘플 스캔 (`synthetic_room.usdz`, `ugscan_2026-11-18.usdz`) |
+
 ## 도면 (선택)
 | 메서드 | 경로 | 설명 |
 |---|---|---|

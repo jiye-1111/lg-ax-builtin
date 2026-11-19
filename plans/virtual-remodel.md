@@ -153,5 +153,14 @@ S2 자유 배치 판정 엔진 ─┼─ S3 배치 화면(평면도·3D) ─┬�
 - [ ] 위험: RoomPlan 스캔에 싱크·조리대 같은 고정 설비가 `storage`·`unidentified`로 들어올 수 있음 → S2에서 실제 주방 스캔으로 확인 필요.
 - [ ] 위험: 넓은 집(방 여러 개)을 한 번에 스캔한 USDZ 구조는 아직 못 봄 → 방 여러 개 샘플 확보 시 변환기 테스트 추가.
 
+## 진행 상황
+- ✅ S1 첫 화면 = 내 집 스캔 올리기, 샘플 집 체험
+- ✅ S2 `recommender/pose.py` (테스트 15개), 서비스·API (`tests/integration/test_free_placement.py`)
+- ✅ S3 평면도 끌어 놓기·이동·회전, 미리 보기, 제품 서랍, 3D 반영
+- ✅ S4 기존 가구 치우기, 벽·바닥 색 (전/후 비교 토글은 아직)
+- ✅ S5 MCP `place_at`·`move_product`·`list_placements`·`hide_object` (Claude Code·Codex 수동 확인은 팀 PC에서)
+- ⏳ S6 채광 · S7 와이파이 · S8 동선 · S9 통합 시연
+
 ## 계획 변경 기록
 - 2026-11-19 작성.
+- 2026-11-19 yaw 규칙을 기존 영역 배치와 맞춤 (yaw = 제품 정면 방향).

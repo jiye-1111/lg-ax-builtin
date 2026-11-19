@@ -1,7 +1,7 @@
 """자유 배치 판정 (plans/virtual-remodel.md S2) — 테스트 먼저.
 
-좌표: 4m x 3m 방, 벽 두께 0.1(중심선 기준 안쪽 면 0.05). 제품 로컬 축:
-폭 = (cos yaw, sin yaw), 앞쪽 = (-sin yaw, cos yaw). yaw=0이면 등이 -y(벽 w1) 쪽.
+좌표: 4m x 3m 방, 벽 두께 0.1(중심선 기준 안쪽 면 0.05).
+yaw = 제품 정면 방향. UP(π/2)이면 정면이 +y, 등이 -y(벽 w1) 쪽.
 """
 import math
 
@@ -30,6 +30,7 @@ def fridge(w=900, h=1800, d=700, side=5, top=10, back=50, sku="T-RF"):
     )
 
 
+UP = math.pi / 2
 CFG = FitConfig(margin_scanned_mm=30, margin_measured_mm=5)
 codes = lambda r: {x["code"] for x in r.reasons}  # noqa: E731
 
@@ -50,19 +51,19 @@ def test_outside_room_is_no_fit():
 
 
 def test_through_wall_is_no_fit():
-    r = check_pose(room(), fridge(), Pose((2.0, 0.2), 0.0), CFG)  # 깊이 0.7 → 벽 w1 관통
+    r = check_pose(room(), fridge(), Pose((2.0, 0.2), UP), CFG)  # 깊이 0.7 → 벽 w1 관통
     assert r.verdict == Verdict.NO_FIT and "hits_wall" in codes(r)
 
 
 def test_back_clearance_blocked_is_no_fit():
     # 제품 뒷면 y=0.06 → 벽 안쪽 면 0.05에서 1cm, 뒤 이격 50mm 부족
-    r = check_pose(room(), fridge(), Pose((2.0, 0.06 + 0.35), 0.0), CFG)
+    r = check_pose(room(), fridge(), Pose((2.0, 0.06 + 0.35), UP), CFG)
     assert r.verdict == Verdict.NO_FIT and "clearance_blocked" in codes(r)
 
 
 def test_within_margin_is_conditional():
     # 뒤 이격 50mm 확보 + 마진 30mm 중 20mm만 남김
-    r = check_pose(room(), fridge(), Pose((2.0, 0.05 + 0.05 + 0.02 + 0.35), 0.0), CFG)
+    r = check_pose(room(), fridge(), Pose((2.0, 0.05 + 0.05 + 0.02 + 0.35), UP), CFG)
     assert r.verdict == Verdict.CONDITIONAL and "tight" in codes(r)
 
 
@@ -75,8 +76,8 @@ def test_overlap_scanned_object_unless_hidden():
 
 
 def test_overlap_other_placement():
-    other = {"placement_id": "pl1", "center_xz": [2.5, 1.5], "yaw_rad": 0.0, "size_m": [0.9, 1.8, 0.7]}
-    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG, others=[other])
+    other = {"placement_id": "pl1", "center_xz": [2.5, 1.5], "yaw_rad": UP, "size_m": [0.9, 1.8, 0.7]}
+    r = check_pose(room(), fridge(), Pose((2.0, 1.5), UP), CFG, others=[other])
     assert r.verdict == Verdict.NO_FIT and "overlaps_placement" in codes(r)
 
 
@@ -106,7 +107,7 @@ def test_covering_window_is_conditional():
 def test_snap_aligns_back_to_nearest_wall():
     p = snap_to_wall(room(), fridge(), Pose((3.0, 0.7), 0.4), CFG)
     assert p.wall_id == "w1"
-    assert p.yaw_rad == pytest.approx(0.0, abs=1e-9)
+    assert p.yaw_rad == pytest.approx(UP, abs=1e-9)
     # 뒷면 = 벽 안쪽 면 0.05 + 뒤 이격 0.05 + 마진 0.03 → 중심 y = 0.13 + 0.35
     assert p.center_xz[1] == pytest.approx(0.48, abs=1e-6)
     assert check_pose(room(), fridge(), p, CFG).verdict == Verdict.FIT
@@ -115,8 +116,8 @@ def test_snap_aligns_back_to_nearest_wall():
 def test_snap_on_side_wall_rotates():
     p = snap_to_wall(room(), fridge(), Pose((3.7, 1.5), 0.0), CFG)
     assert p.wall_id == "w2"
-    # 앞쪽이 -x(방 안쪽)를 향함 → 앞 벡터 (-sin, cos) = (-1, 0) → yaw = +90°
-    assert p.yaw_rad == pytest.approx(math.pi / 2, abs=1e-9)
+    # 정면이 -x(방 안쪽) → yaw = 180°
+    assert abs(p.yaw_rad) == pytest.approx(math.pi, abs=1e-9)
 
 
 def test_snap_ignores_far_walls():

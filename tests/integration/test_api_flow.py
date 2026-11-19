@@ -140,3 +140,9 @@ def test_customer_can_enter_measurement(client):
     assert r.status_code == 200, r.text
     assert r.json()["measured"]["by"] == "customer"
     assert client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": 5.21, "by": "robot"}).status_code == 422
+
+
+def test_real_scan_sample_is_downloadable(client):
+    r = client.get("/api/samples/ugscan_2026-11-18.usdz")
+    assert r.status_code == 200 and len(r.content) > 100_000
+    assert client.get("/api/samples/../../.env").status_code == 404

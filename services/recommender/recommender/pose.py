@@ -1,6 +1,7 @@
 """자유 배치 판정 (plans/virtual-remodel.md S2). 고객이 고른 위치·방향에 제품을 놓았을 때 들어가는지 본다.
 
-제품 로컬 축: 폭 방향 = (cos yaw, sin yaw), 앞쪽 = (-sin yaw, cos yaw). 평면 좌표 (x, y) = 3D (x, z).
+yaw = 제품 정면이 향하는 방향 (영역 자동 배치·glb와 같은 규칙). 폭 방향은 yaw - 90°.
+평면 좌표 (x, y) = 3D (x, z).
 세 겹의 바닥 사각형을 쓴다.
 - 본체(F): 제품 치수.
 - 필요 공간(R): 본체 + 양옆·뒤 이격(clearance_mm). 이격이 없으면 0으로 보고 조건부 이하로 제한.
@@ -68,7 +69,7 @@ class PoseResult:
 
 # ---------- 사각형 ----------
 def rect(center: g.Pt, yaw: float, w: float, d: float, left=0.0, right=0.0, back=0.0, front=0.0) -> list[g.Pt]:
-    """로컬 (u: 폭, v: 앞쪽) 범위 [-w/2-left, w/2+right] x [-d/2-back, d/2+front]의 네 꼭짓점."""
+    """yaw = 폭(u) 축 방향. 로컬 (u: 폭, v: 앞쪽) 범위 [-w/2-left, w/2+right] x [-d/2-back, d/2+front]의 네 꼭짓점."""
     ux, uy = math.cos(yaw), math.sin(yaw)
     vx, vy = -uy, ux
     pts = []
@@ -164,8 +165,7 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Po
     u = min(max(u, half), f.length - half) if f.length >= 2 * half else f.length / 2
     v = _thick(wall) / 2 + back + margin + d_m / 2
     nx, ny = f.v_axis
-    yaw = math.atan2(-nx, ny)
-    return Pose(f.to_world(u, v), yaw, wall.wall_id)
+    return Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
 
 
 # ---------- 판정 ----------
@@ -186,7 +186,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     w_m, h_m, d_m = size
     side, back, top, clear_unknown = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
-    c, yaw = pose.center_xz, pose.yaw_rad
+    c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
     M = rect(c, yaw, w_m, d_m, left=side + margin, right=side + margin, back=back + margin, front=margin)
@@ -200,7 +200,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
                   for o in room.objects if o.object_id not in hidden]
     for o in others:
         sw, _, sd = o["size_m"]
-        obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), o.get("yaw_rad", 0.0), sw, sd)))
+        oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
+        obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd)))
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
     for kind, ref, poly in obstacles:

@@ -295,9 +295,14 @@ def catalog(category: Optional[str] = None, zone: Optional[str] = None, q: Optio
     return [p.model_dump() for p in s.catalog.search(category, zone, q)]
 
 
-@app.get("/api/samples/synthetic_room.usdz")
-def sample_scan():
-    return FileResponse(config.ROOT / "data" / "samples" / "synthetic_room.usdz", filename="synthetic_room.usdz")
+SAMPLES = {"synthetic_room.usdz", "ugscan_2026-11-18.usdz"}
+
+
+@app.get("/api/samples/{name}")
+def sample_scan(name: str):
+    if name not in SAMPLES:
+        raise HTTPException(404)
+    return FileResponse(config.ROOT / "data" / "samples" / name, filename=name)
 
 
 if WEB_DIR.exists():
