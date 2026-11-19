@@ -14,6 +14,7 @@ from typing import Any, Optional
 from recommender.cmf import rank_cmf
 from recommender.fit import FitConfig, check_fit
 from recommender.pose import Pose, check_pose, snap_to_wall
+from sim.regions import REGIONS
 from recommender.recommend import recommend_zone
 
 from . import config
@@ -480,6 +481,50 @@ class Service:
         self._rejudge_all(room, p)
         self._save_project(p)
         return self._rebuild(pid)
+
+    # ---- 살아 보기: 집 위치·방향 (S6~S8) ----
+    def set_site(self, pid: str, north_deg: float | None = None, region: str | None = None) -> dict:
+        """north_deg: 평면도 위쪽에서 북쪽까지 시계 방향 각도. region: 시·도 (채광용 위도·경도)."""
+        p = self.get_project(pid)
+        site = dict(p.get("site") or {"region": "서울", **REGIONS["서울"]})
+        if north_deg is not None:
+            if not 0 <= north_deg < 360:
+                raise Invalid("north_deg는 0 이상 360 미만")
+            site["north_deg"] = float(north_deg)
+        if region is not None:
+            if region not in REGIONS:
+                raise Invalid(f"지역은 {', '.join(REGIONS)} 중 하나")
+            site.update(region=region, **REGIONS[region])
+        p["site"] = site
+        return self._save_project(p)
+
+    def daylight(self, pid: str, day: str, time: str | None = None) -> dict:
+        import math
+        from datetime import date as _date, datetime as _dt
+
+        from sim.daylight import KST, Site, daily_sun_hours, sun_patches
+        from sim.solar import sun_position
+
+        p = self.get_project(pid)
+        site = p.get("site") or {}
+        if site.get("north_deg") is None:
+            raise Invalid("채광을 보려면 먼저 평면도에서 북쪽 방향을 지정하세요")
+        try:
+            d = _date.fromisoformat(day)
+            hh, mm = (int(x) for x in (time or "12:00").split(":"))
+            when = _dt(d.year, d.month, d.day, hh, mm, tzinfo=KST)
+        except ValueError as e:
+            raise Invalid(f"날짜·시간 형식 오류 (YYYY-MM-DD, HH:MM): {e}") from e
+        th = math.radians(site["north_deg"])
+        s = Site(lat=site["lat"], lon=site["lon"], north_rad=math.atan2(-math.cos(th), math.sin(th)))
+        room = self.get_room(pid)
+        pts = {x["placement_id"]: tuple(x["center_xz"]) for x in p["scene_state"]["placements"] if x.get("placement_id")}
+        alt, az = sun_position(s.lat, s.lon, when)
+        daily = daily_sun_hours(room, s, d, points=pts)
+        return {"site": site, "date": d.isoformat(), "time": when.strftime("%H:%M"),
+                "sun": {"altitude_deg": round(alt, 2), "azimuth_deg": round(az, 2)},
+                "patches": [{**x, "polygon": [[round(a, 3), round(b, 3)] for a, b in x["polygon"]]} for x in sun_patches(room, s, when)],
+                "daily": daily, "assumptions": daily.pop("assumptions") + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
     def remove_product(self, pid: str, zone_id: str, sku: str) -> dict:
         p = self.get_project(pid)

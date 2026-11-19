@@ -115,6 +115,12 @@ class MoveIn(BaseModel):
     color: Optional[str] = None
 
 
+class SiteIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    north_deg: Optional[float] = None
+    region: Optional[str] = None
+
+
 class HiddenIn(BaseModel):
     hidden: bool = True
 
@@ -231,6 +237,22 @@ def move(pid: str, plid: str, body: MoveIn, s: Service = S):
 @app.delete("/api/projects/{pid}/placements/{plid}")
 def delete_placement(pid: str, plid: str, s: Service = S):
     return s.delete_placement(pid, plid)
+
+
+@app.put("/api/projects/{pid}/site")
+def set_site(pid: str, body: SiteIn, s: Service = S):
+    return s.set_site(pid, body.north_deg, body.region)
+
+
+@app.get("/api/projects/{pid}/sim/daylight")
+def daylight(pid: str, date: str, time: Optional[str] = None, s: Service = S):
+    return s.daylight(pid, date, time)
+
+
+@app.get("/api/regions")
+def regions():
+    from sim.regions import REGIONS
+    return REGIONS
 
 
 @app.put("/api/projects/{pid}/objects/{oid}/hidden")

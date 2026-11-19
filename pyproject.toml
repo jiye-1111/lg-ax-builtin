@@ -26,13 +26,13 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-package-dir = { core = "services/core/core", recommender = "services/recommender/recommender", worker = "services/blender-worker/worker", api = "services/api/api", mcp_server = "services/mcp-server/mcp_server" }
-packages = ["core", "recommender", "worker", "api", "mcp_server"]
+package-dir = { core = "services/core/core", recommender = "services/recommender/recommender", worker = "services/blender-worker/worker", api = "services/api/api", mcp_server = "services/mcp-server/mcp_server", sim = "services/sim/sim" }
+packages = ["core", "recommender", "worker", "api", "mcp_server", "sim"]
 
 [tool.setuptools.package-data]
 worker = ["bpy_scripts/*.py"]
 
 [tool.pytest.ini_options]
-pythonpath = ["services/core", "services/recommender", "services/blender-worker", "services/api", "services/mcp-server"]
+pythonpath = ["services/core", "services/recommender", "services/blender-worker", "services/api", "services/mcp-server", "services/sim"]
 testpaths = ["tests"]
 addopts = "--import-mode=importlib"
