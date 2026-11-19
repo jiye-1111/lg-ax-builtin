@@ -11,73 +11,73 @@
   },
   "G646MEE021": {
    "file": "G646MEE021.glb",
-   "layout": "4door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 914.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 709.0
    }
   },
   "G646SVV031": {
    "file": "G646SVV031.glb",
-   "layout": "4door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 914.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 709.0
    }
   },
   "M616GBB0M1": {
    "file": "M616GBB0M1.glb",
-   "layout": "4door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 914.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 698.0
    }
   },
   "D646GBB041": {
    "file": "D646GBB041.glb",
-   "layout": "convertible",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 914.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 709.0
    }
   },
   "Z386GBB281": {
    "file": "Z386GBB281.glb",
-   "layout": "3door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 697.0,
-    "h": 1858.0,
-    "d": 694.0
+    "h": 1860.0,
+    "d": 696.0
    }
   },
   "Z386MEE221": {
    "file": "Z386MEE221.glb",
-   "layout": "3door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 697.0,
-    "h": 1858.0,
-    "d": 694.0
+    "h": 1860.0,
+    "d": 696.0
    }
   },
   "Z386SLL281": {
    "file": "Z386SLL281.glb",
-   "layout": "3door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 697.0,
-    "h": 1858.0,
-    "d": 694.0
+    "h": 1860.0,
+    "d": 696.0
    }
   },
   "Z484GBB172": {
    "file": "Z484GBB172.glb",
-   "layout": "4door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 835.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 685.0
    }
   },
@@ -87,21 +87,21 @@
    "bbox_mm": {
     "w": 598.0,
     "h": 815.0,
-    "d": 568.5
+    "d": 567.0
    }
   },
   "DUE6EWL2E": {
    "file": "DUE6EWL2E.glb",
-   "layout": "dishwasher",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 598.0,
     "h": 815.0,
-    "d": 566.7
+    "d": 567.0
    }
   },
   "BEI3QKBLOE": {
    "file": "BEI3QKBLOE.glb",
-   "layout": "standard",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 580.0,
     "h": 59.4,
@@ -110,7 +110,7 @@
   },
   "BEF3AMB4E": {
    "file": "BEF3AMB4E.glb",
-   "layout": "wide",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 575.0,
     "h": 59.4,
@@ -119,7 +119,7 @@
   },
   "BEF3ASMLE": {
    "file": "BEF3ASMLE.glb",
-   "layout": "wide",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 575.0,
     "h": 59.4,
@@ -128,7 +128,7 @@
   },
   "WU523AWB": {
    "file": "WU523AWB.glb",
-   "layout": "water_purifier",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 170.0,
     "h": 420.0,
@@ -137,7 +137,7 @@
   },
   "WU523ACB": {
    "file": "WU523ACB.glb",
-   "layout": "water_purifier",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 170.0,
     "h": 420.0,

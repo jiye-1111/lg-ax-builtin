@@ -2,10 +2,11 @@
 
 가전·가구 모델은 Figma에서 정면·옆면 도면을 먼저 그리고, 그 도면대로 Blender가 3D를 만든다.
 
-- Figma 파일: [LG 빌트인 제품 도면](https://www.figma.com/design/obpzTCmt78Xh379BQk2LYl) · 페이지 하나 = 제품 종류
+- Figma 파일: [LG 빌트인 제품 도면](https://www.figma.com/design/obpzTCmt78Xh379BQk2LYl) · 페이지 3개(무료 플랜 한도): 냉장고 · 김치냉장고 / 식기세척기 · 인덕션 / 정수기
 - 프레임 이름 `<SKU> / 정면`, `<SKU> / 옆면`. 안쪽 `parts` 프레임 = 모델에 쓰는 사각형, `annotations` = 치수선(모델에 안 씀)
 - 1px = 1mm. 정면 `parts` 크기 = 카탈로그 폭 × 높이, 옆면 `parts` 폭 = 카탈로그 깊이 (1mm 넘게 다르면 만들지 않음)
-- 사각형 이름: `body`, `door/<번호>`, `handle/<문 번호>/<v|h>`, `vent`, `display`. 옆면은 `door/side`, `handle/side`, `body` 가 앞뒤 범위를 정한다 (왼쪽이 앞)
+- 사각형 이름: `body`, `door/<번호>`, `handle/<문 번호>/<v|h>`, `vent`, `display`, `glass`, `housing`, `spout`, `tray`. 옆면의 `<역할>/side` 가 그 역할의 앞뒤 범위를 정한다 (왼쪽이 앞, `body`는 꼭 있어야 함)
+- 윗면 `<SKU> / 윗면`(선택): 위에서 내려다본 모습, 아래쪽이 앞. 원(ellipse)은 상판 위 원 무늬(인덕션 화구·조작부), 사각형은 얇은 인쇄
 - 내보낸 값은 `data/drawings/<SKU>.json`. `build_products.py`가 이 파일이 있으면 도면대로, 없으면 종류별 기본 모양으로 만든다 (index.json `layout: "drawing"`)
 - 전체 치수만 LGE.COM 값이다. 문 나눔·손잡이 위치는 제품 사진을 보고 그린 화면용 표현이다.
 
@@ -14,4 +15,6 @@ python services/blender-worker/worker/bpy_scripts/build_products.py \
   --catalog data/catalog/products.json --out apps/web/models/products --sku G646GBB031
 ```
 
-지금 그린 것: G646GBB031(냉장고 4도어), DUE6BGE(식기세척기). 나머지 제품은 같은 규칙으로 페이지를 늘려 가면 된다.
+지금 그린 것: 카탈로그 16개 전부 (냉장고 5, 김치냉장고 4, 식기세척기 2, 인덕션 3, 정수기 2). `tests/unit/test_drawing.py`가 카탈로그 제품마다 도면이 있고 치수가 맞는지 확인한다.
+
+![도면으로 만든 16개 모델](../images/products-from-drawings.png)

@@ -104,3 +104,15 @@ def test_top_view_must_match_width_and_depth():
 def test_no_top_view_gives_no_items():
     from worker.drawing import top_items
     assert top_items(drawing(), DIMS) == ([], [])
+
+
+def test_every_catalog_product_has_a_drawing_that_matches_its_size():
+    """카탈로그 제품마다 Figma 도면이 있고, 도면 크기가 LGE.COM 치수와 맞아야 한다."""
+    from worker.drawing import top_items
+    cat = json.loads((ROOT / "data/catalog/products.json").read_text(encoding="utf-8"))["products"]
+    for p in cat:
+        d = load_drawing(ROOT / "data/drawings", p["sku"])
+        assert d is not None, f"{p['sku']} 도면 없음"
+        assert d["sku"] == p["sku"]
+        boxes_from_drawing(d, p["product_dims_mm"])
+        top_items(d, p["product_dims_mm"])

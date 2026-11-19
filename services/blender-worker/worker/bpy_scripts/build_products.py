@@ -17,15 +17,17 @@ import math
 import sys
 from pathlib import Path
 
-import bpy  # noqa: I001  (pip bpy는 bpy를 먼저 불러야 bmesh가 생긴다)
 import bmesh
+import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # worker 패키지 (Blender로 바로 실행할 때)
-from worker.drawing import boxes_from_drawing, load_drawing  # noqa: E402
+from worker.drawing import boxes_from_drawing, load_drawing, top_items
 
 DRAWINGS = Path(__file__).resolve().parents[4] / "data" / "drawings"
-ROLE_MAT = {"body": "body", "door": "finish", "handle": "handle", "vent": "trim", "display": "display"}
-ROLE_BEVEL = {"door": 0.006, "handle": 0.005, "body": 0.004, "display": 0.003}
+ROLE_MAT = {"body": "body", "door": "finish", "handle": "handle", "vent": "trim", "display": "display",
+            "glass": "finish", "housing": "trim", "spout": "chrome", "tray": "trim"}
+ROLE_BEVEL = {"door": 0.006, "handle": 0.005, "body": 0.004, "display": 0.003, "glass": 0.003,
+              "spout": 0.006, "tray": 0.005}
 
 GAP = 0.004        # 문 사이 틈
 DOOR_T = 0.04      # 문 두께
@@ -199,6 +201,11 @@ def from_drawing(parts: list, pal: dict, drawing: dict, dims: dict) -> None:
     for b in boxes_from_drawing(drawing, dims):
         box(parts, pal[ROLE_MAT[b["role"]]], b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"],
             bevel=ROLE_BEVEL.get(b["role"], 0.0))
+    rings, prints = top_items(drawing, dims)
+    for r in rings:
+        ring(parts, pal["print"], r["cx"], r["cy"], r["z"], r["r"])
+    for b in prints:
+        box(parts, pal["print"], b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"])
 
 
 def layout_of(prod: dict) -> str:

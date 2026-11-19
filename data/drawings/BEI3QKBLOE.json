@@ -1,0 +1,128 @@
+{
+ "sku": "BEI3QKBLOE",
+ "unit": "mm",
+ "source": "Figma 'LG 빌트인 제품 도면' (https://www.figma.com/design/obpzTCmt78Xh379BQk2LYl), BEI3QKBLOE 프레임. 전체 치수·색·재질은 lge.co.kr 값, 문 나눔·손잡이·화구 위치는 화면용으로 그린 것",
+ "drawn_at": "2026-11-19",
+ "finish": {
+  "color": "화이트 (조작부: 미스트 베이지)",
+  "material": "글라스",
+  "hex_approx": "#F8F6F7"
+ },
+ "front": {
+  "w": 580,
+  "h": 59,
+  "parts": [
+   {
+    "name": "glass",
+    "x": 0,
+    "y": 0,
+    "w": 580,
+    "h": 6
+   },
+   {
+    "name": "housing",
+    "x": 30,
+    "y": 6,
+    "w": 520,
+    "h": 53
+   }
+  ]
+ },
+ "side": {
+  "w": 520,
+  "h": 59,
+  "parts": [
+   {
+    "name": "glass/side",
+    "x": 0,
+    "y": 0,
+    "w": 520,
+    "h": 6
+   },
+   {
+    "name": "housing/side",
+    "x": 30,
+    "y": 6,
+    "w": 460,
+    "h": 53
+   },
+   {
+    "name": "body",
+    "x": 30,
+    "y": 6,
+    "w": 460,
+    "h": 53
+   }
+  ]
+ },
+ "top": {
+  "w": 580,
+  "h": 520,
+  "parts": [
+   {
+    "name": "zone/0",
+    "x": 77,
+    "y": 87,
+    "w": 170,
+    "h": 170,
+    "shape": "circle"
+   },
+   {
+    "name": "zone/1",
+    "x": 87,
+    "y": 289,
+    "w": 150,
+    "h": 150,
+    "shape": "circle"
+   },
+   {
+    "name": "zone/2",
+    "x": 301,
+    "y": 155,
+    "w": 210,
+    "h": 210,
+    "shape": "circle"
+   },
+   {
+    "name": "control/0",
+    "x": 204,
+    "y": 479,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/1",
+    "x": 244,
+    "y": 479,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/2",
+    "x": 284,
+    "y": 479,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/3",
+    "x": 324,
+    "y": 479,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/4",
+    "x": 364,
+    "y": 479,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   }
+  ]
+ }
+}
