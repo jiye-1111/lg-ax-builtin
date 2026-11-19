@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Lightsail Ubuntu 24.04에서 처음 한 번 실행: 코드 받기 → 파이썬 환경 → .env → systemd → Caddy(HTTPS)
-# 사용: bash setup-server.sh api-lgbuiltin.axworks.site https://lgbuiltin.axworks.site,https://lgbuiltin.pages.dev
+# 사용: bash setup-server.sh api-housetwin.axworks.site https://housetwin.axworks.site,https://housetwin.pages.dev
 set -euo pipefail
-API_DOMAIN="${1:?API 도메인 (예: api-lgbuiltin.axworks.site)}"
-WEB_ORIGINS="${2:?웹 주소, 쉼표 구분 (예: https://lgbuiltin.axworks.site)}"
+API_DOMAIN="${1:?API 도메인 (예: api-housetwin.axworks.site)}"
+WEB_ORIGINS="${2:?웹 주소, 쉼표 구분 (예: https://housetwin.axworks.site)}"
 REPO="${REPO:-https://github.com/jiye-1111/lg-ax-builtin.git}"
 BRANCH="${BRANCH:-main}"
 APP_DIR="${APP_DIR:-$HOME/apps/lg-ax-builtin}"
