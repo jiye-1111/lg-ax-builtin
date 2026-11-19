@@ -7,6 +7,7 @@ from functools import lru_cache
 from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -27,6 +28,21 @@ def get_service() -> Service:
 
 
 app = FastAPI(title="LG 빌트인 공간 설계 (시연)", version="0.1.0")
+
+
+def cors_origins() -> list[str]:
+    """웹을 다른 주소(Cloudflare Pages 등)에 올렸을 때 API를 불러도 되는 웹 주소. 쉼표로 구분, 비우면 CORS 안 씀."""
+    return [o.strip().rstrip("/") for o in os.getenv("CORS_ORIGINS", "").split(",") if o.strip()]
+
+
+if cors_origins():
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=cors_origins(),
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        allow_headers=["content-type", "authorization"],
+        max_age=600,
+    )
 
 
 @app.exception_handler(NotFound)

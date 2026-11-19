@@ -1,5 +1,5 @@
 // 화면: 내 집 스캔(첫 화면), 방문 스캔 신청, 기사 화면
-import { $app, cleanup, esc, api, post, put, toast, guard, lastHome, homeHref } from "./core.js";
+import { $app, cleanup, esc, api, apiUrl, post, put, toast, guard, lastHome, homeHref } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
 
@@ -55,7 +55,7 @@ export async function selfScan() {
   drop.ondragleave = () => drop.classList.remove("over");
   drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) send(f, f.name); };
   document.getElementById("sample").onclick = guard(async () => {
-    const b = await (await fetch("/api/samples/ugscan_2026-11-18.usdz")).blob();
+    const b = await (await fetch(apiUrl("/api/samples/ugscan_2026-11-18.usdz"))).blob();
     send(b, "ugscan_2026-11-18.usdz");
   });
   let ps;
@@ -142,7 +142,7 @@ export async function uploadFloorplan(pid, f) {
 
 export function floorplanBox(el, pid, project, onChange) {
   const fp = project.floorplan;
-  const url = `/api/projects/${pid}/files/floorplan?v=${encodeURIComponent(fp?.uploaded_at || "")}`;
+  const url = apiUrl(`/api/projects/${pid}/files/floorplan?v=${encodeURIComponent(fp?.uploaded_at || "")}`);
   el.innerHTML = fp ? `
       <div class="row"><b>${esc(fp.name)}</b><span class="spacer"></span>
         <a class="btn ghost small" href="${url}" target="_blank" rel="noopener">크게 보기</a><button class="small ghost" id="fpDel">삭제</button></div>
@@ -170,7 +170,7 @@ export async function technicianHome() {
       <label>도면 (선택) — 있으면 함께 첨부, 판정에는 쓰지 않고 참고용으로 보여 줍니다</label>
       <input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf">
       <div class="row" style="margin-top:12px">
-        <a class="muted" href="/api/samples/synthetic_room.usdz">합성 샘플 USDZ 받기</a>
+        <a class="muted" href="${apiUrl("/api/samples/synthetic_room.usdz")}">합성 샘플 USDZ 받기</a>
         <span class="spacer"></span>
         <button class="ghost" id="useSample">합성 샘플로 등록</button>
       </div>
@@ -196,7 +196,7 @@ export async function technicianHome() {
   drop.ondragleave = () => drop.classList.remove("over");
   drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) send(f, f.name); };
   document.getElementById("useSample").onclick = guard(async () => {
-    const b = await (await fetch("/api/samples/synthetic_room.usdz")).blob();
+    const b = await (await fetch(apiUrl("/api/samples/synthetic_room.usdz"))).blob();
     send(b, "synthetic_room.usdz");
   });
 }
@@ -229,7 +229,7 @@ export async function technician(pid) {
     svg.onclick = (e) => { const w = e.target.dataset?.wall; if (w) { sel = w; load(); document.querySelector(`[data-row="${w}"] input`)?.focus(); } };
     wallTable(document.getElementById("walls"), pid, room, { by: "technician", sel, onChange: load });
     floorplanBox(document.getElementById("fpBox"), pid, p, load);
-    viewer.load(`/api/projects/${pid}/files/scene.glb`);
+    viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`));
     document.getElementById("hud").textContent = "드래그 회전 · 휠 확대";
   };
   await guard(load)();

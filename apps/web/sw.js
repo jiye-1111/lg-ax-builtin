@@ -1,7 +1,7 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v8"; // 모델별 색·재질, 미니맵, 내 집 기억
+const VERSION = "lgb-shell-v9"; // 모델별 색·재질, 미니맵, 내 집 기억, API 주소 설정(config.js)
 const SHELL = [
-  "./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest",
+  "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/three/three.module.min.js",
@@ -38,7 +38,7 @@ self.addEventListener("activate", (e) => {
 self.addEventListener("fetch", (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== "GET") return;
-  if (url.origin === location.origin && url.pathname.startsWith("/api/")) return; // 스캔·판정 데이터는 캐시하지 않음
+  if (url.pathname.startsWith("/api/")) return; // 스캔·판정 데이터는 캐시하지 않음 (API가 다른 주소에 있어도)
   // 화면 파일: 네트워크 먼저 받아 캐시를 갱신하고, 끊기면 캐시로
   // 같은 서버 파일은 매번 서버에 바뀌었는지 묻는다(no-cache): 앱을 고친 뒤 옛 CSS·JS가 남지 않게
   const same = url.origin === location.origin && e.request.mode !== "navigate";
