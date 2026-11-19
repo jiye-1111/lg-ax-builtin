@@ -18,7 +18,7 @@ uv run python -m worker.converter X.usdz  # USDZ → room.json 출력
 - `services/recommender` 적합 판정(`fit.py`)·CMF(`cmf.py`). 순수 Python, 테스트 우선.
 - `services/blender-worker` USDZ→room.json(`converter.py`, usd-core), glb(`glb.py`), 미리보기 렌더(`plan_render.py`), Blender 스크립트(`bpy_scripts/`).
 - `services/api` FastAPI + 웹 정적 서빙. `services/mcp-server` MCP 도구.
-- `apps/web` 빌드 없는 정적 SPA (three.js CDN 고정 버전).
+- `apps/web` 빌드 없는 정적 SPA (three.js 0.160.0을 apps/web/vendor에 포함, 오프라인 시연 가능).
 
 ## 코딩 규칙
 - 변환기·recommender 변경은 **테스트 먼저**(RED → GREEN → REFACTOR). 판정 규칙은 `docs/specs/fit-rules.md`와 일치해야 한다.

@@ -73,18 +73,18 @@ td input { padding: 4px 6px; width: 84px; }
 .viewer canvas { display: block; }
 .viewer .hud { position: absolute; left: 10px; bottom: 8px; font-size: 12px; color: var(--muted); background: rgba(255,255,255,.8); padding: 2px 8px; border-radius: 6px; }
 .plan { width: 100%; height: 360px; background: #fbfaf8; border: 1px solid var(--line); border-radius: var(--radius); touch-action: none; user-select: none; }
-.plan .wall { stroke: #3c3f44; stroke-width: 6; stroke-linecap: square; }
+.plan .wall { stroke: #3c3f44; stroke-linecap: square; }
 .plan .wall.measured { stroke: var(--fit); }
 .plan .wall.sel { stroke: var(--accent); }
 .plan .door { stroke: #c9a17a; stroke-width: 8; }
 .plan .window { stroke: #8ec3e6; stroke-width: 8; }
 .plan .obj { fill: #d5d8dc; stroke: #a8adb3; }
-.plan .zone { fill-opacity: .18; stroke-width: 2; }
+.plan .zone { fill-opacity: .18; }
 .plan .zone.kitchen { fill: #a50034; stroke: #a50034; }
 .plan .zone.living { fill: #2a6fb0; stroke: #2a6fb0; }
 .plan .zone.other { fill: #5d8a3a; stroke: #5d8a3a; }
 .plan .draft { fill: #a50034; fill-opacity: .1; stroke: #a50034; stroke-dasharray: 4 3; }
-.plan .placed { fill: #fff; stroke: var(--ink); stroke-width: 1.5; }
+.plan .placed { stroke: var(--ink); }
 .plan text { font-size: 11px; fill: #3c3f44; }
 
 .badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }

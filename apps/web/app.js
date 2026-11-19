@@ -66,7 +66,19 @@ function makeViewer(el) {
   const cam = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
   const ctl = new OrbitControls(cam, renderer.domElement);
   ctl.enableDamping = true;
-  let model = null, framed = false, alive = true;
+  let model = null, framed = false, alive = true, walls = [], center = new THREE.Vector3();
+  const tmp = new THREE.Vector3(), toCam = new THREE.Vector3();
+  // 카메라 쪽 벽은 반투명으로 (돌하우스 컷어웨이)
+  const cutaway = () => {
+    toCam.copy(cam.position).sub(center).setY(0).normalize();
+    for (const w of walls) {
+      w.getWorldPosition(tmp);
+      const front = tmp.sub(center).setY(0).normalize().dot(toCam) > 0.35;
+      w.material.opacity = front ? 0.12 : 1;
+      w.material.transparent = front;
+      w.material.depthWrite = !front;
+    }
+  };
   const resize = () => {
     const w = el.clientWidth, h = el.clientHeight;
     renderer.setSize(w, h);
@@ -79,6 +91,7 @@ function makeViewer(el) {
   (function loop() {
     if (!alive) return;
     ctl.update();
+    cutaway();
     renderer.render(scene, cam);
     requestAnimationFrame(loop);
   })();
@@ -88,12 +101,19 @@ function makeViewer(el) {
       loader.load(url + (url.includes("?") ? "&" : "?") + "v=" + Date.now(), (g) => {
         if (model) scene.remove(model);
         model = g.scene;
+        walls = [];
+        model.traverse((o) => {
+          if (o.isMesh) o.material = o.material.clone();
+          const kind = o.userData?.kind ?? o.parent?.userData?.kind;
+          if (o.isMesh && (kind === "wall" || kind === "door" || kind === "window")) walls.push(o);
+        });
         scene.add(model);
+        new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) {
           const box = new THREE.Box3().setFromObject(model);
           const c = box.getCenter(new THREE.Vector3());
           const s = box.getSize(new THREE.Vector3()).length();
-          cam.position.set(c.x - s * 0.55, c.y + s * 0.75, c.z + s * 0.75);
+          cam.position.set(c.x - s * 0.35, c.y + s * 1.05, c.z + s * 0.55);
           ctl.target.copy(c);
           framed = true;
         }
@@ -117,7 +137,7 @@ function planView(svg, room, opts = {}) {
   for (const z of opts.zones || []) {
     const cls = z.purpose in { kitchen: 1, living: 1 } ? z.purpose : "other";
     const c = z.polygon_m.reduce((a, p) => [a[0] + p[0] / z.polygon_m.length, a[1] + p[1] / z.polygon_m.length], [0, 0]);
-    html += `<polygon class="zone ${cls}" data-zone="${esc(z.zone_id)}" points="${z.polygon_m.map((p) => p.join(",")).join(" ")}" stroke-width="${sw(2)}"/>`;
+    html += `<polygon class="zone ${cls}" data-zone="${esc(z.zone_id)}" points="${z.polygon_m.map((p) => p.join(",")).join(" ")}" style="stroke-width:${sw(2)}px"/>`;
     html += `<text x="${c[0]}" y="${c[1]}" text-anchor="middle" style="font-size:${sw(13)}px;font-weight:700">${esc(z.name || PURPOSE[z.purpose] || z.purpose)}</text>`;
   }
   for (const o of room.objects) {
@@ -134,7 +154,7 @@ function planView(svg, room, opts = {}) {
     const cx = (minX + maxX) / 2, cy = (minY + maxY) / 2;
     let nx = -dy / L, ny = dx / L;
     if ((mx + nx - cx) ** 2 + (my + ny - cy) ** 2 < (mx - cx) ** 2 + (my - cy) ** 2) { nx = -nx; ny = -ny; }
-    html += `<text x="${mx + nx * sw(16)}" y="${my + ny * sw(16)}" text-anchor="middle" dominant-baseline="middle" style="font-size:${sw(11)}px">${w.wall_id} ${wallLen(w).toFixed(3)}m</text>`;
+    html += `<text x="${mx + nx * sw(22)}" y="${my + ny * sw(22)}" text-anchor="middle" dominant-baseline="middle" style="font-size:${sw(11)}px">${w.wall_id} ${wallLen(w).toFixed(3)}m</text>`;
   }
   const walls = Object.fromEntries(room.walls.map((w) => [w.wall_id, w]));
   for (const o of room.openings) {
@@ -258,7 +278,7 @@ async function technician(pid) {
   let sel = null;
   const load = async () => {
     const [p, room] = await Promise.all([api(`/api/projects/${pid}`), api(`/api/projects/${pid}/room`)]);
-    document.getElementById("sub").textContent = `${p.scan.scanned_by === "customer" ? "고객 셀프 스캔" : "기사 스캔"} · 벽 ${room.walls.length} · 문·창 ${room.openings.length} · 가구 ${room.objects.length} · 3D 엔진 ${p.scene.engine}`;
+    document.getElementById("sub").textContent = `${p.scan.scanned_by === "customer" ? "고객 셀프 스캔" : "기사 스캔"} · 벽 ${room.walls.length} · 문·창 ${room.openings.length} · 가구 ${room.objects.length} · 3D ${p.scene.engine === "blender" ? "Blender" : "치수 박스 미리보기"}`;
     document.getElementById("open").href = `#/c/${pid}?t=${p.share_token}`;
     document.getElementById("copy").onclick = () => navigator.clipboard.writeText(p.customer_url).then(() => toast("고객 링크를 복사했습니다"));
     const svg = document.getElementById("plan");

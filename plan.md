@@ -26,7 +26,7 @@
 | ADR-5 | 판정·점수는 **결정론적 코드**(recommender), LLM은 해석·설명만 | 기획 §6.2 | — |
 | ADR-6 | MCP 서버는 공식 Python SDK(FastMCP), **stdio + Streamable HTTP** 동시 지원, HTTP는 Bearer 토큰 검사 | 기획 §6.2 클라이언트 중립 | SSE (구식) |
 | ADR-7 | MCP 서버는 api와 **같은 상태 저장소**(SQLite·storage)를 직접 사용하는 서비스 계층(`core`)을 공유 | 채팅 ↔ 웹 상태 동기화 (기획 §6.2) | MCP → api HTTP 호출 (프로세스 2개 필수) |
-| ADR-8 | 웹은 빌드 도구 없는 정적 SPA(ES 모듈 + three.js CDN 고정 버전), api가 서빙 | Node 빌드 의존 제거, `uvicorn` 하나로 시연 | Vite/React (설정 비용) |
+| ADR-8 | 웹은 빌드 도구 없는 정적 SPA(ES 모듈 + three.js 0.160.0 로컬 포함), api가 서빙 | Node 빌드 의존 제거, 인터넷 없이도 `uvicorn` 하나로 시연 | Vite/React (설정 비용) |
 | ADR-9 | 모든 주소·포트·토큰은 `.env` | 기획 §6.3 이식성 | — |
 
 ## 2. 작업 단위 (Phase · Task)
