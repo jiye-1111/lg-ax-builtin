@@ -180,6 +180,8 @@ export function shadowShell(model) {
     c.castShadow = true;
     c.userData.shadowOnly = true;
     g.add(c);
+    // 1인칭 둘러보기에서 보이는 천장 자리
+    g.userData.ceiling = { x: floor.position.x, z: floor.position.z, w: floor.scale.x, d: floor.scale.z, y: top || 2.4 };
   }
   g.traverse((o) => { o.raycast = () => {}; }); // 고르기에 안 잡히게
   return g;

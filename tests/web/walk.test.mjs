@@ -66,7 +66,7 @@ test("스캔 가구와 부딪힌다 (돌아간 가구도)", () => {
   assert.equal(isBlocked([3, 2 - 0.25 - RADIUS - 0.05], w), false); // 테이블 앞
   const turned = buildWorld({ ...ROOM, objects: [{ ...ROOM.objects[0], yaw_rad: Math.PI / 2 }] }, [], []);
   assert.equal(isBlocked([3, 2 - 0.4], turned), true); // 90° 돌아 깊이 방향으로 길어짐
-  assert.equal(isBlocked([3.4, 2], turned), false);
+  assert.equal(isBlocked([3 + 0.25 + RADIUS + 0.05, 2], turned), false); // 이제 x 쪽은 반깊이 0.25만
 });
 
 test("치운 가구는 안 막는다", () => {

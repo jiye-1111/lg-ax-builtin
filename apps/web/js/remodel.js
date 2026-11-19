@@ -1,6 +1,7 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
 import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, post, put, toast, guard } from "./core.js";
 import { makeViewer } from "./viewer.js";
+import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 
@@ -26,6 +27,7 @@ export async function customer(pid) {
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품 놓기·옮기기">놓기·옮기기</button><button data-mode="rect" title="사각형 영역 그리기">영역 □</button><button data-mode="poly" title="다각형 영역 그리기">영역 ⬠</button></div>
           <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 치우기</button>
+          <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)">👀 둘러보기</button>
           <span class="spacer"></span>
           <div class="seg sims" role="group" aria-label="살아 보기">
             <span class="seg-label">살아 보기</span>
@@ -83,10 +85,29 @@ export async function customer(pid) {
   studio.querySelectorAll(".side-tabs [data-tab]").forEach((b) => (b.onclick = () => setTab(b.dataset.tab)));
   setTab(matchMedia("(max-width: 900px)").matches ? "lib" : "sel");
   const setView = (v) => {
+    if (v === "plan" && walking) setWalking(false); // 평면만 볼 때는 둘러보기를 끝낸다
     studio.dataset.view = v;
     studio.querySelectorAll(".studio-head [data-view]").forEach((b) => b.classList.toggle("on", b.dataset.view === v));
     viewer?.reframe();
   };
+  // ---- 1인칭 둘러보기: 눈높이에서 걸어 보기. 켜져 있는 동안 집어 들기·배치·건축 키는 꺼진다 ----
+  let walking = false;
+  const walkWorld = () => buildWorld(room, project.scene_state.placements, project.scene_state.hidden_objects);
+  const setWalking = (on) => {
+    walking = !!(on && room && viewer);
+    if (walking) {
+      if (studio.dataset.view === "plan") setView("3d");
+      armed = null; ghost(null); renderLib();
+      viewer.setWalk(walkWorld());
+    } else viewer?.setWalk(null);
+    const b = document.getElementById("walk");
+    b.classList.toggle("on", walking);
+    studio.classList.toggle("walking", walking);
+    b.textContent = walking ? "둘러보기 끝내기" : "👀 둘러보기";
+    setHint();
+    if (walking) document.getElementById("hint").textContent = "둘러보기: 화면을 누르면 마우스로 둘러봐요 · W A S D 걷기 · Shift 빠르게 · Esc 마우스 풀기 · 벽·가구·제품은 못 지나가요";
+  };
+  document.getElementById("walk").onclick = () => setWalking(!walking);
   studio.querySelectorAll(".studio-head [data-view]").forEach((b) => (b.onclick = () => setView(b.dataset.view)));
   studio.querySelectorAll("[data-swap]").forEach((b) => (b.onclick = () => setView(b.dataset.swap)));
   // 3D 안에서 바로 놓기·옮기기·고르기 (plans/virtual-remodel.md S10)
@@ -362,6 +383,7 @@ export async function customer(pid) {
   };
   const onKey = (e) => {
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+    if (viewer.walking()) return; // 둘러보기 중에는 걷기 키만 (뷰어가 받는다)
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (k === "Escape") { viewer.cancelHold(); armed = null; ghost(null); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
@@ -728,6 +750,7 @@ export async function customer(pid) {
     const measured = room.walls.filter((w) => w.measured).length, n = project.scene_state.placements.length;
     document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
     draw();
+    if (walking) viewer.setWalk(walkWorld()); // 옮긴 제품·치운 가구로 충돌을 다시
     if (sim === "daylight" && document.getElementById("simres")) guard(runDaylight)();
     if (sim === "wifi" && document.getElementById("simres")) guard(runWifi)();
     if (sim === "flow" && document.getElementById("simres")) guard(runFlow)();

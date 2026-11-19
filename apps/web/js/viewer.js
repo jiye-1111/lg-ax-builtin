@@ -3,6 +3,8 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
+import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -127,10 +129,72 @@ export function makeViewer(el, handlers = {}) {
   const ro = new ResizeObserver(resize);
   ro.observe(el);
   resize();
+  // ---------- 1인칭 둘러보기 ----------
+  // 눈높이 1.6 m에서 WASD로 걷고, 화면을 누르면 마우스로 둘러본다(Esc로 풀림). 벽·가구·제품은 못 지나간다.
+  const plc = new PointerLockControls(cam, renderer.domElement);
+  plc.pointerSpeed = 0.8;
+  let walk = null, lastT = performance.now();
+  const euler = new THREE.Euler(0, 0, 0, "YXZ");
+  const KEYS = { KeyW: "f", ArrowUp: "f", KeyS: "b", ArrowDown: "b", KeyA: "l", ArrowLeft: "l", KeyD: "r", ArrowRight: "r" };
+  const onWalkKey = (e) => {
+    if (!walk || ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
+    const k = KEYS[e.code];
+    if (e.key === "Shift") walk.keys.run = e.type === "keydown";
+    if (!k) return;
+    walk.keys[k] = e.type === "keydown";
+    walkHud.hidden = true; // 걷기 시작하면 안내는 접는다
+    e.preventDefault();
+    e.stopImmediatePropagation(); // 건축 모드 키(WASD 카메라·R 돌리기)와 겹치지 않게
+  };
+  document.addEventListener("keydown", onWalkKey, true);
+  document.addEventListener("keyup", onWalkKey, true);
+  const walkHud = document.createElement("div");
+  walkHud.className = "walk-hud";
+  walkHud.hidden = true;
+  Object.assign(walkHud.style, { position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)",
+    background: "rgba(20,22,26,.72)", color: "#fff", padding: "10px 14px", borderRadius: "10px", font: "13px/1.5 sans-serif",
+    pointerEvents: "none", textAlign: "center", zIndex: 3 });
+  walkHud.innerHTML = "화면을 누르면 마우스로 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게 · <b>Esc</b> 마우스 풀기";
+  const cross = document.createElement("div");
+  cross.hidden = true;
+  Object.assign(cross.style, { position: "absolute", left: "50%", top: "50%", width: "6px", height: "6px", margin: "-3px 0 0 -3px",
+    borderRadius: "50%", background: "rgba(255,255,255,.85)", boxShadow: "0 0 0 1px rgba(0,0,0,.35)", pointerEvents: "none", zIndex: 3 });
+  if (getComputedStyle(el).position === "static") el.style.position = "relative";
+  el.append(walkHud, cross);
+  plc.addEventListener("lock", () => { walkHud.hidden = true; cross.hidden = false; });
+  plc.addEventListener("unlock", () => { if (walk) { walkHud.hidden = false; cross.hidden = true; } walk && (walk.keys = {}); });
+  const walkTick = (dt) => {
+    euler.setFromQuaternion(cam.quaternion);
+    const d = moveVector(euler.y, walk.keys, walk.keys.run ? RUN : WALK, dt);
+    if (d[0] || d[1]) {
+      const p = step([cam.position.x, cam.position.z], d, walk.world);
+      cam.position.set(p[0], EYE_H, p[1]);
+    }
+  };
+  const ceilingMesh = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ color: 0xf6f6f3, roughness: 0.95 }));
+  ceilingMesh.rotation.x = Math.PI / 2; // 아래를 본다
+  ceilingMesh.receiveShadow = true;
+  ceilingMesh.visible = false;
+  scene.add(ceilingMesh);
+  const solidWalls = () => {
+    for (const w of walls) {
+      const base = w.userData.baseOpacity ?? 1;
+      w.material.opacity = base;
+      w.material.transparent = base < 1;
+      w.material.depthWrite = base === 1;
+    }
+  };
+
   (function loop() {
     if (!alive) return;
-    ctl.update();
-    cutaway();
+    // 느린 PC에서도 걷는 빠르기가 같게 (한 번에 길게 가도 walk.step이 잘게 나눠 벽을 안 뚫는다)
+    const now = performance.now(), dt = Math.min(0.25, (now - lastT) / 1000);
+    lastT = now;
+    if (walk) walkTick(dt);
+    else {
+      ctl.update();
+      cutaway();
+    }
     animateHeld();
     composer.render();
     requestAnimationFrame(loop);
@@ -320,7 +384,15 @@ export function makeViewer(el, handlers = {}) {
     return { type: "object", id: o.name };
   };
   let down = null, dragging = null;
+  let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
   const onDown = (e) => {
+    if (walk) {
+      e.stopPropagation(); // 둘러보기에서는 고르기·집어 들기·배치 없음
+      walkHud.hidden = true;
+      if (e.pointerType === "mouse" && !plc.isLocked) plc.lock();
+      else if (!plc.isLocked) look = { x: e.clientX, y: e.clientY };
+      return;
+    }
     if (e.button !== undefined && e.button !== 0) return;
     if (held) { down = { x: e.clientX, y: e.clientY, hit: null, p: null, held: true }; return; }
     const hit = pick(e);
@@ -334,6 +406,16 @@ export function makeViewer(el, handlers = {}) {
     }
   };
   const onMove = (e) => {
+    if (walk) {
+      if (look) {
+        euler.setFromQuaternion(cam.quaternion);
+        euler.y -= (e.clientX - look.x) * 0.005;
+        euler.x = Math.max(-1.4, Math.min(1.4, euler.x - (e.clientY - look.y) * 0.005));
+        cam.quaternion.setFromEuler(euler);
+        look = { x: e.clientX, y: e.clientY };
+      }
+      return;
+    }
     if (held && !held.dropping) {
       // 들고 있으면 커서를 따라온다: 10 cm 격자, Alt는 1 cm
       const q = floorPoint(e, e.altKey ? 0.01 : 0.1);
@@ -354,6 +436,7 @@ export function makeViewer(el, handlers = {}) {
     handlers.onHover?.(p);
   };
   const onUp = (e) => {
+    if (walk) { look = null; return; }
     const d = down;
     down = null;
     ctl.enabled = true;
@@ -519,7 +602,61 @@ export function makeViewer(el, handlers = {}) {
       model?.traverse((o) => { if (o.isMesh && o.userData.shared && o.userData.kind === "object") furniture++; });
       return { furniture, products: products.children.length };
     },
-    reframe() { setTimeout(() => { resize(); frame(); }, 280); },
+    reframe() { setTimeout(() => { resize(); if (!walk) frame(); }, 280); },
+    /** 1인칭 둘러보기 켜기/끄기. world = walk.buildWorld(room, placements, hidden), null이면 끄기 */
+    setWalk(world) {
+      if (world && !walk) {
+        if (held) api.cancelHold();
+        walk = { world, keys: {}, saved: { pos: cam.position.clone(), target: ctl.target.clone(), fov: cam.fov } };
+        ctl.enabled = false;
+        if (grid) grid.visible = false;
+        solidWalls();
+        const c = shell?.userData.ceiling;
+        if (c) { ceilingMesh.scale.set(c.w, c.d, 1); ceilingMesh.position.set(c.x, c.y, c.z); ceilingMesh.visible = true; }
+        const s = spawnPoint(world);
+        // 가장 멀리 트인 쪽을 보고 선다
+        let bestYaw = 0, best = -1;
+        for (let i = 0; i < 16; i++) {
+          const yaw = (i / 16) * Math.PI * 2;
+          const p = step(s, [-Math.sin(yaw) * 20, -Math.cos(yaw) * 20], world);
+          const dist = Math.hypot(p[0] - s[0], p[1] - s[1]);
+          if (dist > best) { best = dist; bestYaw = yaw; }
+        }
+        cam.fov = 70;
+        cam.updateProjectionMatrix();
+        cam.position.set(s[0], EYE_H, s[1]);
+        cam.quaternion.setFromEuler(new THREE.Euler(-0.08, bestYaw, 0, "YXZ"));
+        walkHud.hidden = false;
+      } else if (world && walk) {
+        walk.world = world; // 제품을 옮기거나 가구를 치웠을 때
+        if (isBlocked([cam.position.x, cam.position.z], world)) {
+          const s = spawnPoint(world);
+          cam.position.set(s[0], EYE_H, s[1]);
+        }
+      } else if (!world && walk) {
+        const sv = walk.saved;
+        walk = null;
+        look = null;
+        if (plc.isLocked) plc.unlock();
+        walkHud.hidden = cross.hidden = true;
+        ceilingMesh.visible = false;
+        cam.fov = sv.fov;
+        cam.updateProjectionMatrix();
+        cam.position.copy(sv.pos);
+        ctl.target.copy(sv.target);
+        cam.lookAt(sv.target);
+        ctl.enabled = true;
+      }
+      return !!walk;
+    },
+    walking() { return !!walk; },
+    /** 지금 선 자리 (E2E 확인용) */
+    walkInfo() {
+      if (!walk) return null;
+      euler.setFromQuaternion(cam.quaternion);
+      return { pos: cam.position.toArray().map((v) => +v.toFixed(3)), yaw: +euler.y.toFixed(3), locked: plc.isLocked,
+        blocked: isBlocked([cam.position.x, cam.position.z], walk.world) };
+    },
     /** 실제 해로 비춘다 (채광 API의 sun). null이면 기본 해. */
     setSun(s) { realSun = s && s.direction ? s : null; applySun(); },
     /** 지금 해 (E2E 확인용) */
@@ -533,7 +670,7 @@ export function makeViewer(el, handlers = {}) {
       gtao.output = mode === "debug" ? GTAOPass.OUTPUT.Denoise : GTAOPass.OUTPUT.Default;
       return gtao.enabled;
     },
-    dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
+    dispose() { alive = false; ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
   el.viewer = api;
   return api;

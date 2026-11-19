@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v5";
+const VERSION = "lgb-shell-v7"; // 1인칭 둘러보기 + 옛 파일 안 남게
 const SHELL = [
   "./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
@@ -7,6 +7,7 @@ const SHELL = [
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
+  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js",
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",
@@ -26,7 +27,8 @@ const SHELL = [
 ];
 
 self.addEventListener("install", (e) => {
-  e.waitUntil(caches.open(VERSION).then((c) => Promise.allSettled(SHELL.map((u) => c.add(u)))).then(() => self.skipWaiting()));
+  // 브라우저 HTTP 캐시에 남은 옛 파일을 넣지 않게 서버에서 새로 받는다
+  e.waitUntil(caches.open(VERSION).then((c) => Promise.allSettled(SHELL.map((u) => c.add(new Request(u, { cache: "reload" }))))).then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {
@@ -38,8 +40,10 @@ self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
   if (url.origin === location.origin && url.pathname.startsWith("/api/")) return; // 스캔·판정 데이터는 캐시하지 않음
   // 화면 파일: 네트워크 먼저 받아 캐시를 갱신하고, 끊기면 캐시로
+  // 같은 서버 파일은 매번 서버에 바뀌었는지 묻는다(no-cache): 앱을 고친 뒤 옛 CSS·JS가 남지 않게
+  const same = url.origin === location.origin && e.request.mode !== "navigate";
   e.respondWith(
-    fetch(e.request)
+    fetch(same ? new Request(e.request, { cache: "no-cache" }) : e.request)
       .then((res) => {
         if (res.ok && (url.origin === location.origin || url.hostname.endsWith("gstatic.com") || url.hostname.endsWith("googleapis.com"))) {
           const copy = res.clone();

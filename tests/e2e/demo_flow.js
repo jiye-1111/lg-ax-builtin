@@ -231,6 +231,32 @@ const j = async (p) => (await fetch(BASE + p)).json();
   check("동선: 3D에서 현관 지정", !!pj.scene_state.marks?.entrance);
   check("동선: 경로 결과", /가장 좁은 곳|못 감/.test(await page.textContent("#simres")));
 
+  // 1인칭 둘러보기: 눈높이 1.6 m, WASD로 걷고, 벽·가구는 못 지나가고, 집어 들기는 꺼진다
+  await page.click('[data-sim=""]');
+  await page.click('.studio-head [data-view="3d"]');
+  await page.click("#walk");
+  await wait(800);
+  const walkInfo = () => page.evaluate(() => document.getElementById("viewer").viewer.walkInfo());
+  const w0 = await walkInfo();
+  check("둘러보기: 눈높이 1.6 m", !!w0 && Math.abs(w0.pos[1] - 1.6) < 1e-6 && !w0.blocked);
+  await page.keyboard.down("w"); await wait(1200); await page.keyboard.up("w");
+  const w1 = await walkInfo();
+  check("둘러보기: W로 걷기", Math.hypot(w1.pos[0] - w0.pos[0], w1.pos[2] - w0.pos[2]) > 0.3, `${Math.hypot(w1.pos[0] - w0.pos[0], w1.pos[2] - w0.pos[2]).toFixed(2)} m`);
+  await page.keyboard.down("w"); await wait(9000); await page.keyboard.up("w");
+  const w2 = await walkInfo();
+  const [bx0, by0, bx1, by1] = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+  check("둘러보기: 벽·가구를 지나가지 않음", !w2.blocked && w2.pos[0] > bx0 && w2.pos[0] < bx1 && w2.pos[2] > by0 && w2.pos[2] < by1,
+    w2.pos.map((v) => v.toFixed(2)).join(","));
+  const vb = await page.$eval("#viewer canvas", (c) => { const r = c.getBoundingClientRect(); return [r.x, r.y, r.width, r.height]; });
+  await page.mouse.click(vb[0] + vb[2] / 2, vb[1] + vb[3] / 2);
+  await wait(400);
+  check("둘러보기: 누르면 집어 들기 안 함", !(await page.evaluate(() => document.getElementById("viewer").viewer.held())));
+  await page.keyboard.press("Escape");
+  await page.evaluate(() => document.exitPointerLock?.()); // 사람은 Esc로 풀지만 자동 브라우저는 직접 푼다
+  await page.$eval("#walk", (b) => b.click());
+  await wait(500);
+  check("둘러보기 끝내면 원래 보기", (await page.evaluate(() => document.getElementById("viewer").viewer.walking())) === false);
+
   // 렌더 이미지
   await page.click('[data-sim=""]');
   await page.click('.studio-head [data-view="3d"]');
