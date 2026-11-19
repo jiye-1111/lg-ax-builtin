@@ -1,0 +1,45 @@
+{
+ "_note": "build_furniture.py로 생성. 웹이 스캔 크기에 맞춰 부품별로 늘린다 (rig: s/p/e).",
+ "models": {
+  "chair": {
+   "file": "chair.glb",
+   "ref_m": {
+    "w": 0.5,
+    "h": 0.85,
+    "d": 0.52
+   }
+  },
+  "table": {
+   "file": "table.glb",
+   "ref_m": {
+    "w": 1.6,
+    "h": 0.74,
+    "d": 0.8
+   }
+  },
+  "storage": {
+   "file": "storage.glb",
+   "ref_m": {
+    "w": 1.0,
+    "h": 1.9,
+    "d": 0.45
+   }
+  },
+  "sofa": {
+   "file": "sofa.glb",
+   "ref_m": {
+    "w": 2.0,
+    "h": 0.85,
+    "d": 0.9
+   }
+  },
+  "bed": {
+   "file": "bed.glb",
+   "ref_m": {
+    "w": 1.6,
+    "h": 0.95,
+    "d": 2.1
+   }
+  }
+ }
+}

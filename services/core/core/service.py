@@ -481,6 +481,23 @@ class Service:
         self._save_project(p)
         return self._rebuild(pid)
 
+    def set_objects_hidden(self, pid: str, hidden: bool = True, object_ids: list[str] | None = None) -> dict:
+        """스캔 가구를 한꺼번에 치우거나 되돌린다. object_ids가 없으면 전부."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        known = [o.object_id for o in room.objects]
+        ids = known if object_ids is None else object_ids
+        missing = [i for i in ids if i not in known]
+        if missing:
+            raise NotFound(f"가구 없음: {', '.join(missing)}")
+        hs = self._hidden(p)
+        if hidden:
+            hs.extend(i for i in ids if i not in hs)
+        else:
+            p["scene_state"]["hidden_objects"] = [i for i in hs if i not in ids]
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
     # ---- 살아 보기: 집 위치·방향 (S6~S8) ----
     def set_site(self, pid: str, north_deg: float | None = None, region: str | None = None) -> dict:
         """north_deg: 평면도 위쪽에서 북쪽까지 시계 방향 각도. region: 시·도 (채광용 위도·경도)."""

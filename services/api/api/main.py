@@ -134,6 +134,13 @@ class HiddenIn(BaseModel):
     hidden: bool = True
 
 
+class HiddenManyIn(BaseModel):
+    """object_ids가 없으면 스캔 가구 전부"""
+    model_config = {"extra": "forbid"}
+    hidden: bool = True
+    object_ids: Optional[list[str]] = Field(None, max_length=500)
+
+
 # ---------- 엔드포인트 ----------
 @app.get("/api/health")
 def health(s: Service = S):
@@ -299,6 +306,11 @@ def flow(pid: str, s: Service = S):
 def regions():
     from sim.regions import REGIONS
     return REGIONS
+
+
+@app.put("/api/projects/{pid}/objects/hidden")
+def hide_objects(pid: str, body: HiddenManyIn, s: Service = S):
+    return s.set_objects_hidden(pid, body.hidden, body.object_ids)
 
 
 @app.put("/api/projects/{pid}/objects/{oid}/hidden")
