@@ -122,6 +122,8 @@ class Product(_Strict):
     required_space_mm: Dims = Field(default_factory=Dims)
     clearance_mm: Clearance = Field(default_factory=Clearance)
     door_swing_mm: Optional[float] = None
+    cutout_mm: Dims = Field(default_factory=Dims)  # 상판 타공 치수 (쿡탑 등)
+    spec_notes: list[str] = Field(default_factory=list)  # 출처 문구 요약 (어떤 값을 어디서 가져왔는지)
     cmf_options: list[CmfOption] = Field(default_factory=list)
     source_url: Optional[str]
     source_checked_at: Optional[str]

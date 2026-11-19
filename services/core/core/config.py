@@ -28,7 +28,7 @@ def storage_dir() -> Path:
 
 def catalog_paths() -> list[Path]:
     paths = [ROOT / "data" / "catalog" / "products.json"]
-    if os.getenv("CATALOG_INCLUDE_DEMO", "1") == "1":
+    if os.getenv("CATALOG_INCLUDE_DEMO", "0") == "1":
         paths.append(ROOT / "data" / "catalog" / "demo_fixture.json")
     return paths
 

@@ -58,7 +58,7 @@
 
 ### Phase 3 — 카탈로그
 - ✅ T3.1 `products.json` 스키마 + 검증 (모든 값 출처 URL, 미확인 값 null)
-- ⏳ T3.2 LGE.COM에서 10~20종 수집 (`docs/catalog-sources.md` 기록) — **값 추정 금지**
+- ✅ T3.2 LGE.COM에서 16종 수집 (`docs/catalog-sources.md` 기록). 남은 것: 식기세척기 설치 공간, 오븐, 거실 제품
 - ✅ T3.3 시연·테스트용 `data/catalog/demo_fixture.json` (명시적으로 "가상 데이터" 표기, 시연 화면에 배지)
 
 ### Phase 4 — api (FastAPI)

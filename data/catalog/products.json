@@ -1,4 +1,737 @@
 {
-  "_note": "LGE.COM 공개 정보만. 각 항목 source_url·source_checked_at 필수, 확인 못한 값은 null (기획 §8.4).",
-  "products": []
+  "_note": "LGE.COM 공개 정보만 (2026-11-19 확인). 확인 못한 값은 null. hex_approx는 제품 대표 이미지 중앙부 중앙값 색(근사, 공식 아님).",
+  "products": [
+    {
+      "sku": "G646GBB031",
+      "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 914,
+        "h": 1860,
+        "d": 709
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '하냉동 600L (26년형・G646)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide",
+        "깊이 709는 후면 운반핸들 포함(핸들 제외 698)"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F1EEE9"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/refrigerators/g646gbb031",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "G646MEE021",
+      "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L, 메탈)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 914,
+        "h": 1860,
+        "d": 709
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '하냉동 600L (26년형・G646)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide",
+        "깊이 709는 후면 운반핸들 포함(핸들 제외 698)"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#F1EDE9"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/refrigerators/g646mee021",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "G646SVV031",
+      "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L, 실버)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 914,
+        "h": 1860,
+        "d": 709
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '하냉동 600L (26년형・G646)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide",
+        "깊이 709는 후면 운반핸들 포함(핸들 제외 698)"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 실버",
+          "material": "스톤 (스테인리스)",
+          "finish": null,
+          "hex_approx": "#D7D7D7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/refrigerators/g646svv031",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "M616GBB0M1",
+      "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (609L)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 914,
+        "h": 1860,
+        "d": 698
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "설치가이드에서 이 모델군의 필요 공간을 따로 확인하지 못함 → 상단·후면 null"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F2EEE9"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/refrigerators/m616gbb0m1",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "D646GBB041",
+      "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max 컨버터블 드로어 (628L)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 914,
+        "h": 1860,
+        "d": 709
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "설치가이드에서 이 모델군의 필요 공간을 따로 확인하지 못함 → 상단·후면 null"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F1EDE8"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/refrigerators/d646gbb041",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Z386GBB281",
+      "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max (386L)",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 697,
+        "h": 1860,
+        "d": 696
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '김치냉장고 300L (26년형・Z386)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F1EDE8"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/kimchi-refrigerators/z386gbb281",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Z386MEE221",
+      "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max (386L, 메탈)",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 697,
+        "h": 1860,
+        "d": 696
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '김치냉장고 300L (26년형・Z386)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#F1EDE9"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/kimchi-refrigerators/z386mee221",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Z386SLL281",
+      "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max (386L, 럭스 실버)",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 697,
+        "h": 1860,
+        "d": 696
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1869,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 9,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,869 · 깊이 최소 700(권장 720) · 상단 9mm: 설치가이드 '김치냉장고 300L (26년형・Z386)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 럭스 실버",
+          "material": "스테인리스",
+          "finish": null,
+          "hex_approx": "#DFDAD3"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/kimchi-refrigerators/z386sll281",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Z484GBB172",
+      "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max (480L)",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 835,
+        "h": 1860,
+        "d": 685
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": 1875,
+        "d": 700
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 15,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "좌우 4mm: 제품 페이지 FAQ 'Fit & Max 냉장고는 … 좌,우 4mm의 공간만 있어도 설치'",
+        "필요 공간 높이 최소 1,875 · 깊이 최소 700 · 상단 15mm: 설치가이드 '김치냉장고 400L (25년형・Z484)' https://www.lge.co.kr/story/setup-guide/refrigerator-installation-guide"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F1EDE9"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/kimchi-refrigerators/z484gbb172",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "DUE6BGE",
+      "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+      "category": "dishwasher",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 598,
+        "h": 815,
+        "d": 567
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "설치타입: 빌트인전용. 설치 공간·이격은 제품 페이지에 없음 → null"
+      ],
+      "cmf_options": [
+        {
+          "color": "네이처 베이지",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#E3DFD7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/dishwashers/due6bge",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "DUE6EWL2E",
+      "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용, 화이트)",
+      "category": "dishwasher",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 598,
+        "h": 815,
+        "d": 567
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "설치타입: 빌트인전용. 설치 공간·이격은 제품 페이지에 없음 → null"
+      ],
+      "cmf_options": [
+        {
+          "color": "네이처 에센스 화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/dishwashers/due6ewl2e",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "BEI3QKBLOE",
+      "name": "LG 디오스 오브제컬렉션 인덕션 3구",
+      "category": "cooktop",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 580,
+        "h": 59,
+        "d": 520
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": 560,
+        "h": 65,
+        "d": 480
+      },
+      "spec_notes": [
+        "싱크대 타공치수 560 x 65 x 480"
+      ],
+      "cmf_options": [
+        {
+          "color": "화이트 (조작부: 미스트 베이지)",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F8F6F7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/electric-ranges/bei3qkbloe",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "BEF3AMB4E",
+      "name": "LG 디오스 인덕션 3구 (와이드존)",
+      "category": "cooktop",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 575,
+        "h": 59,
+        "d": 515
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": 560,
+        "h": 65,
+        "d": 480
+      },
+      "spec_notes": [
+        "싱크대 타공치수 560 x 65 x 480"
+      ],
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#30262D"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/electric-ranges/bef3amb4e",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "BEF3ASMLE",
+      "name": "LG 디오스 인덕션 3구 (와이드존, 무광블랙)",
+      "category": "cooktop",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 575,
+        "h": 59,
+        "d": 515
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": 560,
+        "h": 65,
+        "d": 480
+      },
+      "spec_notes": [
+        "싱크대 타공치수 560 x 65 x 480"
+      ],
+      "cmf_options": [
+        {
+          "color": "무광블랙",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#292929"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/electric-ranges/bef3asmle",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "WU523AWB",
+      "name": "LG 퓨리케어 오브제컬렉션 정수기 (빌트인, 냉온정)",
+      "category": "water_purifier",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 170,
+        "h": 420,
+        "d": 410
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "언더싱크형. 파우셋 48 x 264 x 188"
+      ],
+      "cmf_options": [
+        {
+          "color": "솔리드 크림 화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/water-purifiers/wu523awb",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "WU523ACB",
+      "name": "LG 퓨리케어 오브제컬렉션 정수기 (빌트인, 냉온정, 베이지)",
+      "category": "water_purifier",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 170,
+        "h": 420,
+        "d": 410
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "언더싱크형. 파우셋 48 x 264 x 188"
+      ],
+      "cmf_options": [
+        {
+          "color": "솔리드 베이지",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EDE9E6"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/water-purifiers/wu523acb",
+      "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    }
+  ]
 }
