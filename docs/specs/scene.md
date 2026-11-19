@@ -21,3 +21,15 @@
 - Blender 실패·시간 초과 시 `storage/projects/<pid>/scene/blender.log` 남기고 폴백 렌더.
 - 실제 Blender 확인: `tests/integration/test_blender_render.py` (Blender 없는 PC는 건너뜀). i7-10700 CPU 기준 30초 안팎.
 - 3D 모델이 없으면 치수 박스로 대체 (기획 §8.4).
+
+## 실제 채광 (해 빛)
+
+- `sim.daylight.sun_light(site, when)`: 날짜·시각·위도·경도(기본 서울)·집의 북쪽 → 해 쪽 단위 벡터(웹 3D 좌표),
+  색, 세기. 해 위치는 `sim.solar`(NOAA 식), 수평 방향은 바닥 볕 자리(`sun_patches`)와 같은 식을 쓴다.
+- 색: 해 높이 25° 이상은 6500 K(중립 흰빛), 낮아질수록 따뜻해져 지평선에서 약 2000 K. 노랗게 칠하지 않는다.
+- `GET /sim/daylight?...&heatmap=false`: 하루 직사광 격자 없이 해만 (시간 슬라이더용, 빠름).
+- 웹 3D: 채광을 켜면 DirectionalLight를 그 방향·색·세기로 두고, 화면에는 안 보이는 그림자 껍데기
+  (창·문 자리를 뺀 벽 조각 + 천장, `room3d.js shadowShell`)를 켠다. 해는 창으로만 들어온다.
+  노란 하루 직사광 히트맵은 "하루 햇빛 시간 겹쳐 보기"로 켤 때만 (기본 꺼짐).
+- Blender 렌더: 채광을 보고 있을 때 `POST /render {date, time}` → `state.sun` → job `sun`. 같은 방향·색으로 해를 두고,
+  카메라에 안 보이는 천장·앞벽(창 구멍 포함)이 그림자를 낸다. 유리는 그림자에서 뺀다(Cycles 유리는 해를 막는다).

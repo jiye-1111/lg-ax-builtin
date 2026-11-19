@@ -267,8 +267,8 @@ def set_site(pid: str, body: SiteIn, s: Service = S):
 
 
 @app.get("/api/projects/{pid}/sim/daylight")
-def daylight(pid: str, date: str, time: Optional[str] = None, s: Service = S):
-    return s.daylight(pid, date, time)
+def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = True, s: Service = S):
+    return s.daylight(pid, date, time, heatmap)
 
 
 @app.put("/api/projects/{pid}/router")
@@ -339,9 +339,14 @@ def unplace(pid: str, zid: str, sku: str, s: Service = S):
     return s.remove_product(pid, zid, sku)
 
 
+class RenderBody(BaseModel):
+    date: Optional[str] = None  # 주면 채광과 같은 해로 렌더 (YYYY-MM-DD)
+    time: Optional[str] = None  # HH:MM
+
+
 @app.post("/api/projects/{pid}/render")
-def render(pid: str, s: Service = S):
-    return s.render(pid)
+def render(pid: str, body: Optional[RenderBody] = None, s: Service = S):
+    return s.render(pid, body.date if body else None, body.time if body else None)
 
 
 @app.get("/api/projects/{pid}/zones/{zid}/recommendations")

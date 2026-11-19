@@ -128,7 +128,7 @@ export async function customer(pid) {
   const svg = document.getElementById("plan");
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = "", catalog = [];
-  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" }, regions = null;
+  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
     move: "제품이나 가구를 누르면 집어 들어요. 다시 누르면 내려놓기 · R 돌리기 · Delete 지우기 · WASD 카메라 이동 · Q/E 카메라 돌기",
@@ -477,7 +477,8 @@ export async function customer(pid) {
   document.getElementById("render").onclick = guard(async (e) => {
     e.target.disabled = true; e.target.textContent = "렌더 중…";
     try {
-      await post(`/api/projects/${pid}/render`, {});
+      // 채광을 보고 있으면 그 날짜·시각의 해로 렌더한다 (화면과 같은 빛)
+      await post(`/api/projects/${pid}/render`, sim === "daylight" ? { date: simState.date, time: simState.time } : {});
       document.getElementById("renderImg").src = `/api/projects/${pid}/files/render.png?v=${Date.now()}`;
       document.getElementById("renderBox").hidden = false;
     } finally { e.target.disabled = false; e.target.textContent = "렌더 이미지"; }
@@ -569,17 +570,27 @@ export async function customer(pid) {
     return out.join("");
   };
   let simTimer = null;
+  // 하루 직사광 격자는 무겁다: 날짜·위치·북쪽·놓은 제품이 같으면 다시 받지 않는다 (시간 슬라이더는 해만 받는다)
+  let heatCache = { key: null, daily: null, assumptions: [] };
+  const DIRS = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"];
   const runDaylight = async () => {
     const box = document.getElementById("simres");
-    if (project.site?.north_deg == null) { setOverlay(""); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
-    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}`);
-    const maxH = Math.max(1, ...d.daily.values.flat().filter((v) => v != null));
-    setOverlay(heat(d.daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join(""));
-    const pls = project.scene_state.placements.filter((x) => x.placement_id in d.daily.points);
+    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
+    const key = JSON.stringify([simState.date, project.site, project.scene_state.placements.map((x) => [x.placement_id, x.center_xz]), version]);
+    const needHeat = simState.heat && heatCache.key !== key;
+    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=${needHeat}`);
+    if (sim !== "daylight") return;
+    if (needHeat) heatCache = { key, daily: d.daily, assumptions: d.assumptions };
+    viewer.setSun(d.sun); // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다
+    const daily = simState.heat ? heatCache.daily : null;
+    const maxH = daily ? Math.max(1, ...daily.values.flat().filter((v) => v != null)) : 1;
+    setOverlay(daily ? heat(daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join("") : "");
+    const s = d.sun, dir = DIRS[Math.round(s.azimuth_deg / 45) % 8];
+    const pls = daily ? project.scene_state.placements.filter((x) => x.placement_id in daily.points) : [];
     box.innerHTML = `
-      <p style="margin:0 0 6px">${d.sun.altitude_deg > 0 ? `해 높이 <b>${d.sun.altitude_deg.toFixed(0)}°</b> · 방위 <b>${d.sun.azimuth_deg.toFixed(0)}°</b> · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"} · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)</p>
-      ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = d.daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
-      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${d.assumptions.map(esc).join(" · ")}</p>`;
+      <p style="margin:0 0 6px">${s.up ? `해 높이 <b>${s.altitude_deg.toFixed(0)}°</b> · <b>${dir}쪽</b> 하늘(방위 ${s.azimuth_deg.toFixed(0)}°) · 빛 색 ${s.kelvin.toLocaleString()} K${s.altitude_deg < 10 ? " (해 질 녘)" : ""} · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"}${daily ? ` · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)` : ""}</p>
+      ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
+      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</p>`;
   };
   const daylightCtl = async () => {
     regions = regions || (await api("/api/regions"));
@@ -591,7 +602,8 @@ export async function customer(pid) {
         <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
         <label>시각 <b id="tv">${simState.time}</b><input type="range" id="stime" min="300" max="1260" step="15" value="${(() => { const [h, m] = simState.time.split(":").map(Number); return h * 60 + m; })()}"></label>
       </div>
-      <div class="chips" style="margin:6px 0 8px">${[["동지", "-12-21"], ["춘분", "-03-20"], ["하지", "-06-21"]].map(([k, v]) => `<button class="chip" data-day="${v}">${k}</button>`).join("")}<button class="chip" data-day="today">오늘</button></div>
+      <div class="chips" style="margin:6px 0 8px">${[["동지", "-12-21"], ["춘분", "-03-20"], ["하지", "-06-21"]].map(([k, v]) => `<button class="chip" data-day="${v}">${k}</button>`).join("")}<button class="chip" data-day="today">오늘</button>
+        <label class="chip" style="cursor:pointer;display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="sheat" ${simState.heat ? "checked" : ""} style="margin:0;width:auto">하루 햇빛 시간 겹쳐 보기</label></div>
       <div id="simres"></div>`;
     const kick = () => { clearTimeout(simTimer); simTimer = setTimeout(() => guard(runDaylight)(), 120); };
     document.getElementById("region").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { region: e.target.value }); kick(); });
@@ -601,6 +613,7 @@ export async function customer(pid) {
     };
     document.getElementById("north").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { north_deg: Number(e.target.value) }); draw(); kick(); });
     document.getElementById("sdate").onchange = (e) => { simState.date = e.target.value; kick(); };
+    document.getElementById("sheat").onchange = (e) => { simState.heat = e.target.checked; kick(); };
     document.getElementById("stime").oninput = (e) => {
       const v = Number(e.target.value); simState.time = `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}`;
       document.getElementById("tv").textContent = simState.time; kick();
@@ -691,6 +704,7 @@ export async function customer(pid) {
   const SIMS = { daylight: daylightCtl, wifi: wifiCtl, flow: flowCtl };
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
+    if (sim !== "daylight") viewer.setSun(null); // 채광이 아니면 보기 좋은 기본 해
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
     draw();
     if (SIMS[sim]) await SIMS[sim]();

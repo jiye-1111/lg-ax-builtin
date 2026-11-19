@@ -40,6 +40,37 @@ def _vectors(site: Site, az_deg: float) -> tuple[float, float]:
     return (math.cos(a) * n[0] + math.sin(a) * e[0], math.cos(a) * n[1] + math.sin(a) * e[1])
 
 
+def _kelvin_rgb(k: float) -> tuple[int, int, int]:
+    """색온도 → sRGB (Tanner Helland 근사, 1000~40000 K)."""
+    t = k / 100
+    r = 255 if t <= 66 else 329.698727446 * (t - 60) ** -0.1332047592
+    g = 99.4708025861 * math.log(t) - 161.1195681661 if t <= 66 else 288.1221695283 * (t - 60) ** -0.0755148492
+    b = 255 if t >= 66 else (0 if t <= 19 else 138.5177312231 * math.log(t - 10) - 305.0447927307)
+    return tuple(int(max(0, min(255, round(v)))) for v in (r, g, b))  # type: ignore[return-value]
+
+
+def sun_light(site: Site, when: datetime) -> dict:
+    """3D 해 빛. direction은 해 쪽을 가리키는 단위 벡터 (웹 3D 좌표: x, y 위, z = 평면 y).
+
+    색: 해가 25° 이상이면 6500 K(중립 흰빛), 낮아질수록 대기를 길게 지나 따뜻해져 지평선에서 약 2000 K.
+    세기(0~1): 고도가 낮을수록 대기에서 줄어든다. 해가 지면 0.
+    """
+    alt, az = sun_position(site.lat, site.lon, when)
+    hx, hz = _vectors(site, az)
+    a = math.radians(alt)
+    d = (hx * math.cos(a), math.sin(a), hz * math.cos(a))
+    n = math.sqrt(sum(c * c for c in d)) or 1.0
+    up = alt > 0
+    w = min(1.0, max(0.0, alt / 25))
+    w = w * w * (3 - 2 * w)  # 부드럽게
+    kelvin = 2000 + (6500 - 2000) * w
+    r, g, b = _kelvin_rgb(kelvin)
+    intensity = 0.0 if not up else round(min(1.0, math.sin(a) ** 0.5) * min(1.0, alt / 4), 3)
+    return {"altitude_deg": round(alt, 2), "azimuth_deg": round(az, 2), "up": up,
+            "direction": [round(c / n, 7) for c in d], "color": f"#{r:02X}{g:02X}{b:02X}",
+            "kelvin": round(kelvin), "intensity": intensity}
+
+
 def sun_patches(room: Room, site: Site, when: datetime) -> list[dict]:
     """그 시각 각 창으로 바닥에 비치는 사각형. 해가 졌거나 창 반대편이면 없음."""
     alt, az = sun_position(site.lat, site.lon, when)

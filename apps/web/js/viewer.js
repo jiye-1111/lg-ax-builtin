@@ -9,7 +9,7 @@ import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { toast } from "./core.js";
-import { dressRoom, furnish } from "./room3d.js";
+import { dressRoom, furnish, shadowShell } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0xc98a00, no_fit: 0xb3261e, unknown: 0x5b6370 };
 const SELECT_HEX = 0xa50034;
@@ -52,8 +52,11 @@ export function makeViewer(el, handlers = {}) {
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   scene.environment = envTex;
-  scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x9c9184, 0.45));
-  const sun = new THREE.DirectionalLight(0xfff0dc, 2.2);
+  const hemi = new THREE.HemisphereLight(0xf4f6ff, 0x9c9184, 0.45);
+  scene.add(hemi);
+  // 기본 해는 중립 흰빛. 채광을 켜면 setSun()으로 실제 해(날짜·시각·위치·북쪽) 방향·색·세기로 바뀐다
+  const STUDIO = { color: 0xfffbf6, intensity: 2.2, hemi: 0.45 };
+  const sun = new THREE.DirectionalLight(STUDIO.color, STUDIO.intensity);
   sun.position.set(-4, 8, 6);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -76,7 +79,7 @@ export function makeViewer(el, handlers = {}) {
     scene.traverse((o) => {
       if (!o.isMesh || !o.visible) return;
       const m = o.material;
-      if (!m || m.visible === false || (m.transparent && (m.opacity < 0.6 || m.depthWrite === false))) o.visible = false;
+      if (!m || m.visible === false || m.colorWrite === false || (m.transparent && (m.opacity < 0.6 || m.depthWrite === false))) o.visible = false;
     });
   };
   composer.addPass(gtao);
@@ -132,6 +135,33 @@ export function makeViewer(el, handlers = {}) {
     composer.render();
     requestAnimationFrame(loop);
   })();
+  // ---------- 해 ----------
+  // realSun: null이면 보기 좋은 기본 해(카메라 왼쪽 위). 있으면 {direction:[x,y,z](해 쪽), color, intensity(0~1), up}
+  let realSun = null, shell = null, roomR = 8;
+  const roomC = new THREE.Vector3();
+  const placeSun = () => {
+    const d = realSun ? new THREE.Vector3(...realSun.direction).normalize() : new THREE.Vector3(-0.6, 1.6, 0.8).normalize();
+    sun.position.copy(roomC).addScaledVector(d, roomR * 2);
+    sun.target.position.copy(roomC);
+    sun.target.updateMatrixWorld();
+  };
+  const applySun = () => {
+    if (shell) shell.visible = !!realSun; // 벽·천장 그림자: 실제 해일 때만 (창으로만 볕이 든다)
+    if (!realSun) {
+      sun.color.set(STUDIO.color);
+      sun.intensity = STUDIO.intensity;
+      hemi.intensity = STUDIO.hemi;
+    } else {
+      sun.color.set(realSun.color);
+      // 직사광은 실내 간접광보다 몇 배 밝다: 창으로 든 볕이 바닥에 또렷하게
+      sun.intensity = realSun.up ? 6.0 * realSun.intensity : 0;
+      // 하늘빛: 낮에는 밝고, 해가 낮으면 줄고, 밤에는 아주 어둡게
+      hemi.intensity = realSun.up ? 0.22 + 0.2 * Math.min(1, realSun.intensity * 1.4) : 0.1;
+    }
+    sun.castShadow = sun.intensity > 0;
+    placeSun();
+  };
+
   // 방 전체가 보이게 카메라를 잡는다 (화면 비율이 세로로 길면 더 멀리)
   const frame = () => {
     if (!model) return;
@@ -142,8 +172,9 @@ export function makeViewer(el, handlers = {}) {
     ctl.target.copy(c);
     // 그림자 범위를 방에 맞춘다
     const r = box.getSize(new THREE.Vector3()).length() / 2;
-    sun.position.set(c.x - r * 0.6, c.y + r * 1.6, c.z + r * 0.8);
-    sun.target.position.copy(c);
+    roomC.copy(c);
+    roomR = r;
+    placeSun();
     Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.1, far: r * 4 });
     sun.shadow.camera.updateProjectionMatrix();
     // 집어 들었을 때만 보이는 바닥 격자 (0.5 m 칸)
@@ -368,12 +399,15 @@ export function makeViewer(el, handlers = {}) {
           if (o.isMesh && (kind === "wall" || kind === "door" || kind === "window")) walls.push(o);
           if (kind === "product") o.visible = false; // 제품은 화면에서 직접 그린다
         });
+        shell = shadowShell(model); // dressRoom이 창 크기를 바꾸기 전에 구멍 자리를 잡는다
+        model.add(shell);
         walls.push(...dressRoom(model));
         const mine = model;
         furnish(model, () => alive && model === mine, (id) => objectCats[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) { frame(); framed = true; }
+        applySun();
       }, undefined, () => toast("3D 파일을 불러오지 못했습니다", true));
     },
     /** 놓은 제품을 다시 그린다. 끌고 있는 중이면 건너뛴다. */
@@ -486,6 +520,13 @@ export function makeViewer(el, handlers = {}) {
       return { furniture, products: products.children.length };
     },
     reframe() { setTimeout(() => { resize(); frame(); }, 280); },
+    /** 실제 해로 비춘다 (채광 API의 sun). null이면 기본 해. */
+    setSun(s) { realSun = s && s.direction ? s : null; applySun(); },
+    /** 지금 해 (E2E 확인용) */
+    sunInfo() {
+      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, shell: !!shell?.visible,
+        position: sun.position.toArray().map((v) => +v.toFixed(3)), target: sun.target.position.toArray().map((v) => +v.toFixed(3)) };
+    },
     /** 접촉 그림자(GTAO) 켜고 끄기. 느린 PC용. mode: true | false | "debug"(AO 버퍼만 보기) */
     setAO(mode) {
       gtao.enabled = mode !== false;

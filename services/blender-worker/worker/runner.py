@@ -56,7 +56,8 @@ def build_scene(room: Room, usdz: Path | None, state: dict, out_dir: Path, rende
                "out_blend": str(out_dir / "scene.blend"),
                "models_dir": str(MODELS_DIR) if MODELS_DIR.exists() else None,
                "furniture_dir": str(FURNITURE_DIR) if FURNITURE_DIR.exists() else None,
-               "engine": os.getenv("BLENDER_ENGINE") or None, "title": state.get("title")}
+               "engine": os.getenv("BLENDER_ENGINE") or None, "title": state.get("title"),
+               "sun": state.get("sun")}  # 채광과 같은 해 (sim.daylight.sun_light), 없으면 기본 해
         job_p = out_dir / "job.json"
         job_p.write_text(json.dumps(job), encoding="utf-8")
         png.unlink(missing_ok=True)

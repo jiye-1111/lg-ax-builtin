@@ -243,12 +243,18 @@ def build(job):
 
     # 벽과 개구부: 개구부가 속한 벽을 위치로 찾는다 (가장 가깝고 같은 방향)
     wall_obs = {}
+    ceiling_h = max((b["size"][1] for b in walls.values()), default=2.4)
     for n, b in walls.items():
         w_, h_, t_ = b["size"]
-        if n in front:  # 카메라 쪽 벽은 낮게
+        if n in front:  # 카메라 쪽 벽은 낮게 보이고, 그림자는 원래 높이로 (창으로만 볕이 든다)
             c = gl_to_bl(b["center"])
             c.z = CUT_WALL_H / 2
-            ob = box(n, c, (w_, CUT_WALL_H, t_), b["yaw"], paint(b["color"]), coll)
+            box(f"{n}_low", c, (w_, CUT_WALL_H, t_), b["yaw"], paint(b["color"]), coll)
+            # 그림자만 내는 나머지 높이 (낮은 벽과 겹치면 낮은 벽이 까맣게 그늘진다)
+            c2 = gl_to_bl(b["center"])
+            c2.z = CUT_WALL_H + (h_ - CUT_WALL_H) / 2 + 0.002
+            ob = box(n, c2, (w_, h_ - CUT_WALL_H - 0.004, t_ * 0.6), b["yaw"], None, coll)
+            ob.visible_camera = ob.visible_diffuse = ob.visible_glossy = ob.visible_transmission = False
         else:
             ob = box(n, gl_to_bl(b["center"]), (w_, h_, t_), b["yaw"], paint(b["color"]), coll)
             bb_c = gl_to_bl(b["center"])
@@ -271,7 +277,7 @@ def build(job):
 
     for o in (b for b in boxes if b["kind"] in ("window", "door", "opening")):
         n = host_wall(o)
-        if not n or n in front:
+        if not n:
             continue
         w_, h_, t_ = o["size"]
         cut = box(f"{o['name']}_cut", gl_to_bl(o["center"]), (w_, h_, t_ + 0.3), o["yaw"], None, coll)
@@ -282,6 +288,8 @@ def build(job):
             mod.solver = "EXACT"
         except TypeError:
             pass
+        if n in front:  # 낮게 자른 벽: 그림자용 벽에 구멍만 내고 틀은 안 그린다
+            continue
         local = lambda dx, dy: Vector((dx, 0, dy))  # noqa: E731  (벽 방향 기준 오프셋)
         rot = wall_obs[n].rotation_euler.to_matrix()
 
@@ -292,7 +300,8 @@ def build(job):
         # 틀은 구멍 안쪽 테두리에 벽 두께만큼 넣는다: 구멍 속 벽 단면(어두운 틈)이 안 보이게
         depth, F = t_ + 0.03, FRAME_W
         if o["kind"] == "window":
-            box(f"{o['name']}_glass", gl_to_bl(o["center"]), (w_ - 2 * F, h_ - 2 * F, 0.012), o["yaw"], M["glass"], coll)
+            glass = box(f"{o['name']}_glass", gl_to_bl(o["center"]), (w_ - 2 * F, h_ - 2 * F, 0.012), o["yaw"], M["glass"], coll)
+            glass.visible_shadow = False  # Cycles 유리는 굴절이라 해를 막는다: 그림자에서 빼야 창으로 볕이 든다
             piece(f"{o['name']}_sill", (w_ + F, 0.035, depth + 0.05), 0, -h_ / 2 + 0.0175, M["trim"])
             piece(f"{o['name']}_mullion", (F * 0.6, h_ - 2 * F, 0.05), 0, 0, M["trim"])
         elif o["kind"] == "door":
@@ -339,10 +348,16 @@ def build(job):
             mat = principled(f"p_{pl['sku']}", lin(pl.get("hex") or "#F4F4F2"), rough=0.35)
             bevel(box(f"product_{pl['sku']}", Vector((x, -z, h_ / 2)), (w_, h_, d_), yaw, mat, coll), 0.01)
 
-    return center, floor
+    # 천장: 카메라에는 안 보이고 그림자만 낸다. 해는 창으로만 들어온다
+    if floor:
+        w, _, d = floor["size"]
+        ceil = box("ceiling", Vector((center.x, center.y, ceiling_h + 0.05)), (w + 0.4, 0.1, d + 0.4), 0.0, None, coll)
+        ceil.visible_camera = ceil.visible_glossy = ceil.visible_transmission = False
+
+    return center, floor, ceiling_h
 
 
-def light_and_camera(center, floor):
+def light_and_camera(center, floor, ceiling_h=2.4, sun_job=None):
     sc = bpy.context.scene
     w, _, d = floor["size"] if floor else (6, 0, 6)
     extent = math.hypot(w, d)
@@ -365,20 +380,32 @@ def light_and_camera(center, floor):
     bg.inputs["Strength"].default_value = 0.55
     nt.nodes.remove(grad)
 
-    # 해: 카메라 왼쪽 위에서, 그림자는 살짝 부드럽게
+    # 해: 채광과 같은 해(날짜·시각·위치·북쪽)가 오면 그 방향·색·세기, 없으면 보기 좋은 기본 해
     sun = bpy.data.objects.new("LGT-sun", bpy.data.lights.new("LGT-sun", "SUN"))
-    sun.data.energy, sun.data.angle = 6.0, math.radians(2.5)  # 가구 그림자가 바닥에 또렷하게
-    sun.data.color = (1.0, 0.95, 0.86)
-    # 방 뒤쪽 위에서 카메라 쪽으로 비춘다: 가구 그림자가 카메라에 보이는 쪽 바닥에 떨어진다
-    sun.rotation_euler = Vector((0.35, -0.55, -0.76)).normalized().to_track_quat("-Z", "Y").to_euler()
+    sun.data.angle = math.radians(0.53)  # 실제 해 크기: 그림자 가장자리가 또렷하다
+    if sun_job:
+        dx, dy, dz = sun_job["direction"]  # 웹 3D 좌표, 해 쪽
+        to_sun = Vector((dx, -dz, dy)).normalized()
+        sun.rotation_euler = (-to_sun).to_track_quat("-Z", "Y").to_euler()
+        sun.data.color = lin(sun_job["color"])[:3]
+        sun.data.energy = 7.0 * sun_job["intensity"] if sun_job.get("up") else 0.0
+        if not sun_job.get("up"):
+            bg.inputs["Strength"].default_value = 0.06  # 밤
+        elif sun_job["altitude_deg"] < 10:
+            bg.inputs["Strength"].default_value = 0.3  # 해 질 녘 하늘은 어둡다
+    else:
+        sun.data.energy, sun.data.angle = 6.0, math.radians(2.5)
+        sun.data.color = (1.0, 0.98, 0.95)
+        # 방 뒤쪽 위에서 카메라 쪽으로 비춘다: 가구 그림자가 카메라에 보이는 쪽 바닥에 떨어진다
+        sun.rotation_euler = Vector((0.35, -0.55, -0.76)).normalized().to_track_quat("-Z", "Y").to_euler()
     sc.collection.objects.link(sun)
 
-    # 천장 면광: 실내 간접광 대신 넓고 약하게
+    # 천장 면광(천장 바로 아래): 창 없는 쪽도 어둡게 묻히지 않게 넓고 약하게
     fill = bpy.data.objects.new("LGT-fill", bpy.data.lights.new("LGT-fill", "AREA"))
     fill.data.shape, fill.data.size, fill.data.size_y = "RECTANGLE", w * 0.9, d * 0.9
-    fill.data.energy = 1.5 * w * d
-    fill.data.color = (1.0, 0.97, 0.93)
-    fill.location = (center.x, center.y, 3.2)
+    fill.data.energy = (1.5 if not sun_job else 2.0) * w * d
+    fill.data.color = (1.0, 1.0, 1.0)
+    fill.location = (center.x, center.y, ceiling_h - 0.02)
     sc.collection.objects.link(fill)
 
     # 카메라: 방 바닥·벽 윗모서리가 모두 들어오게 맞춘 뒤 조금 물린다
@@ -437,8 +464,8 @@ def render_settings(engine):
 
 def main():
     job = args()
-    center, floor = build(job)
-    light_and_camera(center, floor)
+    center, floor, ceiling_h = build(job)
+    light_and_camera(center, floor, ceiling_h, job.get("sun"))
     render_settings(job.get("engine"))
     if job.get("out_png"):
         bpy.context.scene.render.filepath = job["out_png"]

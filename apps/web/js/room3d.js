@@ -117,6 +117,74 @@ const worldBox = (src, w, h, d, mat, y) => {
   return m;
 };
 
+// ---------- 실제 채광용 그림자 껍데기 ----------
+// 화면에는 안 그리고(colorWrite 끔) 해 그림자만 낸다: 창 자리를 뺀 벽 조각 + 천장.
+// 그래서 해는 창으로만 들어오고, 컷어웨이로 흐리게 한 앞벽도 그림자는 그대로 낸다.
+const SHADOW_ONLY = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+
+/** 벽 하나(단위 상자 × scale)에서 창·문 구멍을 뺀 조각들 [u0, u1, v0, v1] (벽 가운데 기준, m) */
+export function wallPieces(L, H, holes) {
+  const out = [], hs = [...holes].sort((a, b) => a[0] - b[0]);
+  let cur = -L / 2;
+  for (const [ua, ub, va, vb] of hs) {
+    const a = Math.max(cur, Math.max(-L / 2, ua)), b = Math.min(L / 2, ub);
+    if (b <= a) continue;
+    if (a > cur + 1e-3) out.push([cur, a, -H / 2, H / 2]);
+    if (va > -H / 2 + 1e-3) out.push([a, b, -H / 2, Math.min(va, H / 2)]);
+    if (vb < H / 2 - 1e-3) out.push([a, b, Math.max(vb, -H / 2), H / 2]);
+    cur = b;
+  }
+  if (cur < L / 2 - 1e-3) out.push([cur, L / 2, -H / 2, H / 2]);
+  return out;
+}
+
+export function shadowShell(model) {
+  const g = new THREE.Group();
+  g.name = "shadowShell";
+  const walls = [], ops = [];
+  let floor = null;
+  model.traverse((o) => {
+    const k = o.userData?.kind;
+    if (!o.isMesh) return;
+    if (k === "wall") walls.push(o);
+    else if (k === "window" || k === "door" || k === "opening") ops.push(o);
+    else if (k === "floor") floor = o;
+  });
+  const inv = new THREE.Matrix4(), p = new THREE.Vector3();
+  let top = 0;
+  for (const w of walls) {
+    const L = w.scale.x, H = w.scale.y, T = w.scale.z;
+    top = Math.max(top, w.position.y + H / 2);
+    inv.compose(w.position, w.quaternion, new THREE.Vector3(1, 1, 1)).invert();
+    const holes = [];
+    for (const o of ops) {
+      p.copy(o.position).applyMatrix4(inv); // 벽 기준 (m)
+      if (Math.abs(p.z) > T / 2 + 0.06 || Math.abs(p.x) > L / 2 + o.scale.x / 2) continue;
+      holes.push([p.x - o.scale.x / 2, p.x + o.scale.x / 2, p.y - o.scale.y / 2, p.y + o.scale.y / 2]);
+    }
+    const frame = new THREE.Group();
+    frame.position.copy(w.position);
+    frame.quaternion.copy(w.quaternion);
+    for (const [u0, u1, v0, v1] of wallPieces(L, H, holes)) {
+      const m = new THREE.Mesh(new THREE.BoxGeometry(u1 - u0, v1 - v0, T), SHADOW_ONLY);
+      m.position.set((u0 + u1) / 2, (v0 + v1) / 2, 0);
+      m.castShadow = true;
+      m.userData.shadowOnly = true;
+      frame.add(m);
+    }
+    g.add(frame);
+  }
+  if (floor) {
+    const c = new THREE.Mesh(new THREE.BoxGeometry(floor.scale.x + 0.4, 0.06, floor.scale.z + 0.4), SHADOW_ONLY);
+    c.position.set(floor.position.x, (top || 2.4) + 0.03, floor.position.z);
+    c.castShadow = true;
+    c.userData.shadowOnly = true;
+    g.add(c);
+  }
+  g.traverse((o) => { o.raycast = () => {}; }); // 고르기에 안 잡히게
+  return g;
+}
+
 /** 바닥 마루, 벽 걸레받이, 창 유리·창틀, 문 나무·문틀. 반환: 컷어웨이(앞쪽 벽 흐리게)에 넣을 메시들 */
 export function dressRoom(model) {
   const extra = [], add = [];

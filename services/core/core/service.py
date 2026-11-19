@@ -553,14 +553,13 @@ class Service:
         p["site"] = site
         return self._save_project(p)
 
-    def daylight(self, pid: str, day: str, time: str | None = None) -> dict:
+    def _sun_site(self, p: dict, day: str, time: str | None):
+        """프로젝트 위치·북쪽 + 날짜·시각 → (Site, 날짜, 시각). 북쪽을 안 정했으면 Invalid."""
         import math
         from datetime import date as _date, datetime as _dt
 
-        from sim.daylight import KST, Site, daily_sun_hours, sun_patches
-        from sim.solar import sun_position
+        from sim.daylight import KST, Site
 
-        p = self.get_project(pid)
         site = p.get("site") or {}
         if site.get("north_deg") is None:
             raise Invalid("채광을 보려면 먼저 평면도에서 북쪽 방향을 지정하세요")
@@ -571,15 +570,23 @@ class Service:
         except ValueError as e:
             raise Invalid(f"날짜·시간 형식 오류 (YYYY-MM-DD, HH:MM): {e}") from e
         th = math.radians(site["north_deg"])
-        s = Site(lat=site["lat"], lon=site["lon"], north_rad=math.atan2(-math.cos(th), math.sin(th)))
+        return Site(lat=site["lat"], lon=site["lon"], north_rad=math.atan2(-math.cos(th), math.sin(th))), d, when
+
+    def daylight(self, pid: str, day: str, time: str | None = None, heatmap: bool = True) -> dict:
+        """그 시각 해(3D 빛 방향·색·세기)와 볕 드는 자리. heatmap=False면 하루 직사광 격자를 건너뛴다(시간 슬라이더용)."""
+        from sim.daylight import daily_sun_hours, sun_light, sun_patches
+
+        p = self.get_project(pid)
+        s, d, when = self._sun_site(p, day, time)
+        site = p["site"]
         room = self.get_room(pid)
         pts = {x["placement_id"]: tuple(x["center_xz"]) for x in p["scene_state"]["placements"] if x.get("placement_id")}
-        alt, az = sun_position(s.lat, s.lon, when)
-        daily = daily_sun_hours(room, s, d, points=pts)
+        daily = daily_sun_hours(room, s, d, points=pts) if heatmap else None
+        notes = daily.pop("assumptions") if daily else []
         return {"site": site, "date": d.isoformat(), "time": when.strftime("%H:%M"),
-                "sun": {"altitude_deg": round(alt, 2), "azimuth_deg": round(az, 2)},
+                "sun": sun_light(s, when),
                 "patches": [{**x, "polygon": [[round(a, 3), round(b, 3)] for a, b in x["polygon"]]} for x in sun_patches(room, s, when)],
-                "daily": daily, "assumptions": daily.pop("assumptions") + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
+                "daily": daily, "assumptions": notes + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
     # ---- 살아 보기: 와이파이 (S7) ----
     METAL = ("refrigerator", "kimchi_refrigerator")
@@ -707,10 +714,19 @@ class Service:
         self._save_project(p)
         return self._rebuild(pid)
 
-    def render(self, pid: str) -> dict:
-        return self._rebuild(pid, render=True)
+    def render(self, pid: str, day: str | None = None, time: str | None = None) -> dict:
+        """렌더 이미지. 날짜·시각을 주고 북쪽이 정해져 있으면 채광과 같은 해로 비춘다."""
+        sun = None
+        if day:
+            from sim.daylight import sun_light
 
-    def _rebuild(self, pid: str, render: bool = False) -> dict:
+            p = self.get_project(pid)
+            if (p.get("site") or {}).get("north_deg") is not None:
+                s, _, when = self._sun_site(p, day, time)
+                sun = sun_light(s, when)
+        return self._rebuild(pid, render=True, sun=sun)
+
+    def _rebuild(self, pid: str, render: bool = False, sun: dict | None = None) -> dict:
         from worker.runner import build_scene
 
         p = self.get_project(pid)
@@ -720,6 +736,8 @@ class Service:
             room = room.model_copy(update={"objects": [o for o in room.objects if o.object_id not in hidden]})
         usdz = self.root / p["scan"]["usdz"]
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
+        if sun:
+            state["sun"] = sun
         res = build_scene(room, usdz, state, self.pdir(pid) / "scene", render=render)
         p = self.db.get("project", pid)
         p["scene"] = {"glb": str(res["glb"].relative_to(self.root)),
