@@ -9,7 +9,6 @@ import re
 import secrets
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Optional
 
 from recommender.cmf import rank_cmf
 from recommender.fit import FitConfig, check_fit
@@ -18,7 +17,7 @@ from sim.regions import REGIONS
 from recommender.recommend import recommend_zone
 
 from . import config
-from .models import MeasuredDims, Product, Room, StyleTags, Zone
+from .models import MeasuredDims, Product, Room, Zone
 from .store import Store
 
 KST = timezone(timedelta(hours=9))

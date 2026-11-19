@@ -4,7 +4,7 @@ import json
 import pytest
 
 from core import config
-from core.models import BBox, MeasuredDims, Product, Room, ScannedDims, Wall, Zone
+from core.models import MeasuredDims, Product, Room, ScannedDims, Wall, Zone
 from recommender.fit import FitConfig, Verdict, check_fit
 
 REAL = json.loads((config.ROOT / "data/catalog/products.json").read_text(encoding="utf-8"))["products"]

@@ -1,7 +1,7 @@
 """CMF 매칭 (기획 §9.2)."""
 import pytest
 
-from core.models import CmfOption, Dims, Product, StyleTags
+from core.models import CmfOption, Product, StyleTags
 from recommender.cmf import delta_e2000, hex_to_lab, material_keywords, rank_cmf
 
 

@@ -2,7 +2,6 @@
 import math
 from datetime import date, datetime, timedelta, timezone
 
-import pytest
 
 from core.models import Opening, Room, ScannedDims, Wall
 from sim.daylight import Site, daily_sun_hours, sun_patches

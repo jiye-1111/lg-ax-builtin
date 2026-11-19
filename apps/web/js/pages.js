@@ -1,5 +1,5 @@
 // 화면: 내 집 스캔(첫 화면), 방문 스캔 신청, 기사 화면
-import { $app, cleanup, esc, api, post, toast, guard } from "./core.js";
+import { $app, cleanup, esc, api, post, put, toast, guard } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
 

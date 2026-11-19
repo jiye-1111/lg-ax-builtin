@@ -4,7 +4,6 @@ from __future__ import annotations
 import mimetypes
 import os
 from functools import lru_cache
-from pathlib import Path
 from typing import Optional
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile

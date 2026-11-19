@@ -6,11 +6,11 @@ import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 
 export async function customer(pid) {
   $app.innerHTML = `
-    <div class="studio" data-tab="sel" data-view="plan">
+    <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
         <div class="seg" role="group" aria-label="보기 전환">
-          <button data-view="plan" class="on">평면</button><button data-view="3d">3D</button><button data-view="split">나란히</button></div>
+          <button data-view="3d" class="on">3D</button><button data-view="plan">평면</button><button data-view="split">나란히</button></div>
       </header>
 
       <aside class="lib" data-panel="lib" aria-label="LG 제품">
@@ -18,7 +18,7 @@ export async function customer(pid) {
         <input id="q" type="search" placeholder="제품 이름·모델명 검색" aria-label="제품 검색">
         <div class="chips" id="cats"></div>
         <ul class="list" id="lib"></ul>
-        <p class="hint-sm">제품을 누른 뒤 평면을 누르거나, 평면으로 끌어다 놓으세요. 벽 가까이 놓으면 등이 벽에 붙어요.</p>
+        <p class="hint-sm">제품을 누른 뒤 3D 바닥이나 평면을 누르세요. 끌어다 놓아도 돼요. 벽 가까이 놓으면 등이 벽에 붙어요.</p>
       </aside>
 
       <section class="stage" aria-label="우리 집">
@@ -88,7 +88,33 @@ export async function customer(pid) {
   };
   studio.querySelectorAll(".studio-head [data-view]").forEach((b) => (b.onclick = () => setView(b.dataset.view)));
   studio.querySelectorAll("[data-swap]").forEach((b) => (b.onclick = () => setView(b.dataset.swap)));
-  const viewer = makeViewer(document.getElementById("viewer"));
+  // 3D 안에서 바로 놓기·옮기기·고르기 (plans/virtual-remodel.md S10)
+  let drag3d = null;
+  const viewer = makeViewer(document.getElementById("viewer"), {
+    canDrag: () => mode === "move" && !armed && !armedRouter && !armedMark,
+    onHover: (p) => { if (armed && mode === "move") preview({ sku: armed, center_xz: p, yaw_rad: Math.PI / 2 }); },
+    onLeave: () => { if (armed) ghost(null); },
+    onClick: ({ hit, point }) => {
+      if (point && floorAction(point)) return;
+      if (hit?.type === "placement") { selPl = hit.id; selObj = null; setTab("sel"); }
+      else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
+      else { selPl = null; selObj = null; }
+      draw(); renderInspector(); renderPlacements();
+    },
+    onDragMove: (id, c) => {
+      const x = project.scene_state.placements.find((q) => q.placement_id === id);
+      if (!x) return;
+      drag3d = id; selPl = id; selObj = null;
+      preview({ sku: x.sku, center_xz: c, yaw_rad: x.yaw_rad, placement_id: id }, (r) => viewer.setDragVerdict(id, r.verdict));
+    },
+    onDragEnd: (id, c) => {
+      const x = project.scene_state.placements.find((q) => q.placement_id === id);
+      drag3d = null;
+      setTab("sel");
+      if (x) patch(id, { center_xz: c, yaw_rad: x.yaw_rad });
+    },
+    onDropSku: (sku, p) => placeAt(sku, p),
+  });
   cleanup.push(() => viewer.dispose());
   const svg = document.getElementById("plan");
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
@@ -96,12 +122,12 @@ export async function customer(pid) {
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
-    move: "제품을 끌어서 옮기세요. 선택 후 R 키 또는 오른쪽 버튼으로 돌릴 수 있습니다. 기존 가구를 누르면 치울 수 있어요.",
+    move: "제품을 끌면 옮겨지고, 빈 곳을 끌면 시점이 돌아가요. 고른 뒤 R 키나 오른쪽 버튼으로 돌려요. 스캔된 가구를 누르면 치울 수 있어요.",
     rect: "평면도에서 드래그해 영역을 그리세요 (5cm 단위).",
     poly: "꼭짓점을 차례로 누르고, 첫 점을 다시 누르거나 더블클릭하면 완성됩니다.",
   };
   const setHint = () => {
-    document.getElementById("hint").innerHTML = armed ? `<b>${esc(prodOf(armed)?.name || armed)}</b> 놓을 자리를 누르세요 · <a href="#" id="unarm">취소</a>` : HINT[mode];
+    document.getElementById("hint").innerHTML = armed ? `<b>${esc(prodOf(armed)?.name || armed)}</b> 3D 바닥이나 평면에서 놓을 자리를 누르세요 · <a href="#" id="unarm">취소</a>` : HINT[mode];
     const u = document.getElementById("unarm");
     if (u) u.onclick = (e) => { e.preventDefault(); armed = null; ghost(null); setHint(); renderLib(); };
   };
@@ -143,22 +169,24 @@ export async function customer(pid) {
     const g = document.getElementById("ghost");
     if (!g) return;
     g.innerHTML = res ? placedSvg({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict }, pv.sw, false, true) : "";
+    viewer.setGhost(res && { ...res, hex: prodOf(armed)?.cmf_options[0]?.hex_approx });
   };
   let busy = false, queued = null, lastPreview = null;
-  const preview = async (args) => {
-    if (busy) { queued = args; return; }
+  const preview = async (args, onRes) => {
+    if (busy) { queued = [args, onRes]; return; }
     busy = true;
     try {
       lastPreview = await post(`/api/projects/${pid}/pose-check`, args);
-      if (lastPreview.size_m && (armed || drag)) ghost(lastPreview);
+      if (onRes) onRes(lastPreview);
+      else if (lastPreview.size_m && (armed || drag)) ghost(lastPreview);
     } catch { /* 미리 보기 실패는 무시 */ }
     busy = false;
-    if (queued) { const a = queued; queued = null; preview(a); }
+    if (queued) { const [a, cb] = queued; queued = null; preview(a, cb); }
   };
 
   const placeAt = guard(async (sku, p) => {
     const r = await post(`/api/projects/${pid}/placements`, { sku, center_xz: p, yaw_rad: Math.PI / 2 });
-    selPl = r.placement.placement_id; selObj = null; armed = null; setTab("sel");
+    selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${prodOf(sku)?.name || sku}: ${LABEL[r.placement.verdict]}`);
     setHint(); renderLib();
     await refresh(true);
@@ -172,6 +200,7 @@ export async function customer(pid) {
   const syncMode = () => document.querySelectorAll("[data-mode]").forEach((x) => x.classList.toggle("on", x.dataset.mode === mode));
   document.querySelectorAll("[data-mode]").forEach((b) => (b.onclick = () => {
     mode = b.dataset.mode; draft = []; armed = null; ghost(null);
+    if (mode !== "move") setView("plan"); // 영역 그리기는 평면에서
     syncMode(); setHint(); renderLib(); drawDraft();
   }));
   const drawDraft = () => {
@@ -189,21 +218,27 @@ export async function customer(pid) {
     toast(`${z.name} 영역을 만들었어요. ‘추천’ 탭에서 들어가는 제품을 확인하세요`); setTab("zones");
     await refresh(true);
   });
+  // 바닥을 눌렀을 때 할 일 (평면·3D 공통): 현관·싱크 지정, 공유기 놓기, 제품 놓기
+  const floorAction = (p) => {
+    if (mode !== "move") return false;
+    if (armedMark) {
+      const name = armedMark; armedMark = null;
+      guard(async () => { project = await put(`/api/projects/${pid}/marks/${name}`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
+      return true;
+    }
+    if (armedRouter) {
+      armedRouter = false;
+      guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
+      return true;
+    }
+    if (armed) { placeAt(armed, p); return true; }
+    return false;
+  };
   svg.onpointerdown = (e) => {
     if (!pv) return;
     const p = pv.toWorld(e);
     if (mode === "move") {
-      if (armedMark) {
-        const name = armedMark; armedMark = null;
-        guard(async () => { project = await put(`/api/projects/${pid}/marks/${name}`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
-        return;
-      }
-      if (armedRouter) {
-        armedRouter = false;
-        guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
-        return;
-      }
-      if (armed) { placeAt(armed, p); return; }
+      if (floorAction(p)) return;
       const g = e.target.closest("[data-pl]");
       if (g) {
         const x = project.scene_state.placements.find((q) => q.placement_id === g.dataset.pl);
@@ -313,7 +348,7 @@ export async function customer(pid) {
       return;
     }
     box.innerHTML = `<div class="insp-empty"><h2>아직 고른 게 없어요</h2>
-      <p>평면에서 놓은 제품이나 스캔된 가구를 누르면 여기에 판정과 조작 버튼이 나와요.</p>
+      <p>3D나 평면에서 놓은 제품이나 스캔된 가구를 누르면 여기에 판정과 조작 버튼이 나와요.</p>
       <ul class="keys"><li><kbd>R</kbd> 15° 돌리기</li><li><kbd>Shift</kbd>+<kbd>R</kbd> 반대로</li><li><kbd>Delete</kbd> 빼기</li><li><kbd>Esc</kbd> 놓기 취소</li></ul></div>`;
   };
   const renderPlacements = () => {
@@ -416,8 +451,14 @@ export async function customer(pid) {
     pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
     drawDraft();
+    if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
   };
-  const setOverlay = (html) => { overlay = html; const g = document.getElementById("overlay"); if (g) g.innerHTML = html; };
+  const setOverlay = (html) => {
+    overlay = html;
+    const g = document.getElementById("overlay");
+    if (g) g.innerHTML = html;
+    viewer.setOverlay(html, svg.getAttribute("viewBox")?.split(" ").map(Number));
+  };
 
   // ---- 살아 보기: 채광 ----
   const heat = (grid, color, maxV) => {
@@ -558,8 +599,9 @@ export async function customer(pid) {
     else { setOverlay(""); document.getElementById("simctl").innerHTML = `<p class="muted">준비 중입니다.</p>`; }
   });
   document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = b.dataset.sim; showSim(); }));
+  let lastSceneKey = null;
   const refresh = async (force = false) => {
-    if (drag) return;
+    if (drag || drag3d) return;
     const v = (await api(`/api/projects/${pid}/version`)).version;
     if (!force && v === version) return;
     version = v;
@@ -579,8 +621,10 @@ export async function customer(pid) {
     renderRecs();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
-    viewer.load(`/api/projects/${pid}/files/scene.glb`);
-    document.getElementById("hud").textContent = `드래그 회전 · 휠 확대 · ${project.scene.engine === "blender" ? "Blender" : "치수 박스 미리보기"}`;
+    // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, room.walls.map((w) => w.measured)]);
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.load(`/api/projects/${pid}/files/scene.glb`); }
+    document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 제품 끌어 옮기기 · ${project.scene.engine === "blender" ? "Blender" : "치수 박스 미리보기"}`;
   };
   setHint();
   await guard(refresh)(true);

@@ -8,7 +8,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta, timezone
-from typing import Iterable, Optional
+from typing import Optional
 
 from core.models import Room
 from recommender.pose import _inward, inside_room
