@@ -40,6 +40,38 @@ def test_site_and_daylight(c, pid):
     assert c.get(f"/api/projects/{pid}/sim/daylight", params={"date": "어제"}).status_code == 422
 
 
+def test_daylight_gives_3d_sun_and_can_skip_heatmap(c, pid):
+    c.put(f"/api/projects/{pid}/site", json={"north_deg": 0, "region": "서울"})
+    d = c.get(f"/api/projects/{pid}/sim/daylight", params={"date": "2026-06-21", "time": "12:30"}).json()
+    sun = d["sun"]
+    assert len(sun["direction"]) == 3 and sun["direction"][1] > 0.8 and sun["color"].startswith("#")
+    assert sun["intensity"] > 0 and sun["up"] is True
+    fast = c.get(f"/api/projects/{pid}/sim/daylight",
+                 params={"date": "2026-06-21", "time": "12:30", "heatmap": "false"}).json()
+    assert fast["daily"] is None and fast["sun"]["direction"] == sun["direction"]  # 시간 슬라이더용: 히트맵 없이 빠르게
+
+
+def test_render_uses_the_same_sun(c, pid, monkeypatch):
+    from worker import runner
+
+    seen = {}
+
+    def fake(room, usdz, state, out_dir, render=False):
+        seen.update(state=state, render=render)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "scene.glb").write_bytes(b"")
+        return {"glb": out_dir / "scene.glb", "png": None, "engine": "fallback"}
+
+    c.put(f"/api/projects/{pid}/site", json={"north_deg": 30, "region": "서울"})
+    monkeypatch.setattr(runner, "build_scene", fake)
+    r = c.post(f"/api/projects/{pid}/render", json={"date": "2026-12-21", "time": "15:00"})
+    assert r.status_code == 200, r.text
+    want = c.get(f"/api/projects/{pid}/sim/daylight",
+                 params={"date": "2026-12-21", "time": "15:00", "heatmap": "false"}).json()["sun"]
+    assert seen["render"] and seen["state"]["sun"]["direction"] == want["direction"]
+    assert seen["state"]["sun"]["color"] == want["color"]
+
+
 def test_regions_listed(c):
     rs = c.get("/api/regions").json()
     assert "서울" in rs and all({"lat", "lon"} <= set(v) for v in rs.values())
