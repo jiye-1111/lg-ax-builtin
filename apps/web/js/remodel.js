@@ -25,6 +25,7 @@ export async function customer(pid) {
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품 놓기·옮기기">놓기·옮기기</button><button data-mode="rect" title="사각형 영역 그리기">영역 □</button><button data-mode="poly" title="다각형 영역 그리기">영역 ⬠</button></div>
+          <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 치우기</button>
           <span class="spacer"></span>
           <div class="seg sims" role="group" aria-label="살아 보기">
             <span class="seg-label">살아 보기</span>
@@ -362,7 +363,14 @@ export async function customer(pid) {
     const gone = project.scene_state.hidden_objects || [];
     if (gone.length) document.getElementById("pls").insertAdjacentHTML("beforeend", `<li class="muted" style="font-size:12px">치운 기존 가구 ${gone.length}개 <span class="spacer"></span><button class="small ghost" id="restore">모두 되돌리기</button></li>`);
     const rb = document.getElementById("restore");
-    if (rb) rb.onclick = guard(async () => { for (const id of gone) await put(`/api/projects/${pid}/objects/${id}/hidden`, { hidden: false }); await refresh(true); });
+    if (rb) rb.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: false }); await refresh(true); });
+    // 스캔 가구 한꺼번에 치우기 / 되돌리기
+    const fb = document.getElementById("furn");
+    const all = room.objects.length, allGone = all > 0 && gone.length >= all;
+    fb.hidden = all === 0;
+    fb.textContent = allGone ? `가구 ${all}개 되돌리기` : "가구 모두 치우기";
+    fb.classList.toggle("on", allGone);
+    fb.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: !allGone }); toast(allGone ? "스캔 가구를 되돌렸어요" : "스캔 가구를 모두 치웠어요"); await refresh(true); });
   };
   const SWATCH = { wall: ["#F2EFEA", "#E8E4DC", "#D9D4CB", "#C9CFD3", "#3E4247"], floor: ["#C8A27A", "#A67C52", "#E3D5C1", "#8D8D8A", "#5B4636"] };
   const renderMats = () => {

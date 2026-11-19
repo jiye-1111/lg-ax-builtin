@@ -70,7 +70,8 @@ def boxes_for_room(room: Room, state: dict | None = None) -> list[dict]:
                       "color": colors.get(o.type, colors["opening"])})
     for ob in room.objects:
         boxes.append({"name": ob.object_id, "kind": "object", "center": list(ob.position),
-                      "size": [ob.bbox_m.w, ob.bbox_m.h, ob.bbox_m.d], "yaw": ob.yaw_rad, "color": colors["object"]})
+                      "size": [ob.bbox_m.w, ob.bbox_m.h, ob.bbox_m.d], "yaw": ob.yaw_rad, "color": colors["object"],
+                      "category": ob.category})
     for pl in state.get("placements") or []:
         w_, h_, d_ = pl["size_m"]
         boxes.append({"name": f"product:{pl['sku']}", "kind": "product",
@@ -107,7 +108,7 @@ def write_glb(boxes: Iterable[dict], out: str | Path) -> Path:
                                                           "material": mat_index[key]}]})
         nodes.append({"name": b["name"], "mesh": len(meshes) - 1, "translation": [float(c) for c in b["center"]],
                       "rotation": _quat_y(b["yaw"]), "scale": [max(float(s), 1e-4) for s in b["size"]],
-                      "extras": {"kind": b["kind"]}})
+                      "extras": {"kind": b["kind"], **({"category": b["category"]} if b.get("category") else {})}})
     gltf = {
         "asset": {"version": "2.0", "generator": "lg-ax-builtin glb fallback"},
         "scene": 0, "scenes": [{"nodes": list(range(len(nodes)))}], "nodes": nodes, "meshes": meshes,

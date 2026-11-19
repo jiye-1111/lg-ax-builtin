@@ -27,7 +27,7 @@ def lin(hex_: str) -> tuple[float, float, float, float]:
 
 MATS: dict[str, bpy.types.Material] = {}
 LOOK = {  # 이름: (색, 거칠기, 금속성)
-    "oak": ("#B48A5E", 0.55, 0.0),
+    "oak": ("#A27A52", 0.55, 0.0),
     "walnut": ("#7A5638", 0.5, 0.0),
     "fabric": ("#8E918C", 0.92, 0.0),
     "fabric_dark": ("#5E625F", 0.92, 0.0),

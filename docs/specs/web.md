@@ -92,3 +92,12 @@
   uv run pytest tests/integration/test_product_models.py   # 치수가 카탈로그와 3 mm 안인지
   ```
   Blender 대신 `pip install bpy`(Python 3.13) 모듈로 `python build_products.py --catalog … --out …`도 된다.
+
+## 스캔 가구 3D 모델 · 방 다듬기
+- 스캔 가구(RoomPlan 종류: 의자·책상·수납장·소파·침대)는 `apps/web/models/furniture/<종류>.glb`로 그린다. 스캔 상자는 안 보이게 두고 고르기에만 쓴다.
+- 모델은 `bpy_scripts/build_furniture.py`(Blender)가 종류별 기준 크기로 만든다. 웹(`js/room3d.js`)이 부품별 `rig`로 스캔 크기에 맞춘다.
+  - 축마다 `s` 크기·위치 늘림, `p` 위치만, `e` 크기 그대로 + 가까운 모서리 거리 유지. 그래서 책상이 길어져도 다리 굵기·상판 두께는 그대로다.
+  - 모르는 종류는 예전처럼 상자로 둔다.
+- 방: 바닥은 마루 무늬(마감재에서 고른 색이 곱해짐), 벽 아래 걸레받이, 창은 유리 + 창틀·창살, 문은 나무 + 문틀.
+- 툴바 **가구 모두 치우기 / 가구 N개 되돌리기**: `PUT /api/projects/{pid}/objects/hidden {hidden, object_ids?}` (object_ids가 없으면 전부). 치운 가구는 판정·동선에서도 빠진다.
+- 다시 만들기: `blender -b -P services/blender-worker/worker/bpy_scripts/build_furniture.py -- --out apps/web/models/furniture`

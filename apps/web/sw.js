@@ -1,14 +1,14 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v3";
+const VERSION = "lgb-shell-v4";
 const SHELL = [
   "./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
   "./vendor/three/addons/environments/RoomEnvironment.js",
-  "./models/products/index.json",
+  "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",
 ];
 

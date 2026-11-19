@@ -436,3 +436,8 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* 스캔 가구 한꺼번에 치우기 */
+.furn-btn { margin-left: 8px; padding: 6px 12px; font-size: var(--t-xs); background: var(--sheet); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; }
+.furn-btn:hover { border-color: var(--ink); }
+.furn-btn.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); }

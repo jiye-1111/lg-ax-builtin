@@ -103,6 +103,19 @@ const j = async (p) => (await fetch(BASE + p)).json();
   pj = await project(pid);
   check("3D에서 가구 골라 치우기", (pj.scene_state.hidden_objects || []).length === 1);
 
+  // 스캔 가구 한꺼번에 치우기 → 되돌리기
+  await page.click("#furn");
+  await wait(2500);
+  pj = await project(pid);
+  check("가구 모두 치우기", (pj.scene_state.hidden_objects || []).length === room.objects.length);
+  await page.click("#furn");
+  await wait(2500);
+  pj = await project(pid);
+  check("가구 되돌리기", (pj.scene_state.hidden_objects || []).length === 0);
+  await wait(1500);
+  const st = await page.evaluate(() => document.getElementById("viewer").viewer.stats());
+  check("3D 가구를 Blender 모델로 그리기", st.furniture > room.objects.length, `부품 ${st.furniture}개`);
+
   // 벽·바닥 색
   await page.click('.side-tabs [data-tab="finish"]');
   await page.click('[data-mat="wall"] >> nth=3');

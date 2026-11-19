@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { toast } from "./core.js";
+import { dressRoom, furnish } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0xc98a00, no_fit: 0xb3261e, unknown: 0x5b6370 };
 const SELECT_HEX = 0xa50034;
@@ -81,9 +82,10 @@ export function makeViewer(el, handlers = {}) {
     for (const w of walls) {
       w.getWorldPosition(tmp);
       const front = tmp.sub(center).setY(0).normalize().dot(toCam) > 0.35;
-      w.material.opacity = front ? 0.12 : 1;
-      w.material.transparent = front;
-      w.material.depthWrite = !front;
+      const base = w.userData.baseOpacity ?? 1;
+      w.material.opacity = front ? 0.12 * base : base;
+      w.material.transparent = front || base < 1;
+      w.material.depthWrite = !front && base === 1;
     }
   };
   const resize = () => {
@@ -292,6 +294,9 @@ export function makeViewer(el, handlers = {}) {
           if (o.isMesh && (kind === "wall" || kind === "door" || kind === "window")) walls.push(o);
           if (kind === "product") o.visible = false; // 제품은 화면에서 직접 그린다
         });
+        walls.push(...dressRoom(model));
+        const mine = model;
+        furnish(model, () => alive && model === mine);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) { frame(); framed = true; }
@@ -342,6 +347,12 @@ export function makeViewer(el, handlers = {}) {
     toScreen([x, z], y = 0) {
       const v = new THREE.Vector3(x, y, z).project(cam), r = dom.getBoundingClientRect();
       return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
+    },
+    /** 화면에 그린 것 세기 (E2E 확인용) */
+    stats() {
+      let furniture = 0;
+      model?.traverse((o) => { if (o.isMesh && o.userData.shared && o.userData.kind === "object") furniture++; });
+      return { furniture, products: products.children.length };
     },
     reframe() { setTimeout(() => { resize(); frame(); }, 280); },
     dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); renderer.dispose(); el.innerHTML = ""; },

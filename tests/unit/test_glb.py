@@ -26,3 +26,11 @@ def test_state_materials_and_placements(tmp_path):
     *_, js = _read(room_to_glb(ROOM, tmp_path / "s.glb", st))
     assert "product:S1" in {n["name"] for n in js["nodes"]}
     assert "#112233" in {m["name"] for m in js["materials"]}
+
+
+def test_scanned_objects_carry_category_for_web_models(tmp_path):
+    *_, js = _read(room_to_glb(ROOM, tmp_path / "s.glb"))
+    o1 = next(n for n in js["nodes"] if n["name"] == "o1")
+    assert o1["extras"] == {"kind": "object", "category": ROOM.objects[0].category}
+    wall = next(n for n in js["nodes"] if n["name"] == "w1")
+    assert "category" not in wall["extras"]
