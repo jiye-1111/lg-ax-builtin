@@ -160,9 +160,24 @@ class Service:
         return p
 
     # ---- room ----
-    def get_room(self, pid: str) -> Room:
+    def _load_room(self, pid: str) -> Room:
+        """스캔 그대로(+실측). 저장할 때는 이걸 고쳐서 저장한다 (가구 옮긴 자리가 스캔에 섞이지 않게)."""
         p = self.get_project(pid)
         return Room.model_validate_json((self.root / p["scan"]["room_json"]).read_text(encoding="utf-8"))
+
+    def get_room(self, pid: str) -> Room:
+        """지금 집 모습: 스캔 + 옮긴 가구 자리(scene_state.object_poses)."""
+        room, poses = self._load_room(pid), self.get_project(pid)["scene_state"].get("object_poses") or {}
+        if not poses:
+            return room
+        objs = []
+        for o in room.objects:
+            q = poses.get(o.object_id)
+            if q:
+                o = o.model_copy(update={"position": [q["center_xz"][0], o.position[1], q["center_xz"][1]],
+                                         "yaw_rad": q["yaw_rad"]})
+            objs.append(o)
+        return room.model_copy(update={"objects": objs})
 
     def _save_room(self, pid: str, room: Room) -> None:
         p = self.get_project(pid)
@@ -177,7 +192,7 @@ class Service:
         for name, v in (("length_m", length_m), ("height_m", height_m), ("depth_m", depth_m)):
             if v is not None and not (0.05 <= v <= 30):
                 raise Invalid(f"{name} 값이 범위를 벗어남: {v}")
-        room = self.get_room(pid)
+        room = self._load_room(pid)
         try:
             w = room.wall(wall_id)
         except KeyError:
@@ -230,7 +245,7 @@ class Service:
         return (path, fp["content_type"]) if path.exists() else None
 
     def clear_measurement(self, pid: str, wall_id: str) -> dict:
-        room = self.get_room(pid)
+        room = self._load_room(pid)
         w = room.wall(wall_id)
         w.measured = None
         self._save_room(pid, room)
@@ -495,6 +510,30 @@ class Service:
         else:
             p["scene_state"]["hidden_objects"] = [i for i in hs if i not in ids]
         self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def move_object(self, pid: str, object_id: str, center_xz, yaw_rad: float) -> dict:
+        """스캔 가구를 옮기거나 돌린다. 스캔 파일은 그대로 두고 scene_state.object_poses에만 적는다."""
+        room, p = self._load_room(pid), self.get_project(pid)
+        if not any(o.object_id == object_id for o in room.objects):
+            raise NotFound(f"가구 없음: {object_id}")
+        if len(center_xz) != 2:
+            raise Invalid("center_xz는 [x, z]")
+        poses = p["scene_state"].setdefault("object_poses", {})
+        poses[object_id] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "yaw_rad": float(yaw_rad)}
+        self._save_project(p)
+        self._rejudge_all(self.get_room(pid), p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def reset_object(self, pid: str, object_id: str) -> dict:
+        room, p = self._load_room(pid), self.get_project(pid)
+        if not any(o.object_id == object_id for o in room.objects):
+            raise NotFound(f"가구 없음: {object_id}")
+        (p["scene_state"].get("object_poses") or {}).pop(object_id, None)
+        self._save_project(p)
+        self._rejudge_all(self.get_room(pid), p)
         self._save_project(p)
         return self._rebuild(pid)
 

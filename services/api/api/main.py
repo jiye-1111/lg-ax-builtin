@@ -134,6 +134,12 @@ class HiddenIn(BaseModel):
     hidden: bool = True
 
 
+class ObjectPoseIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    center_xz: list[float] = Field(..., min_length=2, max_length=2)
+    yaw_rad: float = 0.0
+
+
 class HiddenManyIn(BaseModel):
     """object_ids가 없으면 스캔 가구 전부"""
     model_config = {"extra": "forbid"}
@@ -311,6 +317,16 @@ def regions():
 @app.put("/api/projects/{pid}/objects/hidden")
 def hide_objects(pid: str, body: HiddenManyIn, s: Service = S):
     return s.set_objects_hidden(pid, body.hidden, body.object_ids)
+
+
+@app.put("/api/projects/{pid}/objects/{oid}/pose")
+def move_object(pid: str, oid: str, body: ObjectPoseIn, s: Service = S):
+    return s.move_object(pid, oid, body.center_xz, body.yaw_rad)
+
+
+@app.delete("/api/projects/{pid}/objects/{oid}/pose")
+def reset_object(pid: str, oid: str, s: Service = S):
+    return s.reset_object(pid, oid)
 
 
 @app.put("/api/projects/{pid}/objects/{oid}/hidden")
