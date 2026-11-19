@@ -8,6 +8,7 @@ job.json: {"usdz": ..., "room": room.json, "state": scene_state.json(선택),
 """
 import json
 import math
+import os
 import sys
 
 import bpy  # noqa: E402  (Blender 내부에서만 사용 가능)
@@ -56,9 +57,30 @@ def main():
                 assign(o, mat)
 
     # USD(Y-up) → Blender(Z-up): 평면 (x, z_usd) = Blender (x, -y)
+    models_dir = job.get("models_dir")
     for pl in state.get("placements") or []:
         w, h, d = pl["size_m"]
         x, z = pl["center_xz"]
+        model = os.path.join(models_dir, f"{pl['sku']}.glb") if models_dir else None
+        if model and os.path.exists(model):
+            # build_products.py로 만든 제품 모델 (바닥 가운데 원점, 정면 -Y)
+            before = set(bpy.data.objects)
+            bpy.ops.import_scene.gltf(filepath=model)
+            imported = set(bpy.data.objects) - before
+            root = bpy.data.objects.new(f"product_{pl['sku']}", None)
+            bpy.context.scene.collection.objects.link(root)
+            for o in imported:
+                if o.parent is None:
+                    o.parent = root
+                for slot in getattr(o, "material_slots", []):
+                    if slot.material and slot.material.name.startswith("finish") and pl.get("hex"):
+                        bsdf = slot.material.node_tree.nodes.get("Principled BSDF")
+                        h_ = pl["hex"].lstrip("#")
+                        rgb = [srgb_to_lin(int(h_[i:i + 2], 16) / 255) for i in (0, 2, 4)]
+                        bsdf.inputs["Base Color"].default_value = (*rgb, 1)
+            root.location = (x, -z, 0)
+            root.rotation_euler = (0, 0, pl["yaw_rad"] - math.pi / 2)
+            continue
         bpy.ops.mesh.primitive_cube_add(size=1, location=(x, -z, h / 2))
         ob = bpy.context.active_object
         ob.name = f"product_{pl['sku']}"
@@ -79,7 +101,15 @@ def main():
     sun.data.energy = 3
     bpy.context.scene.collection.objects.link(sun)
     sc = bpy.context.scene
-    sc.render.engine = "BLENDER_EEVEE_NEXT" if "BLENDER_EEVEE_NEXT" in [e.identifier for e in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items] else "BLENDER_EEVEE"
+    engines = [e.identifier for e in bpy.types.RenderSettings.bl_rna.properties["engine"].enum_items]
+    want = (job.get("engine") or os.getenv("BLENDER_ENGINE") or "").upper()
+    if want == "CYCLES":  # GPU가 없는 PC: CPU 패스 추적, 적은 샘플 + 노이즈 제거
+        sc.render.engine = "CYCLES"
+        sc.cycles.device = "CPU"
+        sc.cycles.samples = int(os.getenv("BLENDER_SAMPLES", 48))
+        sc.cycles.use_denoising = True
+    else:
+        sc.render.engine = "BLENDER_EEVEE_NEXT" if "BLENDER_EEVEE_NEXT" in engines else "BLENDER_EEVEE"
     sc.render.resolution_x, sc.render.resolution_y = 1280, 720
     if job.get("out_png"):
         sc.render.filepath = job["out_png"]

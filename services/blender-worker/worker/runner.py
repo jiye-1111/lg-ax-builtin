@@ -14,6 +14,8 @@ from .glb import room_to_glb
 from .plan_render import render_png
 
 SCRIPT = Path(__file__).parent / "bpy_scripts" / "build_scene.py"
+# 웹과 같은 제품 모델을 렌더에도 쓴다 (build_products.py 결과)
+MODELS_DIR = Path(__file__).resolve().parents[3] / "apps" / "web" / "models" / "products"
 
 
 def blender_bin() -> str | None:
@@ -36,7 +38,8 @@ def build_scene(room: Room, usdz: Path | None, state: dict, out_dir: Path, rende
         state_p = out_dir / "scene_state.json"
         state_p.write_text(json.dumps(state), encoding="utf-8")
         job = {"usdz": str(usdz), "state": str(state_p), "out_glb": str(glb),
-               "out_png": str(png) if render else None, "out_blend": str(out_dir / "scene.blend")}
+               "out_png": str(png) if render else None, "out_blend": str(out_dir / "scene.blend"),
+               "models_dir": str(MODELS_DIR) if MODELS_DIR.exists() else None}
         job_p = out_dir / "job.json"
         job_p.write_text(json.dumps(job), encoding="utf-8")
         r = subprocess.run([exe, "-b", "-P", str(SCRIPT), "--", "--job", str(job_p)],

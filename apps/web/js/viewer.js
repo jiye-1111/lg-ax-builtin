@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { toast } from "./core.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0xc98a00, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -12,17 +13,49 @@ const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 const OVERLAY_CSS = `.sunpatch{fill:#ffd54a;fill-opacity:.55;stroke:#e0a800}.route{fill:none;stroke:#4b45b0;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.9}
 .narrow{fill:#b3261e;fill-opacity:.85}.router circle,.mark circle{fill:#fff;stroke:#1c2024}.router circle{stroke:#2a6fb0}text{font-family:sans-serif}`;
 
+// 제품 모델: 한 번 받아 두고 배치마다 복제한다 (화면을 바꿔도 다시 받지 않는다)
+const MODEL_DIR = "models/products/";
+const templates = new Map();
+const pending = new Map();
+let modelIndex = null;
+const gltf = new GLTFLoader();
+function loadModel(sku) {
+  if (templates.has(sku)) return Promise.resolve(true);
+  if (pending.has(sku)) return pending.get(sku);
+  modelIndex ??= fetch(MODEL_DIR + "index.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
+  const job = modelIndex.then((idx) => {
+    const entry = idx.models?.[sku];
+    if (!entry) return false; // 모델이 없으면 치수 상자로 둔다
+    return gltf.loadAsync(MODEL_DIR + entry.file).then((g) => { templates.set(sku, g.scene); return true; }, () => false);
+  });
+  pending.set(sku, job);
+  return job;
+}
+
 export function makeViewer(el, handlers = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 0.9;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   el.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
   scene.background = new THREE.Color("#e4e6e2");
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b2a8, 1.6));
-  const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+  // 실내 반사(유리·메탈 앞판이 살아 보이게) + 부드러운 하늘빛 + 그림자 내는 해
+  const pmrem = new THREE.PMREMGenerator(renderer);
+  const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
+  scene.environment = envTex;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xa49c90, 0.6));
+  const sun = new THREE.DirectionalLight(0xfff3e4, 2.0);
   sun.position.set(-4, 8, 6);
-  scene.add(sun);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.bias = -0.0004;
+  sun.shadow.normalBias = 0.02;
+  sun.shadow.radius = 4;
+  scene.add(sun, sun.target);
   const cam = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
   const ctl = new OrbitControls(cam, renderer.domElement);
   ctl.enableDamping = true;
@@ -78,42 +111,88 @@ export function makeViewer(el, handlers = {}) {
     const s = box.getSize(new THREE.Vector3()).length() * Math.max(1, 1.2 / cam.aspect);
     cam.position.set(c.x - s * 0.35, c.y + s * 1.05, c.z + s * 0.55);
     ctl.target.copy(c);
+    // 그림자 범위를 방에 맞춘다
+    const r = box.getSize(new THREE.Vector3()).length() / 2;
+    sun.position.set(c.x - r * 0.6, c.y + r * 1.6, c.z + r * 0.8);
+    sun.target.position.copy(c);
+    Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.1, far: r * 4 });
+    sun.shadow.camera.updateProjectionMatrix();
   };
 
   // ---------- 제품 상자 ----------
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(w, h, d),
-      new THREE.MeshStandardMaterial({ color: new THREE.Color(p.hex || "#f2f2f0"), roughness: 0.55, metalness: 0.05,
-        transparent: preview, opacity: preview ? 0.55 : 1 }),
-    );
-    body.position.y = h / 2;
     const vhex = selected ? SELECT_HEX : VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(body.geometry), new THREE.LineBasicMaterial({ color: vhex }));
-    edges.position.copy(body.position);
+    const tmpl = p.sku && templates.get(p.sku);
+    if (tmpl) {
+      // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z)
+      const m = tmpl.clone(true);
+      m.traverse((o) => {
+        if (!o.isMesh) return;
+        o.userData.shared = true;
+        o.castShadow = !preview;
+        o.receiveShadow = true;
+        o.userData.placementId = p.placement_id;
+        const isFinish = o.material.name === "finish";
+        if (preview || (isFinish && p.hex)) {
+          o.material = o.material.clone();
+          o.userData.ownMaterial = true;
+          if (isFinish && p.hex) o.material.color.set(p.hex);
+          if (preview) Object.assign(o.material, { transparent: true, opacity: 0.5, depthWrite: false });
+        }
+      });
+      g.add(m);
+    } else {
+      if (p.sku) requestModel(p.sku);
+      const body = new THREE.Mesh(
+        new THREE.BoxGeometry(w, h, d),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(p.hex || "#f2f2f0"), roughness: 0.55, metalness: 0.05,
+          transparent: preview, opacity: preview ? 0.55 : 1 }),
+      );
+      body.position.y = h / 2;
+      body.castShadow = !preview;
+      body.userData = { placementId: p.placement_id };
+      // 정면 표시: 앞쪽 아래 굵은 띠
+      const front = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, 0.025, 0.012), new THREE.MeshBasicMaterial({ color: 0x1c2024 }));
+      front.position.set(0, 0.05, d / 2 + 0.007);
+      g.add(body, front);
+    }
+    // 판정 색 테두리: 상자 모양일 때와 고른 제품·미리 보기일 때만 (모델 위에 늘 그리면 지저분하다)
+    if (!tmpl || selected || preview) {
+      const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w + 0.01, h + 0.01, d + 0.01)),
+        new THREE.LineBasicMaterial({ color: vhex }));
+      edges.position.y = h / 2;
+      g.add(edges);
+    }
     // 바닥 판: 판정 색
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.08, d + 0.08),
       new THREE.MeshBasicMaterial({ color: vhex, transparent: true, opacity: selected ? 0.55 : 0.35, depthWrite: false }));
     plate.rotation.x = -Math.PI / 2;
     plate.position.y = 0.006;
-    // 정면 표시: 앞쪽 아래 굵은 띠
-    const front = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, 0.025, 0.012), new THREE.MeshBasicMaterial({ color: 0x1c2024 }));
-    front.position.set(0, 0.05, d / 2 + 0.007);
-    g.add(body, edges, plate, front);
+    plate.userData.verdictPlate = true;
+    g.add(plate);
     g.position.set(p.center_xz[0], 0, p.center_xz[1]);
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
     g.userData = { placementId: p.placement_id };
-    body.userData = { placementId: p.placement_id };
     return g;
   };
   const clear = (grp) => {
     for (const c of [...grp.children]) {
       grp.remove(c);
-      c.traverse((o) => { o.geometry?.dispose(); o.material?.dispose?.(); });
+      c.traverse((o) => {
+        if (!o.userData.shared) o.geometry?.dispose();
+        if (!o.userData.shared || o.userData.ownMaterial) o.material?.dispose?.();
+      });
     }
   };
+  // 모델이 늦게 도착하면 마지막 상태로 다시 그린다
+  let last = { list: [], selectedId: null, ghost: null };
+  const requestModel = (sku) => loadModel(sku).then((ok) => {
+    if (!ok || !alive || dragging) return;
+    api.setPlacements(last.list, last.selectedId);
+    api.setGhost(last.ghost);
+  });
 
   // ---------- 포인터 ----------
   const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
@@ -205,6 +284,11 @@ export function makeViewer(el, handlers = {}) {
         model.traverse((o) => {
           if (o.isMesh) o.material = o.material.clone();
           const kind = o.userData?.kind ?? o.parent?.userData?.kind;
+          if (o.isMesh) {
+            o.receiveShadow = true;
+            o.castShadow = kind === "object";
+            o.material.envMapIntensity = 0.25; // 방은 반사를 약하게: 해 그림자가 보이게
+          }
           if (o.isMesh && (kind === "wall" || kind === "door" || kind === "window")) walls.push(o);
           if (kind === "product") o.visible = false; // 제품은 화면에서 직접 그린다
         });
@@ -215,21 +299,23 @@ export function makeViewer(el, handlers = {}) {
     },
     /** 놓은 제품을 다시 그린다. 끌고 있는 중이면 건너뛴다. */
     setPlacements(list, selectedId) {
+      last = { ...last, list, selectedId };
       if (dragging) return;
       clear(products);
       for (const p of list) if (p.size_m) products.add(productBox(p, { selected: p.placement_id === selectedId }));
     },
     /** 미리 보기 상자 (pose-check 결과). null이면 지운다. */
     setGhost(res) {
+      last = { ...last, ghost: res };
       clear(ghost);
-      if (res?.size_m) ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex }, { preview: true }));
+      if (res?.size_m) ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex, sku: res.sku }, { preview: true }));
     },
     /** 끄는 동안 판정 색만 바꾼다 */
     setDragVerdict(id, verdict) {
       const g = products.children.find((c) => c.userData.placementId === id);
       if (!g) return;
       const hex = VERDICT_HEX[verdict] ?? VERDICT_HEX.unknown;
-      g.children.forEach((c) => { if (c.isLineSegments || (c.isMesh && c.geometry.type === "PlaneGeometry")) c.material.color.setHex(hex); });
+      g.children.forEach((c) => { if (c.isLineSegments || c.userData.verdictPlate) c.material.color.setHex(hex); });
     },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
     setOverlay(inner, box) {
@@ -258,7 +344,7 @@ export function makeViewer(el, handlers = {}) {
       return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
     },
     reframe() { setTimeout(() => { resize(); frame(); }, 280); },
-    dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); renderer.dispose(); el.innerHTML = ""; },
+    dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
   el.viewer = api;
   return api;

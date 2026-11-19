@@ -72,3 +72,23 @@
 - 살아 보기 결과(볕 드는 자리·하루 직사 시간·와이파이 세기·동선·좁은 곳)는 평면 오버레이 SVG를 그대로 3D 바닥 텍스처로 깐다.
 - 영역 그리기(□·⬠)는 평면에서만. 도구를 고르면 평면이 크게 바뀐다.
 - 점검: `node tests/e2e/demo_flow.js` (서버를 켠 상태, Playwright 필요).
+
+## 제품 3D 모델 (Blender)
+
+![제품 모델 Cycles 렌더](../images/product-models.png)
+
+- 놓은 제품은 치수 상자 대신 `apps/web/models/products/<sku>.glb`를 불러와 그린다. 모델이 없거나 못 받으면 예전처럼 치수 상자로 그린다.
+- 모델은 `services/blender-worker/worker/bpy_scripts/build_products.py`가 카탈로그에서 만든다. 크기는 `product_dims_mm`(LGE.COM 값) 그대로, 바닥 가운데 원점, 정면 +Z.
+- 모양(문 나눔, 손잡이, 화구 무늬, 표시창)은 카테고리별 화면용 표현이다. 실제 제품 도면이 아니다.
+  - 냉장고: 4도어(위 양문 + 아래 좌우 서랍), 컨버터블 드로어(위 양문 + 아래 서랍 2단)
+  - 김치냉장고: 386L 3도어, 480L 4도어 · 식기세척기: 앞판 + 손잡이 홈 + 걸레받이 · 쿡탑: 유리 상판 + 화구 · 정수기: 표시창 + 출수구 + 물받이
+- 재질: 카탈로그 재질 이름으로 느낌을 정한다(글라스 = 광택 코팅, 메탈·스테인리스 = 금속성). 문 앞판 재질 이름은 `finish`, 웹에서 고른 색으로 바꾼다.
+- 화면: ACES 톤 매핑, 실내 반사(RoomEnvironment), 해 그림자. 고른 제품과 미리 보기에만 판정 색 테두리를 그리고, 바닥 판은 늘 판정 색.
+- Blender 렌더(`build_scene.py`)도 같은 모델을 쓴다. GPU가 없는 PC는 `.env`에 `BLENDER_ENGINE=CYCLES`.
+- 카탈로그를 바꾸면 모델을 다시 만든다:
+  ```bash
+  blender -b -P services/blender-worker/worker/bpy_scripts/build_products.py -- \
+    --catalog data/catalog/products.json --out apps/web/models/products
+  uv run pytest tests/integration/test_product_models.py   # 치수가 카탈로그와 3 mm 안인지
+  ```
+  Blender 대신 `pip install bpy`(Python 3.13) 모듈로 `python build_products.py --catalog … --out …`도 된다.

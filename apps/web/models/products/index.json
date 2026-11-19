@@ -1,0 +1,149 @@
+{
+ "models": {
+  "G646GBB031": {
+   "file": "G646GBB031.glb",
+   "layout": "4door",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1858.0,
+    "d": 709.0
+   }
+  },
+  "G646MEE021": {
+   "file": "G646MEE021.glb",
+   "layout": "4door",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1858.0,
+    "d": 709.0
+   }
+  },
+  "G646SVV031": {
+   "file": "G646SVV031.glb",
+   "layout": "4door",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1858.0,
+    "d": 709.0
+   }
+  },
+  "M616GBB0M1": {
+   "file": "M616GBB0M1.glb",
+   "layout": "4door",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1858.0,
+    "d": 698.0
+   }
+  },
+  "D646GBB041": {
+   "file": "D646GBB041.glb",
+   "layout": "convertible",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1858.0,
+    "d": 709.0
+   }
+  },
+  "Z386GBB281": {
+   "file": "Z386GBB281.glb",
+   "layout": "3door",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1858.0,
+    "d": 694.0
+   }
+  },
+  "Z386MEE221": {
+   "file": "Z386MEE221.glb",
+   "layout": "3door",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1858.0,
+    "d": 694.0
+   }
+  },
+  "Z386SLL281": {
+   "file": "Z386SLL281.glb",
+   "layout": "3door",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1858.0,
+    "d": 694.0
+   }
+  },
+  "Z484GBB172": {
+   "file": "Z484GBB172.glb",
+   "layout": "4door",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1858.0,
+    "d": 685.0
+   }
+  },
+  "DUE6BGE": {
+   "file": "DUE6BGE.glb",
+   "layout": "dishwasher",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 566.7
+   }
+  },
+  "DUE6EWL2E": {
+   "file": "DUE6EWL2E.glb",
+   "layout": "dishwasher",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 566.7
+   }
+  },
+  "BEI3QKBLOE": {
+   "file": "BEI3QKBLOE.glb",
+   "layout": "standard",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEF3AMB4E": {
+   "file": "BEF3AMB4E.glb",
+   "layout": "wide",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEF3ASMLE": {
+   "file": "BEF3ASMLE.glb",
+   "layout": "wide",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "WU523AWB": {
+   "file": "WU523AWB.glb",
+   "layout": "water_purifier",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 420.0,
+    "d": 410.0
+   }
+  },
+  "WU523ACB": {
+   "file": "WU523ACB.glb",
+   "layout": "water_purifier",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 420.0,
+    "d": 410.0
+   }
+  }
+ },
+ "_note": "build_products.py로 생성. 크기는 카탈로그 값, 모양은 화면용 표현."
+}

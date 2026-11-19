@@ -169,7 +169,7 @@ export async function customer(pid) {
     const g = document.getElementById("ghost");
     if (!g) return;
     g.innerHTML = res ? placedSvg({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict }, pv.sw, false, true) : "";
-    viewer.setGhost(res && { ...res, hex: prodOf(armed)?.cmf_options[0]?.hex_approx });
+    viewer.setGhost(res && { ...res, sku: armed, hex: prodOf(armed)?.cmf_options[0]?.hex_approx });
   };
   let busy = false, queued = null, lastPreview = null;
   const preview = async (args, onRes) => {
