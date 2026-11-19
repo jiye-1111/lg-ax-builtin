@@ -101,7 +101,15 @@ export async function customer(pid) {
       else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
       else { selPl = null; selObj = null; }
       draw(); renderInspector(); renderPlacements();
+      // 건축 모드: 누른 물건을 바로 집어 든다 (다시 누르면 내려놓기, Esc 취소)
+      if (hit && mode === "move" && !armed) pickUp(hit, point);
     },
+    onHoldMove: (h, xz) => {
+      if (h.kind !== "placement") return;
+      const x = project.scene_state.placements.find((q) => q.placement_id === h.id);
+      if (x) preview({ sku: x.sku, center_xz: xz, yaw_rad: h.yaw, placement_id: h.id }, (r) => viewer.holdVerdict(r.verdict));
+    },
+    onHoldClick: () => putDown(),
     onDragMove: (id, c) => {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       if (!x) return;
@@ -123,11 +131,12 @@ export async function customer(pid) {
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
-    move: "제품을 끌면 옮겨지고, 빈 곳을 끌면 시점이 돌아가요. 고른 뒤 R 키나 오른쪽 버튼으로 돌려요. 스캔된 가구를 누르면 치울 수 있어요.",
+    move: "제품이나 가구를 누르면 집어 들어요. 다시 누르면 내려놓기 · R 돌리기 · Delete 지우기 · WASD 카메라 이동 · Q/E 카메라 돌기",
     rect: "평면도에서 드래그해 영역을 그리세요 (5cm 단위).",
     poly: "꼭짓점을 차례로 누르고, 첫 점을 다시 누르거나 더블클릭하면 완성됩니다.",
   };
-  const setHint = () => {
+  const setHint = (msg) => {
+    if (msg) { document.getElementById("hint").textContent = msg; return; }
     document.getElementById("hint").innerHTML = armed ? `<b>${esc(prodOf(armed)?.name || armed)}</b> 3D 바닥이나 평면에서 놓을 자리를 누르세요 · <a href="#" id="unarm">취소</a>` : HINT[mode];
     const u = document.getElementById("unarm");
     if (u) u.onclick = (e) => { e.preventDefault(); armed = null; ghost(null); setHint(); renderLib(); };
@@ -297,16 +306,89 @@ export async function customer(pid) {
   svg.ondblclick = () => { if (mode === "poly" && draft.length >= 3) createZone(draft); };
   svg.ondragover = (e) => e.preventDefault();
   svg.ondrop = (e) => { e.preventDefault(); const sku = e.dataTransfer.getData("text/sku"); if (sku && pv) placeAt(sku, pv.toWorld(e)); };
+  // ---- 건축 모드: 집어 들기 · 내려놓기 · 키보드 ----
+  const ROT_STEP = 45, ROT_FINE = 15, NUDGE = 0.1, NUDGE_FINE = 0.01;
+  const objOf = (id) => room.objects.find((o) => o.object_id === id);
+  const poseOf = (hit) => {
+    if (hit.type === "placement") {
+      const x = project.scene_state.placements.find((q) => q.placement_id === hit.id);
+      return x && { kind: "placement", id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad };
+    }
+    const o = objOf(hit.id);
+    return o && { kind: "object", id: o.object_id, xz: [o.position[0], o.position[2]], yaw: o.yaw_rad };
+  };
+  const pickUp = (hit, point) => {
+    const item = poseOf(hit);
+    if (item && viewer.hold(item, point)) setHint("들고 있어요: 놓을 곳을 누르세요 · R 돌리기(Shift 반대, Alt 15°) · 방향키 살짝 옮기기 · Esc 취소 · Delete 지우기");
+  };
+  // 저장 응답을 기다리지 않고 화면 상태부터 바꾼다 (바로 다시 집어도 새 자리에서 시작)
+  let editSeq = 0; // 화면에서 바꾼 횟수: 읽는 도중 바뀌면 그 응답은 버리고 다시 읽는다
+  const applyLocal = (it) => {
+    editSeq++;
+    if (it.kind === "placement") {
+      const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
+      if (x) { x.center_xz = [...it.xz]; x.yaw_rad = it.yaw; }
+    } else {
+      const o = objOf(it.id);
+      if (o) { o.position = [it.xz[0], o.position[1], it.xz[1]]; o.yaw_rad = it.yaw; }
+    }
+  };
+  const savePose = guard(async (it) => {
+    applyLocal(it);
+    if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false }) });
+    else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
+    await refresh(true);
+  });
+  const putDown = () => { const it = viewer.dropHold(); setHint(); if (it) savePose(it); };
+  const removeSelected = guard(async () => {
+    viewer.cancelHold();
+    if (selPl) { await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; toast("제품을 뺐어요"); }
+    else if (selObj) { await put(`/api/projects/${pid}/objects/${selObj}/hidden`, { hidden: true }); toast("가구를 치웠어요 (놓은 제품 탭에서 되돌리기)"); selObj = null; }
+    setHint();
+    await refresh(true);
+  });
+  // 고른 것(들고 있지 않을 때)을 키보드로 바꾸면 잠깐 모았다가 한 번에 저장
+  let pendingKey = null, keyTimer = 0;
+  const nudgeSelected = (dx, dz, dyaw) => {
+    const it = pendingKey || (selPl ? poseOf({ type: "placement", id: selPl }) : selObj ? poseOf({ type: "object", id: selObj }) : null);
+    if (!it) return;
+    pendingKey = { ...it, xz: [it.xz[0] + dx, it.xz[1] + dz], yaw: it.yaw + dyaw };
+    clearTimeout(keyTimer);
+    keyTimer = setTimeout(() => { const p = pendingKey; pendingKey = null; savePose(p); }, 350);
+  };
   const rotate = (deg) => {
-    const x = project.scene_state.placements.find((q) => q.placement_id === selPl);
-    if (x) patch(x.placement_id, { yaw_rad: x.yaw_rad + (deg * Math.PI) / 180, snap: false });
+    const d = (deg * Math.PI) / 180;
+    if (viewer.held()) viewer.rotateHeld(d); else nudgeSelected(0, 0, d);
   };
   const onKey = (e) => {
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
-    if (e.key === "Escape") { armed = null; ghost(null); setHint(); renderLib(); }
-    if (!selPl) return;
-    if (e.key === "r" || e.key === "R") rotate(e.shiftKey ? -15 : 15);
-    if (e.key === "Delete" || e.key === "Backspace") guard(async () => { await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; await refresh(true); })();
+    const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === "Escape") { viewer.cancelHold(); armed = null; ghost(null); setHint(); renderLib(); return; }
+    const in3d = studio.dataset.view !== "plan";
+    // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
+    const PAN = 0.3;
+    if (in3d && !e.ctrlKey && !e.metaKey) {
+      const cam = { w: [0, PAN], s: [0, -PAN], a: [-PAN, 0], d: [PAN, 0] }[k];
+      if (cam) { viewer.panCamera(...cam); e.preventDefault(); return; }
+      if (k === "q" || k === "e") { viewer.orbitCamera(k === "q" ? -15 : 15); e.preventDefault(); return; }
+    }
+    const held = viewer.held();
+    if (!held && !selPl && !selObj) return;
+    // 돌리기: R / . 오른쪽, Shift+R / , 왼쪽, Alt를 같이 누르면 15°
+    const step = e.altKey ? ROT_FINE : ROT_STEP;
+    if (k === "r") { rotate(e.shiftKey ? -step : step); e.preventDefault(); return; }
+    if (k === "." || k === ",") { rotate(k === "." ? step : -step); e.preventDefault(); return; }
+    // 방향키: 화면 기준으로 10 cm (Shift 1 cm)
+    const dir = { ArrowUp: [0, 1], ArrowDown: [0, -1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] }[k];
+    if (dir) {
+      const { fwd, right } = viewer.screenAxes(), n = e.shiftKey ? NUDGE_FINE : NUDGE;
+      const dx = (right[0] * dir[0] + fwd[0] * dir[1]) * n, dz = (right[1] * dir[0] + fwd[1] * dir[1]) * n;
+      if (held) viewer.moveHeld(dx, dz); else nudgeSelected(dx, dz, 0);
+      e.preventDefault();
+      return;
+    }
+    if (k === "Enter" && held) { putDown(); return; }
+    if (k === "Delete" || k === "Backspace") { e.preventDefault(); removeSelected(); }
   };
   document.addEventListener("keydown", onKey);
   cleanup.push(() => document.removeEventListener("keydown", onKey));
@@ -323,12 +405,12 @@ export async function customer(pid) {
         <h2 class="insp-name">${esc(p.name)}</h2>
         <p class="insp-meta">${esc(x.sku)}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
         ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
-        <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 15° (Shift+R)">⟲ 15°</button><button class="small ghost" id="rr" title="오른쪽으로 15° (R)">⟳ 15°</button>
+        <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
         ${p.cmf_options.length ? `<h3 class="gap">색상 <span class="muted">LGE.COM 옵션</span></h3><div class="swatches">${p.cmf_options.map((o) => `<button class="swatch ${o.color === x.color ? "on" : ""}" data-color="${esc(o.color)}"><i style="background:${esc(o.hex_approx || "#fff")}"></i>${esc(o.color)}</button>`).join("")}</div>` : ""}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
-      box.querySelector("#rl").onclick = () => rotate(-15);
-      box.querySelector("#rr").onclick = () => rotate(15);
+      box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
+      box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
       box.querySelector("#del").onclick = guard(async () => { await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
       box.querySelectorAll("[data-color]").forEach((b) => (b.onclick = () => patch(x.placement_id, { color: b.dataset.color })));
@@ -337,20 +419,28 @@ export async function customer(pid) {
     const o = selObj && room.objects.find((q) => q.object_id === selObj);
     if (o) {
       const gone = (project.scene_state.hidden_objects || []).includes(o.object_id);
-      box.innerHTML = `<div class="verdict-strip v-object"><span>스캔된 가구</span><em>${esc(o.object_id)}</em></div>
+      const moved = !!(project.scene_state.object_poses || {})[o.object_id];
+      box.innerHTML = `<div class="verdict-strip v-object"><span>스캔된 가구</span><em>${esc(o.object_id)}${moved ? " · 옮김" : ""}</em></div>
         <h2 class="insp-name">${esc(OBJ[o.category] || o.category)}</h2>
         <p class="insp-meta">${o.bbox_m.w.toFixed(2)} × ${o.bbox_m.d.toFixed(2)} m · 높이 ${o.bbox_m.h.toFixed(2)} m</p>
-        <div class="tool-row"><button class="small" id="hide">${gone ? "되돌리기" : "치우기"}</button></div>
-        <p class="hint-sm">치운 가구는 판정과 3D에서 빠져요. 원래 스캔은 그대로 남습니다.</p>`;
+        <div class="tool-row">${gone ? "" : `<button class="small ghost" id="orl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="orr" title="오른쪽으로 45° (R)">⟳ 45°</button>`}
+          ${moved ? `<button class="small ghost" id="oreset">원래 자리로</button>` : ""}<span class="spacer"></span><button class="small danger" id="hide" title="Delete">${gone ? "되돌리기" : "치우기"}</button></div>
+        <p class="hint-sm">누르면 집어 들고 다시 누르면 내려놔요. 옮기거나 치운 가구는 판정·동선에도 반영되고, 원래 스캔은 그대로 남습니다.</p>`;
       box.querySelector("#hide").onclick = guard(async () => {
+        viewer.cancelHold(); setHint();
         await put(`/api/projects/${pid}/objects/${o.object_id}/hidden`, { hidden: !gone });
+        if (!gone) selObj = null;
         await refresh(true);
       });
+      box.querySelector("#orl")?.addEventListener("click", () => rotate(-ROT_STEP));
+      box.querySelector("#orr")?.addEventListener("click", () => rotate(ROT_STEP));
+      box.querySelector("#oreset")?.addEventListener("click", guard(async () => { await api(`/api/projects/${pid}/objects/${o.object_id}/pose`, { method: "DELETE" }); await refresh(true); }));
       return;
     }
     box.innerHTML = `<div class="insp-empty"><h2>아직 고른 게 없어요</h2>
       <p>3D나 평면에서 놓은 제품이나 스캔된 가구를 누르면 여기에 판정과 조작 버튼이 나와요.</p>
-      <ul class="keys"><li><kbd>R</kbd> 15° 돌리기</li><li><kbd>Shift</kbd>+<kbd>R</kbd> 반대로</li><li><kbd>Delete</kbd> 빼기</li><li><kbd>Esc</kbd> 놓기 취소</li></ul></div>`;
+      <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+        <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li><li><kbd>Esc</kbd> 취소</li></ul></div>`;
   };
   const renderPlacements = () => {
     const pls = project.scene_state.placements;
@@ -608,12 +698,18 @@ export async function customer(pid) {
   });
   document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = b.dataset.sim; showSim(); }));
   let lastSceneKey = null;
-  const refresh = async (force = false) => {
+  // 다시 읽기는 한 번에 하나씩 차례로: 겹치면 늦게 끝난 옛 응답이 새 상태를 덮는다
+  let chain = Promise.resolve();
+  const refresh = (force = false) => (chain = chain.catch(() => {}).then(() => load(force)));
+  const load = async (force) => {
     if (drag || drag3d) return;
+    const seen = editSeq;
     const v = (await api(`/api/projects/${pid}/version`)).version;
     if (!force && v === version) return;
+    const got = await Promise.all([api(`/api/projects/${pid}`), api(`/api/projects/${pid}/room`), api(`/api/projects/${pid}/zones`)]);
+    if (seen !== editSeq) return; // 저장이 끝나면 다시 읽는다
     version = v;
-    [project, room, zones] = await Promise.all([api(`/api/projects/${pid}`), api(`/api/projects/${pid}/room`), api(`/api/projects/${pid}/zones`)]);
+    [project, room, zones] = got;
     if (selPl && !project.scene_state.placements.some((q) => q.placement_id === selPl)) selPl = null;
     const measured = room.walls.filter((w) => w.measured).length, n = project.scene_state.placements.length;
     document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
@@ -630,9 +726,9 @@ export async function customer(pid) {
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
-    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, room.walls.map((w) => w.measured)]);
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.load(`/api/projects/${pid}/files/scene.glb`); }
-    document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 제품 끌어 옮기기 · ${project.scene.engine === "blender" ? "Blender" : "치수 박스 미리보기"}`;
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.load(`/api/projects/${pid}/files/scene.glb`); }
+    document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
   await guard(refresh)(true);

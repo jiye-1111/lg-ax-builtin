@@ -69,7 +69,41 @@ const j = async (p) => (await fetch(BASE + p)).json();
   await page.keyboard.press("r");
   await wait(1500);
   pj = await project(pid);
-  check("R 키로 15° 돌리기", Math.abs(pj.scene_state.placements[0].yaw_rad - moved.yaw_rad - Math.PI / 12) < 1e-3);
+  check("R 키로 45° 돌리기", Math.abs(pj.scene_state.placements[0].yaw_rad - moved.yaw_rad - Math.PI / 4) < 1e-3);
+
+  // 건축 모드: 눌러서 집어 들기 → 커서 따라오기 → Shift+R → 다시 눌러 내려놓기
+  const before = pj.scene_state.placements[0];
+  [sx, sy] = await toScreen(before.center_xz, 0.5);
+  await page.mouse.click(sx, sy);
+  await wait(400);
+  const h0 = await page.evaluate(() => document.getElementById("viewer").viewer.held());
+  check("눌러서 집어 들기", !!h0);
+  const [hx, hy] = await toScreen([before.center_xz[0] - 0.6, before.center_xz[1] + 0.4], 0.5);
+  await page.mouse.move(hx, hy, { steps: 8 });
+  await page.keyboard.press("Shift+R");
+  await wait(300);
+  await page.mouse.click(hx, hy);
+  await wait(2000);
+  pj = await project(pid);
+  const after = pj.scene_state.placements[0];
+  check("내려놓으면 자리·방향 저장", Math.hypot(after.center_xz[0] - before.center_xz[0], after.center_xz[1] - before.center_xz[1]) > 0.3
+    && Math.abs(after.yaw_rad - before.yaw_rad + Math.PI / 4) < 1e-3,
+    `${before.center_xz.map((v) => v.toFixed(2))} → ${after.center_xz.map((v) => v.toFixed(2))}, ${(((after.yaw_rad - before.yaw_rad) * 180) / Math.PI).toFixed(0)}°`);
+  check("내려놓은 뒤 손이 빔", !(await page.evaluate(() => document.getElementById("viewer").viewer.held())));
+  // 방향키로 살짝 옮기기 (고른 상태)
+  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("ArrowRight");
+  await wait(1500);
+  pj = await project(pid);
+  const nud = pj.scene_state.placements[0];
+  const nd = Math.hypot(nud.center_xz[0] - after.center_xz[0], nud.center_xz[1] - after.center_xz[1]);
+  check("방향키로 20 cm 옮기기", Math.abs(nd - 0.2) < 0.02, `${nd.toFixed(3)} m`);
+  // 카메라 WASD
+  const cam0 = await toScreen(nud.center_xz);
+  await page.keyboard.press("d");
+  await wait(200);
+  const cam1 = await toScreen(nud.center_xz);
+  check("D 키로 카메라 이동", Math.abs(cam1[0] - cam0[0]) > 5);
 
   // 색상 (LGE.COM 옵션)
   const sw = await page.$$("#insp [data-color]");
@@ -98,10 +132,21 @@ const j = async (p) => (await fetch(BASE + p)).json();
   [sx, sy] = await toScreen([ob.position[0], ob.position[2]], ob.bbox_m.h);
   await page.mouse.click(sx, sy);
   await wait(700);
-  const hideBtn = await page.$("#hide");
-  if (hideBtn) { await hideBtn.click(); await wait(1500); }
+  // 눌러서 집어 든 가구를 옮겨 내려놓기
+  const [fx, fy] = await toScreen([ob.position[0] + 0.7, ob.position[2] + 0.5], ob.bbox_m.h);
+  await page.mouse.move(fx, fy, { steps: 8 });
+  await page.keyboard.press("r");
+  await page.mouse.click(fx, fy);
+  await wait(2500);
   pj = await project(pid);
-  check("3D에서 가구 골라 치우기", (pj.scene_state.hidden_objects || []).length === 1);
+  const op = (pj.scene_state.object_poses || {})[ob.object_id];
+  check("스캔 가구 집어 옮기고 돌리기", !!op && Math.hypot(op.center_xz[0] - ob.position[0], op.center_xz[1] - ob.position[2]) > 0.4
+    && Math.abs(op.yaw_rad - ob.yaw_rad - Math.PI / 4) < 1e-3);
+  // Delete로 가구 지우기 (고른 상태)
+  await page.keyboard.press("Delete");
+  await wait(2000);
+  pj = await project(pid);
+  check("Delete로 가구 지우기", (pj.scene_state.hidden_objects || []).includes(ob.object_id));
 
   // 스캔 가구 한꺼번에 치우기 → 되돌리기
   await page.click("#furn");

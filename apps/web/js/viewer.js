@@ -61,6 +61,8 @@ export function makeViewer(el, handlers = {}) {
   const ctl = new OrbitControls(cam, renderer.domElement);
   ctl.enableDamping = true;
   ctl.maxPolarAngle = Math.PI * 0.49; // 바닥 아래로는 못 내려가게
+  let grid = null, held = null; // 집어 든 물건 (건축 모드)
+  let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
   let model = null, framed = false, alive = true, walls = [], center = new THREE.Vector3();
   const tmp = new THREE.Vector3(), toCam = new THREE.Vector3();
 
@@ -102,6 +104,7 @@ export function makeViewer(el, handlers = {}) {
     if (!alive) return;
     ctl.update();
     cutaway();
+    animateHeld();
     renderer.render(scene, cam);
     requestAnimationFrame(loop);
   })();
@@ -119,9 +122,47 @@ export function makeViewer(el, handlers = {}) {
     sun.target.position.copy(c);
     Object.assign(sun.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.1, far: r * 4 });
     sun.shadow.camera.updateProjectionMatrix();
+    // 집어 들었을 때만 보이는 바닥 격자 (0.5 m 칸)
+    const size = box.getSize(new THREE.Vector3());
+    const n = Math.ceil(Math.max(size.x, size.z) / 0.5) + 2;
+    if (grid) scene.remove(grid);
+    grid = new THREE.GridHelper(n * 0.5, n, 0x1c2024, 0x1c2024);
+    grid.material.transparent = true;
+    grid.material.opacity = 0.14;
+    grid.material.depthWrite = false;
+    grid.position.set(Math.round(c.x * 2) / 2, 0.003, Math.round(c.z * 2) / 2);
+    grid.visible = !!held;
+    scene.add(grid);
   };
 
-  // ---------- 제품 상자 ----------
+  // ---------- 집어 들기 (건축 모드) ----------
+  // 고른 제품·스캔 가구를 살짝 띄워 커서를 따라오게 하고, 다시 누르면 내려놓는다.
+  const LIFT = 0.12;
+  const heldNodes = (item) => {
+    if (item.kind === "placement") return products.children.filter((c) => c.userData.placementId === item.id);
+    const out = [];
+    model?.traverse((o) => {
+      if (o.userData.objectId === item.id) out.push(o);                                    // Blender 가구 모델
+      else if (o.isMesh && o.userData.kind === "object" && o.name === item.id && !o.userData.shared) out.push(o); // 고르기용 상자
+    });
+    return out;
+  };
+  // 평면 yaw → 3D 회전: 제품은 -(yaw - 90°), 스캔 가구는 -yaw (glb.py와 같은 규칙)
+  const rotY = (kind, yaw) => (kind === "placement" ? -(yaw - Math.PI / 2) : -yaw);
+  const placeHeld = () => {
+    if (!held) return;
+    for (const { node, baseY } of held.nodes) {
+      node.position.set(held.xz[0], baseY + held.lift, held.xz[1]);
+      node.rotation.set(0, rotY(held.kind, held.yaw), 0);
+    }
+  };
+  function animateHeld() {
+    if (!held) return;
+    const target = held.dropping ? 0 : LIFT;
+    held.lift += (target - held.lift) * 0.3;
+    placeHeld();
+  }
+
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
@@ -204,11 +245,11 @@ export function makeViewer(el, handlers = {}) {
     ndc.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
     ray.setFromCamera(ndc, cam);
   };
-  const floorPoint = (e) => {
+  const floorPoint = (e, step = 0.05) => {
     setNdc(e);
     const hit = ray.ray.intersectPlane(floor, new THREE.Vector3());
     if (!hit) return null;
-    const snap = (v) => Math.round(v / 0.05) * 0.05;
+    const snap = (v) => Math.round(v / step) * step;
     return [snap(hit.x), snap(hit.z)];
   };
   const pick = (e) => {
@@ -226,6 +267,7 @@ export function makeViewer(el, handlers = {}) {
   let down = null, dragging = null;
   const onDown = (e) => {
     if (e.button !== undefined && e.button !== 0) return;
+    if (held) { down = { x: e.clientX, y: e.clientY, hit: null, p: null, held: true }; return; }
     const hit = pick(e);
     down = { x: e.clientX, y: e.clientY, hit, p: floorPoint(e) };
     if (hit?.type === "placement" && handlers.canDrag?.()) {
@@ -237,6 +279,12 @@ export function makeViewer(el, handlers = {}) {
     }
   };
   const onMove = (e) => {
+    if (held && !held.dropping) {
+      // 들고 있으면 커서를 따라온다: 10 cm 격자, Alt는 1 cm
+      const q = floorPoint(e, e.altKey ? 0.01 : 0.1);
+      if (q) { held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]]; handlers.onHoldMove?.(held, held.xz); }
+      return;
+    }
     const p = floorPoint(e);
     if (!p) return;
     if (dragging && dragging.start) {
@@ -260,7 +308,8 @@ export function makeViewer(el, handlers = {}) {
       if (g.moved) { handlers.onDragEnd?.(g.id, [g.group?.position.x ?? 0, g.group?.position.z ?? 0]); return; }
     }
     if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > CLICK_PX) return; // 카메라를 돌린 것
-    handlers.onClick?.({ hit: d.hit, point: floorPoint(e) });
+    if (d.held) { handlers.onHoldClick?.(held); return; }
+    handlers.onClick?.({ hit: d.hit, point: floorPoint(e), event: e });
   };
   const dom = renderer.domElement;
   dom.style.touchAction = "none";
@@ -281,6 +330,7 @@ export function makeViewer(el, handlers = {}) {
     load(url) {
       loader.load(url + (url.includes("?") ? "&" : "?") + "v=" + Date.now(), (g) => {
         if (model) scene.remove(model);
+        if (held?.kind === "object") { held = null; if (grid) grid.visible = false; } // 들고 있던 가구는 새 방으로 바뀜
         model = g.scene;
         walls = [];
         model.traverse((o) => {
@@ -296,7 +346,7 @@ export function makeViewer(el, handlers = {}) {
         });
         walls.push(...dressRoom(model));
         const mine = model;
-        furnish(model, () => alive && model === mine);
+        furnish(model, () => alive && model === mine, (id) => objectCats[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) { frame(); framed = true; }
@@ -305,7 +355,7 @@ export function makeViewer(el, handlers = {}) {
     /** 놓은 제품을 다시 그린다. 끌고 있는 중이면 건너뛴다. */
     setPlacements(list, selectedId) {
       last = { ...last, list, selectedId };
-      if (dragging) return;
+      if (dragging || (held?.kind === "placement" && !held.dropping)) return;
       clear(products);
       for (const p of list) if (p.size_m) products.add(productBox(p, { selected: p.placement_id === selectedId }));
     },
@@ -348,6 +398,63 @@ export function makeViewer(el, handlers = {}) {
       const v = new THREE.Vector3(x, y, z).project(cam), r = dom.getBoundingClientRect();
       return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
     },
+    /** 집어 들기. item = {kind: "placement"|"object", id, xz, yaw}. grab = 누른 점과 물건 중심의 차이 */
+    hold(item, grabPoint) {
+      api.cancelHold();
+      const nodes = heldNodes(item);
+      if (!nodes.length) return false;
+      held = { ...item, nodes: nodes.map((n) => ({ node: n, baseY: n.position.y, orig: n.position.clone(), rot: n.rotation.y })),
+        lift: 0, dropping: false, grab: grabPoint ? [item.xz[0] - grabPoint[0], item.xz[1] - grabPoint[1]] : [0, 0] };
+      if (grid) grid.visible = true;
+      return true;
+    },
+    held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw },
+    moveHeld(dx, dz) { if (held) { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
+    rotateHeld(dyaw) { if (held) { held.yaw += dyaw; handlers.onHoldMove?.(held, held.xz); } },
+    /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
+    dropHold() {
+      if (!held) return null;
+      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw };
+      held.dropping = true;
+      const h = held;
+      setTimeout(() => {
+        if (held !== h) return;
+        held = null;
+        if (grid) grid.visible = false;
+        if (h.kind === "placement") api.setPlacements(last.list, last.selectedId); // 내려놓는 동안 미뤄 둔 다시 그리기
+      }, 180);
+      return out;
+    },
+    /** 취소: 원래 자리로 */
+    cancelHold() {
+      if (!held) return;
+      for (const { node, orig, rot } of held.nodes) { node.position.copy(orig); node.rotation.set(0, rot, 0); }
+      held = null;
+      if (grid) grid.visible = false;
+    },
+    /** 들고 있는 물건 바닥 판 색 (판정) */
+    holdVerdict(verdict) {
+      if (held?.kind === "placement") api.setDragVerdict(held.id, verdict);
+    },
+    /** 키보드 카메라: 화면 기준 앞뒤·좌우로 이동, 대상 둘레로 돌기 */
+    panCamera(right, fwd) {
+      const f = new THREE.Vector3().subVectors(ctl.target, cam.position).setY(0).normalize();
+      const r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0));
+      const d = r.multiplyScalar(right).add(f.multiplyScalar(fwd));
+      cam.position.add(d);
+      ctl.target.add(d);
+    },
+    orbitCamera(deg) {
+      const v = new THREE.Vector3().subVectors(cam.position, ctl.target).applyAxisAngle(new THREE.Vector3(0, 1, 0), (deg * Math.PI) / 180);
+      cam.position.copy(ctl.target).add(v);
+    },
+    /** 카메라가 보는 방향 기준 바닥 단위 벡터 (방향키로 옮길 때) */
+    screenAxes() {
+      const f = new THREE.Vector3().subVectors(ctl.target, cam.position).setY(0).normalize();
+      return { fwd: [f.x, f.z], right: [-f.z, f.x] };
+    },
+    /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
+    setObjects(objects) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); },
     /** 화면에 그린 것 세기 (E2E 확인용) */
     stats() {
       let furniture = 0;

@@ -101,3 +101,10 @@
 - 방: 바닥은 마루 무늬(마감재에서 고른 색이 곱해짐), 벽 아래 걸레받이, 창은 유리 + 창틀·창살, 문은 나무 + 문틀.
 - 툴바 **가구 모두 치우기 / 가구 N개 되돌리기**: `PUT /api/projects/{pid}/objects/hidden {hidden, object_ids?}` (object_ids가 없으면 전부). 치운 가구는 판정·동선에서도 빠진다.
 - 다시 만들기: `blender -b -P services/blender-worker/worker/bpy_scripts/build_furniture.py -- --out apps/web/models/furniture`
+
+## 건축 모드 (집어 들기 · 키보드)
+- 3D에서 제품이나 스캔 가구를 누르면 집어 든다: 살짝 떠올라 커서를 따라오고(10 cm 격자, Alt는 1 cm), 제품은 바닥 판이 판정 색으로 바뀐다. 다시 누르거나 Enter로 내려놓으면 저장, Esc는 원래 자리로.
+- 키: R / `.` 45° 돌리기, Shift+R / `,` 반대, Alt를 같이 누르면 15°. 방향키 10 cm(Shift 1 cm) 화면 기준으로 옮기기. Delete 지우기(제품은 빼기, 스캔 가구는 치우기). WASD 카메라 이동, Q/E 카메라 돌기.
+- 들고 있을 때만 바닥에 0.5 m 격자가 보인다.
+- 스캔 가구 자리: `PUT /api/projects/{pid}/objects/{oid}/pose {center_xz, yaw_rad}`, 되돌리기 `DELETE …/pose`. 스캔 파일(room.json)은 그대로 두고 `scene_state.object_poses`에만 적는다. `GET /room`·판정·동선·3D는 옮긴 자리를 쓴다.
+- 예전에 만든 집(3D 파일에 가구 종류가 없음)도 room.json의 종류로 가구 모델을 그린다.

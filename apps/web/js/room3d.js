@@ -47,11 +47,12 @@ export function fitFurniture(tmpl, ref, size) {
 }
 
 /** 스캔 가구 상자를 모델로 바꾼다. 상자는 안 보이게 두고 고르기(raycast)에만 쓴다. */
-export function furnish(model, isCurrent) {
+export function furnish(model, isCurrent, categoryOf = () => null) {
   const boxes = [];
   model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object") boxes.push(o); });
   for (const box of boxes) {
-    const cat = box.userData.category;
+    // 예전에 만든 집의 3D 파일에는 종류가 없다 → room.json의 종류로 채운다
+    const cat = box.userData.category || categoryOf(box.name);
     if (!cat) continue;
     furnitureTemplate(cat).then((t) => {
       if (!t || !isCurrent()) return;
@@ -59,6 +60,7 @@ export function furnish(model, isCurrent) {
       fitted.position.set(box.position.x, box.position.y - box.scale.y / 2, box.position.z);
       fitted.quaternion.copy(box.quaternion);
       fitted.traverse((o) => { if (o.isMesh) { o.userData.kind = "object"; o.name = box.name; } });
+      fitted.userData.objectId = box.name; // 집어 들 때 상자와 같이 움직인다
       box.material.visible = false;   // 그리지는 않고 고르기에만
       box.castShadow = false;
       (box.parent || model).add(fitted);
