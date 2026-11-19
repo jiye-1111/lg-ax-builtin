@@ -116,6 +116,7 @@ class MoveIn(BaseModel):
     yaw_rad: Optional[float] = None
     snap: bool = True
     color: Optional[str] = None
+    sku: Optional[str] = Field(None, description="같은 모델의 다른 색·재질 SKU")
 
 
 class SiteIn(BaseModel):
@@ -253,7 +254,7 @@ def pose_check(pid: str, body: PoseIn, s: Service = S):
 
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
-    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color)
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")
@@ -389,6 +390,11 @@ def project_file(pid: str, name: str, s: Service = S):
     if not p.exists():
         raise HTTPException(404, "아직 생성되지 않음")
     return FileResponse(p, headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/catalog/families")
+def catalog_families(s: Service = S):
+    return s.catalog.families()
 
 
 @app.get("/api/catalog")

@@ -15,6 +15,7 @@ from recommender.fit import FitConfig, check_fit
 from recommender.pose import Pose, check_pose, snap_to_wall
 from sim.regions import REGIONS
 from recommender.recommend import recommend_zone
+from recommender.variants import families, shape_key
 
 from . import config
 from .models import MeasuredDims, Product, Room, Zone
@@ -67,6 +68,20 @@ class Catalog:
             q = query.lower()
             out = [p for p in out if q in p.name.lower() or q in p.sku.lower() or q in p.category]
         return out
+
+    def families(self) -> list[dict]:
+        """같은 모델(종류·치수·도면 모양이 같음)의 색·재질 다른 SKU를 묶는다."""
+        if not hasattr(self, "_families"):
+            shapes = {}
+            for p in self.products:
+                f = config.ROOT / "data" / "drawings" / f"{p.sku}.json"
+                shapes[p.sku] = shape_key(json.loads(f.read_text(encoding="utf-8"))) if f.exists() else None
+            self._families = families([p.model_dump() for p in self.products], shapes)
+        return self._families
+
+    def family_of(self, sku: str) -> dict:
+        self.get(sku)
+        return next(f for f in self.families() if any(v["sku"] == sku for v in f["variants"]))
 
 
 # ---------------- 서비스 ----------------
@@ -456,9 +471,16 @@ class Service:
         return x
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
-                       snap: bool = True, color: str | None = None) -> dict:
+                       snap: bool = True, color: str | None = None, sku: str | None = None) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
+        if sku is not None and sku != x["sku"]:
+            # 색·재질 바꾸기 = 같은 모델 안의 다른 SKU로 바꾸기 (모양·치수가 같아서 자리는 그대로)
+            if self.catalog.family_of(sku) is not self.catalog.family_of(x["sku"]):
+                raise Invalid(f"{x['sku']}와 같은 모델이 아니라 바꿀 수 없음: {sku}")
+            opt = self._color_option(self.catalog.get(sku), None)
+            x["sku"] = sku
+            x["color"], x["hex"] = (opt.color, opt.hex_approx) if opt else (None, None)
         prod = self.catalog.get(x["sku"])
         if color is not None:
             opt = self._color_option(prod, color)
