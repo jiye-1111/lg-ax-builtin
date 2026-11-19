@@ -88,9 +88,35 @@ class MaterialIn(BaseModel):
 
 
 class PlaceIn(BaseModel):
-    zone_id: str
+    """zone_id를 주면 영역 안 자동 배치, center_xz를 주면 그 자리에 놓기."""
+    model_config = {"extra": "forbid"}
     sku: str
+    zone_id: Optional[str] = None
+    center_xz: Optional[list[float]] = Field(None, min_length=2, max_length=2)
+    yaw_rad: float = 0.0
+    snap: bool = True
     color: Optional[str] = None
+
+
+class PoseIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    sku: str
+    center_xz: list[float] = Field(min_length=2, max_length=2)
+    yaw_rad: float = 0.0
+    snap: bool = True
+    placement_id: Optional[str] = None
+
+
+class MoveIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    center_xz: Optional[list[float]] = Field(None, min_length=2, max_length=2)
+    yaw_rad: Optional[float] = None
+    snap: bool = True
+    color: Optional[str] = None
+
+
+class HiddenIn(BaseModel):
+    hidden: bool = True
 
 
 # ---------- 엔드포인트 ----------
@@ -185,7 +211,31 @@ def apply_material(pid: str, body: MaterialIn, s: Service = S):
 
 @app.post("/api/projects/{pid}/placements")
 def place(pid: str, body: PlaceIn, s: Service = S):
+    if body.center_xz is not None:
+        return s.place_at(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.color)
+    if body.zone_id is None:
+        raise HTTPException(422, "zone_id 또는 center_xz가 필요합니다")
     return s.place_product(pid, body.zone_id, body.sku, body.color)
+
+
+@app.post("/api/projects/{pid}/pose-check")
+def pose_check(pid: str, body: PoseIn, s: Service = S):
+    return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id)
+
+
+@app.patch("/api/projects/{pid}/placements/{plid}")
+def move(pid: str, plid: str, body: MoveIn, s: Service = S):
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color)
+
+
+@app.delete("/api/projects/{pid}/placements/{plid}")
+def delete_placement(pid: str, plid: str, s: Service = S):
+    return s.delete_placement(pid, plid)
+
+
+@app.put("/api/projects/{pid}/objects/{oid}/hidden")
+def hide_object(pid: str, oid: str, body: HiddenIn, s: Service = S):
+    return s.set_object_hidden(pid, oid, body.hidden)
 
 
 @app.delete("/api/projects/{pid}/placements/{zid}/{sku}")

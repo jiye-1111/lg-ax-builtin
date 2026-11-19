@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 from recommender.cmf import rank_cmf
 from recommender.fit import FitConfig, check_fit
+from recommender.pose import Pose, check_pose, snap_to_wall
 from recommender.recommend import recommend_zone
 
 from . import config
@@ -365,13 +366,120 @@ class Service:
             opt = ranked[0].option if ranked else None
         p = self.get_project(pid)
         pl = [x for x in p["scene_state"]["placements"] if not (x["sku"] == sku and x.get("zone_id") == zone_id)]
-        pl.append({"sku": sku, "zone_id": zone_id, **fit.placement, "color": opt.color if opt else None,
-                   "hex": opt.hex_approx if opt else None, "verdict": fit.verdict.value, "wall_id": fit.wall_id})
+        pl.append({"placement_id": self.db.next_id("pl"), "sku": sku, "zone_id": zone_id, **fit.placement,
+                   "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
+                   "verdict": fit.verdict.value, "wall_id": fit.wall_id, "reasons": []})
         p["scene_state"]["placements"] = pl
         self._save_project(p)
         out = self._rebuild(pid)
         out["fit"] = fit.to_dict()
         return out
+
+    # ---- 자유 배치 (plans/virtual-remodel.md S2~S4) ----
+    def _color_option(self, prod: Product, color: str | None):
+        if color is None:
+            return prod.cmf_options[0] if prod.cmf_options else None
+        opt = next((o for o in prod.cmf_options if o.color == color), None)
+        if opt is None:
+            raise Invalid(f"제품 색상 옵션에 없음: {color}")
+        return opt
+
+    def _hidden(self, p: dict) -> list[str]:
+        return p["scene_state"].setdefault("hidden_objects", [])
+
+    def _pose(self, room: Room, prod: Product, center_xz, yaw_rad: float, snap: bool) -> Pose:
+        if len(center_xz) != 2:
+            raise Invalid("center_xz는 [x, z]")
+        pose = Pose((float(center_xz[0]), float(center_xz[1])), float(yaw_rad))
+        return snap_to_wall(room, prod, pose, self.fit_cfg) if snap else pose
+
+    def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
+        others = [x for x in p["scene_state"]["placements"] if x.get("placement_id") != exclude and x.get("size_m")]
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._hidden(p))
+
+    def _rejudge_all(self, room: Room, p: dict) -> None:
+        """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
+        for x in p["scene_state"]["placements"]:
+            if x.get("zone_id"):
+                continue
+            try:
+                prod = self.catalog.get(x["sku"])
+            except KeyError:
+                continue
+            r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"])
+            x["verdict"], x["reasons"] = r.verdict.value, r.reasons
+
+    def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
+                   placement_id: str | None = None) -> dict:
+        """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
+        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
+        return self._judge(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap), placement_id).to_dict()
+
+    def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
+                 color: str | None = None) -> dict:
+        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
+        opt = self._color_option(prod, color)
+        pose = self._pose(room, prod, center_xz, yaw_rad, snap)
+        r = self._judge(room, p, prod, pose)
+        if r.size_m is None:
+            raise Invalid("제품 치수 정보가 없어 놓을 수 없습니다")
+        x = {"placement_id": self.db.next_id("pl"), "sku": sku, "zone_id": None,
+             "center_xz": list(pose.center_xz), "yaw_rad": pose.yaw_rad, "size_m": list(r.size_m),
+             "wall_id": pose.wall_id, "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
+             "verdict": r.verdict.value, "reasons": r.reasons}
+        p["scene_state"]["placements"].append(x)
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        out = self._rebuild(pid)
+        out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == x["placement_id"])
+        return out
+
+    def _find_placement(self, p: dict, placement_id: str) -> dict:
+        x = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None)
+        if x is None:
+            raise NotFound(f"배치 없음: {placement_id}")
+        return x
+
+    def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
+                       snap: bool = True, color: str | None = None) -> dict:
+        room, p = self.get_room(pid), self.get_project(pid)
+        x = self._find_placement(p, placement_id)
+        prod = self.catalog.get(x["sku"])
+        if color is not None:
+            opt = self._color_option(prod, color)
+            x["color"], x["hex"] = opt.color, opt.hex_approx
+        if center_xz is not None or yaw_rad is not None:
+            pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
+                              yaw_rad if yaw_rad is not None else x["yaw_rad"], snap)
+            x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
+            x["zone_id"] = None  # 옮긴 순간부터 자유 배치
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        out = self._rebuild(pid)
+        out["placement"] = self._find_placement(out_p := self.get_project(pid), placement_id)
+        out["scene_state"] = out_p["scene_state"]
+        return out
+
+    def delete_placement(self, pid: str, placement_id: str) -> dict:
+        room, p = self.get_room(pid), self.get_project(pid)
+        self._find_placement(p, placement_id)
+        p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"] if y.get("placement_id") != placement_id]
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def set_object_hidden(self, pid: str, object_id: str, hidden: bool = True) -> dict:
+        room, p = self.get_room(pid), self.get_project(pid)
+        if not any(o.object_id == object_id for o in room.objects):
+            raise NotFound(f"가구 없음: {object_id}")
+        hs = self._hidden(p)
+        if hidden and object_id not in hs:
+            hs.append(object_id)
+        if not hidden and object_id in hs:
+            hs.remove(object_id)
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
 
     def remove_product(self, pid: str, zone_id: str, sku: str) -> dict:
         p = self.get_project(pid)
@@ -388,6 +496,9 @@ class Service:
 
         p = self.get_project(pid)
         room = self.get_room(pid)
+        hidden = set(p["scene_state"].get("hidden_objects") or [])
+        if hidden:  # 치운 가구는 3D·렌더에서 뺀다
+            room = room.model_copy(update={"objects": [o for o in room.objects if o.object_id not in hidden]})
         usdz = self.root / p["scan"]["usdz"]
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
         res = build_scene(room, usdz, state, self.pdir(pid) / "scene", render=render)

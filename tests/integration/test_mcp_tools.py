@@ -11,7 +11,8 @@ from core import config
 
 USDZ = (config.ROOT / "data" / "samples" / "synthetic_room.usdz").read_bytes()
 EXPECTED_TOOLS = {"list_projects", "get_room", "list_zones", "create_zone", "set_style", "search_catalog",
-                  "check_fit", "recommend", "apply_material", "place_product", "remove_product", "render"}
+                  "check_fit", "recommend", "apply_material", "place_product", "remove_product", "render",
+                  "place_at", "move_product", "list_placements", "hide_object"}
 
 
 @pytest.fixture()
@@ -63,6 +64,23 @@ async def test_chat_flow_updates_shared_state(svc):
     assert p["style"]["prompt"] == "화이트 우드 톤 미니멀"
     assert p["scene_state"]["materials"]["floor"] == "#C8A27A"
     assert p["scene_state"]["placements"][0]["sku"] == "DEMO-RF-01"
+
+
+@pytest.mark.anyio
+async def test_free_placement_tools(svc):
+    async with Client(srv.mcp) as c:
+        r = _data(await c.call_tool("place_at", {"sku": "DEMO-RF-01", "center_xz": [1.0, 0.5], "yaw_rad": 0.2}))
+        assert r["placement"]["wall_id"] and r["placement"]["verdict"] in {"fit", "conditional", "no_fit"}
+        plid = r["placement"]["placement_id"]
+        r = _data(await c.call_tool("move_product", {"placement_id": plid, "yaw_rad": 1.0, "snap": False}))
+        assert abs(r["placement"]["yaw_rad"] - 1.0) < 1e-9
+        assert [x["placement_id"] for x in _data(await c.call_tool("list_placements", {}))] == [plid]
+        objs = _data(await c.call_tool("get_room", {}))["objects"]
+        if objs:
+            _data(await c.call_tool("hide_object", {"object_id": objs[0]["object_id"]}))
+            assert objs[0]["object_id"] in svc.list_projects()[-1]["scene_state"]["hidden_objects"]
+        bad = await c.call_tool("place_at", {"sku": "DEMO-RF-01", "center_xz": [1.0]})
+        assert bad.is_error
 
 
 @pytest.mark.anyio

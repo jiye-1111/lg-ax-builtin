@@ -197,6 +197,49 @@ def remove_product(zone_id: ZID, sku: str, project_id: PID = None) -> dict:
     return {"removed": True, "placements": r["scene_state"]["placements"]}
 
 
+XZ = Annotated[list[float], Field(min_length=2, max_length=2, description="바닥 평면 좌표 [x, z] (m). get_room의 벽 좌표와 같은 좌표계")]
+YAW = Annotated[float, Field(description="회전(라디안). 0이면 제품 등이 -z 쪽")]
+SNAP = Annotated[bool, Field(description="0.3 m 안의 벽이 있으면 등을 벽에 붙인다")]
+
+
+def _placed(r: dict) -> dict:
+    return {"placement": r.get("placement"), "placements": r["scene_state"]["placements"]}
+
+
+@mcp.tool()
+@_wrap
+def place_at(sku: str, center_xz: XZ, yaw_rad: YAW = 0.0, snap: SNAP = True,
+             color: Annotated[Optional[str], Field(description="제품 색상 옵션명. 생략 시 첫 옵션")] = None,
+             project_id: PID = None) -> dict:
+    """제품을 지정한 자리·방향에 놓고 판정(적합/조건부/불가)과 이유를 돌려준다."""
+    return _placed(svc().place_at(_pid(project_id), sku, center_xz, yaw_rad, snap, color))
+
+
+@mcp.tool()
+@_wrap
+def move_product(placement_id: Annotated[str, Field(description="list_placements의 배치 ID (예: pl_001)")],
+                 center_xz: Optional[XZ] = None, yaw_rad: Optional[float] = None, snap: SNAP = True,
+                 color: Optional[str] = None, project_id: PID = None) -> dict:
+    """놓은 제품을 옮기거나 돌리거나 색을 바꾸고 다시 판정한다."""
+    return _placed(svc().move_placement(_pid(project_id), placement_id, center_xz, yaw_rad, snap, color))
+
+
+@mcp.tool()
+@_wrap
+def list_placements(project_id: PID = None) -> list[dict]:
+    """지금 놓여 있는 제품 목록(위치, 방향, 색, 판정, 이유)."""
+    return svc().get_project(_pid(project_id))["scene_state"]["placements"]
+
+
+@mcp.tool()
+@_wrap
+def hide_object(object_id: Annotated[str, Field(description="get_room의 기존 가구 ID (예: o3)")],
+                hidden: bool = True, project_id: PID = None) -> dict:
+    """스캔된 기존 가구를 치운다(hidden=false면 되돌림). 치운 가구는 판정·3D에서 빠진다."""
+    r = svc().set_object_hidden(_pid(project_id), object_id, hidden)
+    return {"hidden_objects": r["scene_state"].get("hidden_objects", []), "placements": r["scene_state"]["placements"]}
+
+
 @mcp.tool()
 @_wrap
 def render(project_id: PID = None) -> list:
