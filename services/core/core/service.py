@@ -174,7 +174,7 @@ class Service:
         for o in room.objects:
             q = poses.get(o.object_id)
             if q:
-                o = o.model_copy(update={"position": [q["center_xz"][0], o.position[1], q["center_xz"][1]],
+                o = o.model_copy(update={"position": (q["center_xz"][0], o.position[1], q["center_xz"][1]),
                                          "yaw_rad": q["yaw_rad"]})
             objs.append(o)
         return room.model_copy(update={"objects": objs})
