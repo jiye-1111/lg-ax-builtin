@@ -1,0 +1,259 @@
+"""MCP 서버 — Claude(Code·앱)와 Codex(CLI·IDE·데스크톱)가 같은 도구를 쓴다 (기획 §6.2).
+
+실행:
+  stdio:  python -m mcp_server              (Claude Code .mcp.json, Codex config.toml 기본)
+  HTTP:   python -m mcp_server --http       (Streamable HTTP, /mcp, Authorization: Bearer $MCP_HTTP_TOKEN 필수)
+
+원칙: 판정·점수는 서버 코드가 계산하고, 모델은 해석·설명만 한다. 임의 코드 실행 도구는 없다.
+"""
+from __future__ import annotations
+
+import argparse
+import hmac
+import os
+import sys
+from typing import Annotated, Literal, Optional
+
+from pydantic import Field
+
+from mcp.server.mcpserver import Image, MCPServer
+
+from core.service import Invalid, NotFound, Service
+
+INSTRUCTIONS = """LG 빌트인 가전 공간 설계 도구입니다. 기사가 스캔한 방(project)에서 영역(zone)별로
+설치 가능한 LG 제품과 어울리는 색상·재질(CMF)을 찾습니다.
+규칙:
+1) 치수 적합 판정(fit/conditional/no_fit/unknown)과 점수는 반드시 check_fit·recommend 결과를 그대로 전하세요. 직접 계산하거나 추정하지 마세요.
+2) 카탈로그에 없는 제품·치수를 만들지 마세요. null 값은 "공개 정보 없음"으로 말하세요.
+3) 스타일 요청(예: "화이트 우드 톤 미니멀")은 대표색 3~5개(#RRGGBB)와 재질 키워드(wood, matte, glass, metal, stone...)로 바꿔 set_style로 저장한 뒤 recommend를 호출하세요.
+4) 스캔값(source=scanned) 기반 판정은 '후보'입니다. 실측이 필요하다고 안내하세요.
+5) demo_only=true 제품은 시연용 가상 데이터임을 밝히세요.
+결과는 고객 웹 화면(customer_url)에도 실시간으로 반영됩니다."""
+
+mcp = MCPServer(name="lg-builtin", title="LG 빌트인 공간 설계", instructions=INSTRUCTIONS, version="0.1.0")
+
+_svc: Service | None = None
+
+
+def svc() -> Service:
+    global _svc
+    if _svc is None:
+        _svc = Service()
+    return _svc
+
+
+def _pid(project_id: Optional[str]) -> str:
+    if project_id:
+        return project_id
+    env = os.getenv("MCP_DEFAULT_PROJECT")
+    if env:
+        return env
+    projects = svc().list_projects()
+    if not projects:
+        raise Invalid("등록된 프로젝트가 없습니다. 기사 화면에서 스캔을 먼저 업로드하세요.")
+    return projects[-1]["project_id"]
+
+
+PID = Annotated[Optional[str], Field(description="프로젝트 ID (예: p_001). 생략하면 가장 최근 프로젝트")]
+ZID = Annotated[str, Field(description="영역 ID (list_zones로 확인, 예: z_001)")]
+HEX = Annotated[str, Field(pattern=r"^#[0-9A-Fa-f]{6}$", description="#RRGGBB")]
+
+
+def _wrap(fn):
+    """서비스 오류를 모델이 읽을 수 있는 메시지로."""
+    def inner(*a, **kw):
+        try:
+            return fn(*a, **kw)
+        except (NotFound, KeyError) as e:
+            raise ValueError(f"찾을 수 없음: {e}") from e
+        except Invalid as e:
+            raise ValueError(str(e)) from e
+    inner.__name__, inner.__doc__, inner.__annotations__ = fn.__name__, fn.__doc__, fn.__annotations__
+    inner.__wrapped__ = fn
+    return inner
+
+
+def _brief_room(room) -> dict:
+    return {
+        "walls": [{"wall_id": w.wall_id, "length_m": w.scanned.length_m, "height_m": w.scanned.height_m,
+                   "measured": w.measured.model_dump(exclude_none=True) if w.measured else None,
+                   "start": w.start, "end": w.end} for w in room.walls],
+        "openings": [o.model_dump() for o in room.openings],
+        "objects": [{"object_id": o.object_id, "category": o.category, "bbox_m": o.bbox_m.model_dump(),
+                     "position": o.position} for o in room.objects],
+    }
+
+
+@mcp.tool()
+@_wrap
+def list_projects() -> list[dict]:
+    """등록된 스캔 프로젝트 목록(ID, 상태, 고객 링크)."""
+    return [{"project_id": p["project_id"], "status": p["status"], "created_at": p["created_at"],
+             "style": p["style"].get("prompt")} for p in svc().list_projects()]
+
+
+@mcp.tool()
+@_wrap
+def get_room(project_id: PID = None) -> dict:
+    """방 구조: 벽(스캔 길이·높이, 기사 실측값), 문·창문, 기존 가구. 단위 m."""
+    pid = _pid(project_id)
+    p = svc().get_project(pid)
+    return {"project_id": pid, "customer_url": p["customer_url"], **_brief_room(svc().get_room(pid))}
+
+
+@mcp.tool()
+@_wrap
+def list_zones(project_id: PID = None) -> list[dict]:
+    """영역 목록(용도, 다각형 m, 벽, 스타일 팔레트·재질)."""
+    return svc().list_zones(_pid(project_id))
+
+
+@mcp.tool()
+@_wrap
+def create_zone(
+    purpose: Annotated[str, Field(pattern=r"^[a-z_]{2,30}$", description="kitchen | living | bedroom ...")],
+    polygon_m: Annotated[list[tuple[float, float]], Field(min_length=3, description="평면 꼭짓점 [[x, y], ...] (m)")],
+    project_id: PID = None,
+    name: Optional[str] = None,
+) -> dict:
+    """평면도 위에 영역을 만든다. 보통은 고객이 웹에서 그리지만 대화로도 만들 수 있다."""
+    return svc().create_zone(_pid(project_id), purpose, polygon_m, None, name)
+
+
+@mcp.tool()
+@_wrap
+def set_style(
+    palette: Annotated[list[HEX], Field(min_length=1, max_length=8, description="대표색 3~5개")],
+    materials: Annotated[list[str], Field(max_length=10, description="재질·마감 키워드: wood, matte, glossy, glass, metal, stone, fabric")],
+    prompt: Annotated[Optional[str], Field(description="고객이 쓴 원문 스타일 요청")] = None,
+    zone_id: Annotated[Optional[str], Field(description="특정 영역에만 적용. 생략 시 프로젝트 전체")] = None,
+    project_id: PID = None,
+) -> dict:
+    """고객 스타일을 팔레트·재질 키워드로 저장한다(CMF 추천 입력). 이미지가 첨부되면 이미지에서 대표색을 골라 넣는다."""
+    r = svc().set_style(_pid(project_id), prompt, palette, materials, zone_id)
+    return {"saved": True, "project_style": r["project_style"],
+            "zones": [{"zone_id": z["zone_id"], "style_tags": z["style_tags"]} for z in r["zones"]]}
+
+
+@mcp.tool()
+@_wrap
+def search_catalog(
+    category: Annotated[Optional[str], Field(description="refrigerator | kimchi_refrigerator | dishwasher | oven | cooktop | water_purifier | ...")] = None,
+    zone: Annotated[Optional[str], Field(description="kitchen | living ...")] = None,
+    query: Optional[str] = None,
+) -> list[dict]:
+    """LG 제품 카탈로그 검색. 치수(mm)·이격·색상 옵션·출처 URL 포함. null은 공개 정보 없음."""
+    return [p.model_dump() for p in svc().catalog.search(category, zone, query)]
+
+
+@mcp.tool()
+@_wrap
+def check_fit(zone_id: ZID, sku: str, project_id: PID = None) -> dict:
+    """한 제품이 영역에 설치 가능한지 규칙 기반 판정. 폭·높이·깊이별 가용/필요 치수(mm), 여유, 사용한 값(scanned/measured)."""
+    return svc().check_fit(_pid(project_id), zone_id, sku)
+
+
+@mcp.tool()
+@_wrap
+def recommend(zone_id: ZID, category: Optional[str] = None, project_id: PID = None) -> dict:
+    """영역에 맞는 제품 후보: 적합 판정 + 스타일에 맞는 색상·재질 상위 3개와 점수 근거. 설명은 reasons를 벗어나지 말 것."""
+    r = svc().recommend(_pid(project_id), zone_id, category)
+    items = [{
+        "sku": i["product"]["sku"], "name": i["product"]["name"], "category": i["product"]["category"],
+        "demo_only": i["product"]["demo_only"], "source_url": i["product"]["source_url"],
+        "fit": i["fit"], "cmf_top": i["cmf"],
+    } for i in r["items"]]
+    return {"zone_id": zone_id, "style_tags": r["zone"]["style_tags"], "margins_mm": r["margins_mm"], "items": items}
+
+
+@mcp.tool()
+@_wrap
+def apply_material(
+    target: Literal["wall", "floor", "door", "window", "object"],
+    hex_color: HEX,
+    finish: Optional[Literal["matte", "glossy", "satin"]] = None,
+    wall_id: Annotated[Optional[str], Field(description="특정 벽만 칠할 때 (target=wall)")] = None,
+    project_id: PID = None,
+) -> dict:
+    """3D 씬의 벽·바닥 등 색과 마감을 바꾼다. 웹 3D 뷰어에 바로 반영."""
+    r = svc().apply_material(_pid(project_id), target, hex_color, finish, wall_id)
+    return {"applied": True, "scene_state": r["scene_state"], "engine": r["scene"]["engine"]}
+
+
+@mcp.tool()
+@_wrap
+def place_product(zone_id: ZID, sku: str, color: Annotated[Optional[str], Field(description="제품 색상 옵션명. 생략 시 CMF 1순위")] = None,
+                  project_id: PID = None) -> dict:
+    """제품을 영역의 가장 알맞은 벽 앞에 치수 박스로 배치(배치 미리보기). 판정 결과도 함께 돌려준다."""
+    r = svc().place_product(_pid(project_id), zone_id, sku, color)
+    return {"placed": True, "fit": r["fit"], "placements": r["scene_state"]["placements"]}
+
+
+@mcp.tool()
+@_wrap
+def remove_product(zone_id: ZID, sku: str, project_id: PID = None) -> dict:
+    """배치 미리보기에서 제품을 뺀다."""
+    r = svc().remove_product(_pid(project_id), zone_id, sku)
+    return {"removed": True, "placements": r["scene_state"]["placements"]}
+
+
+@mcp.tool()
+@_wrap
+def render(project_id: PID = None) -> list:
+    """현재 디자인(재질·배치)을 이미지로 렌더한다. Blender가 있으면 Blender, 없으면 미리보기 렌더."""
+    pid = _pid(project_id)
+    r = svc().render(pid)
+    note = f"{pid} 렌더 완료 (engine={r['scene']['engine']}). 웹: {svc().get_project(pid)['customer_url']}"
+    return [note, Image(path=r["png_path"])] if r.get("png_path") else [note]
+
+
+# ---------------- 실행 ----------------
+class BearerAuth:
+    """Streamable HTTP용 고정 토큰 검사 (기획 §6.2 인증 통일)."""
+
+    def __init__(self, app, token: str):
+        self.app, self.token = app, token.encode()
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] == "http":
+            headers = dict(scope.get("headers") or [])
+            got = headers.get(b"authorization", b"")
+            ok = got.startswith(b"Bearer ") and hmac.compare_digest(got[7:].strip(), self.token)
+            if not ok:
+                await send({"type": "http.response.start", "status": 401,
+                            "headers": [(b"content-type", b"application/json"), (b"www-authenticate", b"Bearer")]})
+                await send({"type": "http.response.body", "body": b'{"error":"unauthorized"}'})
+                return
+        await self.app(scope, receive, send)
+
+
+def http_app():
+    token = os.getenv("MCP_HTTP_TOKEN")
+    if not token or len(token) < 16:
+        raise SystemExit("MCP_HTTP_TOKEN(16자 이상)을 .env에 설정하세요. 공개 주소에서는 토큰 없이 열지 않습니다.")
+    from mcp.server.transport_security import TransportSecuritySettings
+
+    hosts = [h.strip() for h in os.getenv("MCP_ALLOWED_HOSTS", "").split(",") if h.strip()]
+    sec = TransportSecuritySettings(
+        enable_dns_rebinding_protection=True,
+        allowed_hosts=["127.0.0.1:*", "localhost:*", *hosts],
+        allowed_origins=["http://127.0.0.1:*", "http://localhost:*", *[f"https://{h}" for h in hosts]],
+    )
+    app = mcp.streamable_http_app(streamable_http_path="/mcp", transport_security=sec,
+                                  stateless_http=os.getenv("MCP_STATELESS", "1") == "1", json_response=True)
+    return BearerAuth(app, token)
+
+
+def main(argv=None):
+    ap = argparse.ArgumentParser(description="LG 빌트인 MCP 서버")
+    ap.add_argument("--http", action="store_true", help="Streamable HTTP로 실행 (기본: stdio)")
+    a = ap.parse_args(argv)
+    if a.http:
+        import uvicorn
+        uvicorn.run(http_app(), host=os.getenv("MCP_HOST", "127.0.0.1"), port=int(os.getenv("MCP_PORT", 8765)))
+    else:
+        mcp.run("stdio")
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])

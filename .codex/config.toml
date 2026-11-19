@@ -1,0 +1,12 @@
+# Codex용 MCP 서버 등록 (Claude Code의 .mcp.json과 같은 서버)
+# 기본은 stdio (기획 §7: Codex의 Streamable HTTP 문제 보고가 있어 stdio 기본)
+[mcp_servers.lg-builtin]
+command = "uv"
+args = ["run", "python", "-m", "mcp_server"]
+startup_timeout_sec = 30
+tool_timeout_sec = 120
+
+# HTTP로 시험할 때: 먼저 `uv run python -m mcp_server --http` 실행, 환경변수 MCP_HTTP_TOKEN 설정 후 주석 해제
+# [mcp_servers.lg-builtin-http]
+# url = "http://127.0.0.1:8765/mcp"
+# bearer_token_env_var = "MCP_HTTP_TOKEN"

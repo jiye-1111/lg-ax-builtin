@@ -1,0 +1,441 @@
+{
+  "_note": "⚠️ 시연·테스트용 가상 데이터. LGE.COM 실제 제품 값이 아니다. 실제 카탈로그는 products.json (출처 URL 필수).",
+  "products": [
+    {
+      "sku": "DEMO-RF-01",
+      "name": "[가상] 1도어 컬럼 냉장고",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1850,
+        "d": 690
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 10,
+        "back": 50
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "베이지",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#D9CDBE"
+        },
+        {
+          "color": "네이처 그린",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#8FA89A"
+        },
+        {
+          "color": "그레이",
+          "material": "스테인리스",
+          "finish": "matte",
+          "hex_approx": "#9A9C9E"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-RF-02",
+      "name": "[가상] 4도어 대용량 냉장고",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 912,
+        "h": 1853,
+        "d": 698
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 5,
+        "top": 10,
+        "back": 50
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "베이지",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#D9CDBE"
+        },
+        {
+          "color": "블랙",
+          "material": "글라스",
+          "finish": "glossy",
+          "hex_approx": "#202122"
+        },
+        {
+          "color": "그레이",
+          "material": "스테인리스",
+          "finish": "matte",
+          "hex_approx": "#9A9C9E"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-KR-01",
+      "name": "[가상] 김치냉장고 컬럼",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1850,
+        "d": 690
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 4,
+        "top": 10,
+        "back": 50
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "베이지",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#D9CDBE"
+        },
+        {
+          "color": "네이처 그린",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#8FA89A"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-DW-01",
+      "name": "[가상] 빌트인 식기세척기",
+      "category": "dishwasher",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 598,
+        "h": 818,
+        "d": 550
+      },
+      "required_space_mm": {
+        "w": 600,
+        "h": 820,
+        "d": 580
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "그레이",
+          "material": "스테인리스",
+          "finish": "matte",
+          "hex_approx": "#9A9C9E"
+        },
+        {
+          "color": "우드 패널",
+          "material": "우드",
+          "finish": "matte",
+          "hex_approx": "#B48A64"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-OV-01",
+      "name": "[가상] 빌트인 광파오븐",
+      "category": "oven",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 595,
+        "d": 565
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 0,
+        "top": 0,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": "글라스",
+          "finish": "glossy",
+          "hex_approx": "#202122"
+        },
+        {
+          "color": "그레이",
+          "material": "스테인리스",
+          "finish": "matte",
+          "hex_approx": "#9A9C9E"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-CT-01",
+      "name": "[가상] 인덕션 3구",
+      "category": "cooktop",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 590,
+        "h": null,
+        "d": 520
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": "글라스",
+          "finish": "glossy",
+          "hex_approx": "#202122"
+        },
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-WP-01",
+      "name": "[가상] 빌트인 정수기",
+      "category": "water_purifier",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "그레이",
+          "material": "스테인리스",
+          "finish": "matte",
+          "hex_approx": "#9A9C9E"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-AC-01",
+      "name": "[가상] 스탠드 에어컨",
+      "category": "air_conditioner",
+      "zone_fit": [
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 380,
+        "h": 1950,
+        "d": 350
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 150,
+        "top": 300,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "베이지",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#D9CDBE"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    },
+    {
+      "sku": "DEMO-ST-01",
+      "name": "[가상] 의류관리기",
+      "category": "styler",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 445,
+        "h": 1960,
+        "d": 600
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": 10,
+        "top": 20,
+        "back": 30
+      },
+      "door_swing_mm": null,
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#F1F0EC"
+        },
+        {
+          "color": "베이지",
+          "material": "글라스",
+          "finish": "matte",
+          "hex_approx": "#D9CDBE"
+        },
+        {
+          "color": "우드 패널",
+          "material": "우드",
+          "finish": "matte",
+          "hex_approx": "#B48A64"
+        },
+        {
+          "color": "블랙",
+          "material": "글라스",
+          "finish": "glossy",
+          "hex_approx": "#202122"
+        }
+      ],
+      "source_url": null,
+      "source_checked_at": null,
+      "model_3d": null,
+      "demo_only": true
+    }
+  ]
+}

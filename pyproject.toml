@@ -1,0 +1,38 @@
+[project]
+name = "lg-ax-builtin"
+version = "0.1.0"
+description = "LiDAR 스캔 기반 빌트인 가전 공간 설계 서비스 (시연용 프로토타입)"
+requires-python = ">=3.11"
+dependencies = [
+  "pydantic>=2.7",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "python-multipart>=0.0.9",
+  "usd-core>=24.0",
+  "numpy>=1.26",
+  "mcp>=2.3,<3",
+  "pillow>=10",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "httpx>=0.27", "anyio>=4"]
+
+[project.scripts]
+lgb-api = "api.main:run"
+lgb-mcp = "mcp_server.server:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = { core = "services/core/core", recommender = "services/recommender/recommender", worker = "services/blender-worker/worker", api = "services/api/api", mcp_server = "services/mcp-server/mcp_server" }
+packages = ["core", "recommender", "worker", "api", "mcp_server"]
+
+[tool.setuptools.package-data]
+worker = ["bpy_scripts/*.py"]
+
+[tool.pytest.ini_options]
+pythonpath = ["services/core", "services/recommender", "services/blender-worker", "services/api", "services/mcp-server"]
+testpaths = ["tests"]
+addopts = "--import-mode=importlib"
