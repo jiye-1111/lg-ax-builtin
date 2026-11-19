@@ -1,0 +1,65 @@
+"""같은 모델(모양·크기 같음)의 색·재질 다른 제품을 하나로 묶기."""
+import json
+from pathlib import Path
+
+from recommender.variants import families, family_name, shape_key
+
+ROOT = Path(__file__).resolve().parents[2]
+CAT = json.loads((ROOT / "data/catalog/products.json").read_text(encoding="utf-8"))["products"]
+
+
+def shapes() -> dict:
+    out = {}
+    for p in CAT:
+        f = ROOT / "data/drawings" / f"{p['sku']}.json"
+        out[p["sku"]] = shape_key(json.loads(f.read_text(encoding="utf-8"))) if f.exists() else None
+    return out
+
+
+def by_sku(fams):
+    return {v["sku"]: f for f in fams for v in f["variants"]}
+
+
+def test_sixteen_products_become_nine_models():
+    fams = families(CAT, shapes())
+    assert len(fams) == 9
+    assert sum(len(f["variants"]) for f in fams) == 16
+
+
+def test_same_body_different_finish_is_one_model():
+    m = by_sku(families(CAT, shapes()))
+    assert m["G646GBB031"] is m["G646MEE021"] is m["G646SVV031"]
+    assert m["Z386GBB281"] is m["Z386MEE221"] is m["Z386SLL281"]
+    assert m["DUE6BGE"] is m["DUE6EWL2E"]
+    assert m["BEF3AMB4E"] is m["BEF3ASMLE"]
+    assert m["WU523AWB"] is m["WU523ACB"]
+
+
+def test_different_size_or_shape_stays_separate():
+    m = by_sku(families(CAT, shapes()))
+    assert m["M616GBB0M1"] is not m["G646GBB031"]   # 깊이 698 vs 709
+    assert m["D646GBB041"] is not m["G646GBB031"]   # 컨버터블: 같은 크기, 다른 문 나눔
+    assert m["BEI3QKBLOE"] is not m["BEF3AMB4E"]    # 화구 배치 다름
+
+
+def test_variants_carry_color_material_and_keep_catalog_order():
+    f = by_sku(families(CAT, shapes()))["G646GBB031"]
+    assert [v["sku"] for v in f["variants"]] == ["G646GBB031", "G646MEE021", "G646SVV031"]
+    assert [v["material"] for v in f["variants"]] == ["글라스", "메탈", "스톤 (스테인리스)"]
+    assert all(v["hex"] and v["color"] for v in f["variants"])
+    assert f["family_id"] == "G646GBB031" and f["category"] == "refrigerator"
+
+
+def test_family_name_drops_finish_words():
+    assert family_name(["LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L)",
+                        "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L, 메탈)",
+                        "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L, 실버)"]) == "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (650L)"
+    assert family_name(["LG 디오스 인덕션 3구 (와이드존)", "LG 디오스 인덕션 3구 (와이드존, 무광블랙)"]) == "LG 디오스 인덕션 3구 (와이드존)"
+    assert family_name(["X (빌트인, 냉온정)", "X (빌트인, 냉온정, 베이지)"]) == "X (빌트인, 냉온정)"
+    assert family_name(["하나뿐인 제품"]) == "하나뿐인 제품"
+
+
+def test_no_drawing_falls_back_to_size():
+    a = {**CAT[0], "sku": "A1"}
+    b = {**CAT[0], "sku": "B1", "cmf_options": [{"color": "블랙", "hex_approx": "#000000"}]}
+    assert len(families([a, b], {})) == 1
