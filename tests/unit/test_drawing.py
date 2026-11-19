@@ -50,3 +50,57 @@ def test_load_drawing_returns_none_when_missing(tmp_path):
     assert load_drawing(tmp_path, "NOPE") is None
     (tmp_path / "X1.json").write_text(json.dumps(drawing()), encoding="utf-8")
     assert load_drawing(tmp_path, "X1")["sku"] == "G646GBB031"
+
+
+# ---------- 윗면 도면 (인덕션처럼 위에서 봐야 하는 제품) ----------
+COOK = {"w": 580, "h": 59, "d": 520}
+
+
+def cooktop_drawing() -> dict:
+    return {
+        "sku": "COOK",
+        "front": {"w": 580, "h": 59, "parts": [
+            {"name": "glass", "x": 0, "y": 0, "w": 580, "h": 6},
+            {"name": "body", "x": 30, "y": 6, "w": 520, "h": 53},
+        ]},
+        "side": {"w": 520, "h": 59, "parts": [
+            {"name": "glass/side", "x": 0, "y": 0, "w": 520, "h": 6},
+            {"name": "body", "x": 30, "y": 6, "w": 460, "h": 53},
+        ]},
+        # 윗면: 아래쪽이 앞 (앞에 서서 내려다본 모습)
+        "top": {"w": 580, "h": 520, "parts": [
+            {"name": "zone/0", "shape": "circle", "x": 40, "y": 40, "w": 200, "h": 200},
+            {"name": "panel", "x": 190, "y": 470, "w": 200, "h": 30},
+        ]},
+    }
+
+
+def test_door_is_optional_and_glass_gets_side_depth():
+    boxes = {b["name"]: b for b in boxes_from_drawing(cooktop_drawing(), COOK)}
+    assert boxes["glass"]["y0"] == pytest.approx(-0.26) and boxes["glass"]["y1"] == pytest.approx(0.26)
+    assert boxes["glass"]["z1"] == pytest.approx(0.059)
+
+
+def test_top_view_rings_and_prints_sit_on_top():
+    from worker.drawing import top_items
+    rings, prints = top_items(cooktop_drawing(), COOK)
+    r = rings[0]
+    assert r["r"] == pytest.approx(0.1)
+    assert r["cx"] == pytest.approx(0.14 - 0.29)          # 도면 x 중심 140mm → 왼쪽
+    assert r["cy"] == pytest.approx(0.26 - 0.14)          # 도면 위쪽 = 뒤(+Y)
+    assert r["z"] > 0.059
+    p = prints[0]
+    assert p["y0"] == pytest.approx(-0.26 + 0.02)         # 아래 끝에서 20mm = 앞쪽
+    assert p["z0"] == pytest.approx(0.059)
+
+
+def test_top_view_must_match_width_and_depth():
+    d = cooktop_drawing()
+    d["top"]["h"] = 500
+    with pytest.raises(DrawingError):
+        boxes_from_drawing(d, COOK)
+
+
+def test_no_top_view_gives_no_items():
+    from worker.drawing import top_items
+    assert top_items(drawing(), DIMS) == ([], [])
