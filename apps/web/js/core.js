@@ -16,8 +16,11 @@ export const NOTE = { clearance_unknown: "이격 정보 없음", scan_based: "�
 // ---------- 공통 ----------
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 export const mm = (v) => (v == null ? "–" : `${Math.round(v).toLocaleString()}`);
+// API 서버 주소. config.js에서 정한다 (비우면 웹과 같은 서버)
+export const API_BASE = String(window.LGB_API || "").replace(/\/+$/, "");
+export const apiUrl = (path) => (path.startsWith("/api/") ? API_BASE + path : path);
 export async function api(path, opt = {}) {
-  const r = await fetch(path, {
+  const r = await fetch(apiUrl(path), {
     ...opt,
     headers: opt.body && !(opt.body instanceof FormData) ? { "content-type": "application/json", ...(opt.headers || {}) } : opt.headers,
   });

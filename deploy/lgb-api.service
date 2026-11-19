@@ -1,0 +1,19 @@
+# /etc/systemd/system/lgb-api.service — setup-server.sh가 APP_USER·APP_DIR를 채워서 설치한다
+[Unit]
+Description=LG 빌트인 공간 설계 API (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=APP_USER
+WorkingDirectory=APP_DIR
+Environment=PYTHONUNBUFFERED=1
+# 외부에는 열지 않고 Caddy(443)가 받아서 넘겨 준다
+ExecStart=APP_DIR/.venv/bin/uvicorn api.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+Restart=always
+RestartSec=5
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

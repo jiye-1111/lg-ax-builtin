@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, post, put, toast, guard,
+import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -548,7 +548,7 @@ export async function customer(pid) {
     try {
       // 채광을 보고 있으면 그 날짜·시각의 해로 렌더한다 (화면과 같은 빛)
       await post(`/api/projects/${pid}/render`, sim === "daylight" ? { date: simState.date, time: simState.time } : {});
-      document.getElementById("renderImg").src = `/api/projects/${pid}/files/render.png?v=${Date.now()}`;
+      document.getElementById("renderImg").src = apiUrl(`/api/projects/${pid}/files/render.png?v=${Date.now()}`);
       document.getElementById("renderBox").hidden = false;
     } finally { e.target.disabled = false; e.target.textContent = "렌더 이미지"; }
   });
@@ -811,7 +811,7 @@ export async function customer(pid) {
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
     const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.load(`/api/projects/${pid}/files/scene.glb`); }
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
