@@ -91,7 +91,7 @@ export function makeViewer(el, handlers = {}) {
   ctl.maxPolarAngle = Math.PI * 0.49; // 바닥 아래로는 못 내려가게
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
-  let model = null, framed = false, alive = true, walls = [], center = new THREE.Vector3();
+  let model = null, framed = false, keepCam = false, alive = true, walls = [], center = new THREE.Vector3();
   const tmp = new THREE.Vector3(), toCam = new THREE.Vector3();
 
   // 화면에서 그리는 층: 바닥 오버레이 → 놓은 제품 → 미리 보기
@@ -227,13 +227,16 @@ export function makeViewer(el, handlers = {}) {
   };
 
   // 방 전체가 보이게 카메라를 잡는다 (화면 비율이 세로로 길면 더 멀리)
-  const frame = () => {
+  // keep = true면 카메라는 그대로 두고 그림자 범위·격자만 방에 맞춘다 (저장해 둔 시점으로 돌아왔을 때)
+  const frame = (keep = false) => {
     if (!model) return;
     const box = new THREE.Box3().setFromObject(model);
     const c = box.getCenter(new THREE.Vector3());
     const s = box.getSize(new THREE.Vector3()).length() * Math.max(1, 1.2 / cam.aspect);
-    cam.position.set(c.x - s * 0.35, c.y + s * 1.05, c.z + s * 0.55);
-    ctl.target.copy(c);
+    if (!keep) {
+      cam.position.set(c.x - s * 0.35, c.y + s * 1.05, c.z + s * 0.55);
+      ctl.target.copy(c);
+    }
     // 그림자 범위를 방에 맞춘다
     const r = box.getSize(new THREE.Vector3()).length() / 2;
     roomC.copy(c);
@@ -489,7 +492,7 @@ export function makeViewer(el, handlers = {}) {
         furnish(model, () => alive && model === mine, (id) => objectCats[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
-        if (!framed) { frame(); framed = true; }
+        if (!framed) { frame(keepCam); framed = true; }
         applySun();
       }, undefined, () => toast("3D 파일을 불러오지 못했습니다", true));
     },
@@ -602,7 +605,18 @@ export function makeViewer(el, handlers = {}) {
       model?.traverse((o) => { if (o.isMesh && o.userData.shared && o.userData.kind === "object") furniture++; });
       return { furniture, products: products.children.length };
     },
-    reframe() { setTimeout(() => { resize(); if (!walk) frame(); }, 280); },
+    reframe(keep = false) { if (!keep) keepCam = false; setTimeout(() => { resize(); if (!walk) frame(keep && keepCam); }, 280); },
+    /** 지금 카메라 자리 (다시 왔을 때 같은 눈높이로 보이게 저장용) */
+    camera() { const c = walk ? walk.saved : { pos: cam.position, target: ctl.target };
+      return { pos: c.pos.toArray().map((v) => +v.toFixed(3)), target: c.target.toArray().map((v) => +v.toFixed(3)) }; },
+    /** 저장해 둔 카메라 자리로. 방을 처음 불러와도 방 전체 보기로 덮지 않는다 */
+    setCamera(c) {
+      const ok = (a) => Array.isArray(a) && a.length === 3 && a.every(Number.isFinite);
+      if (!c || !ok(c.pos) || !ok(c.target)) return false;
+      cam.position.fromArray(c.pos); ctl.target.fromArray(c.target); ctl.update();
+      keepCam = true;
+      return true;
+    },
     /** 1인칭 둘러보기 켜기/끄기. world = walk.buildWorld(room, placements, hidden), null이면 끄기 */
     setWalk(world) {
       if (world && !walk) {

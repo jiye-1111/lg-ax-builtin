@@ -23,7 +23,11 @@ export async function api(path, opt = {}) {
   });
   if (r.status === 204) return null;
   const data = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error(data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)) : r.statusText);
+  if (!r.ok) {
+    const err = new Error(data.detail ? (typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail)) : r.statusText);
+    err.status = r.status;
+    throw err;
+  }
   return data;
 }
 export const post = (p, b) => api(p, { method: "POST", body: JSON.stringify(b) });
@@ -38,3 +42,20 @@ export function toast(msg, err = false) {
 }
 export const guard = (fn) => async (...a) => { try { await fn(...a); } catch (e) { toast(e.message, true); } };
 
+
+// ---------- 내 집 기억하기: 다른 화면에 다녀와도 스캔한 집과 보던 화면을 그대로 이어 간다 ----------
+// 브라우저 저장소는 막혀 있을 수 있어서(사생활 보호 창 등) 실패해도 화면은 그냥 돌아간다.
+const HOME_KEY = "lgb.home", UI_KEY = (pid) => `lgb.ui.${pid}`;
+const readStore = (k) => { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch { return null; } };
+const writeStore = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { /* 저장 못 해도 괜찮다 */ } };
+/** 마지막으로 열어 본 집 {pid, token} 또는 null */
+export const lastHome = () => { const h = readStore(HOME_KEY); return h && typeof h.pid === "string" ? h : null; };
+export const rememberHome = (pid, token) => {
+  const old = lastHome();
+  writeStore(HOME_KEY, { pid, token: token || (old?.pid === pid ? old.token : "") });
+};
+export const forgetHome = (pid) => { if (!pid || lastHome()?.pid === pid) writeStore(HOME_KEY, null); };
+export const homeHref = (h = lastHome()) => (h ? `#/c/${encodeURIComponent(h.pid)}${h.token ? `?t=${encodeURIComponent(h.token)}` : ""}` : "#/new");
+/** 집마다 보던 화면(보기·탭·살아 보기·카메라) */
+export const uiState = (pid) => readStore(UI_KEY(pid)) || {};
+export const saveUiState = (pid, patch) => writeStore(UI_KEY(pid), { ...uiState(pid), ...patch });

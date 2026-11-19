@@ -1,10 +1,13 @@
 // 화면: 내 집 스캔(첫 화면), 방문 스캔 신청, 기사 화면
-import { $app, cleanup, esc, api, post, put, toast, guard } from "./core.js";
+import { $app, cleanup, esc, api, post, put, toast, guard, lastHome, homeHref } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
 
 export async function selfScan() {
+  const last = lastHome();
   $app.innerHTML = `
+    ${last ? `<div class="resume" id="resume"><div><b>꾸미던 집이 그대로 있어요</b><span class="muted">${esc(last.pid)} · 놓은 제품과 보던 화면이 저장돼 있어요</span></div>
+      <a class="btn" href="${esc(homeHref(last))}">이어서 꾸미기</a></div>` : ""}
     <section class="hero">
       <div class="hero-copy">
         <h1>스캔한 우리 집에<br>LG 빌트인을 놓아 보세요</h1>
