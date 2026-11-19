@@ -12,7 +12,8 @@
 
 ## 3. Blender (설치 PC)
 - [ ] `.env`에 `BLENDER_BIN` 지정 → 새 프로젝트 등록 → `/api/health`에 경로 표시
-- [ ] 3D HUD가 "Blender"인지, 렌더 이미지가 EEVEE 결과인지
+- [ ] 3D HUD가 "Blender"인지, "렌더 이미지"가 Cycles 결과(가구 모델·창 구멍·마루 무늬)인지
+- [ ] 가구를 옮겨도 3D가 바로 바뀌는지 (Blender는 렌더 때만 돈다)
 - [ ] 실패하면 `storage/projects/<pid>/scene/blender.log` 확인 (폴백으로 계속 동작해야 함)
 
 ## 4. Claude Code (stdio)

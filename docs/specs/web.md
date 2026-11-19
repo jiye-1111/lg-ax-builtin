@@ -84,7 +84,7 @@
   - 김치냉장고: 386L 3도어, 480L 4도어 · 식기세척기: 앞판 + 손잡이 홈 + 걸레받이 · 쿡탑: 유리 상판 + 화구 · 정수기: 표시창 + 출수구 + 물받이
 - 재질: 카탈로그 재질 이름으로 느낌을 정한다(글라스 = 광택 코팅, 메탈·스테인리스 = 금속성). 문 앞판 재질 이름은 `finish`, 웹에서 고른 색으로 바꾼다.
 - 화면: ACES 톤 매핑, 실내 반사(RoomEnvironment), 해 그림자. 고른 제품과 미리 보기에만 판정 색 테두리를 그리고, 바닥 판은 늘 판정 색.
-- Blender 렌더(`build_scene.py`)도 같은 모델을 쓴다. GPU가 없는 PC는 `.env`에 `BLENDER_ENGINE=CYCLES`.
+- Blender 렌더(`build_scene.py`)도 같은 제품·가구 모델을 쓴다. 기본은 Cycles CPU, 빠르게 보려면 `.env`에 `BLENDER_ENGINE=EEVEE`.
 - 카탈로그를 바꾸면 모델을 다시 만든다:
   ```bash
   blender -b -P services/blender-worker/worker/bpy_scripts/build_products.py -- \
