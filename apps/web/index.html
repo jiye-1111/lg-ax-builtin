@@ -2,10 +2,21 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>빌트인 공간 설계</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>LG 빌트인 가상 리모델링</title>
+  <meta name="description" content="LiDAR로 스캔한 우리 집에 LG 빌트인 가전을 놓아 보고 채광·와이파이·동선까지 확인합니다." />
+  <meta name="theme-color" content="#1C2024" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/favicon-32.png" sizes="32x32" />
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="빌트인 리모델링" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <script type="importmap">
     {
@@ -18,12 +29,21 @@
 </head>
 <body>
   <header class="top">
-    <a class="brand" href="#/">LG 빌트인 가상 리모델링 <span class="tag">시연</span></a>
-    <nav>
-      <a href="#/">내 집 스캔</a>
-      <a href="#/r">방문 스캔 신청</a>
-      <a href="#/t">기사 화면</a>
+    <a class="brand" href="#/" aria-label="LG 빌트인 가상 리모델링 처음 화면">
+      <img src="icons/icon.svg" width="28" height="28" alt="" />
+      <span>LG 빌트인 가상 리모델링</span><span class="tag">시연</span>
+    </a>
+    <nav aria-label="화면 이동">
+      <a href="#/" data-nav="home">내 집 스캔</a>
+      <a href="#/r" data-nav="r">방문 스캔 신청</a>
+      <a href="#/t" data-nav="t">기사 화면</a>
     </nav>
+    <div class="install-wrap">
+      <button class="install" id="install" hidden>앱 설치</button>
+      <div class="install-tip" id="installTip" hidden>
+        아이폰은 Safari 아래쪽 <b>공유</b> 버튼 → <b>홈 화면에 추가</b>를 누르면 앱처럼 설치됩니다.
+      </div>
+    </div>
   </header>
   <main id="app"></main>
   <div id="toast" role="status" aria-live="polite"></div>

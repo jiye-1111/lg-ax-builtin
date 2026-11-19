@@ -1,6 +1,7 @@
 """FastAPI 백엔드 (기획 §6.1 api). 웹 정적 파일도 함께 서빙한다 (plan.md ADR-8)."""
 from __future__ import annotations
 
+import mimetypes
 import os
 from functools import lru_cache
 from pathlib import Path
@@ -15,6 +16,9 @@ from core import config
 from core.service import Invalid, NotFound, Service
 
 WEB_DIR = config.ROOT / "apps" / "web"
+# Windows 레지스트리에 따라 .js가 text/plain으로 잡히면 모듈 스크립트가 안 뜬다. 웹앱 매니페스트도 함께 지정.
+mimetypes.add_type("text/javascript", ".js")
+mimetypes.add_type("application/manifest+json", ".webmanifest")
 MAX_UPLOAD = int(os.getenv("MAX_UPLOAD_MB", 200)) * 1024 * 1024
 
 
