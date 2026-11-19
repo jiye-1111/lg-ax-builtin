@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from worker.drawing import DrawingError, boxes_from_drawing, load_drawing
 
 ROOT = Path(__file__).resolve().parents[2]

@@ -65,3 +65,12 @@ def test_model_matches_catalog_dims(prod, index):
 def test_model_has_recolorable_finish(prod, index):
     gltf = read_glb(MODELS / index["models"][prod["sku"]]["file"])
     assert "finish" in {m["name"] for m in gltf["materials"]}
+
+
+def test_products_with_figma_drawing_use_it():
+    """data/drawings에 도면이 있는 제품은 도면대로 만든 모델이어야 한다."""
+    index = json.loads((MODELS / "index.json").read_text(encoding="utf-8"))["models"]
+    drawn = [p.stem for p in (ROOT / "data/drawings").glob("*.json")]
+    assert drawn, "도면이 하나는 있어야 한다"
+    for sku in drawn:
+        assert index[sku]["layout"] == "drawing", sku

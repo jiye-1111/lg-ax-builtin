@@ -4,7 +4,8 @@
     python build_products.py --catalog ... --out ...      (pip bpy 모듈로 실행할 때)
 
 - 크기: 카탈로그 product_dims_mm (LGE.COM 값) 그대로. 바닥 가운데가 원점, 정면 = glTF +Z.
-- 모양: 카테고리별 화면용 표현(문 나눔, 손잡이, 화구 등). 실제 제품 도면이 아니다.
+- 모양: data/drawings/<sku>.json(Figma에서 그린 정면·옆면 도면)이 있으면 그 도면대로,
+  없으면 카테고리별 화면용 표현(문 나눔, 손잡이, 화구 등).
 - 재질 이름 "finish"는 웹에서 색을 바꿀 때 쓰는 문 앞판 재질이다.
 - 결과: <sku>.glb + index.json (모델 파일, 치수, 모양 종류)
 """
@@ -18,6 +19,13 @@ from pathlib import Path
 
 import bpy  # noqa: I001  (pip bpy는 bpy를 먼저 불러야 bmesh가 생긴다)
 import bmesh
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # worker 패키지 (Blender로 바로 실행할 때)
+from worker.drawing import boxes_from_drawing, load_drawing  # noqa: E402
+
+DRAWINGS = Path(__file__).resolve().parents[4] / "data" / "drawings"
+ROLE_MAT = {"body": "body", "door": "finish", "handle": "handle", "vent": "trim", "display": "display"}
+ROLE_BEVEL = {"door": 0.006, "handle": 0.005, "body": 0.004, "display": 0.003}
 
 GAP = 0.004        # 문 사이 틈
 DOOR_T = 0.04      # 문 두께
@@ -187,6 +195,12 @@ def purifier(parts, pal, W, D, H):
     box(parts, pal["trim"], -W / 2 + 0.02, W / 2 - 0.02, fy - 0.07, fy + 0.02, 0.012, 0.03, bevel=0.006)    # 물받이
 
 
+def from_drawing(parts: list, pal: dict, drawing: dict, dims: dict) -> None:
+    for b in boxes_from_drawing(drawing, dims):
+        box(parts, pal[ROLE_MAT[b["role"]]], b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"],
+            bevel=ROLE_BEVEL.get(b["role"], 0.0))
+
+
 def layout_of(prod: dict) -> str:
     name = prod["name"]
     if prod["category"] == "refrigerator":
@@ -198,7 +212,7 @@ def layout_of(prod: dict) -> str:
     return prod["category"]
 
 
-def build(prod: dict, out: Path) -> dict:
+def build(prod: dict, out: Path, drawings: Path = DRAWINGS) -> dict:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     dims = prod["product_dims_mm"]
     W, H, D = dims["w"] / 1000, dims["h"] / 1000, dims["d"] / 1000
@@ -206,7 +220,11 @@ def build(prod: dict, out: Path) -> dict:
     pal = palette(opt.get("hex_approx") or "#F2F2F0", opt.get("material"))
     parts: list = []
     cat, lay = prod["category"], layout_of(prod)
-    if cat in ("refrigerator", "kimchi_refrigerator"):
+    drawing = load_drawing(drawings, prod["sku"])
+    if drawing:
+        lay = "drawing"
+        from_drawing(parts, pal, drawing, dims)
+    elif cat in ("refrigerator", "kimchi_refrigerator"):
         fridge(parts, pal, W, D, H, lay)
     elif cat == "dishwasher":
         dishwasher(parts, pal, W, D, H)
@@ -246,6 +264,7 @@ def main() -> None:
     ap.add_argument("--catalog", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--sku", action="append", help="이 제품만 만들기 (여러 번 가능)")
+    ap.add_argument("--drawings", default=str(DRAWINGS), help="Figma 도면 JSON 폴더")
     a = ap.parse_args(argv)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
@@ -257,9 +276,9 @@ def main() -> None:
             continue
         if not p.get("product_dims_mm") or not all(p["product_dims_mm"].get(k) for k in ("w", "h", "d")):
             continue
-        index["models"][p["sku"]] = build(p, out)
+        index["models"][p["sku"]] = build(p, out, Path(a.drawings))
         print(p["sku"], index["models"][p["sku"]]["bbox_mm"])
-    index["_note"] = "build_products.py로 생성. 크기는 카탈로그 값, 모양은 화면용 표현."
+    index["_note"] = "build_products.py로 생성. 크기는 카탈로그 값, 모양은 Figma 도면(layout=drawing) 또는 화면용 표현."
     idx_path.write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
 
 

@@ -2,10 +2,10 @@
  "models": {
   "G646GBB031": {
    "file": "G646GBB031.glb",
-   "layout": "4door",
+   "layout": "drawing",
    "bbox_mm": {
     "w": 914.0,
-    "h": 1858.0,
+    "h": 1860.0,
     "d": 709.0
    }
   },
@@ -145,5 +145,5 @@
    }
   }
  },
- "_note": "build_products.py로 생성. 크기는 카탈로그 값, 모양은 화면용 표현."
+ "_note": "build_products.py로 생성. 크기는 카탈로그 값, 모양은 Figma 도면(layout=drawing) 또는 화면용 표현."
 }
