@@ -144,6 +144,7 @@ function planView(svg, room, opts = {}) {
     html += `<polygon class="zone ${cls}" data-zone="${esc(z.zone_id)}" points="${z.polygon_m.map((p) => p.join(",")).join(" ")}" style="stroke-width:${sw(2)}px"/>`;
     html += `<text x="${c[0]}" y="${c[1]}" text-anchor="middle" style="font-size:${sw(13)}px;font-weight:700">${esc(z.name || PURPOSE[z.purpose] || z.purpose)}</text>`;
   }
+  html += `<g id="overlay">${opts.overlay || ""}</g>`;
   const hidden = new Set(opts.hidden || []);
   for (const o of room.objects) {
     const [x, , zz] = o.position;
@@ -171,6 +172,12 @@ function planView(svg, room, opts = {}) {
     html += `<line class="${o.type === "window" ? "window" : "door"}" x1="${w.start[0] + dx * a}" y1="${w.start[1] + dy * a}" x2="${w.start[0] + dx * b}" y2="${w.start[1] + dy * b}" style="stroke-width:${sw(8)}px"/>`;
   }
   for (const p of opts.placements || []) html += placedSvg(p, sw, opts.selectedPl === p.placement_id);
+  if (opts.northDeg != null) {  // 나침반: 평면도 오른쪽 위
+    const r = sw(18), cx = maxX + pad - sw(26), cy = minY - pad + sw(26);
+    html += `<g class="compass" transform="rotate(${opts.northDeg} ${cx} ${cy})"><circle cx="${cx}" cy="${cy}" r="${r}" style="stroke-width:${sw(1)}px"/>
+      <path d="M ${cx} ${cy - r * 0.85} L ${cx + r * 0.32} ${cy + r * 0.2} L ${cx} ${cy} L ${cx - r * 0.32} ${cy + r * 0.2} Z"/>
+      <text x="${cx}" y="${cy - r - sw(4)}" text-anchor="middle" style="font-size:${sw(11)}px;font-weight:700">N</text></g>`;
+  }
   html += `<g id="ghost"></g><g id="draft"></g>`;
   svg.innerHTML = html;
   const toWorld = (ev) => {
@@ -428,6 +435,9 @@ async function customer(pid) {
             <div class="tabs" style="margin:0"><button data-mode="move" class="on">놓기·옮기기</button><button data-mode="rect">영역 □</button><button data-mode="poly">영역 ⬠</button></div></div>
           <svg class="plan big" id="plan" style="margin-top:10px"></svg>
           <p class="muted" style="font-size:12px;margin:6px 0 0" id="hint"></p>
+          <div class="simbar"><b>살아 보기</b>
+            <div class="tabs" style="margin:0"><button data-sim="" class="on">끄기</button><button data-sim="daylight">☀ 채광</button><button data-sim="wifi">📶 와이파이</button><button data-sim="flow">🚶 동선</button></div></div>
+          <div id="simctl"></div>
         </div>
         <div class="panel" style="margin-top:16px"><div class="row"><h2 style="margin:0">3. 3D로 보기</h2><span class="spacer"></span><button class="ghost small" id="render">렌더 이미지</button></div>
           <div class="viewer" id="viewer" style="margin-top:10px"><span class="hud" id="hud"></span></div>
@@ -458,6 +468,7 @@ async function customer(pid) {
   const svg = document.getElementById("plan");
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = "", catalog = [];
+  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
     move: "제품을 끌어서 옮기세요. 선택 후 R 키 또는 오른쪽 버튼으로 돌릴 수 있습니다. 기존 가구를 누르면 치울 수 있어요.",
@@ -760,9 +771,75 @@ async function customer(pid) {
   };
 
   const draw = () => {
-    pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects, selectedPl: selPl, selectedObj: selObj });
+    pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
+      selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
     drawDraft();
   };
+  const setOverlay = (html) => { overlay = html; const g = document.getElementById("overlay"); if (g) g.innerHTML = html; };
+
+  // ---- 살아 보기: 채광 ----
+  const heat = (grid, color, maxV) => {
+    const out = [];
+    const [x0, y0] = grid.origin, c = grid.cell_m;
+    grid.values.forEach((row, j) => row.forEach((v, i) => {
+      if (v == null || v <= 0) return;
+      out.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${color}" fill-opacity="${Math.min(0.75, 0.12 + (0.63 * v) / maxV).toFixed(2)}"/>`);
+    }));
+    return out.join("");
+  };
+  let simTimer = null;
+  const runDaylight = async () => {
+    const box = document.getElementById("simres");
+    if (project.site?.north_deg == null) { setOverlay(""); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
+    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}`);
+    const maxH = Math.max(1, ...d.daily.values.flat().filter((v) => v != null));
+    setOverlay(heat(d.daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join(""));
+    const pls = project.scene_state.placements.filter((x) => x.placement_id in d.daily.points);
+    box.innerHTML = `
+      <p style="margin:0 0 6px">${d.sun.altitude_deg > 0 ? `해 높이 <b>${d.sun.altitude_deg.toFixed(0)}°</b> · 방위 <b>${d.sun.azimuth_deg.toFixed(0)}°</b> · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"} · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)</p>
+      ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = d.daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
+      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${d.assumptions.map(esc).join(" · ")}</p>`;
+  };
+  const daylightCtl = async () => {
+    regions = regions || (await api("/api/regions"));
+    const site = project.site || {};
+    document.getElementById("simctl").innerHTML = `
+      <div class="simgrid">
+        <label>지역<select id="region">${Object.keys(regions).map((r) => `<option ${r === (site.region || "서울") ? "selected" : ""}>${r}</option>`).join("")}</select></label>
+        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="355" step="5" value="${site.north_deg ?? 0}"></label>
+        <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
+        <label>시각 <b id="tv">${simState.time}</b><input type="range" id="stime" min="300" max="1260" step="15" value="${(() => { const [h, m] = simState.time.split(":").map(Number); return h * 60 + m; })()}"></label>
+      </div>
+      <div class="chips" style="margin:6px 0 8px">${[["동지", "-12-21"], ["춘분", "-03-20"], ["하지", "-06-21"]].map(([k, v]) => `<button class="chip" data-day="${v}">${k}</button>`).join("")}<button class="chip" data-day="today">오늘</button></div>
+      <div id="simres"></div>`;
+    const kick = () => { clearTimeout(simTimer); simTimer = setTimeout(() => guard(runDaylight)(), 120); };
+    document.getElementById("region").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { region: e.target.value }); kick(); });
+    document.getElementById("north").oninput = (e) => {
+      document.getElementById("nv").textContent = `${e.target.value}°`;
+      svg.querySelector(".compass")?.setAttribute("transform", svg.querySelector(".compass").getAttribute("transform").replace(/rotate\([^ ]+/, `rotate(${e.target.value}`));
+    };
+    document.getElementById("north").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { north_deg: Number(e.target.value) }); draw(); kick(); });
+    document.getElementById("sdate").onchange = (e) => { simState.date = e.target.value; kick(); };
+    document.getElementById("stime").oninput = (e) => {
+      const v = Number(e.target.value); simState.time = `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}`;
+      document.getElementById("tv").textContent = simState.time; kick();
+    };
+    document.querySelectorAll("[data-day]").forEach((b) => (b.onclick = () => {
+      simState.date = b.dataset.day === "today" ? new Date().toISOString().slice(0, 10) : `${simState.date.slice(0, 4)}${b.dataset.day}`;
+      document.getElementById("sdate").value = simState.date; kick();
+    }));
+    if (project.site?.north_deg == null) draw();
+    await runDaylight();
+  };
+  const SIMS = { daylight: daylightCtl };
+  const showSim = guard(async () => {
+    document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
+    if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
+    draw();
+    if (SIMS[sim]) await SIMS[sim]();
+    else { setOverlay(""); document.getElementById("simctl").innerHTML = `<p class="muted">준비 중입니다.</p>`; }
+  });
+  document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = b.dataset.sim; showSim(); }));
   const refresh = async (force = false) => {
     if (drag) return;
     const v = (await api(`/api/projects/${pid}/version`)).version;
@@ -773,6 +850,7 @@ async function customer(pid) {
     const measured = room.walls.filter((w) => w.measured).length, n = project.scene_state.placements.length;
     document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
     draw();
+    if (sim === "daylight" && document.getElementById("simres")) guard(runDaylight)();
     renderInspector();
     renderPlacements();
     renderZones();
