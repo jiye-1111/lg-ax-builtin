@@ -118,3 +118,8 @@ td input { padding: 4px 6px; width: 84px; }
 #toast { position: fixed; right: 16px; bottom: 16px; background: var(--ink); color: #fff; padding: 10px 14px; border-radius: 8px; opacity: 0; transition: opacity .2s; pointer-events: none; max-width: 360px; }
 #toast.on { opacity: 1; }
 #toast.err { background: var(--nofit); }
+.floorplan { display: block; width: 100%; max-height: 420px; object-fit: contain; margin-top: 8px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+details.panel > summary { cursor: pointer; list-style: none; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary::before { content: "▸"; color: var(--muted); }
+details.panel[open] > summary::before { content: "▾"; }

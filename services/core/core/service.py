@@ -171,8 +171,8 @@ class Service:
     def set_measurement(self, pid: str, wall_id: str, length_m: float | None = None, height_m: float | None = None,
                         depth_m: float | None = None, by: str = "technician") -> dict:
         p = self.get_project(pid)
-        if p["scan"]["scanned_by"] == "customer" and by != "technician":
-            raise Invalid("셀프 스캔은 기사 실측 없이 보정할 수 없습니다 (기획 L1)")
+        if by not in ("technician", "customer"):
+            raise Invalid("by는 technician 또는 customer")
         for name, v in (("length_m", length_m), ("height_m", height_m), ("depth_m", depth_m)):
             if v is not None and not (0.05 <= v <= 30):
                 raise Invalid(f"{name} 값이 범위를 벗어남: {v}")
@@ -191,6 +191,42 @@ class Service:
         self._save_room(pid, room)
         self._save_project(p)
         return w.model_dump()
+
+    # ---- 도면 (선택) ----
+    FLOORPLAN_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                       ".webp": "image/webp", ".pdf": "application/pdf"}
+
+    def set_floorplan(self, pid: str, data: bytes, filename: str) -> dict:
+        """고객이 가진 도면(이미지·PDF)을 참고 자료로 붙인다. 판정에는 쓰지 않는다."""
+        p = self.get_project(pid)
+        ext = Path(filename).suffix.lower()
+        if ext not in self.FLOORPLAN_TYPES:
+            raise Invalid("도면은 PNG·JPG·WEBP·PDF만 올릴 수 있습니다")
+        if not data:
+            raise Invalid("빈 파일")
+        d = self.pdir(pid) / "plan"
+        d.mkdir(parents=True, exist_ok=True)
+        for old in d.glob("floorplan.*"):
+            old.unlink()
+        path = d / f"floorplan{ext}"
+        path.write_bytes(data)
+        p["floorplan"] = {"file": str(path.relative_to(self.root)), "name": Path(filename).name,
+                          "content_type": self.FLOORPLAN_TYPES[ext], "uploaded_at": now()}
+        return self._save_project(p)
+
+    def clear_floorplan(self, pid: str) -> dict:
+        p = self.get_project(pid)
+        fp = p.pop("floorplan", None)
+        if fp:
+            (self.root / fp["file"]).unlink(missing_ok=True)
+        return self._save_project(p)
+
+    def floorplan_path(self, pid: str) -> tuple[Path, str] | None:
+        fp = self.get_project(pid).get("floorplan")
+        if not fp:
+            return None
+        path = self.root / fp["file"]
+        return (path, fp["content_type"]) if path.exists() else None
 
     def clear_measurement(self, pid: str, wall_id: str) -> dict:
         room = self.get_room(pid)

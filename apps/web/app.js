@@ -216,6 +216,54 @@ async function home() {
     : `<li class="muted">아직 없습니다. 기사 화면에서 스캔을 등록하세요.</li>`;
 }
 
+// ---------- 공용: 벽 실측 표 · 도면 ----------
+const BY = { technician: "기사", customer: "고객" };
+
+function wallTable(tbody, pid, room, { by, sel, onChange }) {
+  tbody.innerHTML = room.walls.map((w) => `
+    <tr data-row="${w.wall_id}" ${sel === w.wall_id ? 'style="background:var(--accent-soft)"' : ""}>
+      <td><b>${w.wall_id}</b>${w.measured?.by ? ` <span class="badge src">${BY[w.measured.by] || esc(w.measured.by)} 실측</span>` : ""}</td>
+      <td class="mono">${w.scanned.length_m.toFixed(3)}</td><td class="mono">${w.scanned.height_m.toFixed(3)}</td>
+      <td><input class="mono" name="length_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.length_m ?? ""}"></td>
+      <td><input class="mono" name="height_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.height_m ?? ""}"></td>
+      <td><input class="mono" name="depth_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.depth_m ?? ""}"></td>
+      <td class="row"><button class="small" data-save="${w.wall_id}">저장</button>${w.measured ? `<button class="small ghost" data-clear="${w.wall_id}">초기화</button>` : ""}</td></tr>`).join("");
+  tbody.querySelectorAll("[data-save]").forEach((b) => (b.onclick = guard(async () => {
+    const body = { by };
+    b.closest("tr").querySelectorAll("input").forEach((i) => { if (i.value !== "") body[i.name] = parseFloat(i.value); });
+    if (Object.keys(body).length === 1) { toast("값을 하나 이상 넣어 주세요", true); return; }
+    await put(`/api/projects/${pid}/walls/${b.dataset.save}/measured`, body);
+    toast(`${b.dataset.save} 실측값 저장`);
+    onChange();
+  })));
+  tbody.querySelectorAll("[data-clear]").forEach((b) => (b.onclick = guard(async () => {
+    await api(`/api/projects/${pid}/walls/${b.dataset.clear}/measured`, { method: "DELETE" });
+    onChange();
+  })));
+}
+
+const WALL_HEAD = `<thead><tr><th>벽</th><th>스캔 길이</th><th>스캔 높이</th><th>실측 길이 (m)</th><th>실측 높이 (m)</th><th>벽 앞 깊이 (m)</th><th></th></tr></thead>`;
+
+async function uploadFloorplan(pid, f) {
+  const fd = new FormData();
+  fd.append("file", f, f.name);
+  return api(`/api/projects/${pid}/floorplan`, { method: "POST", body: fd });
+}
+
+function floorplanBox(el, pid, project, onChange) {
+  const fp = project.floorplan;
+  const url = `/api/projects/${pid}/files/floorplan?v=${encodeURIComponent(fp?.uploaded_at || "")}`;
+  el.innerHTML = fp ? `
+      <div class="row"><b>${esc(fp.name)}</b><span class="spacer"></span>
+        <a class="btn ghost small" href="${url}" target="_blank" rel="noopener">크게 보기</a><button class="small ghost" id="fpDel">삭제</button></div>
+      ${fp.content_type.startsWith("image/") ? `<img class="floorplan" src="${url}" alt="도면">` : `<p class="muted">PDF 도면이 첨부되어 있습니다.</p>`}`
+    : `<label class="drop" style="display:block;cursor:pointer">도면 이미지·PDF 선택 (선택 사항)<input type="file" id="fpFile" accept=".png,.jpg,.jpeg,.webp,.pdf" hidden></label>`;
+  const input = el.querySelector("#fpFile");
+  if (input) input.onchange = guard(async () => { if (input.files[0]) { await uploadFloorplan(pid, input.files[0]); toast("도면을 첨부했습니다"); onChange(); } });
+  const del = el.querySelector("#fpDel");
+  if (del) del.onclick = guard(async () => { await api(`/api/projects/${pid}/floorplan`, { method: "DELETE" }); onChange(); });
+}
+
 // ---------- 화면: 기사 ----------
 async function technicianHome() {
   const reqs = await api("/api/requests");
@@ -229,6 +277,8 @@ async function technicianHome() {
       <select id="by"><option value="technician">서비스센터 기사</option><option value="customer">고객 셀프 스캔 (L1)</option></select>
       <label>USDZ 파일</label>
       <div class="drop" id="drop">파일을 끌어다 놓거나 <u>선택</u>하세요<input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
+      <label>도면 (선택) — 있으면 함께 첨부, 판정에는 쓰지 않고 참고용으로 보여 줍니다</label>
+      <input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf">
       <div class="row" style="margin-top:12px">
         <a class="muted" href="/api/samples/synthetic_room.usdz">합성 샘플 USDZ 받기</a>
         <span class="spacer"></span>
@@ -244,6 +294,8 @@ async function technicianHome() {
     fd.append("scanned_by", document.getElementById("by").value);
     try {
       const p = await api("/api/projects", { method: "POST", body: fd });
+      const fp = document.getElementById("fp").files[0];
+      if (fp) await uploadFloorplan(p.project_id, fp);
       toast(`${p.project_id} 생성 완료`);
       location.hash = `#/t/${p.project_id}`;
     } catch (e) { drop.textContent = "다시 시도하세요"; throw e; }
@@ -269,10 +321,11 @@ async function technician(pid) {
       <div class="panel"><h2>3D</h2><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div></div>
     </div>
     <div class="panel" style="margin-top:16px">
-      <h2>벽 치수 · 실측 보정</h2>
-      <div class="notice">빌트인 밀착 간격은 mm 단위입니다. 스캔값만으로는 "조건부"까지만 판정되고, 설치할 벽의 길이·높이·깊이를 줄자로 재서 넣으면 "적합"을 낼 수 있습니다. 원래 스캔값은 보존됩니다.</div>
-      <table><thead><tr><th>벽</th><th>스캔 길이</th><th>스캔 높이</th><th>실측 길이 (m)</th><th>실측 높이 (m)</th><th>벽 앞 깊이 (m)</th><th></th></tr></thead><tbody id="walls"></tbody></table>
-    </div>`;
+      <h2>벽 치수 · 실측 보정 <span class="badge src">선택</span></h2>
+      <div class="notice">스캔값만으로도 판정합니다 (스캔 오차 여유 30 mm). 줄자로 잰 값이 있으면 넣어 주세요. 여유 5 mm로 더 촘촘하게 판정하고, 원래 스캔값은 보존됩니다.</div>
+      <table>${WALL_HEAD}<tbody id="walls"></tbody></table>
+    </div>
+    <div class="panel" style="margin-top:16px"><h2>도면 <span class="badge src">선택</span></h2><div id="fpBox"></div></div>`;
   const viewer = makeViewer(document.getElementById("viewer"));
   cleanup.push(() => viewer.dispose());
   let sel = null;
@@ -284,24 +337,8 @@ async function technician(pid) {
     const svg = document.getElementById("plan");
     planView(svg, room, { selectedWall: sel });
     svg.onclick = (e) => { const w = e.target.dataset?.wall; if (w) { sel = w; load(); document.querySelector(`[data-row="${w}"] input`)?.focus(); } };
-    document.getElementById("walls").innerHTML = room.walls.map((w) => `
-      <tr data-row="${w.wall_id}" ${sel === w.wall_id ? 'style="background:var(--accent-soft)"' : ""}>
-        <td><b>${w.wall_id}</b></td><td class="mono">${w.scanned.length_m.toFixed(3)}</td><td class="mono">${w.scanned.height_m.toFixed(3)}</td>
-        <td><input class="mono" name="length_m" type="number" step="0.001" value="${w.measured?.length_m ?? ""}"></td>
-        <td><input class="mono" name="height_m" type="number" step="0.001" value="${w.measured?.height_m ?? ""}"></td>
-        <td><input class="mono" name="depth_m" type="number" step="0.001" value="${w.measured?.depth_m ?? ""}"></td>
-        <td class="row"><button class="small" data-save="${w.wall_id}">저장</button>${w.measured ? `<button class="small ghost" data-clear="${w.wall_id}">초기화</button>` : ""}</td></tr>`).join("");
-    document.querySelectorAll("[data-save]").forEach((b) => (b.onclick = guard(async () => {
-      const tr = b.closest("tr"), body = {};
-      tr.querySelectorAll("input").forEach((i) => { if (i.value !== "") body[i.name] = parseFloat(i.value); });
-      await put(`/api/projects/${pid}/walls/${b.dataset.save}/measured`, body);
-      toast(`${b.dataset.save} 실측값 저장`);
-      load();
-    })));
-    document.querySelectorAll("[data-clear]").forEach((b) => (b.onclick = guard(async () => {
-      await api(`/api/projects/${pid}/walls/${b.dataset.clear}/measured`, { method: "DELETE" });
-      load();
-    })));
+    wallTable(document.getElementById("walls"), pid, room, { by: "technician", sel, onChange: load });
+    floorplanBox(document.getElementById("fpBox"), pid, p, load);
     viewer.load(`/api/projects/${pid}/files/scene.glb`);
     document.getElementById("hud").textContent = "드래그 회전 · 휠 확대";
   };
@@ -330,7 +367,15 @@ async function customer(pid) {
       </div>
       <div class="panel"><div class="row"><h2 style="margin:0">4. 추천 제품</h2><span class="spacer"></span><select id="zoneSel" style="width:auto"></select></div>
         <div id="recs" class="cards" style="margin-top:10px"></div></div>
-    </div>`;
+    </div>
+    <details class="panel" id="extra" style="margin-top:16px">
+      <summary><b>도면 · 실측값 넣기</b> <span class="badge src">선택</span> <span class="muted">스캔만으로도 추천이 됩니다. 도면이나 줄자로 잰 값이 있으면 더 정확해져요.</span></summary>
+      <div class="grid2" style="margin-top:12px">
+        <div><h3>도면</h3><div id="fpBox"></div></div>
+        <div><h3>벽 실측값</h3><p class="muted" style="font-size:12px;margin:0 0 6px">평면도의 벽 번호를 보고, 잰 값만 넣으면 됩니다 (m).</p>
+          <div style="overflow-x:auto"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div></div>
+      </div>
+    </details>`;
   const viewer = makeViewer(document.getElementById("viewer"));
   cleanup.push(() => viewer.dispose());
   let mode = "rect", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones;
@@ -459,12 +504,14 @@ async function customer(pid) {
     version = v;
     [project, room, zones] = await Promise.all([api(`/api/projects/${pid}`), api(`/api/projects/${pid}/room`), api(`/api/projects/${pid}/zones`)]);
     const measured = room.walls.filter((w) => w.measured).length;
-    document.getElementById("sub").textContent = `벽 ${room.walls.length}개 중 ${measured}개 기사 실측 완료 · 상태 ${project.status} · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
+    document.getElementById("sub").textContent = `LiDAR 스캔 · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 상태 ${project.status} · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
     pv = planView(svg, room, { zones, placements: project.scene_state.placements });
     drawDraft();
     renderZones();
     renderStyle();
     renderRecs();
+    floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
+    wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     viewer.load(`/api/projects/${pid}/files/scene.glb`);
     document.getElementById("hud").textContent = `3D 엔진: ${project.scene.engine === "blender" ? "Blender" : "치수 박스 미리보기"}`;
   };

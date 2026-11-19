@@ -208,6 +208,27 @@ def results(pid: str, s: Service = S):
     return s.results(pid)
 
 
+@app.post("/api/projects/{pid}/floorplan", status_code=201)
+async def upload_floorplan(pid: str, file: UploadFile = File(...), s: Service = S):
+    data = await file.read()
+    if len(data) > MAX_UPLOAD:
+        raise HTTPException(413, "파일이 너무 큽니다")
+    return s.set_floorplan(pid, data, file.filename or "floorplan.png")
+
+
+@app.delete("/api/projects/{pid}/floorplan")
+def delete_floorplan(pid: str, s: Service = S):
+    return s.clear_floorplan(pid)
+
+
+@app.get("/api/projects/{pid}/files/floorplan")
+def floorplan_file(pid: str, s: Service = S):
+    hit = s.floorplan_path(pid)
+    if hit is None:
+        raise HTTPException(404, "도면 없음")
+    return FileResponse(hit[0], media_type=hit[1], headers={"Cache-Control": "no-store"})
+
+
 @app.get("/api/projects/{pid}/files/{name}")
 def project_file(pid: str, name: str, s: Service = S):
     allowed = {"scene.glb": "scene/scene.glb", "render.png": "scene/render.png", "room.json": "scan/room.json"}

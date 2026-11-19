@@ -51,10 +51,10 @@ def test_full_demo_flow(client):
     assert r.status_code == 200
     assert c.get(f"/api/projects/{pid}/version").json()["version"] > v0
 
-    # 8 추천: 스캔값만 → 최고 '조건부'
+    # 8 추천: 스캔값만으로도 여유가 크면 '적합'
     rec = c.get(f"/api/projects/{pid}/zones/{z['zone_id']}/recommendations").json()["items"]
     assert rec and all(i["product"]["zone_fit"] == ["kitchen"] or "kitchen" in i["product"]["zone_fit"] for i in rec)
-    assert {i["fit"]["verdict"] for i in rec} <= {"conditional", "unknown", "no_fit"}
+    assert "fit" in {i["fit"]["verdict"] for i in rec}
     # 기존 하부장(0~1.2m) 때문에 가용 폭은 1.2~3.0 = 1.8m
     col = next(i for i in rec if i["product"]["sku"] == "DEMO-RF-01")
     assert col["fit"]["dims"]["width"]["available_mm"] == pytest.approx(1800, abs=1)
@@ -106,3 +106,37 @@ def test_real_ugscan_upload_builds_scene(client):
     room = client.get(f"/api/projects/{pid}/room").json()
     assert len(room["walls"]) == 8 and len(room["openings"]) == 5
     assert client.get(f"/api/projects/{pid}/files/scene.glb").status_code == 200
+
+
+PNG_1PX = bytes.fromhex(
+    "89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c489"
+    "0000000d49444154789c6360000002000154a24f5d0000000049454e44ae426082"
+)
+
+
+def _project(client):
+    with open(SAMPLE, "rb") as f:
+        return client.post("/api/projects", files={"file": ("room.usdz", f)}).json()["project_id"]
+
+
+def test_optional_floorplan_upload(client):
+    pid = _project(client)
+    assert client.get(f"/api/projects/{pid}").json().get("floorplan") is None
+    r = client.post(f"/api/projects/{pid}/floorplan", files={"file": ("우리집 도면.png", PNG_1PX, "image/png")})
+    assert r.status_code == 201, r.text
+    fp = client.get(f"/api/projects/{pid}").json()["floorplan"]
+    assert fp["name"] == "우리집 도면.png" and fp["content_type"] == "image/png"
+    assert client.get(f"/api/projects/{pid}/files/floorplan").content == PNG_1PX
+    # 이미지·PDF만
+    assert client.post(f"/api/projects/{pid}/floorplan", files={"file": ("a.exe", b"MZ")}).status_code == 422
+    assert client.delete(f"/api/projects/{pid}/floorplan").status_code == 200
+    assert client.get(f"/api/projects/{pid}").json().get("floorplan") is None
+    assert client.get(f"/api/projects/{pid}/files/floorplan").status_code == 404
+
+
+def test_customer_can_enter_measurement(client):
+    pid = _project(client)
+    r = client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": 5.21, "by": "customer"})
+    assert r.status_code == 200, r.text
+    assert r.json()["measured"]["by"] == "customer"
+    assert client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": 5.21, "by": "robot"}).status_code == 422

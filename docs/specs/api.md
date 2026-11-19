@@ -25,3 +25,12 @@
 
 - 상태는 `core.service.Service`가 SQLite(`storage/app.sqlite3`)와 `storage/projects/<pid>/`에 저장.
 - 고객 링크 `/#/c/<pid>?t=<token>` (시연용, 실제 인증 아님).
+
+## 도면 (선택)
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| POST | `/api/projects/{pid}/floorplan` | multipart `file` (PNG·JPG·WEBP·PDF). 참고 자료로만 보관, 판정에는 쓰지 않음 → 201 프로젝트 |
+| DELETE | `/api/projects/{pid}/floorplan` | 도면 삭제 |
+| GET | `/api/projects/{pid}/files/floorplan` | 도면 파일 |
+
+실측 `PUT /api/projects/{pid}/walls/{wid}/measured`의 `by`는 `technician` 또는 `customer`. 고객도 직접 넣을 수 있다.

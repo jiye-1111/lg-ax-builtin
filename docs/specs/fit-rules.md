@@ -25,7 +25,8 @@
 여유 = 가용 − 필요;  margin = 실측 5mm / 스캔 30mm (.env)
 여유 < 0           → 불가 (no_fit)
 0 ≤ 여유 < margin  → 조건부 (conditional)
-여유 ≥ margin      → 적합 (fit). 단 스캔값이면 조건부로 한 단계 낮춤
+여유 ≥ margin      → 적합 (fit)
+                     (FIT_SCANNED_MAX_CONDITIONAL=1이면 스캔값은 조건부까지만)
 가용 또는 필요 null → 판정 불가 (unknown)
 ```
 ## 최종

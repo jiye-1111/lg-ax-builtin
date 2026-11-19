@@ -38,7 +38,7 @@ CFG = FitConfig(margin_scanned_mm=30, margin_measured_mm=5)
     "avail, req, measured, expected",
     [
         (1000, 900, True, Verdict.FIT),            # 여유 100 ≥ 5
-        (1000, 900, False, Verdict.CONDITIONAL),   # 여유 100 ≥ 30 이지만 스캔값 → 한 단계 낮춤
+        (1000, 900, False, Verdict.FIT),           # 스캔값이어도 여유 100 ≥ 30 이면 적합
         (903, 900, True, Verdict.CONDITIONAL),     # 0 ≤ 3 < 5
         (920, 900, False, Verdict.CONDITIONAL),    # 0 ≤ 20 < 30
         (899, 900, True, Verdict.NO_FIT),          # 여유 < 0
@@ -50,15 +50,22 @@ def test_judge_dimension(avail, req, measured, expected):
     assert judge_dimension(avail, req, measured, CFG).verdict == expected
 
 
+def test_scanned_cap_option_keeps_old_rule():
+    cfg = FitConfig(margin_scanned_mm=30, margin_measured_mm=5, scanned_max_conditional=True)
+    assert judge_dimension(1000, 900, False, cfg).verdict == Verdict.CONDITIONAL
+    assert judge_dimension(1000, 900, True, cfg).verdict == Verdict.FIT
+
+
 def test_margin_boundary_is_inclusive():
     # 여유 == margin → 적합
     assert judge_dimension(905, 900, True, CFG).verdict == Verdict.FIT
 
 
 # ---- 벽·영역 판정 ----
-def test_scanned_only_is_at_most_conditional():
+def test_scanned_with_enough_slack_is_fit():
+    # 시연은 줄자 실측 없이 스캔값만 쓴다 → 마진 30mm를 넘게 남으면 적합
     r = check_fit(make_room(), KITCHEN, product(), CFG)
-    assert r.verdict == Verdict.CONDITIONAL
+    assert r.verdict == Verdict.FIT
     assert r.wall_id == "w1"
     assert r.dims["width"].source == "scanned"
 
