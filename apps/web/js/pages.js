@@ -55,7 +55,9 @@ export async function selfScan() {
     const b = await (await fetch("/api/samples/ugscan_2026-11-18.usdz")).blob();
     send(b, "ugscan_2026-11-18.usdz");
   });
-  const ps = await api("/api/projects");
+  let ps;
+  try { ps = await api("/api/projects"); }
+  catch (e) { document.getElementById("projects").innerHTML = `<li class="muted">목록을 못 불러왔어요: ${esc(e.message)} (서버 명령창의 오류를 확인하세요)</li>`; return; }
   document.getElementById("projects").innerHTML = ps.length ? ps.slice().reverse().slice(0, 6).map((p) => `
     <li><a class="proj" href="#/c/${esc(p.project_id)}?t=${esc(p.share_token)}">
       <b>${esc(p.project_id)}</b>
@@ -92,7 +94,9 @@ export async function home() {
     const r = await post("/api/requests", f);
     document.getElementById("reqDone").innerHTML = `요청 번호 <b>${esc(r.request_id)}</b>가 접수되었습니다. 기사 방문 후 결과 링크를 보내 드립니다. <a href="#/t">기사 화면에서 스캔 등록 →</a>`;
   });
-  const ps = await api("/api/projects");
+  let ps;
+  try { ps = await api("/api/projects"); }
+  catch (e) { document.getElementById("projects").innerHTML = `<li class="muted">목록을 못 불러왔어요: ${esc(e.message)} (서버 명령창의 오류를 확인하세요)</li>`; return; }
   document.getElementById("projects").innerHTML = ps.length ? ps.slice().reverse().map((p) => `
     <li><b>${esc(p.project_id)}</b><span class="muted">${esc(p.status)} · ${esc(p.style?.prompt || "스타일 미정")}</span><span class="spacer"></span>
       <a class="btn ghost small" href="#/t/${esc(p.project_id)}">기사</a><a class="btn small" href="#/c/${esc(p.project_id)}?t=${esc(p.share_token)}">고객 결과</a></li>`).join("")
