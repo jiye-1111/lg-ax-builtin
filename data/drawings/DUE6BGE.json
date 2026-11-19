@@ -1,0 +1,18 @@
+{
+ "sku": "DUE6BGE",
+ "unit": "mm",
+ "source": "Figma 'LG 빌트인 제품 도면' (https://www.figma.com/design/obpzTCmt78Xh379BQk2LYl), 식기세척기 페이지. 전체 치수는 lge.co.kr 값, 앞판·손잡이·걸레받이 위치는 화면용",
+ "drawn_at": "2026-11-19",
+ "front": {"w": 598, "h": 815, "parts": [
+  {"name": "body", "x": 0, "y": 0, "w": 598, "h": 815},
+  {"name": "vent", "x": 8, "y": 725, "w": 582, "h": 90},
+  {"name": "door/0", "x": 2, "y": 2, "w": 594, "h": 721},
+  {"name": "handle/0/h", "x": 40, "y": 36, "w": 518, "h": 16},
+  {"name": "display", "x": 270, "y": 18, "w": 58, "h": 14}
+ ]},
+ "side": {"w": 567, "h": 815, "parts": [
+  {"name": "handle/side", "x": 2, "y": 36, "w": 18, "h": 16},
+  {"name": "door/side", "x": 0, "y": 0, "w": 20, "h": 725},
+  {"name": "body", "x": 20, "y": 0, "w": 547, "h": 815}
+ ]}
+}

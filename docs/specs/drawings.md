@@ -14,4 +14,4 @@ python services/blender-worker/worker/bpy_scripts/build_products.py \
   --catalog data/catalog/products.json --out apps/web/models/products --sku G646GBB031
 ```
 
-지금 그린 것: G646GBB031 (냉장고 4도어). 나머지 제품은 같은 규칙으로 페이지를 늘려 가면 된다.
+지금 그린 것: G646GBB031(냉장고 4도어), DUE6BGE(식기세척기). 나머지 제품은 같은 규칙으로 페이지를 늘려 가면 된다.
