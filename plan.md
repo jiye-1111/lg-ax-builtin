@@ -37,8 +37,8 @@
 - ✅ T0.1 저장소 골격(§10.2), `pyproject.toml`, `.env.example`
 - ✅ T0.2 `CLAUDE.md` / `AGENTS.md`(동일 내용), `.mcp.json`, `.codex/config.toml`
 - ✅ T0.3 `docs/specs/` 구성요소별 스펙 (room-json, fit-rules, cmf, mcp-tools, api)
-- 🔶 T0.4 UGScan 실제 샘플 USDZ 2~3개 + 줄자 실측 기록 → `data/samples/` (**팀 작업, 아이폰 필요**)
-  - 1개 확보: `ugscan_2026-11-18.usdz` (강의실 약 7×10.9 m). 줄자 실측은 아직
+- ✅ T0.4 UGScan 실제 샘플 USDZ → `data/samples/`
+  - `ugscan_2026-11-18.usdz` (강의실 약 7×10.9 m). **줄자 실측은 하지 않고 스캔값만 쓴다** (2026-11-19 결정)
 
 ### Phase 1 — 변환기 (blender-worker) TDD
 - ✅ T1.1 합성 RoomPlan형 USDZ 픽스처 생성기 (`data/samples/synthetic_room.usdz`)
@@ -48,7 +48,6 @@
 - ✅ T1.4 glb 생성: Blender 있으면 bpy, 없으면 순수 Python 박스 glb
 - ✅ T1.5 bpy 스크립트: USDZ import → 재질 적용 → 렌더 PNG → glb export (Blender 설치 PC에서 실행)
 - ✅ T1.6 실제 UGScan 샘플로 변환기 보정: `_grp` 컨테이너 처리, 같은 그룹 벽에 문·창 할당, `Section_grp` 제외
-  - ⏳ 줄자 실측과 오차 비교 → 마진 기본값(Q7)
 
 ### Phase 2 — recommender TDD
 - ✅ T2.1 치수 선택: measured 우선, 출처 표시
@@ -106,6 +105,6 @@
 
 ## 5. 미결 사항 → 구현 영향
 
-- Q7(스캔-실측 차이) → margin 기본값은 `.env`(`FIT_MARGIN_SCANNED_MM=30`, `FIT_MARGIN_MEASURED_MM=5`)로 조정 가능
+- Q7(스캔-실측 차이) → 줄자 실측 없이 진행하므로 RoomPlan 공개 오차 수준을 가정한 기본값을 그대로 쓴다. margin 기본값은 `.env`(`FIT_MARGIN_SCANNED_MM=30`, `FIT_MARGIN_MEASURED_MM=5`)로 조정 가능
 - Q8(공개 방식) → 코드 영향 없음. HTTP MCP는 `MCP_HTTP_TOKEN` 필수
 - Q9(메인 클라이언트) → 양쪽 설정 파일 모두 제공
