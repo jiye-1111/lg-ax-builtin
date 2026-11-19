@@ -235,7 +235,8 @@ const j = async (p) => (await fetch(BASE + p)).json();
   await page.click('[data-sim=""]');
   await page.click('.studio-head [data-view="3d"]');
   await page.click("#render");
-  await page.waitForSelector("#renderBox:not([hidden])", { timeout: 30000 }).catch(() => {});
+  // Blender(Cycles) 렌더는 CPU에서 1분 가까이 걸린다. BLENDER_TIMEOUT_S(300초) 안에 끝나면 통과
+  await page.waitForSelector("#renderBox:not([hidden])", { timeout: 300000 }).catch(() => {});
   check("렌더 이미지", await page.isVisible("#renderBox"));
   await page.click("#renderClose").catch(() => {});
 

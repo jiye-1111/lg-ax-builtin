@@ -289,16 +289,18 @@ def build(job):
             c = gl_to_bl(o["center"]) + rot @ local(dx, dy)
             return bevel(box(name, c, size, o["yaw"], mat, coll), 0.003)
 
-        depth = t_ + 0.02
+        # 틀은 구멍 안쪽 테두리에 벽 두께만큼 넣는다: 구멍 속 벽 단면(어두운 틈)이 안 보이게
+        depth, F = t_ + 0.03, FRAME_W
         if o["kind"] == "window":
-            box(f"{o['name']}_glass", gl_to_bl(o["center"]), (w_, h_, 0.012), o["yaw"], M["glass"], coll)
-            piece(f"{o['name']}_sill", (w_ + FRAME_W * 3, 0.03, depth + 0.06), 0, -h_ / 2 - 0.015, M["trim"])
-            piece(f"{o['name']}_mullion", (FRAME_W * 0.6, h_, 0.05), 0, 0, M["trim"])
+            box(f"{o['name']}_glass", gl_to_bl(o["center"]), (w_ - 2 * F, h_ - 2 * F, 0.012), o["yaw"], M["glass"], coll)
+            piece(f"{o['name']}_sill", (w_ + F, 0.035, depth + 0.05), 0, -h_ / 2 + 0.0175, M["trim"])
+            piece(f"{o['name']}_mullion", (F * 0.6, h_ - 2 * F, 0.05), 0, 0, M["trim"])
         elif o["kind"] == "door":
-            box(f"{o['name']}_leaf", gl_to_bl(o["center"]), (w_, h_, 0.04), o["yaw"], M["door"], coll)
-        piece(f"{o['name']}_top", (w_ + FRAME_W * 2, FRAME_W, depth), 0, h_ / 2 + FRAME_W / 2, M["trim"])
-        piece(f"{o['name']}_l", (FRAME_W, h_, depth), -w_ / 2 - FRAME_W / 2, 0, M["trim"])
-        piece(f"{o['name']}_r", (FRAME_W, h_, depth), w_ / 2 + FRAME_W / 2, 0, M["trim"])
+            box(f"{o['name']}_leaf", gl_to_bl(o["center"]) + rot @ local(0, -F / 2), (w_ - 2 * F, h_ - F, 0.04),
+                o["yaw"], M["door"], coll)
+        piece(f"{o['name']}_top", (w_, F, depth), 0, h_ / 2 - F / 2, M["trim"])
+        piece(f"{o['name']}_l", (F, h_, depth), -w_ / 2 + F / 2, 0, M["trim"])
+        piece(f"{o['name']}_r", (F, h_, depth), w_ / 2 - F / 2, 0, M["trim"])
 
     # 스캔 가구
     furn = furniture_templates(job.get("furniture_dir"))
@@ -360,20 +362,21 @@ def light_and_camera(center, floor):
     ramp.color_ramp.elements[0].position, ramp.color_ramp.elements[0].color = 0.5, (0.95, 0.93, 0.9, 1)
     ramp.color_ramp.elements[1].position, ramp.color_ramp.elements[1].color = 1.0, (0.55, 0.7, 0.95, 1)
     nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 0.9
+    bg.inputs["Strength"].default_value = 0.55
     nt.nodes.remove(grad)
 
     # 해: 카메라 왼쪽 위에서, 그림자는 살짝 부드럽게
     sun = bpy.data.objects.new("LGT-sun", bpy.data.lights.new("LGT-sun", "SUN"))
-    sun.data.energy, sun.data.angle = 4.0, math.radians(3)
+    sun.data.energy, sun.data.angle = 6.0, math.radians(2.5)  # 가구 그림자가 바닥에 또렷하게
     sun.data.color = (1.0, 0.95, 0.86)
-    sun.rotation_euler = (math.radians(38), 0, math.radians(-35))
+    # 방 뒤쪽 위에서 카메라 쪽으로 비춘다: 가구 그림자가 카메라에 보이는 쪽 바닥에 떨어진다
+    sun.rotation_euler = Vector((0.35, -0.55, -0.76)).normalized().to_track_quat("-Z", "Y").to_euler()
     sc.collection.objects.link(sun)
 
     # 천장 면광: 실내 간접광 대신 넓고 약하게
     fill = bpy.data.objects.new("LGT-fill", bpy.data.lights.new("LGT-fill", "AREA"))
     fill.data.shape, fill.data.size, fill.data.size_y = "RECTANGLE", w * 0.9, d * 0.9
-    fill.data.energy = 2.5 * w * d
+    fill.data.energy = 1.5 * w * d
     fill.data.color = (1.0, 0.97, 0.93)
     fill.location = (center.x, center.y, 3.2)
     sc.collection.objects.link(fill)

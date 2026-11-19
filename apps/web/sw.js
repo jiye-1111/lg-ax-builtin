@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v4";
+const VERSION = "lgb-shell-v5";
 const SHELL = [
   "./", "./index.html", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
@@ -10,6 +10,19 @@ const SHELL = [
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",
+  // 후처리 (GTAO 접촉 그림자 + 톤 매핑)
+  "./vendor/three/addons/postprocessing/EffectComposer.js",
+  "./vendor/three/addons/postprocessing/Pass.js",
+  "./vendor/three/addons/postprocessing/RenderPass.js",
+  "./vendor/three/addons/postprocessing/ShaderPass.js",
+  "./vendor/three/addons/postprocessing/MaskPass.js",
+  "./vendor/three/addons/postprocessing/OutputPass.js",
+  "./vendor/three/addons/postprocessing/GTAOPass.js",
+  "./vendor/three/addons/shaders/CopyShader.js",
+  "./vendor/three/addons/shaders/OutputShader.js",
+  "./vendor/three/addons/shaders/GTAOShader.js",
+  "./vendor/three/addons/shaders/PoissonDenoiseShader.js",
+  "./vendor/three/addons/math/SimplexNoise.js",
 ];
 
 self.addEventListener("install", (e) => {

@@ -4,6 +4,10 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { toast } from "./core.js";
 import { dressRoom, furnish } from "./room3d.js";
 
@@ -35,29 +39,48 @@ function loadModel(sku) {
 
 export function makeViewer(el, handlers = {}) {
   const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 0.9;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping; // OutputPass가 마지막에 한 번 적용
+  renderer.toneMappingExposure = 0.95;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   el.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#e4e6e2");
+  scene.background = new THREE.Color("#f3f5f1"); // OutputPass 톤 매핑 뒤 예전 #e4e6e2 정도로 보인다
   // 실내 반사(유리·메탈 앞판이 살아 보이게) + 부드러운 하늘빛 + 그림자 내는 해
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   scene.environment = envTex;
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xa49c90, 0.6));
-  const sun = new THREE.DirectionalLight(0xfff3e4, 2.0);
+  scene.add(new THREE.HemisphereLight(0xf4f6ff, 0x9c9184, 0.45));
+  const sun = new THREE.DirectionalLight(0xfff0dc, 2.2);
   sun.position.set(-4, 8, 6);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.bias = -0.0004;
-  sun.shadow.normalBias = 0.02;
-  sun.shadow.radius = 4;
+  sun.shadow.bias = -0.0003;
+  sun.shadow.normalBias = 0.015;
   scene.add(sun, sun.target);
   const cam = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
+
+  // 후처리: 장면(MSAA) → GTAO(가구 다리·벽 모서리 접촉 그림자) → 톤 매핑·sRGB
+  const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
+  composer.addPass(new RenderPass(scene, cam));
+  const gtao = new GTAOPass(scene, cam, 1, 1);
+  gtao.blendIntensity = 1.0;
+  gtao.updateGtaoMaterial({ radius: 1.0, distanceExponent: 1.0, thickness: 3.0, scale: 2.5, samples: 12 });
+  gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+  // 고르기용 투명 상자, 반투명(컷어웨이 벽·유리·미리 보기), 바닥 오버레이는 AO에서 뺀다
+  const baseHide = gtao.overrideVisibility.bind(gtao);
+  gtao.overrideVisibility = () => {
+    baseHide();
+    scene.traverse((o) => {
+      if (!o.isMesh || !o.visible) return;
+      const m = o.material;
+      if (!m || m.visible === false || (m.transparent && (m.opacity < 0.6 || m.depthWrite === false))) o.visible = false;
+    });
+  };
+  composer.addPass(gtao);
+  composer.addPass(new OutputPass());
   const ctl = new OrbitControls(cam, renderer.domElement);
   ctl.enableDamping = true;
   ctl.maxPolarAngle = Math.PI * 0.49; // 바닥 아래로는 못 내려가게
@@ -94,6 +117,7 @@ export function makeViewer(el, handlers = {}) {
     const w = el.clientWidth, h = el.clientHeight;
     if (!w || !h) return;
     renderer.setSize(w, h);
+    composer.setSize(w, h);
     cam.aspect = w / h;
     cam.updateProjectionMatrix();
   };
@@ -105,7 +129,7 @@ export function makeViewer(el, handlers = {}) {
     ctl.update();
     cutaway();
     animateHeld();
-    renderer.render(scene, cam);
+    composer.render();
     requestAnimationFrame(loop);
   })();
   // 방 전체가 보이게 카메라를 잡는다 (화면 비율이 세로로 길면 더 멀리)
@@ -462,7 +486,13 @@ export function makeViewer(el, handlers = {}) {
       return { furniture, products: products.children.length };
     },
     reframe() { setTimeout(() => { resize(); frame(); }, 280); },
-    dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); renderer.dispose(); el.innerHTML = ""; },
+    /** 접촉 그림자(GTAO) 켜고 끄기. 느린 PC용. mode: true | false | "debug"(AO 버퍼만 보기) */
+    setAO(mode) {
+      gtao.enabled = mode !== false;
+      gtao.output = mode === "debug" ? GTAOPass.OUTPUT.Denoise : GTAOPass.OUTPUT.Default;
+      return gtao.enabled;
+    },
+    dispose() { alive = false; ro.disconnect(); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
   el.viewer = api;
   return api;
