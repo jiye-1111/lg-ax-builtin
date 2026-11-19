@@ -97,3 +97,48 @@ def test_hide_some_furniture_by_ids(c, pid):
     assert r.status_code == 200
     assert sorted(c.get(f"/api/projects/{pid}").json()["scene_state"]["hidden_objects"]) == sorted(chairs)
     assert c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True, "object_ids": ["nope"]}).status_code == 404
+
+
+# ---- 스캔 가구 옮기기·돌리기 (건축 모드) ----
+def _table(c, pid):
+    room = c.get(f"/api/projects/{pid}/room").json()
+    return max((o for o in room["objects"] if o["category"] == "table"), key=lambda o: o["bbox_m"]["w"])
+
+
+def test_move_and_rotate_scanned_furniture(c, pid):
+    t = _table(c, pid)
+    x, y, z = t["position"]
+    r = c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [x + 0.5, z - 0.25], "yaw_rad": t["yaw_rad"] + 0.785})
+    assert r.status_code == 200, r.text
+    moved = next(o for o in c.get(f"/api/projects/{pid}/room").json()["objects"] if o["object_id"] == t["object_id"])
+    assert moved["position"] == pytest.approx([x + 0.5, y, z - 0.25])
+    assert moved["yaw_rad"] == pytest.approx(t["yaw_rad"] + 0.785)
+    assert c.get(f"/api/projects/{pid}").json()["scene_state"]["object_poses"][t["object_id"]]["center_xz"] == pytest.approx([x + 0.5, z - 0.25])
+
+
+def test_moving_furniture_away_frees_the_spot(c, pid):
+    t = _table(c, pid)
+    x, _, z = t["position"]
+    r = c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": [x, z], "yaw_rad": 0, "snap": False}).json()
+    assert any(q["code"] == "overlaps_object" and q["ref"] == t["object_id"] for q in r["placement"]["reasons"])
+    c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [x + 4.0, z], "yaw_rad": t["yaw_rad"]})
+    st = c.get(f"/api/projects/{pid}").json()["scene_state"]
+    assert not any(q["code"] == "overlaps_object" and q["ref"] == t["object_id"] for q in st["placements"][0]["reasons"])
+
+
+def test_reset_furniture_pose_and_measurements_do_not_bake_moves(c, pid):
+    t = _table(c, pid)
+    x, y, z = t["position"]
+    c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [x + 1, z], "yaw_rad": 0})
+    room = c.get(f"/api/projects/{pid}/room").json()
+    w = room["walls"][0]
+    c.put(f"/api/projects/{pid}/walls/{w['wall_id']}/measured", json={"length_m": round(w["scanned"]["length_m"], 3), "by": "customer"})
+    assert c.delete(f"/api/projects/{pid}/objects/{t['object_id']}/pose").status_code == 200
+    back = next(o for o in c.get(f"/api/projects/{pid}/room").json()["objects"] if o["object_id"] == t["object_id"])
+    assert back["position"] == pytest.approx([x, y, z]) and back["yaw_rad"] == pytest.approx(t["yaw_rad"])
+
+
+def test_move_unknown_furniture_is_404_and_bad_input_422(c, pid):
+    assert c.put(f"/api/projects/{pid}/objects/nope/pose", json={"center_xz": [0, 0], "yaw_rad": 0}).status_code == 404
+    t = _table(c, pid)
+    assert c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [0], "yaw_rad": 0}).status_code == 422
