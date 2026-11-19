@@ -1,15 +1,19 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, post, put, toast, guard } from "./core.js";
+import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, post, put, toast, guard,
+  rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 
 export async function customer(pid) {
+  const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
+  const saved = uiState(pid); // 다른 화면에 다녀와도 보던 그대로
   $app.innerHTML = `
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
           <button data-view="3d" class="on">3D</button><button data-view="plan">평면</button><button data-view="split">나란히</button></div>
       </header>
@@ -35,9 +39,9 @@ export async function customer(pid) {
         </div>
         <div class="canvas">
           <div class="pane plan-pane"><svg class="plan" id="plan" aria-label="평면도"></svg>
-            <button class="pip-swap" data-swap="plan">평면 크게</button></div>
+            <button class="pip-swap" data-swap="plan" title="평면을 가운데 크게 보기">평면 크게</button></div>
           <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
-            <button class="pip-swap" data-swap="3d">3D 크게</button>
+            <button class="pip-swap" data-swap="3d" title="3D를 가운데 크게 보기">3D 크게</button>
             <button class="render-btn" id="render">렌더 이미지</button></div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
         </div>
@@ -75,20 +79,37 @@ export async function customer(pid) {
             <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
           </section>
         </div>
+        <section class="minimap" id="minimap" aria-label="작은 화면" hidden></section>
       </aside>
     </div>`;
   const studio = $app.querySelector(".studio");
+  // 큰 화면이 아닌 쪽(평면 또는 3D)은 오른쪽 패널 아래 미니맵으로 옮겨서 시야를 가리지 않게 한다
+  const canvasEl = studio.querySelector(".canvas"), minimap = document.getElementById("minimap");
+  const planPane = studio.querySelector(".plan-pane"), viewPane = studio.querySelector(".view-pane");
+  const placePanes = (v) => {
+    const small = v === "3d" ? planPane : v === "plan" ? viewPane : null;
+    canvasEl.prepend(planPane);
+    planPane.after(viewPane);
+    if (small) minimap.append(small);
+    minimap.hidden = !small;
+    studio.classList.toggle("has-mini", !!small);
+  };
+  placePanes(studio.dataset.view);
   const setTab = (t) => {
     studio.dataset.tab = t;
+    saveUiState(pid, { tab: t });
     studio.querySelectorAll("[data-tab]").forEach((b) => b.classList?.toggle("on", b.dataset.tab === t));
   };
   studio.querySelectorAll(".side-tabs [data-tab]").forEach((b) => (b.onclick = () => setTab(b.dataset.tab)));
-  setTab(matchMedia("(max-width: 900px)").matches ? "lib" : "sel");
-  const setView = (v) => {
+  const TABS = ["lib", "sel", "list", "finish", "zones", "extra"], VIEWS = ["3d", "plan", "split"];
+  setTab(TABS.includes(saved.tab) ? saved.tab : matchMedia("(max-width: 900px)").matches ? "lib" : "sel");
+  const setView = (v, keepCamera = false) => {
     if (v === "plan" && walking) setWalking(false); // 평면만 볼 때는 둘러보기를 끝낸다
     studio.dataset.view = v;
+    placePanes(v);
+    saveUiState(pid, { view: v });
     studio.querySelectorAll(".studio-head [data-view]").forEach((b) => b.classList.toggle("on", b.dataset.view === v));
-    viewer?.reframe();
+    viewer?.reframe(keepCamera);
   };
   // ---- 1인칭 둘러보기: 눈높이에서 걸어 보기. 켜져 있는 동안 집어 들기·배치·건축 키는 꺼진다 ----
   let walking = false;
@@ -145,10 +166,15 @@ export async function customer(pid) {
     },
     onDropSku: (sku, p) => placeAt(sku, p),
   });
-  cleanup.push(() => viewer.dispose());
+  const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
+  cleanup.push(saveCamera, () => viewer.dispose()); // 화면을 떠나기 전에 카메라부터 적어 둔다
+  window.addEventListener("pagehide", saveCamera);
+  cleanup.push(() => window.removeEventListener("pagehide", saveCamera));
+  const restoredCam = viewer.setCamera(saved.cam);
+  if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
-  let armed = null, selPl = null, selObj = null, drag = null, cat = "", catalog = [];
+  let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
@@ -166,24 +192,45 @@ export async function customer(pid) {
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
   const cats = [...new Set(catalog.map((p) => p.category))];
+  if (!cats.includes(cat)) cat = "";
   const renderCats = () => {
     document.getElementById("cats").innerHTML = [["", "전체"], ...cats.map((c) => [c, CATEGORY[c] || c])]
       .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
-    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; renderCats(); renderLib(); }));
+    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; saveUiState(pid, { cat }); renderCats(); renderLib(); }));
   };
+  // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
+  const families = await api("/api/catalog/families");
+  const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
+  const pick = {}; // family_id → 고른 SKU
+  const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
   const renderLib = () => {
     const q = document.getElementById("q").value.trim().toLowerCase();
-    const items = catalog.filter((p) => (!cat || p.category === cat) && (!q || p.name.toLowerCase().includes(q) || p.sku.toLowerCase().includes(q)))
+    const items = families.filter((f) => (!cat || f.category === cat) && (!q || f.name.toLowerCase().includes(q)
+      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q))))
       .sort((a, b) => a.demo_only - b.demo_only);
-    document.getElementById("libCount").textContent = `${items.length}개`;
-    document.getElementById("lib").innerHTML = items.map((p) => {
-      const d = p.product_dims_mm, sized = d.w && d.h && d.d;
-      return `<li class="prod ${armed === p.sku ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(p.sku)}">
-        <i class="dot" style="background:${esc(p.cmf_options[0]?.hex_approx || "#fff")}"></i>
-        <div style="flex:1;min-width:0"><div class="name">${esc(p.name)}</div>
-          <div class="cat">${esc(CATEGORY[p.category] || p.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
-          ${p.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
+    document.getElementById("libCount").textContent = `${items.length}개 모델`;
+    document.getElementById("lib").innerHTML = items.map((f) => {
+      const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
+      const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
+      const many = f.variants.length > 1;
+      return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
+        <i class="dot" style="background:${esc(v.hex || "#fff")}"></i>
+        <div style="flex:1;min-width:0"><div class="name">${esc(f.name)}</div>
+          <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
+          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
+            <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
+          ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
+    document.querySelectorAll("#lib [data-pick]").forEach((b) => {
+      b.onclick = (e) => {
+        e.stopPropagation();
+        const was = pick[b.dataset.fam];
+        pick[b.dataset.fam] = b.dataset.pick;
+        if (armed && familyOf(armed)?.family_id === b.dataset.fam && armed !== b.dataset.pick) armed = b.dataset.pick; // 든 채로 색만 바꾸기
+        if (was !== b.dataset.pick) renderLib();
+        setHint();
+      };
+    });
     document.querySelectorAll("#lib [data-sku]").forEach((li) => {
       li.onclick = () => {
         if (li.classList.contains("nosize")) { toast("치수 정보가 없어 놓을 수 없는 제품입니다", true); return; }
@@ -429,13 +476,13 @@ export async function customer(pid) {
         ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
-        ${p.cmf_options.length ? `<h3 class="gap">색상 <span class="muted">LGE.COM 옵션</span></h3><div class="swatches">${p.cmf_options.map((o) => `<button class="swatch ${o.color === x.color ? "on" : ""}" data-color="${esc(o.color)}"><i style="background:${esc(o.hex_approx || "#fff")}"></i>${esc(o.color)}</button>`).join("")}</div>` : ""}
+        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
       box.querySelector("#del").onclick = guard(async () => { await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
-      box.querySelectorAll("[data-color]").forEach((b) => (b.onclick = () => patch(x.placement_id, { color: b.dataset.color })));
+      box.querySelectorAll("[data-variant]").forEach((b) => (b.onclick = () => { if (b.dataset.variant !== x.sku) patch(x.placement_id, { sku: b.dataset.variant }); }));
       return;
     }
     const o = selObj && room.objects.find((q) => q.object_id === selObj);
@@ -732,7 +779,7 @@ export async function customer(pid) {
     if (SIMS[sim]) await SIMS[sim]();
     else { setOverlay(""); document.getElementById("simctl").innerHTML = `<p class="muted">준비 중입니다.</p>`; }
   });
-  document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = b.dataset.sim; showSim(); }));
+  document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = b.dataset.sim; saveUiState(pid, { sim }); showSim(); }));
   let lastSceneKey = null;
   // 다시 읽기는 한 번에 하나씩 차례로: 겹치면 늦게 끝난 옛 응답이 새 상태를 덮는다
   let chain = Promise.resolve();
@@ -768,7 +815,18 @@ export async function customer(pid) {
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
-  await guard(refresh)(true);
+  try { await refresh(true); }
+  catch (e) {
+    // 지워졌거나 잘못된 주소: 기억해 둔 집도 지우고 새로 올리게 한다
+    if (e.status === 404) {
+      forgetHome(pid);
+      $app.innerHTML = `<div class="panel"><h1>집을 찾을 수 없어요</h1><p class="sub">${esc(pid)} 프로젝트가 서버에 없습니다. 서버의 저장 폴더(STORAGE_DIR)가 바뀌었거나 지워졌을 수 있어요.</p><a class="btn" href="#/new">새로 스캔 올리기</a></div>`;
+      return;
+    }
+    toast(e.message, true);
+  }
+  if (project) rememberHome(pid, token || project.share_token);
+  if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; showSim(); }
   // 채팅(Claude·Codex) 쪽 변경을 2초마다 확인
   const timer = setInterval(() => refresh().catch(() => {}), 2000);
   cleanup.push(() => clearInterval(timer));

@@ -330,19 +330,17 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 /* 큰 화면 하나 + 작은 창(PIP) */
 .studio[data-view="plan"] .plan-pane,
 .studio[data-view="3d"] .view-pane { inset: 0; z-index: 1; }
-.studio[data-view="plan"] .view-pane,
-.studio[data-view="3d"] .plan-pane {
-  right: 14px; bottom: 14px; width: min(32%, 340px); height: min(36%, 240px); z-index: 2;
-  border-radius: 12px; box-shadow: var(--shadow-float); border: 3px solid var(--sheet);
-}
-.studio[data-view="3d"] .plan-pane .plan { background: var(--drafting); }
+/* 작은 쪽은 오른쪽 패널 아래 미니맵 칸으로 옮긴다 (가운데 화면을 가리지 않게) */
+.minimap { --mini-h: 200px; flex: none; position: relative; height: var(--mini-h); border-top: 1px solid var(--line-soft); background: var(--drafting); border-radius: 0 0 var(--r-sheet) var(--r-sheet); overflow: hidden; }
+.minimap[hidden] { display: none; }
+.minimap .pane { position: absolute; inset: 0; }
+.minimap .plan-pane .plan { background: var(--drafting); }
+.minimap .render-btn, .minimap .hud { display: none; }
 .studio[data-view="split"] .plan-pane { inset: 0 50% 0 0; border-right: 1px solid var(--line); }
 .studio[data-view="split"] .view-pane { inset: 0 0 0 50%; }
 .pip-swap { position: absolute; top: 8px; right: 8px; z-index: 3; display: none; padding: 3px 9px; font-size: var(--t-xs); background: rgba(28, 32, 36, .82); border-color: transparent; }
-.studio[data-view="plan"] .view-pane .pip-swap,
-.studio[data-view="3d"] .plan-pane .pip-swap { display: inline-flex; }
-/* 1인칭 둘러보기: 화면을 가리는 작은 평면과 회전 안내는 숨긴다 */
-.studio.walking[data-view="3d"] .plan-pane,
+.minimap .pip-swap { display: inline-flex; }
+/* 1인칭 둘러보기: 회전 안내는 숨긴다 (미니맵 평면은 어디쯤 걷는지 보라고 남긴다) */
 .studio.walking .viewer .hud { display: none; }
 #walk.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 .render-btn { position: absolute; top: 10px; right: 10px; z-index: 3; padding: 5px 11px; font-size: var(--t-xs); background: var(--sheet); color: var(--ink); border-color: var(--line); }
@@ -412,6 +410,7 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
   .lib { grid-area: side; display: none; border-radius: 0; background: none; padding: 16px; }
   .m-only { display: inline-block; }
   .studio[data-tab="lib"] .lib { display: flex; margin-top: 46px; overflow: hidden; }
+  .studio.has-mini[data-tab="lib"] .lib { margin-bottom: 201px; } /* 미니맵 칸(200px + 선)은 남긴다 */
   .studio[data-tab="lib"] .side-body { display: none; }
 }
 /* 좁은 폭(휴대폰): 위에서 아래로 */
@@ -429,7 +428,7 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
   .side-body { overflow: visible; }
   .lib { position: relative; z-index: 1; }
   .studio[data-tab="lib"] .lib #lib { max-height: 52vh; }
-  .studio[data-view="plan"] .view-pane, .studio[data-view="3d"] .plan-pane { width: 38%; height: 30%; right: 8px; bottom: 8px; }
+  .minimap { --mini-h: 220px; border-radius: var(--r-sheet); margin-top: 10px; }
   .studio[data-view="split"] .plan-pane { inset: 0 0 50% 0; border-right: 0; border-bottom: 1px solid var(--line); }
   .studio[data-view="split"] .view-pane { inset: 50% 0 0 0; }
   .top { gap: 10px; padding: 0 12px; }
@@ -445,3 +444,20 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .furn-btn { margin-left: 8px; padding: 6px 12px; font-size: var(--t-xs); background: var(--sheet); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; }
 .furn-btn:hover { border-color: var(--ink); }
 .furn-btn.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+
+/* 같은 모델의 색·재질: 제품 줄 안의 작은 동그라미 */
+.lib .variants { display: flex; align-items: center; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.lib .vsw { width: 22px; height: 22px; padding: 2px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); display: inline-grid; place-items: center; }
+.lib .vsw i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .12); display: block; }
+.lib .vsw:hover { border-color: var(--ink); background: var(--sheet); }
+.lib .vsw.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.lib .vsw:focus-visible { outline: 2px solid var(--lg); outline-offset: 1px; }
+.lib .vlabel { font-size: var(--t-xs); color: var(--graphite); margin-left: 4px; }
+.lib .vlabel.solo { margin: 3px 0 0; }
+
+/* 꾸미던 집 이어 가기 */
+.resume { display: flex; align-items: center; gap: 16px; padding: 14px 18px; margin: 4px 0 18px; border: 1px solid var(--line); border-left: 3px solid var(--lg); border-radius: 12px; background: var(--sheet); }
+.resume > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.resume .muted { font-size: var(--t-sm); overflow-wrap: anywhere; }
+.studio-head .new-scan { white-space: nowrap; align-self: center; }
+@media (max-width: 600px) { .resume { flex-direction: column; align-items: stretch; } }

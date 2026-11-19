@@ -105,11 +105,14 @@ const j = async (p) => (await fetch(BASE + p)).json();
   const cam1 = await toScreen(nud.center_xz);
   check("D 키로 카메라 이동", Math.abs(cam1[0] - cam0[0]) > 5);
 
-  // 색상 (LGE.COM 옵션)
-  const sw = await page.$$("#insp [data-color]");
+  // 색·재질 (같은 모델의 LGE.COM 다른 SKU)
+  await wait(1500); // 방향키로 옮긴 저장이 끝나 선택 칸이 다시 그려진 뒤에 누른다
+  const sw = page.locator("#insp [data-variant]"), nsw = await sw.count();
   let want = null;
-  if (sw.length > 1) { want = await sw[1].getAttribute("data-color"); await sw[1].click(); await wait(1500); pj = await project(pid); }
-  check("제품 색상 바꾸기", !want || pj.scene_state.placements[0].color === want, `옵션 ${sw.length}개`);
+  if (nsw > 1) { want = await sw.nth(1).getAttribute("data-variant"); await sw.nth(1).click(); await wait(1500); pj = await project(pid); }
+  check("같은 모델 안에서 색·재질 바꾸기", !want || pj.scene_state.placements[0].sku === want, `옵션 ${nsw}개`);
+  const fams = await j("/api/catalog/families"), skus = await j("/api/catalog");
+  check("제품 목록은 모델 단위", (await page.$$("#lib .prod")).length === fams.length && fams.length < skus.length, `${skus.length}개 SKU → ${fams.length}개 모델`);
 
   // 평면에서도 놓기
   await page.click('.studio-head [data-view="plan"]');
@@ -267,11 +270,20 @@ const j = async (p) => (await fetch(BASE + p)).json();
   await page.click("#renderClose").catch(() => {});
 
   // 방문 신청 · 기사 화면
+  const viewBefore = await page.getAttribute(".studio", "data-view");
   await page.goto(BASE + "/#/r");
   await wait(600);
   await page.click("#req button");
   await wait(1000);
   check("방문 스캔 신청", /요청 번호/.test(await page.textContent("#reqDone")));
+  // 다른 화면에 다녀와도 내 집이 그대로: 내 집 스캔 → 꾸미던 집, 보던 보기도 그대로
+  await page.click('[data-nav="home"]');
+  await page.waitForFunction((id) => location.hash.startsWith("#/c/" + id), pid, { timeout: 10000 }).catch(() => {});
+  await page.waitForSelector("#lib .prod", { timeout: 20000 }).catch(() => {});
+  check("방문 신청 다녀와도 내 집 그대로", page.url().includes("#/c/" + pid) && (await page.$$("#drop")).length === 0);
+  const viewNow = await page.getAttribute(".studio", "data-view");
+  check("보던 보기 그대로", viewNow === viewBefore, viewNow);
+  check("작은 화면은 오른쪽 패널 아래 미니맵", viewNow === "split" || (await page.$$("#minimap .pane")).length === 1);
   await page.goto(BASE + `/#/t/${pid}`);
   await wait(1500);
   check("기사 화면 벽 표", (await page.$$("#walls tr")).length === room.walls.length);
