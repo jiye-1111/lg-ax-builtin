@@ -479,12 +479,13 @@ def make_combos(pid: str, body: CombosIn, s: Service = S):
 
 
 class AssistIn(BaseModel):
-    prompt: str = Field(min_length=1, max_length=500)
+    prompt: str = Field("", max_length=500)
+    image: Optional[str] = Field(None, max_length=7_500_000)  # 하우니에 붙인 사진 (data URL, 5MB 안). 저장하지 않는다
 
 
 @app.post("/api/projects/{pid}/assist")
 def assist(pid: str, body: AssistIn, s: Service = S):
-    return s.assist(pid, body.prompt)
+    return s.assist(pid, body.prompt, body.image)
 
 
 @app.delete("/api/projects/{pid}/combos/applied")

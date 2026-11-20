@@ -156,3 +156,9 @@ def test_action_bar_drops_its_follow_position_when_holding_something():
     # 들고 있을 때 메뉴가 예전 자리에서 길게 늘어나 바닥 클릭을 막던 문제
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert 'actBar.style.left = ""' in js and 'actBar.style.top = ""' in js
+
+
+def test_haeuni_takes_a_photo_and_sends_it_small():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'id="botPhoto"' in js and "PHOTO_MAX = 1024" in js and 'toDataURL("image/jpeg"' in js
+    assert "{ prompt, image }" in js and 'd.type === "message"' in js
