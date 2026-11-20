@@ -43,7 +43,7 @@ def test_claude_path_uses_latest_model_and_structured_output():
     want = StyleIntent(palette=["#F0EEE9", "#C9A47C"], materials=["wood", "fabric"], summary="밝은 오크와 린넨",
                        wall_texture="fabric", floor_texture="wood")
     msgs = _FakeMessages(want)
-    client = SimpleNamespace(messages=msgs)
+    client = SimpleNamespace(beta=SimpleNamespace(messages=msgs))
     got = interpret_style("린넨 느낌 벽에 밝은 오크 마루", catalog_brief="- 베스띠 패브릭", client=client)
     assert got.engine == "claude"
     assert got.palette == ["#F0EEE9", "#C9A47C"]
@@ -51,13 +51,14 @@ def test_claude_path_uses_latest_model_and_structured_output():
     assert msgs.kwargs["output_format"] is StyleIntent
     assert "린넨 느낌" in str(msgs.kwargs["messages"])
     assert "베스띠 패브릭" in str(msgs.kwargs["system"])
+    assert msgs.kwargs["fallbacks"] == "default"  # 거절되면 서버가 다른 모델로 다시 돌린다
 
 
 def test_refusal_or_error_falls_back_to_rules():
     class Boom:
         def parse(self, **kw):
             raise RuntimeError("network")
-    got = interpret_style("화이트 미니멀", client=SimpleNamespace(messages=Boom()))
+    got = interpret_style("화이트 미니멀", client=SimpleNamespace(beta=SimpleNamespace(messages=Boom())))
     assert got.engine == "rules" and "white" in got.materials
 
 
