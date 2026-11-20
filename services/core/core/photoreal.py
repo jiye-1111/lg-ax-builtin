@@ -33,6 +33,8 @@ Make surfaces look real: wall paint or wallpaper texture, real wood or stone flo
 through the windows with soft shadows and bounce light, gentle depth like a real camera.
 The protected areas are real appliances standing in this room: give them natural contact shadows on the floor
 and soft light around them so they sit in the scene, but do not repaint them.
+Plain boxes and cabinets are furniture cabinets with doors: never turn them into appliances
+(no washing machines, dryers, ovens, microwaves, stoves, dishwashers).
 Do not add, remove or move anything: no new furniture, devices, outlets, cables, plants, tableware or decorations.
 No people, no text, no logos, no watermarks.
 {extra}"""
@@ -69,7 +71,8 @@ def product_alpha(mask: Image.Image) -> Image.Image:
 
 
 SPECK = 0.002  # 화면의 0.2%보다 작은 제품 조각은 버린다 (멀리 걸친 모서리가 AI 사진 위에 흰 점으로 남음)
-SHADE_GAIN = (0.8, 1.1)  # 제품 밝기를 주변 사진 빛에 맞추는 범위. 색(비율)은 그대로 두고 밝기만
+SHADE_GAIN = (0.6, 1.15)  # 제품에 AI 사진의 빛을 입히는 범위. 색(채널 비율)은 그대로 두고 밝기만
+SHADE_BLUR = 6  # 빛만 가져오고 AI가 그린 모양·글자는 안 가져오게 흐리는 정도
 
 
 def drop_specks(alpha: Image.Image) -> Image.Image:
@@ -99,19 +102,15 @@ def drop_specks(alpha: Image.Image) -> Image.Image:
 
 
 def match_light(view: Image.Image, out: Image.Image, alpha: Image.Image) -> Image.Image:
-    """제품 바로 둘레에서 3D와 AI 사진의 밝기 차이를 재서 제품 밝기만 맞춘다 (스티커처럼 떠 보이지 않게)."""
+    """제품 모양·색(채널 비율)은 3D 그대로, 빛만 AI 사진에서 가져온다.
+    AI가 같은 자리에 그린 밝기 / 3D 밝기를 넓게 흐려서 곱한다 (스티커처럼 평평하게 떠 보이지 않게)."""
     a = np.array(alpha) > 127
     if not a.any():
         return view
-    w, h = alpha.size  # 넓은 MaxFilter는 느려서 1/4 크기에서 넓힌다
-    wide = alpha.resize((w // 4, h // 4), Image.BILINEAR).filter(ImageFilter.MaxFilter(9)).resize((w, h), Image.NEAREST)
-    ring = (np.array(wide) > 127) & ~a
-    if ring.sum() < 50:
-        return view
-    lum = lambda im: np.array(im.convert("L"), dtype=np.float32)
-    gain = float(np.clip(lum(out)[ring].mean() / max(lum(view)[ring].mean(), 1.0), *SHADE_GAIN))
+    soft = lambda im: np.array(im.convert("L").filter(ImageFilter.GaussianBlur(SHADE_BLUR)), dtype=np.float32)
+    gain = np.clip(soft(out) / np.maximum(soft(view), 8.0), *SHADE_GAIN)
     v = np.array(view, dtype=np.float32)
-    v[a] = np.clip(v[a] * gain, 0, 255)
+    v[a] = np.clip(v[a] * gain[a][:, None], 0, 255)
     return Image.fromarray(v.astype(np.uint8))
 
 
@@ -164,7 +163,7 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)
     out = contact_shadow(out, alpha)
-    keep = alpha.filter(ImageFilter.GaussianBlur(1.5))  # 제품 테두리만 살짝 섞는다
+    keep = alpha.filter(ImageFilter.GaussianBlur(2.5))  # 제품 테두리만 살짝 섞는다
     keep = keep.point(lambda v: 255 if v >= 250 else v)
     return Image.composite(match_light(view, out, alpha), out, keep)
 
