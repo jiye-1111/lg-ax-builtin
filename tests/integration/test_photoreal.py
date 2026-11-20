@@ -2,6 +2,7 @@
 import base64
 import io
 
+import numpy as np
 import pytest
 from api import main
 from core.service import Service
@@ -33,7 +34,10 @@ class FakeImages:
 
     def edit(self, **kw):
         self.sent = kw
-        out = Image.new("RGB", (W, H), (250, 100, 50))  # AI가 전부 다른 색으로 칠했다고 치자
+        # AI가 구도는 그대로 두고 벽·바닥 색을 전부 바꿨다고 치자 (제품 자리는 어둡게 남음)
+        src = Image.open(io.BytesIO(kw["image"][1])).convert("RGB")
+        out = Image.new("RGB", (W, H), (250, 100, 50))
+        out.paste(src.crop((600, 400, 800, 700)).point(lambda v: v + 40), (600, 400))
         b = io.BytesIO()
         out.save(b, "PNG")
         from types import SimpleNamespace as NS
@@ -146,3 +150,15 @@ def test_photoreal_retries_without_input_fidelity_for_models_that_do_not_know_it
     view, mask = view_and_mask()
     r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask)})
     assert r.status_code == 200 and calls[-2:] == [True, False]
+
+
+def test_ai_picture_that_zoomed_in_is_scaled_back_before_products_go_on():
+    from core import photoreal
+    view = Image.new("RGB", (W, H), (230, 225, 215))
+    for i, (x, y) in enumerate([(300, 300), (900, 250), (500, 700), (1100, 650), (700, 450)]):
+        view.paste((40 + 30 * i, 60, 90), (x, y, x + 120, y + 90))
+    out = photoreal._zoom(view, 1.2, 16, -8)  # AI가 1.2배 키우고 조금 옮겨 그렸다
+    fixed, score = photoreal.align_to_view(view, out)
+    assert score > photoreal.ALIGN_MIN
+    diff = np.abs(np.asarray(fixed, dtype=int) - np.asarray(view, dtype=int)).mean()
+    assert diff < 6

@@ -31,7 +31,8 @@ PROMPT = """Turn this 3D interior visualization into a realistic interior photog
 Keep exactly the same camera angle, room shape, walls, windows, doors, and every object's position, size and shape.
 Make surfaces look real: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight
 through the windows with soft shadows and bounce light, gentle depth like a real camera.
-The protected areas are real appliances standing in this room: give them natural contact shadows on the floor
+The plain background outside the room is empty: keep it plain and do not zoom in or crop.
+The appliances are real products standing in this room: give them natural contact shadows on the floor
 and soft light around them so they sit in the scene, but do not repaint them.
 Plain boxes and cabinets are furniture cabinets with doors: never turn them into appliances
 (no washing machines, dryers, ovens, microwaves, stoves, dishwashers).
@@ -114,6 +115,41 @@ def match_light(view: Image.Image, out: Image.Image, alpha: Image.Image) -> Imag
     return Image.fromarray(v.astype(np.uint8))
 
 
+ALIGN_SCALES = [round(0.9 + 0.02 * i, 2) for i in range(26)]  # AI가 화면을 키우거나 줄여 그리는 배율 후보 (0.9~1.4)
+ALIGN_MIN = 0.2  # 맞춘 뒤에도 윤곽이 이만큼 안 겹치면 제품을 얹지 않는다 (얹으면 두 대로 보임)
+
+
+def _edges(img: Image.Image) -> np.ndarray:
+    g = np.array(img.convert("L").filter(ImageFilter.GaussianBlur(1)), dtype=np.float32)  # 사진 결·재질 무늬는 흐려서 윤곽만
+    e = np.abs(np.diff(g, axis=0, prepend=g[:1])) + np.abs(np.diff(g, axis=1, prepend=g[:, :1]))
+    e -= e.mean()
+    return e / (np.linalg.norm(e) + 1e-6)
+
+
+def _zoom(img: Image.Image, k: float, dx: float = 0, dy: float = 0) -> Image.Image:
+    """가운데 기준 k배 + (dx, dy)만큼 옮겨 그린다. k<1이면 줄인다 (AI가 키워 그린 걸 되돌릴 때)."""
+    w, h = img.size
+    a = 1 / k
+    return img.transform((w, h), Image.AFFINE, (a, 0, w / 2 - a * (w / 2 + dx), 0, a, h / 2 - a * (h / 2 + dy)), Image.BILINEAR)
+
+
+def align_to_view(view: Image.Image, out: Image.Image) -> tuple[Image.Image, float]:
+    """AI 그림이 3D보다 확대·이동돼 있으면 되돌려 맞춘다. 작은 그림(1/8)에서 찾고 원래 크기에 한 번 적용. (맞춘 그림, 겹침 점수)"""
+    w, h = view.size
+    sw, sh = w // 8, h // 8
+    ev, small = _edges(view.resize((sw, sh), Image.BILINEAR)), out.resize((sw, sh), Image.BILINEAR)
+    score = lambda k, dx, dy: float((_edges(_zoom(small, 1 / k, dx, dy)) * ev).sum())
+    # 굵게 찾고 (배율 0.04, 이동 2칸) 그 둘레만 촘촘히
+    best = max((score(k, dx, dy), k, dx, dy) for k in ALIGN_SCALES[::2] for dx in range(-6, 7, 2) for dy in range(-6, 7, 2))
+    _, k0, x0, y0 = best
+    best = max([best] + [(score(k, dx, dy), k, dx, dy) for k in (round(k0 - 0.02, 2), k0, round(k0 + 0.02, 2))
+                         for dx in (x0 - 1, x0, x0 + 1) for dy in (y0 - 1, y0, y0 + 1)])
+    sc, k, dx, dy = best
+    fixed = _zoom(out, 1 / k, dx * 8, dy * 8)
+    inside = _zoom(Image.new("L", out.size, 255), 1 / k, dx * 8, dy * 8)  # 줄이며 생긴 바깥 빈 곳은 3D 배경으로
+    return Image.composite(fixed, view, inside), sc
+
+
 def contact_shadow(out: Image.Image, alpha: Image.Image) -> Image.Image:
     """제품 아래쪽에 옅은 접지 그림자. AI가 못 그려 줘도 바닥에 붙어 보이게."""
     sh = alpha.filter(ImageFilter.MaxFilter(9)).transform(alpha.size, Image.AFFINE, (1, 0, 0, 0, 1, -8))
@@ -157,8 +193,8 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     alpha = drop_specks(product_alpha(mask))
     # 마스크를 주면 작은 모델이 마스크 밖을 새 방으로 다시 그려 버린다 (거실 → 주방 → 빈 방). 마스크 없이 지금 화면 전체를
     # 참고 그림으로 주고 (input_fidelity high: 구도·가구 유지), 제품 자리는 아래에서 3D 픽셀로 다시 덮는다
-    kw = dict(image=("view.png", png_bytes(view), "image/png"), prompt=PROMPT.format(extra=extra).strip(),
-              size=f"{SIZE[0]}x{SIZE[1]}", quality=QUALITY, n=1)
+    kw = {"image": ("view.png", png_bytes(view), "image/png"), "prompt": PROMPT.format(extra=extra).strip(),
+          "size": f"{SIZE[0]}x{SIZE[1]}", "quality": QUALITY, "n": 1}
     try:
         r = edit_any_model(client, input_fidelity="high", **kw)
     except Exception as e:  # noqa: BLE001
@@ -168,6 +204,9 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     out = Image.open(io.BytesIO(base64.b64decode(r.data[0].b64_json))).convert("RGB")
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)
+    out, score = align_to_view(view, out)
+    if score < ALIGN_MIN:  # AI가 구도를 너무 바꿨다: 제품을 얹으면 엉뚱한 곳에 떠 보인다
+        return out
     out = contact_shadow(out, alpha)
     keep = alpha.filter(ImageFilter.GaussianBlur(2.5))  # 제품 테두리만 살짝 섞는다
     keep = keep.point(lambda v: 255 if v >= 250 else v)
