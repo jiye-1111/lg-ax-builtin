@@ -18,7 +18,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from .ai_products import CATEGORY_KO, Category
-from .ai_style import HEX, MODEL, OPENAI_MODEL, TextureName, pick_provider
+from .ai_style import HEX, MODEL, OPENAI_MODEL, TextureName, openai_extra, pick_provider
 from .decor import DECOR
 
 log = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def room_brief(room, zones: list[dict], categories: list[str], budget: Optional[
     return "\n".join(lines)
 
 
-def ask_ideas(brief: str, client=None, image: Optional[tuple[str, str]] = None) -> Optional[Ideas]:
+def ask_ideas(brief: str, image: Optional[tuple[str, str]] = None, *, client=None) -> Optional[Ideas]:
     """image = (형식, base64). 있으면 사진을 같이 보내 분위기·색만 읽게 한다."""
     provider = pick_provider() if client is None else "given"
     if provider is None:
@@ -159,7 +159,7 @@ def ask_ideas(brief: str, client=None, image: Optional[tuple[str, str]] = None) 
                 client = openai.OpenAI(timeout=float(os.getenv("STYLE_AI_TIMEOUT_S", 40)), max_retries=1)
             user = brief if not image else [{"type": "text", "text": brief},
                                             {"type": "image_url", "image_url": {"url": f"data:{image[0]};base64,{image[1]}", "detail": "low"}}]
-            r = client.chat.completions.parse(model=OPENAI_MODEL, response_format=Ideas,
+            r = client.chat.completions.parse(model=OPENAI_MODEL, response_format=Ideas, **openai_extra(),
                                               messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
             msg = r.choices[0].message
             return None if getattr(msg, "refusal", None) else msg.parsed

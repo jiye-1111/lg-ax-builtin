@@ -145,7 +145,7 @@ def _photo_idea(**kw):
 def test_photo_goes_to_the_ai_and_gives_combos_with_what_it_saw(c, svc, pid):
     seen = {}
 
-    def fake(brief, image=None):
+    def fake(brief, *, image=None):
         seen["image"] = image
         return _photo_idea(seen="짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명")
 
@@ -160,26 +160,26 @@ def test_photo_goes_to_the_ai_and_gives_combos_with_what_it_saw(c, svc, pid):
 
 
 def test_photo_alone_without_words_is_enough(c, svc, pid):
-    svc.ideator = lambda brief, image=None: _photo_idea(seen="밝은 미니멀")
+    svc.ideator = lambda brief, *, image=None: _photo_idea(seen="밝은 미니멀")
     d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
     assert d["type"] == "combos" and d["seen"] == "밝은 미니멀"
 
 
 def test_photo_that_is_not_a_room_gets_a_plain_answer(c, svc, pid):
-    svc.ideator = lambda brief, image=None: _photo_idea(not_a_room=True)
+    svc.ideator = lambda brief, *, image=None: _photo_idea(not_a_room=True)
     d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
     assert d["type"] == "message" and "방 사진" in d["message"]
 
 
 def test_photo_unreadable_says_so_and_uses_the_words(c, svc, pid):
-    svc.ideator = lambda brief, image=None: None
+    svc.ideator = lambda brief, *, image=None: None
     d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "호텔 같은 침실", "image": PHOTO}).json()
     assert d["type"] == "combos" and d["engine"] == "rules" and d["seen"] is None
     assert "사진" in d["message"]
 
 
 def test_photo_is_not_kept_in_the_project(c, svc, pid):
-    svc.ideator = lambda brief, image=None: _photo_idea(seen="x")
+    svc.ideator = lambda brief, *, image=None: _photo_idea(seen="x")
     c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO})
     assert PNG not in str(c.get(f"/api/projects/{pid}").json())
 
@@ -196,3 +196,26 @@ def test_bad_photos_are_rejected(c, pid, bad):
 
 def test_no_words_and_no_photo_is_rejected(c, pid):
     assert c.post(f"/api/projects/{pid}/assist", json={"prompt": ""}).status_code == 422
+
+
+def test_server_passes_the_photo_to_the_real_ai_call(c, svc, pid, monkeypatch):
+    # 가짜 ideator가 아니라 실제 ask_ideas가 사진을 image로 받는지 (PC에서 사진이 client 자리로 들어가던 문제)
+    import openai
+    from core.combos import ask_ideas
+    sent = {}
+
+    class Fake:
+        def __init__(self, **kw):
+            self.chat = type("C", (), {"completions": type("P", (), {"parse": staticmethod(self.parse)})()})()
+
+        def parse(self, **kw):
+            sent.update(kw)
+            from types import SimpleNamespace as NS
+            return NS(choices=[NS(message=NS(refusal=None, parsed=_photo_idea(seen="밝은 우드")))])
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test")
+    monkeypatch.setattr(openai, "OpenAI", Fake)
+    svc.ideator = ask_ideas
+    d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
+    assert d["engine"] == "ai" and d["seen"] == "밝은 우드"
+    assert sent["messages"][1]["content"][1]["image_url"]["url"].endswith(PNG)

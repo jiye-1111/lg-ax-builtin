@@ -30,7 +30,7 @@ def won(v: int) -> str:
 
 
 class ComboMixin:
-    ideator = staticmethod(ask_ideas)  # (brief) -> Ideas | None. 테스트에서 바꿔 끼운다
+    ideator = staticmethod(ask_ideas)  # (brief, image=None) -> Ideas | None. 테스트에서 바꿔 끼운다
 
     # ---- 후보 ----
     def _combo_pool(self, room, category: str) -> list[Product]:
@@ -73,7 +73,7 @@ class ComboMixin:
 
     # ---- 만들기 ----
     def make_combos(self, pid: str, categories: list[str] | None = None, budget: int | None = None, prompt: str = "",
-                    zone_id: str | None = None, image: tuple[str, str] | None = None) -> dict:
+                    zone_id: str | None = None, image: tuple[str, str] | None = None, said=None) -> dict:
         from .service import Invalid
 
         prompt = (prompt or "").strip()
@@ -84,7 +84,7 @@ class ComboMixin:
         if bad:
             raise Invalid(f"모르는 가전 종류: {', '.join(bad)}")
         if prompt:
-            said = self.product_reader(prompt)
+            said = said or self.product_reader(prompt)  # 하우니가 이미 읽었으면 다시 부르지 않는다 (AI 한 번 아끼기)
             if said.category and said.category not in cats:
                 cats.append(said.category)
             budget = budget or said.price_max
@@ -100,7 +100,7 @@ class ComboMixin:
                  for c, v in pools.items()}
         purpose = detect_purpose(prompt, cats, zones)
         brief = room_brief(room, zones, cats, budget, prompt, stock)
-        ideas = self.ideator(brief, image) if image else self.ideator(brief)
+        ideas = self.ideator(brief, image=image) if image else self.ideator(brief)
         if image and ideas and ideas.not_a_room:
             return {"engine": "ai", "not_a_room": True, "combos": []}
         engine, seen = "ai", (ideas.seen if image and ideas else None)
@@ -217,7 +217,7 @@ class ComboMixin:
                     msg += f" 비교해 볼 {head} {len(items) - 1}개도 같이 둘게요."
             return {"type": "products", "message": msg, "items": items, "engine": got["engine"]}
         out = self.make_combos(pid, [want.category] if want and want.category else [], want.price_max if want else None,
-                               prompt, image=photo)
+                               prompt, image=photo, said=want)
         if out.get("not_a_room"):
             return {"type": "message", "message": "방 사진이 아닌 것 같아요. 이런 느낌으로 살고 싶은 방 사진을 붙여 주세요.", "engine": "ai"}
         n = len(out["combos"])

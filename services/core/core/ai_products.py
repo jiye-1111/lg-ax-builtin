@@ -15,7 +15,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 
-from .ai_style import MODEL, OPENAI_MODEL, pick_provider
+from .ai_style import MODEL, OPENAI_MODEL, openai_extra, pick_provider
 
 log = logging.getLogger(__name__)
 
@@ -142,6 +142,7 @@ def interpret_products_with_openai(prompt: str, client=None) -> ProductIntent:
             model=OPENAI_MODEL,
             messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": prompt}],
             response_format=ProductIntent,
+            **openai_extra(),
         )
         msg = r.choices[0].message
         if getattr(msg, "refusal", None) or msg.parsed is None:
