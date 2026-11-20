@@ -1,8 +1,8 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v20"; // 채광: 물체에도 볕, 주소로 위치·방향 + 공유기·동선 3D
+const VERSION = "lgb-shell-v21"; // 5단계 진행 표시, 설치 적합성 검사 카드, 구매·설치 신청
 const SHELL = [
-  "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js",
+  "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/guide.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",

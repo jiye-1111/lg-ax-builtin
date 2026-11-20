@@ -7,6 +7,7 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
+import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL } from "./guide.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -15,6 +16,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <ol class="steps5" id="steps" aria-label="진행 단계"></ol>
         <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
@@ -37,6 +39,7 @@ export async function customer(pid) {
 
       <section class="stage" aria-label="우리 집">
         <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
+        <section class="order-sheet" id="orderSheet" role="dialog" aria-label="구매 및 설치 신청" hidden></section>
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
@@ -108,6 +111,7 @@ export async function customer(pid) {
           </section>
         </div>
         <section class="minimap" id="minimap" aria-label="작은 화면" hidden></section>
+        <div class="order-bar"><button class="primary" id="orderBtn">구매 및 설치 신청</button></div>
       </aside>
       ${botHtml()}
     </div>`;
@@ -210,6 +214,7 @@ export async function customer(pid) {
   const restoredCam = viewer.setCamera(saved.cam);
   if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
+  let renderSteps = () => {}; // 5단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
@@ -255,6 +260,7 @@ export async function customer(pid) {
     renderLib();
   }));
   const renderLib = () => {
+    renderSteps();
     const q = document.getElementById("q").value.trim().toLowerCase();
     const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
     const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
@@ -616,16 +622,21 @@ export async function customer(pid) {
     if (x) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
       const reasons = (x.reasons || []).map((r) => `<li><span class="badge ${r.verdict}">${LABEL[r.verdict]}</span> ${esc(r.label)}${r.ref ? ` <span class="muted">(${esc(r.ref)})</span>` : ""}</li>`).join("");
+      const fv = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku);
+      const pd = p.product_dims_mm || {};
       box.innerHTML = `
-        <div class="verdict-strip v-${x.verdict}"><span>${LABEL[x.verdict]}</span>${x.wall_id ? `<em>벽 ${esc(x.wall_id)}에 붙임</em>` : ""}</div>
-        ${(() => { const v = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku); return v?.thumb ? `<div class="insp-photo"><img src="${esc(v.thumb)}" alt="${esc(p.name)}"></div>` : ""; })()}
-        <h2 class="insp-name">${esc(p.name)}</h2>
-        <p class="insp-meta">${esc(x.sku)}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
-        ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
+        <div class="insp-prod">
+          <div class="insp-thumb" style="background-color:${esc(x.hex || fv?.hex || "#fff")}">${fv?.thumb ? `<img src="${esc(fv.thumb)}" alt="${esc(p.name)}">` : ""}</div>
+          <div><h2 class="insp-name">${esc(p.name)}</h2>
+            <p class="insp-meta">${pd.w && pd.h && pd.d ? `${mm(pd.w)} × ${mm(pd.h)} × ${mm(pd.d)} mm` : esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
+            <button class="small ghost" id="inspDetail">상세보기</button></div>
+        </div>
+        ${fitCardHtml(x)}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
         ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
+      box.querySelector("#inspDetail").onclick = () => openDetail(x.sku);
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
@@ -657,7 +668,45 @@ export async function customer(pid) {
     box.innerHTML = `<div class="insp-empty"><h2>무엇을 놓아 볼까요?</h2>
       <ol class="how"><li><b>LG 제품</b> 목록에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
+  // ---- 5단계 진행 표시: 지금 상태에서 계산한다 ----
+  renderSteps = () => {
+    const el = document.getElementById("steps");
+    if (!el || !project) return;
+    el.innerHTML = stepperHtml(stepState(project, armed));
+    el.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
+      const k = b.dataset.step, pls = project.scene_state.placements;
+      if (k === "scan") setTab("extra");
+      else if (k === "pick") document.getElementById("q").focus();
+      else if (k === "place") { if (!pls.length) toast("먼저 왼쪽에서 제품을 고르고 3D 바닥을 눌러 놓아 보세요"); else { selPl = pls[0].placement_id; setTab("sel"); draw(); renderInspector(); } }
+      else if (k === "check") { if (!pls.length) toast("제품을 놓으면 그 자리에 들어가는지 바로 검사해요"); else setTab("list"); }
+      else openOrder();
+    }));
+  };
+  // ---- 구매 및 설치 신청: 놓은 제품과 판정을 모아 보여 주고, 구매는 LGE.COM, 설치는 방문 신청으로 잇는다 ----
+  const orderSheet = document.getElementById("orderSheet");
+  const closeOrder = () => { orderSheet.hidden = true; orderSheet.innerHTML = ""; };
+  const openOrder = () => {
+    const pls = project.scene_state.placements;
+    const bad = pls.filter((x) => x.verdict === "no_fit").length;
+    orderSheet.innerHTML = `
+      <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
+      ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
+      <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li>
+        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i>
+        <span class="nm">${esc(p.name)}<small>${esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}</small></span>
+        <span class="badge ${x.verdict}">${VERDICT_LABEL[x.verdict] || "판정 불가"}</span>
+        ${p.source_url && !p.demo_only ? `<a class="btn ghost small" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 구매</a>` : ""}</li>`; }).join("")}</ul>
+      <p class="order-note">구매는 LGE.COM 제품 페이지에서 하고, 설치는 방문 신청을 하면 기사가 실측한 뒤 진행해요. 전원·배관 위치도 그때 확인해요.</p>
+      <div class="order-actions"><a class="btn primary" href="#/r">방문 설치 상담 신청</a></div>`
+      : `<p class="order-sum">아직 놓은 제품이 없어요.</p><p class="order-note">왼쪽 목록에서 제품을 골라 3D에 놓으면, 설치할 수 있는 자리인지 검사한 결과와 함께 신청할 수 있어요.</p>`}`;
+    orderSheet.hidden = false;
+    document.getElementById("orderClose").onclick = closeOrder;
+    document.getElementById("orderClose").focus({ preventScroll: true });
+  };
+  orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
+  document.getElementById("orderBtn").onclick = openOrder;
   const renderPlacements = () => {
+    renderSteps();
     const pls = project.scene_state.placements;
     document.getElementById("plCount").textContent = pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `
