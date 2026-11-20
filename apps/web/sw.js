@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v17"; // 제품 사진(우리 모델 렌더) + 채광 하루 재생
+const VERSION = "lgb-shell-v18"; // 와이파이 공유기 3D, 동선 걷는 사람 3D
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js",
@@ -8,7 +8,8 @@ const SHELL = [
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
-  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js",
+  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js",
+  "./vendor/three/addons/utils/SkeletonUtils.js", "./models/devices/router.glb", "./models/people/walker.glb",
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",
