@@ -117,6 +117,37 @@ class Service:
                "preferred_at": preferred_at, "status": "requested", "created_at": now()}
         return self.db.put("request", rid, req)
 
+    def create_install_request(self, pid: str, name: str, contact: str, address: str, preferred_at: str | None) -> dict:
+        """놓아 본 제품 그대로 방문 설치 상담을 신청한다. 기사가 미리 볼 수 있게 제품과 설치 전 확인 결과를 같이 남긴다."""
+        p, check = self.get_project(pid), self.install_check(pid)
+        if not check["items"]:
+            raise Invalid("놓은 제품이 없어요. 제품을 먼저 놓아 주세요")
+        products = []
+        for it in check["items"]:
+            prod = self.catalog.get(it["sku"])
+            products.append({"placement_id": it["placement_id"], "sku": it["sku"], "name": it["name"], "status": it["status"],
+                             "open": [c["label"] for c in it["checks"] if c["status"] in ("check", "blocked")],
+                             "source_url": prod.source_url})
+        rid = self.db.next_id("r")
+        req = {"request_id": rid, "kind": "install", "project_id": pid, "customer": {"name": name, "contact": contact},
+               "address": address, "preferred_at": preferred_at, "status": "requested", "created_at": now(),
+               "products": products, "summary": check["summary"]}
+        self.db.put("request", rid, req)
+        p["install_request_id"] = rid
+        self._save_project(p)
+        return req
+
+    def before_glb(self, pid: str) -> Path:
+        """스캔한 그대로의 집(가구 그대로, 마감·제품 없음). 지금 모습과 견줘 보는 용도라 한 번 만들어 두고 쓴다."""
+        from worker.glb import room_to_glb
+
+        self.get_project(pid)
+        out, src = self.pdir(pid) / "scene" / "before.glb", self.pdir(pid) / "scan" / "room.json"
+        if not out.exists() or out.stat().st_mtime < src.stat().st_mtime:
+            out.parent.mkdir(parents=True, exist_ok=True)
+            room_to_glb(self._load_room(pid), out, {"materials": {}, "finish": None, "placements": []})
+        return out
+
     def list_requests(self) -> list[dict]:
         return self.db.list("request")
 
@@ -202,7 +233,7 @@ class Service:
 
     # 저장본에 넣지 않는 것: 스캔 원본·3D 파일 경로·주인 정보처럼 되돌리면 안 되는 값
     _KEEP = ("project_id", "request_id", "created_at", "status", "scan", "scene", "share_token", "version",
-             "updated_at", "owner_id", "technician_id", "floorplan", "customer_url", "technician_url")
+             "updated_at", "owner_id", "technician_id", "floorplan", "customer_url", "technician_url", "install_request_id")
 
     def save_snapshot(self, pid: str, user: dict, kind: str = "manual", label: str | None = None) -> dict:
         if kind not in ("manual", "auto"):

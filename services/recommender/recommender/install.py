@@ -66,7 +66,7 @@ def _item(room: Room, x: dict, p: Product) -> dict:
 
     status = max((c["status"] for c in checks), key=_RANK.get)
     return {"placement_id": x.get("placement_id"), "sku": p.sku, "name": p.name, "category": p.category,
-            "dims_mm": {"w": d.w, "h": d.h, "d": d.d}, "verdict": x.get("verdict"), "wall_id": x.get("wall_id"),
+            "dims_mm": {"w": d.w, "h": d.h, "d": d.d}, "source_url": p.source_url, "verdict": x.get("verdict"), "wall_id": x.get("wall_id"),
             "status": "ok" if status == "site" else status, "checks": checks, "_measure": need}
 
 

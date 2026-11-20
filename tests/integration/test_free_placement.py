@@ -156,3 +156,38 @@ def test_install_check_lists_placed_products(c, pid):
     assert codes[0] == "space" and "front" in codes and "power" in codes and "carry" in codes
     assert it["status"] == {"fit": "ok", "conditional": "check", "no_fit": "blocked"}[pl["verdict"]]
     assert c.get("/api/projects/none/install-check").status_code == 404
+
+
+FORM = {"name": "홍길동", "contact": "010-1234-5678", "address": "서울시 어딘가 1"}
+
+
+def test_install_request_needs_a_placed_product(c, pid):
+    assert c.post(f"/api/projects/{pid}/install-request", json=FORM).status_code == 422
+
+
+def test_install_request_carries_products_and_checks(c, pid, monkeypatch):
+    c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": [-2.0, 0.0], "yaw_rad": 0, "snap": False})
+    r = c.post(f"/api/projects/{pid}/install-request", json=FORM)
+    assert r.status_code == 201, r.text
+    req = r.json()
+    assert req["kind"] == "install" and req["project_id"] == pid and req["status"] == "requested"
+    assert req["customer"] == {"name": "홍길동", "contact": "010-1234-5678"}
+    item = req["products"][0]
+    assert item["sku"] == SKU and item["name"] and item["source_url"].startswith("https://www.lge.co.kr/")
+    assert item["status"] in {"ok", "check", "blocked"}
+    assert req["summary"]["products"] == 1
+    # 프로젝트에도 신청 번호가 남아서 화면에서 "신청함"을 보여 줄 수 있다
+    assert c.get(f"/api/projects/{pid}").json()["install_request_id"] == req["request_id"]
+    # 기사 목록에 함께 보인다
+    svc = main.app.dependency_overrides[main.get_service]()
+    assert [x["request_id"] for x in svc.list_requests() if x.get("kind") == "install"] == [req["request_id"]]
+
+
+def test_before_scene_ignores_later_changes(c, pid):
+    first = c.get(f"/api/projects/{pid}/files/scene.glb").content
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": [-2.0, 0.0], "yaw_rad": 0, "snap": False})
+    assert c.get(f"/api/projects/{pid}/files/scene.glb").content != first
+    r = c.get(f"/api/projects/{pid}/files/before.glb")
+    assert r.status_code == 200 and r.content == first
+    assert c.get("/api/projects/none/files/before.glb").status_code == 404

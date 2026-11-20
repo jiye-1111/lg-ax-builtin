@@ -51,3 +51,13 @@ def test_remodel_has_undo_and_install_check():
     # 설치 전 확인: 고객 화면(놓은 제품 탭)과 기사 화면 둘 다 같은 목록을 쓴다
     assert "export async function installCheck" in pages and "/install-check" in pages
     assert 'id="icBox"' in remodel and 'id="icBox"' in pages
+
+
+def test_remodel_has_install_request_and_before_view():
+    WEB = main.config.ROOT / "apps" / "web"
+    remodel = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    pages = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
+    assert "export function installRequestBox" in pages and "/install-request" in pages
+    assert 'id="irBox"' in remodel
+    # 처음 모습: 스캔 그대로의 장면을 따로 받아 겹쳐 보여 준다
+    assert 'id="beforeBtn"' in remodel and "/files/before.glb" in remodel

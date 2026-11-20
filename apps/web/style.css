@@ -229,6 +229,15 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .ic-checks em { font-style: normal; font-size: var(--t-xs); }
 .ic-fold > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
 .ic-fold > div { padding-top: 8px; }
+.ir-box form label { display: block; margin-top: 8px; font-size: var(--t-xs); }
+.ir-box form input { width: 100%; }
+.ir-box[hidden], .ir-box [hidden], .before-pane[hidden], .ic-fold[hidden] { display: none !important; }
+#beforeBtn { top: 52px; }
+#beforeBtn[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); z-index: 6; }
+.before-pane { position: absolute; inset: 0; z-index: 5; }
+.before-pane .viewer { height: 100%; border-radius: 0; }
+.before-tag { position: absolute; z-index: 4; left: 12px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(29, 28, 26, .78); color: #fff; font-size: var(--t-xs); pointer-events: none; }
+.minimap #beforeBtn, .minimap .before-pane, .studio[data-view="plan"] #beforeBtn { display: none; }
 .furn-btn:disabled { opacity: .4; cursor: default; }
 .reasons { list-style: none; margin: 0; padding: 0; font-size: var(--t-sm); }
 .reasons li { padding: 4px 0; display: flex; gap: 8px; align-items: baseline; }

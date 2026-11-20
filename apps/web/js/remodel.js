@@ -4,7 +4,7 @@ import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
-import { wallTable, WALL_HEAD, floorplanBox, installCheck } from "./pages.js";
+import { wallTable, WALL_HEAD, floorplanBox, installCheck, installRequestBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 
@@ -54,7 +54,9 @@ export async function customer(pid) {
             <button class="pip-swap" data-swap="plan" title="평면을 가운데 크게 보기">평면 크게</button></div>
           <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
             <button class="pip-swap" data-swap="3d" title="3D를 가운데 크게 보기">3D 크게</button>
-            <button class="render-btn" id="render">렌더 이미지</button></div>
+            <button class="render-btn" id="render">렌더 이미지</button>
+            <button class="render-btn before-btn" id="beforeBtn" aria-pressed="false" title="스캔했을 때 모습과 견줘 봐요">처음 모습</button>
+            <div class="before-pane" id="beforePane" hidden><div class="viewer" id="beforeViewer"></div><span class="before-tag">스캔했을 때 모습</span></div></div>
           <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
@@ -84,7 +86,8 @@ export async function customer(pid) {
         <div class="side-body">
           <section data-panel="sel" id="insp"></section>
           <section data-panel="list"><ul class="list" id="pls"></ul>
-            <details class="gap ic-fold" id="icFold"><summary>설치 전에 확인할 것</summary><div id="icBox"></div></details></section>
+            <details class="gap ic-fold" id="icFold"><summary>설치 전에 확인할 것</summary><div id="icBox"></div></details>
+            <div class="gap ir-box" id="irBox"></div></section>
           <section data-panel="finish">
             ${aiBoxHtml("finish")}
             <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
@@ -136,6 +139,23 @@ export async function customer(pid) {
   studio.querySelectorAll(".side-tabs [data-tab]").forEach((b) => (b.onclick = () => setTab(b.dataset.tab)));
   const TABS = ["sel", "list", "finish", "zones", "extra"], VIEWS = ["3d", "plan", "split"];
   setTab(TABS.includes(saved.tab) ? saved.tab : "sel");
+  // 처음 모습: 스캔 그대로의 집을 같은 시점으로 3D 위에 겹쳐 보여 준다 (지금 꾸민 것은 건드리지 않는다)
+  const beforeBtn = document.getElementById("beforeBtn"), beforePane = document.getElementById("beforePane");
+  let beforeViewer = null;
+  const showBefore = async (on) => {
+    beforeBtn.setAttribute("aria-pressed", on);
+    beforeBtn.textContent = on ? "지금 모습" : "처음 모습";
+    beforePane.hidden = !on;
+    if (!on) { if (beforeViewer) viewer.setCamera(beforeViewer.camera()); beforeViewer?.dispose(); beforeViewer = null; return; }
+    beforeViewer = makeViewer(document.getElementById("beforeViewer"));
+    beforeViewer.setCamera(viewer.camera());
+    const scan = await api(`/api/projects/${pid}/files/room.json`);
+    if (!beforeViewer) return;
+    beforeViewer.setObjects(scan.objects);
+    beforeViewer.load(apiUrl(`/api/projects/${pid}/files/before.glb`));
+  };
+  beforeBtn.onclick = guard(() => showBefore(beforePane.hidden));
+  cleanup.push(() => beforeViewer?.dispose());
   // 조작키 창: 버튼으로 열고 닫는다
   const keysPop = document.getElementById("keysPop"), keysBtn = document.getElementById("keysBtn");
   const showKeys = (on) => { keysPop.hidden = !on; keysBtn.classList.toggle("on", on); keysBtn.setAttribute("aria-expanded", on); };
@@ -692,6 +712,9 @@ export async function customer(pid) {
     document.querySelectorAll("#pls [data-sel]").forEach((li) => (li.onclick = () => { selPl = li.dataset.sel || null; selObj = null; setTab("sel"); draw(); renderInspector(); renderPlacements(); }));
     const fold = document.getElementById("icFold");
     fold.hidden = !pls.length;
+    const irBox = document.getElementById("irBox");
+    irBox.hidden = !pls.length;
+    if (pls.length && !irBox.querySelector("#irForm:not([hidden])")) installRequestBox(irBox, pid, project, () => refresh(true)); // 쓰는 중인 신청서는 지우지 않는다
     if (pls.length && fold.open) installCheck(document.getElementById("icBox"), pid);
     fold.ontoggle = () => { if (fold.open) installCheck(document.getElementById("icBox"), pid); };
     const gone = project.scene_state.hidden_objects || [];
