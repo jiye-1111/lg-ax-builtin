@@ -15,7 +15,7 @@ import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock } from "./walker.js";
 import { dressRoom, furnish, shadowShell } from "./room3d.js";
 
-const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0xc98a00, no_fit: 0xb3261e, unknown: 0x5b6370 };
+const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 const SELECT_HEX = 0xa50034;
 const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 // 바닥 텍스처용 SVG에는 페이지 CSS가 안 먹으므로 오버레이 스타일을 같이 넣는다 (style.css의 .plan 오버레이와 같은 색)

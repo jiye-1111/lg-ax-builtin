@@ -1,24 +1,28 @@
 // 리모델링 화면 안내: 3단계 진행 표시, 설치 적합성 검사 카드. 판정은 서버가 계산한 값만 쓴다.
-import { esc } from "./core.js";
+import { esc, shownVerdict } from "./core.js";
 
 const WORST = { fit: 0, conditional: 1, unknown: 2, no_fit: 3 };
 const worst = (list) => list.reduce((a, v) => (WORST[v] > WORST[a] ? v : a), "fit");
 
 /** 지금 어디까지 했는지 (공간 확인 → 제품 고르기 → 설치 확인). state: done | current | todo | warn */
-export function stepState(project, armed) {
+/**
+ * 3단계 진행. 단계마다 직접 해야 넘어간다 (앞 단계를 안 했으면 뒤 단계는 체크하지 않는다).
+ * flow: { space: 공간 확인을 눌렀는지, order: 구매·설치 신청까지 봤는지 } (화면 상태로 저장)
+ */
+export function stepState(project, armed, flow = {}) {
   const pls = project?.scene_state?.placements || [];
   const placed = pls.length > 0;
   const bad = pls.some((p) => p.verdict === "no_fit");
+  const space = !!flow.space, pick = space && placed, check = pick && !bad && !!flow.order;
   const steps = [
-    { key: "scan", label: "공간 확인", sub: "스캔한 우리 집", done: true },
-    { key: "pick", label: "제품 고르기", sub: armed ? "놓을 자리 누르기" : "골라서 3D에 놓기", done: placed },
-    { key: "check", label: "설치 확인", sub: bad ? "다시 놓기 필요" : placed ? "구매 및 설치 신청" : "들어가는지 확인", done: false, warn: bad },
+    { key: "scan", label: "공간 확인", sub: space ? "스캔한 우리 집" : "벽·문·창이 맞나요?", done: space },
+    { key: "pick", label: "제품 고르기", sub: armed ? "놓을 자리 누르기" : "골라서 3D에 놓기", done: pick },
+    { key: "check", label: "설치 확인", sub: bad && pick ? "다시 놓기 필요" : "구매 및 설치 신청", done: check, warn: bad && pick },
   ];
   let seenCurrent = false;
   return steps.map((s) => {
     let state = s.done ? "done" : "todo";
-    if (s.warn) state = "warn";
-    if (!s.done && !seenCurrent) { seenCurrent = true; if (state === "todo") state = "current"; }
+    if (!s.done && !seenCurrent) { seenCurrent = true; state = s.warn ? "warn" : "current"; }
     return { ...s, state };
   });
 }
@@ -42,7 +46,7 @@ const GROUPS = [
 ];
 // 판정을 바꾸지는 않고 안내만 하는 코드
 const NOTES = ["clearance_unknown", "scan_based", "front_space_assumed"];
-const VERDICT = { fit: "적합", conditional: "확인 필요", no_fit: "부적합", unknown: "판정 불가" };
+const VERDICT = { fit: "적합", conditional: "적합", no_fit: "부적합", unknown: "판정 불가" };
 
 export function fitRows(placement) {
   const reasons = placement?.reasons || [];
@@ -53,22 +57,17 @@ export function fitRows(placement) {
   }).filter(Boolean);
 }
 
-const BANNER = { fit: "설치 가능합니다!", conditional: "설치할 수 있어요. 확인할 점이 있어요", no_fit: "이 자리에는 설치하기 어려워요", unknown: "판정할 정보가 부족해요" };
-const NOTE_WHY = { clearance_unknown: "옆·뒤 여유 공간은 설치 기사가 방문해서 확인해요", scan_based: "치수는 스캔값 기준이에요",
-  front_space_assumed: "문 여는 공간은 보통 필요한 600 mm로 봤어요" };
-const LIFE = { ok: "fit", warn: "conditional", unknown: "unknown" };
-const LIFE_WORD = { ok: "좋아요", warn: "확인", unknown: "" };
+const BANNER = { fit: "설치 가능합니다!", conditional: "설치 가능합니다!", no_fit: "이 자리에는 설치하기 어려워요", unknown: "판정할 정보가 부족해요" };
 
 /** 놓은 제품 하나의 설치 확인 카드. life: 서버 life-check의 그 제품 값({daylight, wifi}), 없으면 그 줄을 뺀다 */
 export function fitCardHtml(placement, life = null) {
-  const v = placement.verdict in VERDICT ? placement.verdict : "unknown";
-  const rows = fitRows(placement).map((r) => ({ ...r, word: VERDICT[r.verdict] }));
-  // 판정을 조건부로 만든 안내 코드(옆·뒤 여유 모름 등)는 한 줄로 보여서 왜 '확인'인지 알 수 있게
-  const noted = (placement.reasons || []).filter((r) => NOTES.includes(r.code) && r.verdict !== "fit");
-  if (noted.length) rows.push({ label: "설치 기사 확인", verdict: worst(noted.map((r) => r.verdict)), why: [...new Set(noted.map((r) => NOTE_WHY[r.code] || r.label))].join(" · "), word: "확인" });
+  // 놓을 수 없는 것만 알린다: 조건부는 적합으로, 이유 문구는 '불가' 줄에만
+  const v = shownVerdict(placement.verdict in VERDICT ? placement.verdict : "unknown");
+  const rows = fitRows(placement).map((r) => { const rv = shownVerdict(r.verdict); return { ...r, verdict: rv, why: rv === "no_fit" ? r.why : "", word: VERDICT[rv] }; });
+  // 채광·와이파이는 판정이 아니라 그 자리 정보로만 보여 준다
   for (const [k, label] of [["daylight", "채광"], ["wifi", "와이파이"]]) {
     const x = life?.[k];
-    if (x) rows.push({ label, verdict: LIFE[x.status] || "unknown", why: x.label, word: LIFE_WORD[x.status] || "", life: x.status === "unknown" ? k : "" });
+    if (x) rows.push({ label, verdict: x.status === "unknown" ? "unknown" : "info", why: x.label, word: "", life: x.status === "unknown" ? k : "" });
   }
   const scan = (placement.reasons || []).some((r) => r.code === "scan_based");
   return `<section class="fit-card v-${v}" aria-label="설치 확인 결과">
