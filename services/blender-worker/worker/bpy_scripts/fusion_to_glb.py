@@ -5,7 +5,8 @@
 
 - Fusion 쪽: 정면 = -Y, Z-up, 바닥 가운데 원점 (build_products.py와 같은 좌표). 부품 하나 = 바디 하나 = STL 하나.
 - 파일 이름 앞부분이 역할이다: body, door_*, handle_*, vent_*, trim_*, display.
-- 같은 폴더의 drawing.json(레퍼런스 치수·색)에 colors.body.hex_approx가 있으면 본체 색으로 쓴다. 역할별 재질은 build_products와 같다
+- 같은 폴더의 drawing.json(레퍼런스 치수·색)에 colors.body.hex_approx가 있으면 본체 색으로 쓴다.
+  geometry_from: "<다른 SKU>"가 있으면 그 SKU 폴더의 STL을 쓴다 (색·재질만 다른 모델). 역할별 재질은 build_products와 같다
   (문 앞판 재질 이름 "finish"는 웹에서 색을 바꿀 때 쓴다).
 - 부품은 합치지 않고 따로 둔다. 웹에서 문만 골라 열거나 강조할 수 있게.
 - STL 단위(mm/cm)는 카탈로그 높이와 비교해서 맞춘다.
@@ -46,13 +47,14 @@ def build(prod: dict, src: Path, out: Path) -> dict:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     opt = (prod.get("cmf_options") or [{}])[0]
     pal = palette(opt.get("hex_approx") or "#F2F2F0", opt.get("material"))
-    drawing = src / "drawing.json"  # 레퍼런스에서 확인한 본체 색이 있으면 그 색으로
-    body_hex = (json.loads(drawing.read_text(encoding="utf-8")).get("colors", {}).get("body", {})
-                .get("hex_approx")) if drawing.exists() else None
+    drawing_path = src / "drawing.json"  # 레퍼런스에서 확인한 본체 색이 있으면 그 색으로
+    drawing = json.loads(drawing_path.read_text(encoding="utf-8")) if drawing_path.exists() else {}
+    body_hex = drawing.get("colors", {}).get("body", {}).get("hex_approx")
     if body_hex:
         pal["body"] = material("body", body_hex, 0.5, 0.3)
+    geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src  # 색만 다른 모델은 몸체 공유
     objs = []
-    for stl in sorted(src.glob("*.stl")):
+    for stl in sorted(geo.glob("*.stl")):
         bpy.ops.wm.stl_import(filepath=str(stl))
         ob = bpy.context.selected_objects[0]
         ob.name = stl.stem
@@ -60,7 +62,7 @@ def build(prod: dict, src: Path, out: Path) -> dict:
         ob.data.materials.append(pal[ROLE_MAT[role_of(stl.stem)]])
         objs.append(ob)
     if not objs:
-        raise FileNotFoundError(f"{src}에 STL이 없다")
+        raise FileNotFoundError(f"{geo}에 STL이 없다")
     s = unit_scale(objs, prod["product_dims_mm"]["h"])
     root = bpy.data.objects.new(prod["sku"], None)
     bpy.context.scene.collection.objects.link(root)
