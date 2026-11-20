@@ -245,3 +245,96 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .lib .prod .price { font-size: 12px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
 #insp .insp-price { margin: -8px 0 14px; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
 #insp .insp-price .muted { font-size: 11px; font-weight: 400; }
+
+/* ===== 앱 배치 (폰·태블릿·작은 앱 창, remodel.js APP_MAX_W 이하) =====
+   3D가 화면을 채우고, 제품은 아래 서랍(평소엔 '이 집에 들어가는 제품'만), 고른 제품은 서랍 자리에 카드로.
+   덜 쓰는 것(처음과 비교, 도면·실측, 전체 화면, 조작키, 렌더, 미니맵, 진행 단계)은 숨기거나 메뉴로 */
+.app-only { display: none; }
+.studio.app .app-only:not([hidden]) { display: inline-flex; }
+.studio.app {
+  height: calc(100dvh - var(--topbar)); padding: 8px 8px calc(8px + env(safe-area-inset-bottom)); gap: 8px;
+  grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; grid-template-areas: "head" "stage" "dock";
+}
+.studio.app .studio-head { gap: 8px; padding: 0 2px; flex-wrap: nowrap; }
+.studio.app .studio-title h1 { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio.app .studio-title .sub, .studio.app #progress { display: none; }
+.studio.app .home-menu > summary { padding: 6px 12px; font-size: 13px; }
+.studio.app .home-pop { right: 0; left: auto; }
+.studio.app .home-pop .app-only { justify-content: center; }
+
+.studio.app .stage { grid-area: stage; }
+.studio.app .canvas { flex: 1; height: auto; min-height: 0; }
+.studio.app .toolbar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 6px 8px; gap: 2px; }
+.studio.app .toolbar::-webkit-scrollbar { display: none; }
+.studio.app .toolbar .furn-btn { flex: none; padding: 7px 11px; font-size: 13.5px; white-space: nowrap; }
+.studio.app :is(#beforeBtn, #extraBtn, #fullBtn, #keysBtn, .render-btn, .minimap, .hint) { display: none !important; }
+.studio.app .icon-row { flex: none; }
+.studio.app .fit-badge { top: 8px; max-width: calc(100% - 84px); font-size: 13px; padding: 7px 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.studio.app .act-bar { bottom: 10px; }
+.studio.app .need-tag { left: 10px; bottom: 74px; }
+
+/* 아래 서랍: 제품 */
+.studio.app .lib { grid-area: dock; padding: 10px 10px 8px; gap: 8px; max-height: 42dvh; overflow: hidden; }
+.studio.app .lib-side { gap: 8px; }
+.studio.app .lib-head { align-items: center; gap: 6px; }
+.studio.app .lib-head h2 { font-size: 15px; }
+.studio.app:not(.lib-open) :is(#libCount, #sortBy, #q, #ask, #cats, #moreFilter, #lib) { display: none; }
+.studio.app:not(.lib-open) .lib:has(#sugg[hidden]) #lib { display: grid; max-height: 22dvh; }
+.studio.app .sugg { padding: 8px; }
+.studio.app .sugg ul { display: flex; overflow-x: auto; scrollbar-width: none; gap: 8px; scroll-snap-type: x mandatory; }
+.studio.app .sugg ul::-webkit-scrollbar { display: none; }
+.studio.app .sugg li { flex: 0 0 min(230px, 70vw); scroll-snap-align: start; }
+/* 서랍 카드는 사진 왼쪽·이름 오른쪽으로 납작하게 (3D가 더 보이게) */
+.studio.app .sugg-card { display: grid; grid-template-columns: 56px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: 10px; row-gap: 2px; align-items: center; padding: 6px; }
+.studio.app .sugg-card .ph { grid-row: 1 / 3; width: 56px; }
+.studio.app .sugg-card .nm { font-size: 13px; align-self: end; }
+.studio.app .sugg-card .vv { font-size: 12px; align-self: start; }
+.studio.app .sugg-head h3 { font-size: 13.5px; }
+.studio.app.lib-open .lib { position: fixed; left: 8px; right: 8px; bottom: 8px; z-index: 25; max-height: 78dvh; overflow-y: auto; overscroll-behavior: contain;
+  box-shadow: 0 -18px 48px -20px rgba(18, 14, 12, .45); }
+.studio.app.lib-open .lib #lib { max-height: none; overflow: visible; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.studio.app.lib-open::after { content: ""; position: fixed; inset: 0; z-index: 24; background: rgba(18, 14, 12, .35); }
+
+/* 고른 제품: 서랍 자리에 카드 */
+.studio.app .side { grid-area: dock; display: none; max-height: 46dvh; overflow: hidden; }
+.studio.app.has-sel .side { display: flex; }
+.studio.app.has-sel .lib { display: none; }
+.studio.app .side-body { padding: 12px 12px 8px; overflow-y: auto; }
+.studio.app .side #insp .insp-photo { height: 120px; }
+.studio.app .side .order-bar { position: static; padding: 8px 12px 10px; padding-right: 12px; }
+.studio.app .side .order-bar .primary { width: 100%; }
+
+/* 하우니: 3D 오른쪽 위, 대화창은 아래로 열린다 */
+.studio.app .bot { top: calc(var(--topbar) + 112px); bottom: auto; right: 18px; flex-direction: column-reverse; }
+.studio.app .bot-btn { width: 48px; height: 48px; padding: 4px; }
+.studio.app .bot-panel { max-height: min(560px, calc(100dvh - var(--topbar) - 190px)); }
+
+/* 앱 배치의 안내 말풍선은 조금 작게 */
+@media (max-width: 640px) {
+  .tour-tip { grid-template-columns: 40px minmax(0, 1fr); gap: 10px; padding: 14px; border-radius: 18px; }
+  .tour-face { width: 40px; height: 40px; }
+  .tour-body h3 { font-size: 15px; }
+  .tour-body p { font-size: 14px; }
+}
+.studio.app .act-bar .act { white-space: nowrap; }
+.studio.app .lib-head h2 { white-space: nowrap; margin-right: auto; }
+.studio.app.lib-open :is(#orderMini, #libCount) { display: none !important; }
+.studio.app.lib-open .bot { display: none; }
+.studio.app .side { max-height: 40dvh; }
+.studio.app .side #insp .insp-photo { height: 84px; margin-bottom: 8px; }
+.studio.app .side .insp-name { font-size: 16px; }
+/* 앱 배치인데 가로가 넉넉하면(태블릿·작은 PC 창) 서랍을 오른쪽에 세워서 3D 높이를 지킨다 */
+@media (min-width: 700px) {
+  .studio.app { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "head head" "stage dock"; }
+  .studio.app :is(.lib, .side) { max-height: none; }
+  .studio.app .lib { overflow-y: auto; overscroll-behavior: contain; }
+  .studio.app .sugg ul { flex-direction: column; overflow: visible; scroll-snap-type: none; }
+  .studio.app .sugg li { flex: none; }
+  .studio.app.lib-open .lib { position: static; max-height: none; box-shadow: var(--shadow-sheet); }
+  .studio.app .lib #lib { grid-template-columns: 1fr; }
+  .studio.app:not(.lib-open) .lib #lib { display: grid; max-height: none; overflow: visible; }
+  .studio.app .bot { right: calc(320px + 26px); }
+  .studio.app.lib-open::after { content: none; }
+  .studio.app.lib-open .bot { display: flex; }
+  .studio.app .side #insp .insp-photo { height: 140px; }
+}

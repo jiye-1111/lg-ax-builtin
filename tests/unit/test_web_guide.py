@@ -63,3 +63,14 @@ def test_first_visit_tour_with_haunie():
     assert "집 스캔이 끝났어요!" in REMODEL and "직접 체험해 볼까요?" in REMODEL
     assert "localStorage" in tour and "tour-hole" in tour
     assert "./js/tour.js" in (WEB / "sw.js").read_text(encoding="utf-8")
+
+
+def test_app_layout_for_phone_and_small_window():
+    """지예: 앱으로 열면 읽기 어렵고 안내가 안 맞는다 → 좁은 화면은 3D 꽉 차게, 제품은 서랍, 안내는 보이는 메뉴만."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    tour = (WEB / "js" / "tour.js").read_text(encoding="utf-8")
+    assert "APP_MAX_W" in REMODEL and 'classList.toggle("app"' in REMODEL
+    assert 'id="libMore"' in REMODEL and 'id="orderMini"' in REMODEL and 'id="extraBtn2"' in REMODEL
+    assert ".studio.app" in css and ".studio.app.has-sel .side" in css and ".studio.app.lib-open .lib" in css
+    assert "NARROW_W" in tour  # 좁은 화면은 말풍선을 화면 폭에 맞춰 밝힌 곳 위·아래에
+    assert '{ sel: "#libMore"' in REMODEL  # 앱 안내는 앱 화면에 있는 메뉴를 짚는다

@@ -4,6 +4,7 @@
 import { esc } from "./core.js";
 
 const SEEN_KEY = "lgb.tour.v1";
+const NARROW_W = 640; // 이보다 좁으면 말풍선을 화면 폭에 맞춘다
 
 export const tourSeen = () => { try { return localStorage.getItem(SEEN_KEY) === "1"; } catch { return true; } };
 const markSeen = () => { try { localStorage.setItem(SEEN_KEY, "1"); } catch { /* 저장 못 해도 안내는 끝낸다 */ } };
@@ -33,10 +34,19 @@ export function startTour(steps, { face = "", onEnd } = {}) {
     }
     const r = el.getBoundingClientRect(), pad = 6;
     Object.assign(hole.style, { left: `${r.left - pad}px`, top: `${r.top - pad}px`, width: `${r.width + pad * 2}px`, height: `${r.height + pad * 2}px` });
-    // 말풍선: 밝힌 곳 옆 빈 쪽으로 (오른쪽 → 왼쪽 → 아래 → 위)
-    const W = innerWidth, H = innerHeight, tw = Math.min(340, W - 24), th = tip.offsetHeight || 180, gap = 14;
+    // 말풍선: 밝힌 곳 옆 빈 쪽으로 (오른쪽 → 왼쪽 → 아래 → 위). 좁은 화면은 가로 꽉 채워 위·아래 넓은 쪽에
+    const W = innerWidth, H = innerHeight, narrow = W < NARROW_W, gap = 12;
+    const tw = narrow ? W - 24 : Math.min(340, W - 24);
+    tip.style.width = `${tw}px`;
+    const th = tip.offsetHeight || 180;
     let x, y;
-    if (r.right + gap + tw < W) { x = r.right + gap; y = r.top; }
+    if (narrow) {
+      x = 12;
+      if (r.bottom + gap + th < H - 12) y = r.bottom + gap;
+      else if (r.top - gap - th > 12) y = r.top - gap - th;
+      else y = r.top + r.height / 2 > H / 2 ? 12 : H - th - 12; // 밝힌 곳이 크면 그 반대쪽 끝에 겹쳐 둔다
+    }
+    else if (r.right + gap + tw < W) { x = r.right + gap; y = r.top; }
     else if (r.left - gap - tw > 0) { x = r.left - gap - tw; y = r.top; }
     else if (r.bottom + gap + th < H) { x = r.left; y = r.bottom + gap; }
     else { x = r.left; y = r.top - gap - th; }
