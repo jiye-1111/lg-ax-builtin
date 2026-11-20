@@ -10,7 +10,9 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
+import { WALK_SPEED, pathLength, poseAt, routeClock } from "./walker.js";
 import { dressRoom, furnish, shadowShell } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0xc98a00, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -18,7 +20,17 @@ const SELECT_HEX = 0xa50034;
 const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 // 바닥 텍스처용 SVG에는 페이지 CSS가 안 먹으므로 오버레이 스타일을 같이 넣는다 (style.css의 .plan 오버레이와 같은 색)
 const OVERLAY_CSS = `.sunpatch{fill:#ffd54a;fill-opacity:.55;stroke:#e0a800}.route{fill:none;stroke:#4b45b0;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.9}
-.narrow{fill:#b3261e;fill-opacity:.85}.router circle,.mark circle{fill:#fff;stroke:#1c2024}.router circle{stroke:#2a6fb0}text{font-family:sans-serif}`;
+.narrow{fill:none;stroke:#b3261e;stroke-opacity:.9}.tag rect{fill:#1c2024;fill-opacity:.82}.tag text{fill:#fff;font-weight:600}.router-sym rect{fill:#1c2024}.router-sym path{stroke:#1c2024}text{font-family:Pretendard,sans-serif}`;
+
+// 공유기·사람 모델 (Blender: build_router.py, build_person.py). 한 번만 받는다
+const assets = new Map();
+const loadAsset = (url) => {
+  if (!assets.has(url)) assets.set(url, new GLTFLoader().loadAsync(url).catch(() => null));
+  return assets.get(url);
+};
+const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walker.glb";
+const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
+const MAX_WALKERS = 4;
 
 // 제품 모델: 한 번 받아 두고 배치마다 복제한다 (화면을 바꿔도 다시 받지 않는다)
 const MODEL_DIR = "models/products/";
@@ -122,6 +134,16 @@ export function makeViewer(el, handlers = {}) {
   scene.add(products);
   const ghost = new THREE.Group();
   scene.add(ghost);
+  // 와이파이: 실제 크기 공유기 (집어 들어 옮기고 돌릴 수 있다)
+  const routerG = new THREE.Group();
+  routerG.visible = false;
+  routerG.userData.router = true;
+  scene.add(routerG);
+  let routerPose = null;
+  // 동선: 경로를 따라 걷는 사람
+  const walkersG = new THREE.Group();
+  scene.add(walkersG);
+  let walkers = [], walkersKey = "", walkersPaused = false;
 
   // 카메라 쪽 벽은 반투명으로 (돌하우스 컷어웨이)
   const cutaway = () => {
@@ -213,6 +235,7 @@ export function makeViewer(el, handlers = {}) {
       cutaway();
     }
     animateHeld();
+    stepWalkers(dt);
     stepSunFn?.(dt);
     composer.render();
     requestAnimationFrame(loop);
@@ -224,8 +247,23 @@ export function makeViewer(el, handlers = {}) {
   // 해는 목표(goal)로 바로 바뀌지 않고 매 프레임 조금씩 다가간다(약 0.2초 시정수).
   // 시간 슬라이더를 움직이거나 하루를 재생해도 방향·색·세기·하늘빛이 끊김 없이 이어진다.
   const DEFAULT_DIR = new THREE.Vector3(-0.6, 1.6, 0.8).normalize();
-  const goal = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
-  const cur = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
+  const goal = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi, env: 1 };
+  const cur = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi, env: 1 };
+  // 주변광(환경 반사) 세기. 실제 해일 때는 낮춘다: 가구·제품이 어디서나 똑같이 밝으면 볕이 닿은 면과 그늘이 구분되지 않는다.
+  // 재질마다 처음 값(baseEnv)을 기억해 두고 곱한다. 새로 들어온 물체도 다음 프레임에 맞춰진다.
+  let envApplied = -1, envCount = -1;
+  const applyEnv = (k) => {
+    let n = 0;
+    scene.traverse((o) => {
+      const m = o.isMesh && o.material;
+      if (!m || m.envMapIntensity === undefined) return;
+      n++;
+      if (m.userData.baseEnv === undefined) m.userData.baseEnv = m.envMapIntensity;
+      m.envMapIntensity = m.userData.baseEnv * k;
+    });
+    envApplied = k; envCount = n;
+  };
+  let envTick = 0;
   let snapSun = true;
   const placeSun = () => {
     sun.position.copy(roomC).addScaledVector(cur.dir, roomR * 2);
@@ -244,6 +282,10 @@ export function makeViewer(el, handlers = {}) {
     hemi.intensity = cur.hemi;
     sun.castShadow = cur.sun > 0.01;
     placeSun();
+    cur.env += (goal.env - cur.env) * k;
+    // 값이 바뀌었거나, 가끔(0.5초마다) 새로 들어온 물체가 있는지 보고 다시 맞춘다
+    envTick += dt;
+    if (Math.abs(cur.env - envApplied) > 0.01 || envTick > 0.5) { envTick = 0; applyEnv(cur.env); }
   };
   stepSunFn = stepSun;
   const applySun = (instant = false) => {
@@ -253,6 +295,7 @@ export function makeViewer(el, handlers = {}) {
       goal.color.set(STUDIO.color);
       goal.sun = STUDIO.intensity;
       goal.hemi = STUDIO.hemi;
+      goal.env = 1;
     } else {
       goal.dir.set(...realSun.direction).normalize();
       goal.color.set(realSun.color);
@@ -260,7 +303,8 @@ export function makeViewer(el, handlers = {}) {
       goal.sun = realSun.up ? 6.0 * realSun.intensity : 0;
       // 하늘빛: 해가 진 뒤에도 박명(sky)만큼 남았다가 서서히 어두워진다
       const sky = realSun.sky ?? (realSun.up ? 1 : 0);
-      goal.hemi = 0.1 + 0.12 * sky + 0.2 * Math.min(1, realSun.intensity * 1.4);
+      goal.hemi = 0.1 + 0.22 * sky + 0.24 * Math.min(1, realSun.intensity * 1.4);
+      goal.env = 0.08 + 0.3 * sky;
     }
     if (instant) snapSun = true;
   };
@@ -301,6 +345,7 @@ export function makeViewer(el, handlers = {}) {
   const LIFT = 0.12;
   const heldNodes = (item) => {
     if (item.kind === "placement") return products.children.filter((c) => c.userData.placementId === item.id);
+    if (item.kind === "router") return routerG.visible && routerG.children.length ? [routerG] : [];
     const out = [];
     model?.traverse((o) => {
       if (o.userData.objectId === item.id) out.push(o);                                    // Blender 가구 모델
@@ -416,12 +461,14 @@ export function makeViewer(el, handlers = {}) {
   const pick = (e) => {
     setNdc(e);
     const targets = [...products.children];
+    if (routerG.visible) targets.push(routerG);
     if (model) model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object" && o.visible) targets.push(o); });
     const hit = ray.intersectObjects(targets, true).find((h) => h.object.visible);
     if (!hit) return null;
     let o = hit.object;
-    while (o && !o.userData?.placementId && o.userData?.kind !== "object") o = o.parent;
+    while (o && !o.userData?.placementId && o.userData?.kind !== "object" && !o.userData?.router) o = o.parent;
     if (!o) return null;
+    if (o.userData.router) return { type: "router", id: "router" };
     if (o.userData.placementId) return { type: "placement", id: o.userData.placementId };
     return { type: "object", id: o.name };
   };
@@ -505,6 +552,33 @@ export function makeViewer(el, handlers = {}) {
     if (sku && p) handlers.onDropSku?.(sku, p);
   });
 
+  // ---------- 동선을 걷는 사람 ----------
+  const angleTo = (a, b) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
+  function stepWalkers(dt) {
+    if (walkersPaused) return;
+    for (const w of walkers) {
+      w.t += dt;
+      const { s, moving } = w.clock(w.t);
+      const p = poseAt(w.path, s);
+      w.node.position.set(p.xz[0], 0, p.xz[1]);
+      // 모퉁이에서 휙 돌지 않고 0.15초쯤에 걸쳐 돈다
+      w.heading += angleTo(w.heading, p.heading) * Math.min(1, dt / 0.15);
+      w.node.rotation.y = w.heading;
+      if (moving !== w.moving) {
+        w.moving = moving;
+        const [from, to] = moving ? [w.idle, w.walk] : [w.walk, w.idle];
+        to.reset().play();
+        from.crossFadeTo(to, 0.25, false);
+      }
+      w.mixer.update(dt);
+    }
+  }
+  const clearWalkers = () => {
+    for (const w of walkers) w.mixer.stopAllAction();
+    walkersG.clear();
+    walkers = [];
+  };
+
   const loader = new GLTFLoader();
   let finishSet = {};
   const api = {
@@ -556,6 +630,53 @@ export function makeViewer(el, handlers = {}) {
       const hex = VERDICT_HEX[verdict] ?? VERDICT_HEX.unknown;
       g.children.forEach((c) => { if (c.isLineSegments || c.userData.verdictPlate) c.material.color.setHex(hex); });
     },
+    /** 공유기 자리 {center_xz, yaw_rad}. null이면 숨긴다. 들고 있는 동안에는 자리를 덮지 않는다 */
+    setRouter(rt) {
+      routerPose = rt ? { xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0 } : null;
+      if (!rt) { if (held?.kind === "router") api.cancelHold(); routerG.visible = false; return; }
+      loadAsset(ROUTER_URL).then((g) => {
+        if (!g || !alive) return;
+        if (!routerG.children.length) {
+          const m = g.scene.clone(true);
+          m.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+          routerG.add(m);
+        }
+        if (!routerPose || held?.kind === "router") return;
+        routerG.position.set(routerPose.xz[0], 0, routerPose.xz[1]);
+        routerG.rotation.set(0, -routerPose.yaw, 0);
+        routerG.visible = true;
+      });
+    },
+    /** 동선 경로들([[x,y],...] 목록)을 사람이 하나씩 걷는다. 빈 목록이면 지운다 */
+    setWalkers(paths) {
+      const list = (paths || []).filter((p) => p?.length >= 2 && pathLength(p) > 0.3).slice(0, MAX_WALKERS);
+      const key = JSON.stringify(list);
+      if (key === walkersKey) return;
+      walkersKey = key;
+      clearWalkers();
+      if (!list.length) return;
+      loadAsset(PERSON_URL).then((g) => {
+        if (!g || !alive || walkersKey !== key) return;
+        const walkClip = g.animations.find((a) => a.name === "walk"), idleClip = g.animations.find((a) => a.name === "idle");
+        list.forEach((path, i) => {
+          const node = cloneSkinned(g.scene);
+          node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+          const mixer = new THREE.AnimationMixer(node);
+          const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
+          walk.timeScale = WALK_SPEED * walkClip.duration / STRIDE_M; // 발이 미끄러지지 않게 걸음 길이에 맞춘다
+          idle.play();
+          walkersG.add(node);
+          const len = pathLength(path);
+          walkers.push({ node, mixer, walk, idle, path, moving: false, heading: poseAt(path, 0).heading,
+            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.5 }), t: -i * 1.2 });
+        });
+      });
+    },
+    /** 걷는 사람 멈추기/다시 걷기 (화면 캡처용) */
+    pauseWalkers(on = true) { walkersPaused = !!on; },
+    /** 걷는 사람 (E2E 확인용) */
+    walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving })); },
+    routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], yaw: +(-routerG.rotation.y).toFixed(3) }; },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
     setOverlay(inner, box) {
       if (!inner || !box) { overlay.visible = false; return; }
@@ -718,7 +839,7 @@ export function makeViewer(el, handlers = {}) {
     setSun(s, { instant = false } = {}) { realSun = s && s.direction ? s : null; applySun(instant); },
     /** 지금 해 (E2E 확인용) */
     sunInfo() {
-      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, hemi: hemi.intensity, shell: !!shell?.visible,
+      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, hemi: hemi.intensity, env: +cur.env.toFixed(3), shell: !!shell?.visible,
         position: sun.position.toArray().map((v) => +v.toFixed(3)), target: sun.target.position.toArray().map((v) => +v.toFixed(3)) };
     },
     /** 접촉 그림자(GTAO) 켜고 끄기. 느린 PC용. mode: true | false | "debug"(AO 버퍼만 보기) */
@@ -727,7 +848,7 @@ export function makeViewer(el, handlers = {}) {
       gtao.output = mode === "debug" ? GTAOPass.OUTPUT.Denoise : GTAOPass.OUTPUT.Default;
       return gtao.enabled;
     },
-    dispose() { alive = false; ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
+    dispose() { alive = false; clearWalkers(); ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
   el.viewer = api;
   return api;

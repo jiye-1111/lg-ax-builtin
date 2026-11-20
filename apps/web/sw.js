@@ -1,14 +1,15 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v17"; // 제품 사진(우리 모델 렌더) + 채광 하루 재생
+const VERSION = "lgb-shell-v22"; // LGE.COM 전체 1,150종 + 단계별 옵션 필터, 채광·공유기·동선 3D
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
-  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js",
+  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js",
+  "./vendor/three/addons/utils/SkeletonUtils.js", "./models/devices/router.glb", "./models/people/walker.glb",
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",
@@ -29,11 +30,9 @@ const SHELL = [
 
 self.addEventListener("install", (e) => {
   // 브라우저 HTTP 캐시에 남은 옛 파일을 넣지 않게 서버에서 새로 받는다
-  // 제품 사진(img/products/<sku>.webp)은 모델 목록(index.json)에 있는 제품만큼 같이 받아 둔다 (오프라인 시연)
-  const photos = () => fetch("./models/products/index.json", { cache: "reload" }).then((r) => r.json())
-    .then((ix) => Object.keys(ix.models || {}).map((sku) => `./img/products/${sku}.webp`)).catch(() => []);
-  e.waitUntil(Promise.all([caches.open(VERSION), photos()])
-    .then(([c, imgs]) => Promise.allSettled([...SHELL, ...imgs].map((u) => c.add(new Request(u, { cache: "reload" })))))
+  // 제품 사진·모델은 1,000개가 넘어서 미리 받지 않고, 한 번 본 것만 아래 fetch에서 캐시해 둔다
+  e.waitUntil(caches.open(VERSION)
+    .then((c) => Promise.allSettled(SHELL.map((u) => c.add(new Request(u, { cache: "reload" })))))
     .then(() => self.skipWaiting()));
 });
 
@@ -47,6 +46,14 @@ self.addEventListener("fetch", (e) => {
   if (url.pathname.startsWith("/api/")) return; // 스캔·판정 데이터는 캐시하지 않음 (API가 다른 주소에 있어도)
   // 화면 파일: 네트워크 먼저 받아 캐시를 갱신하고, 끊기면 캐시로
   // 같은 서버 파일은 매번 서버에 바뀌었는지 묻는다(no-cache): 앱을 고친 뒤 옛 CSS·JS가 남지 않게
+  // 제품 사진(img/products/<sku>.webp)·모델(models/products/<sku>.glb): 캐시에 있으면 바로 (오프라인 시연)
+  if (url.origin === location.origin && /\/(img|models)\/products\/[^/]+\.(webp|glb)$/.test(url.pathname)) {
+    e.respondWith(caches.open(VERSION).then((c) => c.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
+      if (res.ok) c.put(e.request, res.clone());
+      return res;
+    }))));
+    return;
+  }
   const same = url.origin === location.origin && e.request.mode !== "navigate";
   e.respondWith(
     fetch(same ? new Request(e.request, { cache: "no-cache" }) : e.request)

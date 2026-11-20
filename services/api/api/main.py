@@ -321,12 +321,15 @@ class SiteIn(BaseModel):
     model_config = {"extra": "forbid"}
     north_deg: Optional[float] = None
     region: Optional[str] = None
+    address: Optional[str] = Field(default=None, max_length=200)
+    auto_north: bool = False
 
 
 class RouterIn(BaseModel):
     model_config = {"extra": "forbid"}
     center_xz: list[float] = Field(min_length=2, max_length=2)
     band: str = "5"
+    yaw_rad: float | None = None
 
 
 class HiddenIn(BaseModel):
@@ -489,7 +492,7 @@ def delete_placement(pid: str, plid: str, s: Service = S):
 
 @app.put("/api/projects/{pid}/site")
 def set_site(pid: str, body: SiteIn, s: Service = S):
-    return s.set_site(pid, body.north_deg, body.region)
+    return s.set_site(pid, body.north_deg, body.region, body.address, body.auto_north)
 
 
 @app.get("/api/projects/{pid}/sim/daylight")
@@ -499,7 +502,7 @@ def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = Tr
 
 @app.put("/api/projects/{pid}/router")
 def set_router(pid: str, body: RouterIn, s: Service = S):
-    return s.set_router(pid, body.center_xz, body.band)
+    return s.set_router(pid, body.center_xz, body.band, body.yaw_rad)
 
 
 @app.get("/api/projects/{pid}/sim/wifi")
