@@ -234,6 +234,8 @@ def test_plan_words_the_ai_adds_to_names_are_removed():
     idea = Idea(name="따뜻한 미니멀 (target)", why="x", tips=[], palette=["#FFFFFF"], materials=[],
                 furniture=[Slot(kind="bed", role="anchor")], price_plan="target", appliance_point="x")
     assert idea.name == "따뜻한 미니멀"
+    assert idea.model_validate({**idea.model_dump(), "name": "세이브(절약형): 미니멀 빛 공간"}).name == "미니멀 빛 공간"
+    assert idea.model_validate({**idea.model_dump(), "name": "호텔: 스위트"}).name == "호텔: 스위트"
     assert len(Ideas(purpose="living", ideas=[], seen="가" * 120).seen) <= 40
     long = "밝고 화사한 베이지 톤의 미니멀한 주방 공간, 큰 창으로 채광이 풍부하고 우측에 빌트인 냉장고"
     assert Ideas(purpose="kitchen", ideas=[], seen=long).seen == "밝고 화사한 베이지 톤의 미니멀한 주방 공간"
