@@ -2,7 +2,19 @@
 export function setupInstall() {
   const btn = document.getElementById("install");
   if ("serviceWorker" in navigator && window.isSecureContext) {
-    navigator.serviceWorker.register("./sw.js").catch(() => {});
+    // 새 버전이 배포되면 새로 고침 없이 알아서 바뀌게: 서비스 워커를 자주 확인하고, 바뀌면 한 번 다시 읽는다
+    const hadController = !!navigator.serviceWorker.controller;
+    let reloading = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!hadController || reloading) return;
+      reloading = true;
+      location.reload();
+    });
+    navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" }).then((reg) => {
+      const check = () => reg.update().catch(() => {});
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") check(); });
+      setInterval(check, 60 * 1000);
+    }).catch(() => {});
   }
   const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
   if (!btn || standalone) return;
