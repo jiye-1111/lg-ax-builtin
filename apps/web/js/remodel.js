@@ -31,11 +31,11 @@ export async function customer(pid) {
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품 놓기·옮기기">놓기·옮기기</button><button data-mode="rect" title="사각형 영역 그리기">영역 □</button><button data-mode="poly" title="다각형 영역 그리기">영역 ⬠</button></div>
           <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 치우기</button>
-          <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)">👀 둘러보기</button>
+          <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>둘러보기</button>
           <span class="spacer"></span>
           <div class="seg sims" role="group" aria-label="살아 보기">
             <span class="seg-label">살아 보기</span>
-            <button data-sim="" class="on">끄기</button><button data-sim="daylight">☀ 채광</button><button data-sim="wifi">📶 와이파이</button><button data-sim="flow">🚶 동선</button></div>
+            <button data-sim="" class="on">끄기</button><button data-sim="daylight"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>채광</button><button data-sim="wifi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg>와이파이</button><button data-sim="flow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="13" cy="4" r="2"/><path d="m9 21 2.5-6.5L14 17v4M7 11l3-3.5h4l2.5 4.5M10.5 7.5 9 14"/></svg>동선</button></div>
         </div>
         <div class="canvas">
           <div class="pane plan-pane"><svg class="plan" id="plan" aria-label="평면도"></svg>
@@ -124,7 +124,7 @@ export async function customer(pid) {
     const b = document.getElementById("walk");
     b.classList.toggle("on", walking);
     studio.classList.toggle("walking", walking);
-    b.textContent = walking ? "둘러보기 끝내기" : "👀 둘러보기";
+    b.innerHTML = walking ? "둘러보기 끝내기" : `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>둘러보기`;
     setHint();
     if (walking) document.getElementById("hint").textContent = "둘러보기: 화면을 누르면 마우스로 둘러봐요 · W A S D 걷기 · Shift 빠르게 · Esc 마우스 풀기 · 벽·가구·제품은 못 지나가요";
   };

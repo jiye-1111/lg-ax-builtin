@@ -6,30 +6,40 @@ import { planView } from "./plan.js";
 export async function selfScan() {
   const last = lastHome();
   $app.innerHTML = `
-    ${last ? `<div class="resume" id="resume"><div><b>꾸미던 집이 그대로 있어요</b><span class="muted">${esc(last.pid)} · 놓은 제품과 보던 화면이 저장돼 있어요</span></div>
-      <a class="btn" href="${esc(homeHref(last))}">이어서 꾸미기</a></div>` : ""}
-    <section class="hero">
-      <div class="hero-copy">
-        <h1>스캔한 우리 집에<br>LG 빌트인을 놓아 보세요</h1>
-        <p class="lede">아이폰 LiDAR로 찍은 집이 그대로 3D 평면이 됩니다. 냉장고·식기세척기를 원하는 자리에 놓으면
-          들어가는지, 문이 열리는지 바로 판정하고, 볕 드는 시간과 와이파이, 다니는 길까지 함께 보여 줍니다.</p>
-        <ol class="steps">
-          <li><b>스캔</b><span>UGScan 앱 RoomPlan 모드로 방을 천천히 한 바퀴 찍어요.</span></li>
-          <li><b>올리기</b><span>USDZ로 내보낸 파일을 파일 칸에 올려요. 도면은 있으면 함께.</span></li>
-          <li><b>놓아 보기</b><span>제품을 고르고 평면을 눌러 자리를 잡아요.</span></li>
-        </ol>
-      </div>
-      <div class="hero-stage">
-        ${heroPlan()}
-        <div class="upload">
-          <div class="drop big" id="drop" role="button" tabindex="0" aria-label="USDZ 파일 선택">
-            <b>USDZ 파일을 끌어다 놓거나 눌러서 선택</b><span class="muted">UGScan · RoomPlan 내보내기</span>
-            <input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
-          <label class="fp-pick"><span>도면 함께 올리기 <em>선택</em></span><input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf"></label>
-          <div class="row upload-foot"><button class="primary" id="sample">샘플 집으로 체험하기</button>
-            <span class="spacer"></span><a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a></div>
+    <section class="hero" aria-labelledby="heroH">
+      <picture class="hero-bg">
+        <source media="(max-width: 760px)" srcset="img/hero-kitchen-m.webp">
+        <img src="img/hero-kitchen.webp" alt="창으로 햇빛이 드는 주방에 LG 디오스 오브제컬렉션 냉장고·김치냉장고·식기세척기가 빌트인으로 들어간 3D 렌더" fetchpriority="high">
+      </picture>
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <p class="eyebrow"><i aria-hidden="true"></i>LiDAR 셀프 스캔으로 시작하는 가상 리모델링</p>
+          <h1 id="heroH">스캔한 우리 집에<br>LG 빌트인을 미리.</h1>
+          <p class="lede">아이폰으로 찍은 집이 그대로 3D가 됩니다. 냉장고와 식기세척기를 원하는 자리에 놓아 보고,
+            들어가는지, 문이 열리는지, 볕과 와이파이, 다니는 길까지 살기 전에 확인하세요.</p>
+          <div class="cta">
+            <button class="primary lg" id="sample">샘플 집으로 체험하기</button>
+            <button class="ghost lg" id="pick">내 스캔 파일 올리기</button>
+          </div>
+          ${last ? `<a class="resume" id="resume" href="${esc(homeHref(last))}"><span><b>꾸미던 집 이어서 꾸미기</b>
+            <span class="muted">${esc(last.pid)} · 놓은 제품과 보던 화면이 그대로 있어요</span></span></a>` : ""}
+        </div>
+        <div class="hero-dock">
+          <ol class="steps">
+            <li><b>스캔</b><span>UGScan 앱 RoomPlan 모드로 방을 천천히 한 바퀴</span></li>
+            <li><b>올리기</b><span>USDZ로 내보내 여기에 끌어다 놓기</span></li>
+            <li><b>놓아 보기</b><span>LG 제품을 골라 3D 바닥에 놓기</span></li>
+          </ol>
+          <div class="upload">
+            <div class="drop big" id="drop" role="button" tabindex="0" aria-label="USDZ 파일 선택">
+              <b>USDZ 파일을 끌어다 놓거나 눌러서 선택</b><span class="muted">UGScan · RoomPlan 내보내기</span>
+              <input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
+            <label class="fp-pick"><span>도면 함께 올리기 <em>선택</em></span><input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf"></label>
+            <a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a>
+          </div>
         </div>
       </div>
+      <p class="hero-cap">실제 LGE.COM 치수로 만든 3D 모델을 Blender로 렌더한 장면이에요</p>
     </section>
     <section class="recent" aria-labelledby="recentH">
       <h2 id="recentH">최근에 만든 집</h2>
@@ -49,6 +59,7 @@ export async function selfScan() {
     } catch (e) { drop.innerHTML = "<b>다시 시도해 주세요</b><br><span class='muted'>USDZ 파일인지 확인해 주세요</span>"; throw e; }
   });
   drop.onclick = () => file.click();
+  document.getElementById("pick").onclick = () => file.click();
   drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
   file.onchange = () => file.files[0] && send(file.files[0], file.files[0].name);
   drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
@@ -191,6 +202,7 @@ export async function technicianHome() {
     } catch (e) { drop.textContent = "다시 시도하세요"; throw e; }
   });
   drop.onclick = () => file.click();
+  document.getElementById("pick").onclick = () => file.click();
   file.onchange = () => file.files[0] && send(file.files[0], file.files[0].name);
   drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");
@@ -233,22 +245,4 @@ export async function technician(pid) {
     document.getElementById("hud").textContent = "드래그 회전 · 휠 확대";
   };
   await guard(load)();
-}
-
-// 첫 화면 그림: 스캔 평면 위에 제품을 놓는 장면 (치수선 포함)
-function heroPlan() {
-  return `<svg class="hero-plan" viewBox="0 0 520 380" role="img" aria-label="스캔한 평면에 냉장고를 놓은 예시">
-    <defs><pattern id="hg" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="var(--grid)" stroke-width="1"/></pattern></defs>
-    <rect width="520" height="380" fill="url(#hg)"/>
-    <path class="hp-wall" d="M60 60 H460 V250 H300 V330 H60 Z"/>
-    <path class="hp-window" d="M150 60 H270"/><path class="hp-door" d="M300 290 V330"/>
-    <path class="hp-swing" d="M300 290 A40 40 0 0 1 340 330"/>
-    <rect class="hp-obj" x="330" y="150" width="90" height="60" rx="3"/>
-    <rect class="hp-fit" x="72" y="72" width="70" height="66" rx="3"/>
-    <path class="hp-front" d="M72 138 H142"/>
-    <rect class="hp-ghost" x="152" y="72" width="60" height="62" rx="3"/>
-    <path class="hp-dim" d="M72 50 H142 M72 44 V56 M142 44 V56"/>
-    <text class="hp-label" x="107" y="40" text-anchor="middle">제품 폭</text>
-    <text class="hp-tag" x="80" y="160">적합</text>
-  </svg>`;
 }

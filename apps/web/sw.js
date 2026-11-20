@@ -1,9 +1,10 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v9"; // 모델별 색·재질, 미니맵, 내 집 기억, API 주소 설정(config.js)
+const VERSION = "lgb-shell-v10"; // LG 톤 리디자인: Pretendard, 첫 화면 렌더 배경
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
+  "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",

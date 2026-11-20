@@ -49,7 +49,7 @@ export function makeViewer(el, handlers = {}) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   el.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color("#f3f5f1"); // OutputPass 톤 매핑 뒤 예전 #e4e6e2 정도로 보인다
+  scene.background = new THREE.Color("#ffe6c4"); // 톤 매핑을 거치면 따뜻한 회색(#e1d8ca 정도)으로 보인다
   // 실내 반사(유리·메탈 앞판이 살아 보이게) + 부드러운 하늘빛 + 그림자 내는 해
   const pmrem = new THREE.PMREMGenerator(renderer);
   const envTex = pmrem.fromScene(new RoomEnvironment(renderer), 0.04).texture;
