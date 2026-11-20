@@ -1,0 +1,19 @@
+{
+ "sku": "BEF3ASMLE",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/bef3asml.akor_2p.jpg (가로 575, 세로 515, 두께 59). 검정 글라스 상판, 화구 표시 선 3개(왼쪽 와이드존 앞·뒤, 오른쪽), 앞쪽 터치 조작부. 위치는 사진 비율 근사값",
+ "colors": {
+  "top": {
+   "name": "무광블랙",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#D9D9D6",
+   "from": "치수도 이미지 하우징이 밝은 회색"
+  }
+ },
+ "geometry_from": "BEF3AMB4E"
+}
