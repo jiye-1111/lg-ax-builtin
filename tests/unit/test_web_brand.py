@@ -53,3 +53,14 @@ def test_home_keeps_upload_controls():
     js = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
     for el in ('id="drop"', 'id="file"', 'id="fp"', 'id="sample"', 'id="projects"'):
         assert el in js
+
+
+def test_remodel_is_simple():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    # 조작키는 버튼으로 여는 별도 창
+    assert 'id="keysBtn"' in js and 'id="keysPop"' in js
+    # 기호 대신 말로: 네모 영역 / 자유 영역
+    assert "영역 □" not in js and "영역 ⬠" not in js
+    assert "네모 영역" in js and "자유 영역" in js
+    # 제품 목록은 오른쪽 탭이 아니라 아래 서랍 하나
+    assert 'data-tab="lib"' not in js
