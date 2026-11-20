@@ -77,3 +77,14 @@ def test_other_categories_get_their_own_axes():
     assert [s["key"] for s in run("tv", {})["steps"]][:2] == ["kind", "screen_cm"]
     assert "capacity" in [s["key"] for s in run("dishwasher", {})["steps"]]
     assert "kind" in [s["key"] for s in run("air_conditioner", {})["steps"]]
+
+
+def test_price_band_step_uses_lgecom_price():
+    out = run("refrigerator", {})
+    price = next((s for s in out["steps"] if s["key"] == "price"), None)
+    assert price is not None and price["label"] == "가격대"
+    labels = [v["label"] for v in price["values"]]
+    assert all("만 원" in l for l in labels)
+    pick = labels[0]
+    narrowed = run("refrigerator", {"price": pick})
+    assert narrowed["sel"]["price"] == pick and narrowed["skus"]

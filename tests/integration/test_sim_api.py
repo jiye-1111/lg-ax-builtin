@@ -144,3 +144,21 @@ def test_router_keeps_yaw_when_moved(c, pid):
     assert r.json()["scene_state"]["router"]["yaw_rad"] == pytest.approx(1.2)
     rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.0, 2.5], "band": "5"}).json()["scene_state"]["router"]
     assert rt["center_xz"] == [-4.0, 2.5] and rt["yaw_rad"] == pytest.approx(1.2)
+
+
+def test_life_check_tells_sun_and_wifi_at_each_product(c, pid):
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": "G646GBB031", "center_xz": [0.5, -6.2], "yaw_rad": 1.57}).json()["placement"]
+    # 북쪽을 안 정했으면 큰 창 기준으로 추정해서 계산하고(저장은 안 함), 공유기가 없으면 이유만 알려 준다
+    r = c.get(f"/api/projects/{pid}/life-check")
+    assert r.status_code == 200, r.text
+    it = r.json()["items"][pl["placement_id"]]
+    assert it["daylight"]["estimated"] is True and "추정" in it["daylight"]["label"]
+    assert (c.get(f"/api/projects/{pid}").json().get("site") or {}).get("north_deg") is None
+    assert it["wifi"]["status"] == "unknown" and "공유기" in it["wifi"]["label"]
+    c.put(f"/api/projects/{pid}/site", json={"north_deg": 0, "region": "서울"})
+    spot = c.get(f"/api/projects/{pid}/sim/wifi/best", params={"band": "2.4"}).json()["center_xz"]
+    c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "2.4"})
+    it = c.get(f"/api/projects/{pid}/life-check", params={"date": "2026-12-21"}).json()["items"][pl["placement_id"]]
+    assert it["daylight"]["status"] in {"ok", "warn"} and isinstance(it["daylight"]["hours"], float) and not it["daylight"]["estimated"]
+    assert it["wifi"]["status"] in {"ok", "warn"} and it["wifi"]["grade"] in {"good", "ok", "weak"}
+    assert c.get(f"/api/projects/{pid}/life-check", params={"date": "어제"}).status_code == 422

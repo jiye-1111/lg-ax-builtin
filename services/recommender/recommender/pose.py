@@ -18,7 +18,7 @@ from typing import Iterable, Optional, Sequence
 from core.models import Product, Room, Wall
 
 from . import geometry as g
-from .fit import FitConfig, Verdict, front_space, worst
+from .fit import DOOR_CATEGORIES, FitConfig, Verdict, front_space, worst
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -41,6 +41,7 @@ LABELS = {
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
+    "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
 }
 
 
@@ -197,6 +198,12 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     front_mm, front_assumed = front_space(product, cfg)
     # 문 열림 공간: 본체 앞면부터 문 열림 깊이만큼 (본체 폭)
     D = None if front_mm is None else rect(c, yaw, w_m, d_m, back=-d_m, front=front_mm / 1000)
+    # 통행 공간: 문 열림 공간(빌트인은 본체 앞면) 앞으로 사람이 지나갈 통로. 일반 기준값이라 걸려도 조건부
+    P = None
+    if product.category in DOOR_CATEGORIES and cfg.passage_mm > 0:
+        start = (front_mm or 0) / 1000
+        P = rect(c, yaw, w_m, d_m, back=-(d_m + start), front=start + cfg.passage_mm / 1000)
+    passage_ref = None
 
     if not inside_room(room, c):
         add("outside_room", Verdict.NO_FIT)
@@ -220,6 +227,11 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             add("front_blocked", Verdict.NO_FIT, ref)
         elif overlaps(M, poly):
             add("tight", Verdict.CONDITIONAL, ref)
+        elif P is not None and passage_ref is None and overlaps(P, poly):
+            passage_ref = ref
+    if passage_ref is not None and not any(r["code"] == "front_blocked" for r in reasons):
+        add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
+            label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")
 
     # 천장: 가장 가까운 벽 높이
     if room.walls:
@@ -271,3 +283,40 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("scan_based", Verdict.CONDITIONAL)
     v = worst(verdicts) if verdicts else Verdict.FIT
     return PoseResult(v, pose, reasons, F, R, (w_m, h_m, d_m))
+
+
+# ---------- 알맞은 자리 찾기 ----------
+_RANK = {Verdict.FIT: 0, Verdict.CONDITIONAL: 1, Verdict.UNKNOWN: 2, Verdict.NO_FIT: 3}
+
+
+def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others: Iterable[dict] = (),
+              hidden: Iterable[str] = (), step_m: float = 0.1) -> Optional[PoseResult]:
+    """벽을 따라 step_m 간격으로 등을 붙여 놓아 보고 가장 잘 들어가는 자리를 고른다.
+    적합 > 조건부 순, 같으면 걸리는 이유가 적은 곳, 그다음 벽 가운데에 가까운 곳. 어디에도 안 들어가면 None."""
+    cfg = cfg or FitConfig()
+    size = product_size(product)
+    if size is None or not room.walls:
+        return None
+    others, hidden = list(others), list(hidden)
+    w_m, _, d_m = size
+    side, back, _, _ = _clear(product)
+    margin = cfg.margin_scanned_mm / 1000
+    best, best_key = None, None
+    for wall in room.walls:
+        f = _inward(room, wall)
+        half = w_m / 2 + side + margin
+        if f.length < 2 * half:
+            continue
+        nx, ny = f.v_axis
+        v = _thick(wall) / 2 + back + margin + d_m / 2
+        n = int((f.length - 2 * half) / step_m) + 1
+        for i in range(n):
+            u = half + i * step_m
+            pose = Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
+            r = check_pose(room, product, pose, cfg, others=others, hidden=hidden)
+            if r.verdict == Verdict.NO_FIT:
+                continue
+            key = (_RANK[r.verdict], len(r.reasons), abs(u - f.length / 2))
+            if best_key is None or key < best_key:
+                best, best_key = r, key
+    return best

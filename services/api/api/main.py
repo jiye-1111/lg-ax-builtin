@@ -476,6 +476,33 @@ def place(pid: str, body: PlaceIn, s: Service = S):
     return s.place_product(pid, body.zone_id, body.sku, body.color)
 
 
+class AutoPlaceIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    sku: str
+    color: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/auto-place")
+def auto_place(pid: str, body: AutoPlaceIn, s: Service = S):
+    return s.auto_place(pid, body.sku, body.color)
+
+
+@app.post("/api/projects/{pid}/placements/{plid}/auto-align")
+def auto_align(pid: str, plid: str, s: Service = S):
+    return s.auto_align(pid, plid)
+
+
+class SuggestIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    skus: list[str] = Field(max_length=60)
+    limit: int = Field(default=3, ge=1, le=10)
+
+
+@app.post("/api/projects/{pid}/suggest")
+def suggest(pid: str, body: SuggestIn, s: Service = S):
+    return s.suggest(pid, body.skus, body.limit)
+
+
 @app.post("/api/projects/{pid}/pose-check")
 def pose_check(pid: str, body: PoseIn, s: Service = S):
     return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id)
@@ -531,6 +558,11 @@ def set_mark(pid: str, name: str, body: MarkIn, s: Service = S):
 @app.delete("/api/projects/{pid}/marks/{name}")
 def del_mark(pid: str, name: str, s: Service = S):
     return s.set_mark(pid, name, None)
+
+
+@app.get("/api/projects/{pid}/life-check")
+def life_check(pid: str, date: Optional[str] = None, s: Service = S):
+    return s.life_check(pid, date)
 
 
 @app.get("/api/projects/{pid}/sim/flow")

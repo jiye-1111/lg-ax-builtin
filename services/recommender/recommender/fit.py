@@ -38,6 +38,7 @@ class FitConfig:
     snap_m: float = 0.3  # 자유 배치: 이 거리 안의 벽에 제품 등을 붙인다
     scanned_max_conditional: bool = False  # True면 스캔값만으로는 조건부까지만 (기획 초안 규칙)
     front_default_mm: float = 600.0  # 일반 가전의 문 열림 공간을 모를 때 가정하는 앞 공간
+    passage_mm: float = 600.0  # 문을 연 앞으로 사람이 지나갈 통로 (0이면 보지 않음)
 
     @classmethod
     def from_env(cls) -> "FitConfig":
@@ -47,6 +48,7 @@ class FitConfig:
             snap_m=float(os.getenv("FIT_SNAP_M", 0.3)),
             scanned_max_conditional=os.getenv("FIT_SCANNED_MAX_CONDITIONAL", "0") == "1",
             front_default_mm=float(os.getenv("FIT_FRONT_DEFAULT_MM", 600)),
+            passage_mm=float(os.getenv("FIT_PASSAGE_MM", 600)),
         )
 
 
