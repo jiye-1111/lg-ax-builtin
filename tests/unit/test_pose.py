@@ -156,7 +156,8 @@ def test_freestanding_door_space_blocked_is_no_fit():
 
 def test_built_in_ignores_front_door_space():
     r = check_pose(room(objects=[TABLE]), washer(install="built_in"), AT_WALL, CFG)
-    assert "front_blocked" not in codes(r) and r.verdict == Verdict.FIT
+    # 문 열림 공간은 안 보지만, 바로 앞 탁자는 통로를 막으니 조건부로 알린다
+    assert "front_blocked" not in codes(r) and codes(r) == {"passage_narrow"} and r.verdict == Verdict.CONDITIONAL
 
 
 def test_freestanding_door_space_unknown_uses_default_and_is_conditional():
@@ -192,3 +193,35 @@ def test_widest_door_decides_entry():
 def test_no_scanned_door_skips_entry_check():
     r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG)
     assert "entry_narrow" not in codes(r)
+
+
+# ---- 통행 공간: 문 열림 공간 앞으로 사람이 지나갈 통로 ----
+def test_passage_free_is_fit():
+    r = check_pose(room(), washer(), AT_WALL, CFG)  # 앞면 y=0.96, 통로 끝 0.96+0.58+0.6=2.14 < 벽 2.95
+    assert "passage_narrow" not in codes(r)
+
+
+def test_furniture_in_passage_is_conditional():
+    # 문 열림 공간(~1.54) 뒤, 통로(1.54~2.14) 안에 탁자
+    t = RoomObject(object_id="t2", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.3), position=(2.0, 0.375, 1.9))
+    r = check_pose(room(objects=[t]), washer(), AT_WALL, CFG)
+    assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"passage_narrow"}
+    assert r.reasons[0]["ref"] == "t2"
+
+
+def test_passage_reported_once_and_not_when_door_space_blocked():
+    r = check_pose(room(objects=[TABLE]), washer(), AT_WALL, CFG)  # 문 열림 공간이 이미 막힘
+    assert "front_blocked" in codes(r) and "passage_narrow" not in codes(r)
+
+
+def test_built_in_checks_passage_from_front_face():
+    # 빌트인은 문 열림 공간을 따로 안 보지만, 앞 통로는 본다 (앞면 0.96 ~ 1.56)
+    t = RoomObject(object_id="t3", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.3), position=(2.0, 0.375, 1.3))
+    r = check_pose(room(objects=[t]), washer(install="built_in"), AT_WALL, CFG)
+    assert codes(r) == {"passage_narrow"}
+
+
+def test_doorless_products_skip_passage():
+    t = RoomObject(object_id="t3", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.3), position=(2.0, 0.375, 1.3))
+    r = check_pose(room(objects=[t]), washer(door=None, category="tv"), AT_WALL, CFG)
+    assert "passage_narrow" not in codes(r)

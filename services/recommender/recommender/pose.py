@@ -18,7 +18,7 @@ from typing import Iterable, Optional, Sequence
 from core.models import Product, Room, Wall
 
 from . import geometry as g
-from .fit import FitConfig, Verdict, front_space, worst
+from .fit import DOOR_CATEGORIES, FitConfig, Verdict, front_space, worst
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -41,6 +41,7 @@ LABELS = {
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
+    "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
 }
 
 
@@ -197,6 +198,12 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     front_mm, front_assumed = front_space(product, cfg)
     # 문 열림 공간: 본체 앞면부터 문 열림 깊이만큼 (본체 폭)
     D = None if front_mm is None else rect(c, yaw, w_m, d_m, back=-d_m, front=front_mm / 1000)
+    # 통행 공간: 문 열림 공간(빌트인은 본체 앞면) 앞으로 사람이 지나갈 통로. 일반 기준값이라 걸려도 조건부
+    P = None
+    if product.category in DOOR_CATEGORIES and cfg.passage_mm > 0:
+        start = (front_mm or 0) / 1000
+        P = rect(c, yaw, w_m, d_m, back=-(d_m + start), front=start + cfg.passage_mm / 1000)
+    passage_ref = None
 
     if not inside_room(room, c):
         add("outside_room", Verdict.NO_FIT)
@@ -220,6 +227,11 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             add("front_blocked", Verdict.NO_FIT, ref)
         elif overlaps(M, poly):
             add("tight", Verdict.CONDITIONAL, ref)
+        elif P is not None and passage_ref is None and overlaps(P, poly):
+            passage_ref = ref
+    if passage_ref is not None and not any(r["code"] == "front_blocked" for r in reasons):
+        add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
+            label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")
 
     # 천장: 가장 가까운 벽 높이
     if room.walls:

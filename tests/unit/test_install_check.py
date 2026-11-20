@@ -113,3 +113,8 @@ def test_unknown_sku_is_skipped():
     def get(sku):
         raise KeyError(sku)
     assert install_checklist(room(), [placement()], get)["items"] == []
+
+
+def test_narrow_passage_gets_its_own_line():
+    it = run(placement("conditional", [reason("passage_narrow", "t1")]))["items"][0]
+    assert check(it, "passage")["status"] == "check" and check(it, "space")["status"] == "ok"

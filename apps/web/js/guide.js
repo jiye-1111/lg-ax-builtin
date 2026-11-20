@@ -36,6 +36,7 @@ export function stepperHtml(steps) {
 const GROUPS = [
   { label: "제품 본체 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement"] },
   { label: "제품 문 여는 공간", codes: ["front_blocked"] },
+  { label: "통행 공간", codes: ["passage_narrow"] },
   { label: "방문 여닫이", codes: ["door_blocked", "door_swing_assumed"] },
   { label: "방으로 들여오는 길", codes: ["entry_narrow"], optional: true }, // 걸릴 때만 줄을 보인다
   { label: "창 가림", codes: ["covers_window"] },
