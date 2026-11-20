@@ -534,6 +534,42 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .furn-btn { display: inline-flex; align-items: center; }
 .studio-title h1 { font-size: 24px; letter-spacing: -.035em; }
 
+/* ---- 마감재: 말로 꾸미기(AI) + 실제 벽지·바닥재 카드 ---- */
+.badge.ai { color: var(--lg); background: var(--lg-soft); }
+.ai-box { background: var(--drafting); border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px; }
+.ai-box h3 { margin-top: 0; }
+.ai-box textarea { width: 100%; resize: vertical; min-height: 64px; font: inherit; font-size: var(--t-sm); }
+.ai-box .ai-ex { margin: 8px 0 10px; }
+.ai-box #aiGo { width: 100%; }
+.ai-out { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.ai-out .ai-sum { margin: 0 0 8px; font-size: var(--t-sm); line-height: 1.55; }
+.ai-out h4 { margin: 12px 0 6px; font-size: var(--t-xs); color: var(--graphite); font-weight: 600; }
+.ai-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ai-list li { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; font-size: var(--t-xs); }
+.ai-list img { border-radius: 8px; border: 1px solid rgba(0, 0, 0, .08); }
+.ai-list .why { display: block; margin-top: 2px; line-height: 1.4; }
+#aiToRecs { margin-top: 12px; width: 100%; }
+.fin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.fin { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.fin.on { border-color: var(--lg); box-shadow: 0 0 0 1px var(--lg); }
+.fin-pick { position: relative; padding: 0; border: 0; border-radius: 0; background: var(--drafting); display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; }
+.fin-pick:hover { background: var(--drafting); transform: none; }
+.fin-pick img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease; }
+.fin-pick:hover img { transform: scale(1.04); }
+.fin-pick .tex { position: absolute; left: 6px; top: 6px; font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, .88); color: var(--ink); padding: 1px 7px; border-radius: 999px; }
+.fin-pick .chk { position: absolute; right: 6px; top: 6px; font-size: 11px; font-weight: 700; background: var(--lg); color: #fff; padding: 1px 7px; border-radius: 999px; }
+.fin-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; font-size: var(--t-xs); line-height: 1.4; }
+.fin-body b { font-size: 13px; }
+.fin-tones { display: flex; gap: 4px; margin: 3px 0; }
+.fin-tones .vsw { width: 22px; height: 22px; padding: 2px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); display: inline-grid; place-items: center; }
+.fin-tones .vsw i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .12); display: block; }
+.fin-tones .vsw:hover { border-color: var(--ink); background: var(--sheet); }
+.fin-tones .vsw.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.fin-trend { color: var(--graphite); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fin-src { color: var(--graphite); font-size: 11px; text-decoration: underline; text-underline-offset: 2px; }
+.fin-note { margin-top: 10px; }
+details > summary { cursor: pointer; font-size: var(--t-sm); font-weight: 600; padding: 4px 0; }
+
 /* ---------- 계정: 상단 버튼·메뉴 ---------- */
 .acct { position: relative; }
 .acct-btn { background: var(--sheet); color: var(--ink); border-color: var(--line); padding: 7px 14px; font-size: var(--t-sm); white-space: nowrap; }

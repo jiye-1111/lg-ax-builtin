@@ -27,6 +27,9 @@
 | GET/POST | `/api/projects/{pid}/zones` | 영역 F5 `{purpose, polygon_m, wall_ids?, name?}` |
 | PATCH/DELETE | `/api/projects/{pid}/zones/{zid}` | 영역 수정·삭제 |
 | PUT | `/api/projects/{pid}/style` | 스타일 F6 `{prompt?, palette?, materials?, zone_id?}` |
+| POST | `/api/projects/{pid}/style/ai` | 말로 꾸미기 `{prompt, zone_id?, apply_finishes?}` → 스타일 저장 + 벽지·바닥재 추천·적용 (`finishes.md`) |
+| GET | `/api/finishes` | 2026 트렌드 실제 벽지·바닥재 목록 |
+| POST | `/api/projects/{pid}/finishes` | 벽지·바닥재 적용 `{finish_id, tone?}` |
 | POST | `/api/projects/{pid}/materials` | 재질 F7 `{target, hex_color, finish?, wall_id?}` |
 | POST/DELETE | `/api/projects/{pid}/placements` | 배치 미리보기 `{zone_id, sku, color?}` |
 | POST | `/api/projects/{pid}/render` | 렌더 PNG |

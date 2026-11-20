@@ -432,6 +432,32 @@ def set_style(pid: str, body: StyleIn, s: Service = S):
     return s.set_style(pid, body.prompt, body.palette, body.materials, body.zone_id)
 
 
+class FinishIn(BaseModel):
+    finish_id: str = Field(min_length=1, max_length=64)
+    tone: Optional[str] = Field(default=None, pattern=r"^#[0-9A-Fa-f]{6}$")
+
+
+class AiStyleIn(BaseModel):
+    prompt: str = Field(max_length=500)
+    zone_id: Optional[str] = None
+    apply_finishes: bool = True
+
+
+@app.get("/api/finishes")
+def finishes(s: Service = S):
+    return {"finishes": [f.model_dump() for f in s.finishes]}
+
+
+@app.post("/api/projects/{pid}/finishes")
+def apply_finish(pid: str, body: FinishIn, s: Service = S):
+    return s.apply_finish(pid, body.finish_id, body.tone)
+
+
+@app.post("/api/projects/{pid}/style/ai")
+def ai_style(pid: str, body: AiStyleIn, s: Service = S):
+    return s.ai_style(pid, body.prompt, body.zone_id, body.apply_finishes)
+
+
 @app.post("/api/projects/{pid}/materials")
 def apply_material(pid: str, body: MaterialIn, s: Service = S):
     return s.apply_material(pid, body.target, body.hex_color, body.finish, body.wall_id)
