@@ -16,7 +16,7 @@ REMODEL = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
 def test_five_steps_in_order():
     labels = re.findall(r'label: "([^"]+)"', GUIDE.split("export function stepState", 1)[1].split("export", 1)[0])
     assert labels == ["집 스캔", "제품 선택", "3D 배치", "설치 적합성", "결과 확인"]
-    assert 'id="steps"' in REMODEL
+    assert 'id="progress"' in REMODEL
 
 
 def test_fit_rows_cover_every_reason_code():

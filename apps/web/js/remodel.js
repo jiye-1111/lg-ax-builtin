@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
+import { $app, cleanup, LABEL, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -8,6 +8,7 @@ import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL } from "./guide.js";
+import { optionSteps } from "./options.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -16,7 +17,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
-        <ol class="steps5" id="steps" aria-label="진행 단계"></ol>
+        <ol class="steps5" id="progress" aria-label="진행 단계"></ol>
         <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
@@ -27,11 +28,12 @@ export async function customer(pid) {
         <div class="lib-side">
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
-          <div class="chips" id="cats"></div>
+          <div class="ask" id="ask" aria-label="공간 용도"></div>
+          <div class="chips" id="cats" aria-label="가전 종류"></div>
+          <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
           <div class="filters" aria-label="제품 필터">
             <select id="fW" aria-label="폭"><option value="">폭 전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select>
             <select id="fH" aria-label="높이"><option value="">높이 전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select>
-            <select id="fColor" aria-label="색상"><option value="">색상 전체</option></select>
           </div>
         </div>
         <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
@@ -214,7 +216,7 @@ export async function customer(pid) {
   const restoredCam = viewer.setCamera(saved.cam);
   if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
-  let renderSteps = () => {}; // 5단계 진행 표시 (아래에서 채운다)
+  let renderProgress = () => {}; // 5단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
@@ -233,51 +235,92 @@ export async function customer(pid) {
 
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
-  // 분류: 주방 · 세탁·의류 · TV·거실 · 공기·청소 (카탈로그에 있는 것만), 그 밖의 종류는 '기타'
-  const have = new Set(catalog.map((p) => p.category));
-  const known = new Set(CATEGORY_GROUP.flatMap(([, , cs]) => cs));
-  const groups = [...CATEGORY_GROUP.filter(([, , cs]) => cs.some((c) => have.has(c))),
-    ...([...have].some((c) => !known.has(c)) ? [["etc", "기타", [...have].filter((c) => !known.has(c))]] : [])];
-  const inGroup = (c) => !cat || (groups.find(([k]) => k === cat)?.[2] || []).includes(c);
-  if (!groups.some(([k]) => k === cat)) cat = "";
+  // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
+  const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
+  const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
+  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || !catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
+  const USES = Object.keys(USE).filter((k) => catsFor(k).length);
+  let use = USES.includes(saved.use) ? saved.use : null; // null: 아직 안 고름, "": 전체 보기
+  if (saved.use === "") use = "";
+  let sel = saved.sel && typeof saved.sel === "object" ? saved.sel : {};
+  if (!catsFor(use).includes(cat)) cat = "";
+  const inScope = (c) => (cat ? c === cat : !use || catsFor(use).includes(c));
+  const setScope = (patch) => {
+    if ("use" in patch) { use = patch.use; cat = ""; sel = {}; }
+    if ("cat" in patch) { cat = patch.cat; sel = sel.install ? { install: sel.install } : {}; }
+    saveUiState(pid, { use, cat, sel });
+    renderCats(); renderLib();
+  };
   const renderCats = () => {
-    document.getElementById("cats").innerHTML = [["", "전체"], ...groups.map(([k, v]) => [k, v])]
+    const ask = document.getElementById("ask");
+    ask.innerHTML = use == null
+      ? `<p class="ask-q">이 공간을 어떤 용도로 쓰실 건가요?</p><div class="chips">${USES.map((k) => `<button class="chip" data-use="${esc(k)}">${esc(USE[k])}</button>`).join("")}<button class="chip" data-use="">전체 보기</button></div>`
+      : `<p class="ask-a"><b>${esc(use ? USE[use] : "전체")}</b>${use ? "에 어울리는 가전" : " 가전"}<button class="linklike" id="useChange">용도 바꾸기</button></p>`;
+    ask.querySelectorAll("[data-use]").forEach((b) => (b.onclick = () => setScope({ use: b.dataset.use })));
+    const ch = document.getElementById("useChange");
+    if (ch) ch.onclick = () => setScope({ use: null });
+    document.getElementById("cats").innerHTML = use == null ? "" : [["", "전체"], ...catsFor(use).map((c) => [c, CATEGORY[c] || c])]
       .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
-    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; saveUiState(pid, { cat }); renderCats(); renderLib(); }));
+    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => setScope({ cat: b.dataset.cat })));
   };
   // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
   const families = await api("/api/catalog/families");
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
-  // 다나와식 필터: 종류(칩) + 폭·높이·색상
-  const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
-  document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
+  // 같은 모델 안에 색 이름이 같은 SKU가 여럿이면 (기능·연식만 다름) 모델명을 붙여 구분한다
+  const optLabel = (f, x) => {
+    const l = finishLabel(x) || "색상 표기 없음";
+    return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
+  };
+  // 목록 카드의 색 동그라미는 색마다 하나만
+  const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
+  // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
-  ["fW", "fH", "fColor"].forEach((id) => (document.getElementById(id).onchange = () => {
-    const c = document.getElementById("fColor").value;
-    if (c) families.forEach((f) => { const v = f.variants.find((x) => x.color === c); if (v) pick[f.family_id] = v.sku; });
-    renderLib();
-  }));
+  ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
+  // (API 서버가 아직 판매 여부를 안 주는 옛 버전이면 전부 보여 준다)
+  const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
+  const sellable = (v) => !saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
+  const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
+  const renderSteps = (steps) => {
+    const box = document.getElementById("steps");
+    box.innerHTML = steps.map((st, i) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-n">${i + 1}</span><span class="step-l">${esc(st.label)}</span>
+      <div class="chips">${st.values.map((v) => `<button class="chip ${st.picked === v.label ? "on" : ""}" data-step="${esc(st.key)}" data-val="${esc(v.label)}" aria-pressed="${st.picked === v.label}">${esc(v.label)} <i>${v.count}</i></button>`).join("")}</div></li>`).join("");
+    box.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
+      if (sel[b.dataset.step] === b.dataset.val) delete sel[b.dataset.step]; else sel[b.dataset.step] = b.dataset.val;
+      saveUiState(pid, { sel });
+      renderLib();
+    }));
+  };
   const renderLib = () => {
-    renderSteps();
+    renderProgress();
     const q = document.getElementById("q").value.trim().toLowerCase();
-    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
-    const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
+    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value;
+    const scope = shop.filter((f) => inScope(f.category));
+    // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
+    const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
+    sel = narrowed.sel;
+    renderSteps(narrowed.steps);
+    const left = new Set(narrowed.remaining.map((v) => v.sku));
+    scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
+      if (!left.has(pick[f.family_id] || f.variants[0].sku)) { const v = f.variants.find((x) => left.has(x.sku)); if (v) pick[f.family_id] = v.sku; }
+    });
+    const items = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
-      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH) && (!fC || f.variants.some((v) => v.color === fC)))
+      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH))
       .sort((a, b) => a.demo_only - b.demo_only);
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
-      const many = f.variants.length > 1;
+      const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}</div>
           <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
-          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
-            <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
+          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
+            <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
     document.querySelectorAll("#lib [data-pick]").forEach((b) => {
@@ -301,8 +344,9 @@ export async function customer(pid) {
   // ---- 제품 상세 창: 사진·모델명·크기·색상, 그리고 우리 집에 들어가는지(적합/부적합)만 크게 ----
   // 카탈로그 spec_notes(근거)·필요 공간 같은 숫자는 판정에만 쓰고 화면에는 내지 않는다
   const pdModal = document.getElementById("pdModal");
-  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
-  const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", utility: "다용도실", bedroom: "침실", entrance: "현관", other: "기타" };
+  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 핏 (Fit & Max)", freestanding: "일반 (프리스탠딩)", countertop: "조리대 위", undercounter: "하부장 안" };
+  const OPT = { kind: "종류", doors: "도어 수", capacity_l: "용량", wash_kg: "세탁 용량", dry_kg: "건조 용량", capacity: "용량", screen_cm: "화면 크기", door_type: "문 여는 방향" };
+  const OPT_UNIT = { capacity_l: " L", wash_kg: " kg", dry_kg: " kg", screen_cm: " cm" };
   const PD_VERDICT = { fit: "적합", conditional: "조건부 적합", no_fit: "부적합" };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
@@ -343,7 +387,7 @@ export async function customer(pid) {
     const rows = [
       ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : ""],
       ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "")],
-      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", "))],
+      ...Object.entries(p.options || {}).filter(([k]) => OPT[k]).map(([k, val]) => [OPT[k], esc(`${val}${OPT_UNIT[k] || ""}`)]),
       ["색상 · 재질", esc(finishLabel(v))],
       ["모델명", `<span class="mono">${esc(sku)}</span>`],
     ].filter(([, val]) => val);
@@ -354,7 +398,7 @@ export async function customer(pid) {
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
-          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(finishLabel(x))}</button>`).join("")}</div>
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku).map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(optLabel(f, x))}</button>`).join("")}</div>
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
@@ -634,7 +678,7 @@ export async function customer(pid) {
         ${fitCardHtml(x)}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
-        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
+        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(optLabel(f, v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
       box.querySelector("#inspDetail").onclick = () => openDetail(x.sku);
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
@@ -669,8 +713,8 @@ export async function customer(pid) {
       <ol class="how"><li><b>LG 제품</b> 목록에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
   // ---- 5단계 진행 표시: 지금 상태에서 계산한다 ----
-  renderSteps = () => {
-    const el = document.getElementById("steps");
+  renderProgress = () => {
+    const el = document.getElementById("progress");
     if (!el || !project) return;
     el.innerHTML = stepperHtml(stepState(project, armed));
     el.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
@@ -706,7 +750,7 @@ export async function customer(pid) {
   orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
   document.getElementById("orderBtn").onclick = openOrder;
   const renderPlacements = () => {
-    renderSteps();
+    renderProgress();
     const pls = project.scene_state.placements;
     document.getElementById("plCount").textContent = pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `

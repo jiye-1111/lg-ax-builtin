@@ -35,12 +35,13 @@ export function stepperHtml(steps) {
 // 판정 코드 → 검사 카드의 줄. 데이터가 있는 것만 검사한다.
 const GROUPS = [
   { label: "제품 본체 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement"] },
-  { label: "문 열림 공간", codes: ["door_blocked", "door_swing_assumed"] },
+  { label: "제품 문 여는 공간", codes: ["front_blocked"] },
+  { label: "방문 여닫이", codes: ["door_blocked", "door_swing_assumed"] },
   { label: "창 가림", codes: ["covers_window"] },
   { label: "천장 높이", codes: ["ceiling_low", "ceiling_tight"] },
 ];
 // 판정을 바꾸지는 않고 안내만 하는 코드
-const NOTES = ["clearance_unknown", "scan_based"];
+const NOTES = ["clearance_unknown", "scan_based", "front_space_assumed"];
 const VERDICT = { fit: "적합", conditional: "확인 필요", no_fit: "부적합", unknown: "판정 불가" };
 const HEAD = { fit: "이 자리에 설치할 수 있어요", conditional: "설치할 수 있지만 확인할 점이 있어요", no_fit: "이 자리에는 설치하기 어려워요", unknown: "판정할 정보가 부족해요" };
 
@@ -48,7 +49,7 @@ export function fitRows(placement) {
   const reasons = placement?.reasons || [];
   return GROUPS.map((g) => {
     const mine = reasons.filter((r) => g.codes.includes(r.code));
-    return { label: g.label, verdict: worst(mine.map((r) => r.verdict)), why: mine.map((r) => r.label).join(" · ") };
+    return { label: g.label, verdict: worst(mine.map((r) => r.verdict)), why: [...new Set(mine.map((r) => r.label))].join(" · ") };
   });
 }
 

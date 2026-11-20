@@ -72,9 +72,14 @@ def test_product_detail_and_filters():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     # 제품을 누르면 상세 창, 거기서 넣어 보기
     assert 'id="pdModal"' in js and 'id="pdPlace"' in js
-    # 다나와식 필터: 폭, 높이, 색상
-    for f in ('id="fW"', 'id="fH"', 'id="fColor"'):
+    # 필터: 폭, 높이 + 단계별 옵션(설치 방식 → 종류 → … → 색상)
+    for f in ('id="fW"', 'id="fH"', 'id="steps"', "optionSteps("):
         assert f in js
+    # 먼저 공간 용도를 묻고, 그 용도에 맞는 가전 종류를 보여 준다
+    assert 'id="ask"' in js and "이 공간을 어떤 용도로 쓰실 건가요?" in js
+    assert "놓는 곳" not in js and "빌트인 느낌" not in js
+    # LGE.COM에서 파는 제품만 목록에 나온다 (판매 상태를 화면에 따로 적지는 않는다)
+    assert "f.variants.filter(sellable)" in js and 'id="fSale"' not in js and "판매 상태" not in js
 
 
 def test_remodel_stage_is_uncluttered():
