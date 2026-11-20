@@ -84,14 +84,7 @@ export async function customer(pid) {
           <section data-panel="sel" id="insp"></section>
           <section data-panel="list"><ul class="list" id="pls"></ul></section>
           <section data-panel="finish">
-            <div class="ai-box">
-              <h3>말로 꾸미기 <span class="badge ai">AI 추천</span></h3>
-              <p class="hint-sm">원하는 분위기를 편하게 적어 주세요. 벽지·바닥재를 골라 3D에 입히고, LG 가전 색 추천도 같이 바뀌어요.</p>
-              <textarea id="aiPrompt" rows="3" maxlength="500" placeholder="예) 따뜻한 오크 마루에 회벽 느낌으로, 호텔처럼 차분하게"></textarea>
-              <div class="chips ai-ex" id="aiEx"></div>
-              <button class="primary" id="aiGo">추천 받기</button>
-              <div id="aiRes"></div>
-            </div>
+            ${aiBoxHtml("finish")}
             <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
             <h3 class="gap">바닥재</h3><div class="fin-grid" id="finFloor"></div>
             <p class="hint-sm fin-note">색은 화면용 근사색이에요. 실제 품번 색은 제조사 샘플북으로 확인해 주세요. 카드의 ‘출처’에서 원문을 볼 수 있어요.</p>
@@ -99,6 +92,8 @@ export async function customer(pid) {
             <h3 class="gap">지금 스타일</h3><div id="style"></div>
           </section>
           <section data-panel="zones">
+            ${aiBoxHtml("zones")}
+            <h3 class="gap">자리에 맞는 LG 가전</h3>
             <p class="hint-sm">위쪽 ‘네모 영역’으로 주방 자리를 그리면, 그 안에 들어가는 제품을 골라 줘요.</p>
             <ul class="list" id="zones"></ul>
             <select id="zoneSel" aria-label="영역 선택"></select>
@@ -114,6 +109,7 @@ export async function customer(pid) {
         </div>
         <section class="minimap" id="minimap" aria-label="작은 화면" hidden></section>
       </aside>
+      ${botHtml()}
     </div>`;
   const studio = $app.querySelector(".studio");
   // 큰 화면이 아닌 쪽(평면 또는 3D)은 오른쪽 패널 아래 미니맵으로 옮겨서 시야를 가리지 않게 한다
@@ -683,38 +679,86 @@ export async function customer(pid) {
     })));
   };
   const AI_EX = ["따뜻한 오크 마루에 회벽 느낌", "대리석 바닥에 호텔처럼 차분하게", "밝은 화이트 미니멀", "린넨 느낌 벽에 그린 포인트", "어둡고 시크한 모던"];
-  document.getElementById("aiEx").innerHTML = AI_EX.map((t) => `<button class="chip" data-ex="${esc(t)}">${esc(t)}</button>`).join("");
-  document.querySelectorAll("[data-ex]").forEach((b) => (b.onclick = () => { document.getElementById("aiPrompt").value = b.dataset.ex; }));
   const aiRow = (m, applied) => `<li><img src="${swatchUrl(m.finish, m.tone.hex, 48)}" alt="" width="36" height="36">
       <div><b>${esc(m.finish.name)}</b> <span class="muted">${esc(m.tone.name)}</span>${applied ? ` <span class="badge fit">적용</span>` : ""}
         <span class="muted why">${esc(m.reasons.join(" · ") || "기본 순서")}</span></div>
       ${applied ? "" : `<button class="small ghost" data-fin="${esc(m.finish.id)}" data-tone="${esc(m.tone.hex)}">입히기</button>`}</li>`;
   const ENGINE = { claude: "Claude가 해석", openai: "OpenAI가 해석", rules: "키워드로 해석" };
-  const showAi = (d) => {
-    const box = document.getElementById("aiRes");
-    box.innerHTML = `<div class="ai-out">
+  const engineBadge = (d) => `<span class="badge ${d.engine === "rules" ? "src" : "ai"}">${ENGINE[d.engine] || "키워드로 해석"}</span>`;
+  const bindFinButtons = (root) => root.querySelectorAll("[data-fin]").forEach((b) => (b.onclick = guard(async () => {
+    await post(`/api/projects/${pid}/finishes`, { finish_id: b.dataset.fin, tone: b.dataset.tone });
+    await refresh(true);
+  })));
+  const aiResult = (d) => `<div class="ai-out">
       <p class="ai-sum">${esc(d.summary)}</p>
-      <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
-        <span class="badge ${d.engine === "rules" ? "src" : "ai"}">${ENGINE[d.engine] || "키워드로 해석"}</span></div>
-      ${["wall", "floor"].map((k) => `<h4>${k === "wall" ? "벽지" : "바닥재"} 추천</h4><ul class="ai-list">${d.finishes[k].map((m, i) => aiRow(m, i === 0 && d.applied[k])).join("")}</ul>`).join("")}
-      <button class="small ghost" id="aiToRecs">이 스타일로 LG 가전 색 추천 보기</button></div>`;
-    box.querySelectorAll("[data-fin]").forEach((b) => (b.onclick = guard(async () => {
-      await post(`/api/projects/${pid}/finishes`, { finish_id: b.dataset.fin, tone: b.dataset.tone });
-      await refresh(true);
-    })));
-    document.getElementById("aiToRecs").onclick = () => setTab("zones");
+      <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>${engineBadge(d)}</div>
+      ${["wall", "floor"].map((k) => `<h4>${k === "wall" ? "벽지" : "바닥재"} 추천</h4><ul class="ai-list">${d.finishes[k].map((m, i) => aiRow(m, i === 0 && d.applied[k])).join("")}</ul>`).join("")}</div>`;
+  // 말로 꾸미기 한 번: 서버가 말을 해석하고 벽지·바닥재를 골라 입힌다. 순위는 서버 코드가 계산
+  const askAi = async (prompt) => {
+    const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
+    toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
+    await refresh(true);
+    return d;
   };
-  document.getElementById("aiGo").onclick = guard(async (e) => {
-    const prompt = document.getElementById("aiPrompt").value.trim();
-    if (!prompt) { toast("원하는 분위기를 적어 주세요", true); return; }
-    const b = e.target; b.disabled = true; b.textContent = "분위기 읽는 중…";
-    try {
-      const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
-      showAi(d);
-      toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
-      await refresh(true);
-    } finally { b.disabled = false; b.textContent = "추천 받기"; }
+  // 마감재 탭·추천 탭의 같은 입력 칸
+  studio.querySelectorAll("[data-ai]").forEach((box) => {
+    const ta = box.querySelector(".ai-prompt"), go = box.querySelector(".ai-go"), res = box.querySelector(".ai-res");
+    box.querySelector(".ai-ex").innerHTML = AI_EX.map((t) => `<button class="chip" data-ex="${esc(t)}">${esc(t)}</button>`).join("");
+    box.querySelectorAll("[data-ex]").forEach((b) => (b.onclick = () => { ta.value = b.dataset.ex; ta.focus(); }));
+    go.onclick = guard(async () => {
+      const prompt = ta.value.trim();
+      if (!prompt) { toast("원하는 분위기를 적어 주세요", true); return; }
+      go.disabled = true; go.textContent = "분위기 읽는 중…";
+      try {
+        const d = await askAi(prompt);
+        res.innerHTML = aiResult(d) + (box.dataset.ai === "finish"
+          ? `<button class="small ghost ai-next" data-go="zones">이 스타일로 LG 가전 색 추천 보기</button>`
+          : `<button class="small ghost ai-next" data-go="finish">벽지·바닥재 더 보기</button>`);
+        bindFinButtons(res);
+        res.querySelector("[data-go]").onclick = (e) => setTab(e.target.dataset.go);
+      } finally { go.disabled = false; go.textContent = "추천 받기"; }
+    });
   });
+
+  // ---- LG 봇: 구석의 도우미. 누르면 말로 꾸미기 대화창 ----
+  const bot = document.getElementById("bot"), botBtn = document.getElementById("botBtn"), botLog = document.getElementById("botLog");
+  const botForm = document.getElementById("botForm"), botIn = document.getElementById("botIn");
+  const say = (who, html) => {
+    botLog.insertAdjacentHTML("beforeend", `<div class="msg ${who}">${html}</div>`);
+    botLog.scrollTop = botLog.scrollHeight;
+    return botLog.lastElementChild;
+  };
+  const openBot = (open) => {
+    bot.classList.toggle("open", open);
+    botBtn.setAttribute("aria-expanded", open);
+    document.getElementById("botPanel").hidden = !open;
+    if (open) { botIn.focus(); bot.classList.remove("nudge"); }
+  };
+  botBtn.onclick = () => openBot(!bot.classList.contains("open"));
+  document.getElementById("botClose").onclick = () => { openBot(false); botBtn.focus(); };
+  bot.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); openBot(false); botBtn.focus(); } });
+  document.getElementById("botEx").innerHTML = AI_EX.slice(0, 3).map((t) => `<button class="chip" data-say="${esc(t)}">${esc(t)}</button>`).join("");
+  document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => { botIn.value = b.dataset.say; botForm.requestSubmit(); }));
+  botForm.onsubmit = async (e) => {
+    e.preventDefault();
+    const prompt = botIn.value.trim();
+    if (!prompt || botForm.dataset.busy) return;
+    botIn.value = ""; botForm.dataset.busy = "1"; bot.classList.add("thinking");
+    say("me", esc(prompt));
+    const wait = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
+    try {
+      const d = await askAi(prompt);
+      const name = (k) => d.applied[k] ? esc(d.finishes[k][0].finish.name) : null;
+      const used = [name("wall") && `벽은 <b>${name("wall")}</b>`, name("floor") && `바닥은 <b>${name("floor")}</b>`].filter(Boolean).join(", ");
+      wait.innerHTML = `<p>${esc(d.summary)}</p>${used ? `<p>${used}로 입혀 봤어요.</p>` : ""}
+        <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</div>${engineBadge(d)}</div>
+        <div class="msg-acts"><button class="small ghost" data-go="finish">다른 후보 보기</button><button class="small ghost" data-go="zones">가전 색 추천</button></div>`;
+      wait.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => setTab(b.dataset.go)));
+    } catch (err) {
+      wait.innerHTML = `<p>앗, 지금은 해석이 안 됐어요. 잠시 뒤 다시 말해 주세요.</p>`;
+    } finally { delete botForm.dataset.busy; bot.classList.remove("thinking"); botLog.scrollTop = botLog.scrollHeight; }
+  };
+  if (!saved.botSeen) { bot.classList.add("nudge"); saveUiState(pid, { botSeen: true }); }
   api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
 
   const renderStyle = () => {
@@ -996,4 +1040,44 @@ export async function customer(pid) {
   // 채팅(Claude·Codex) 쪽 변경을 2초마다 확인
   const timer = setInterval(() => refresh().catch(() => {}), 2000);
   cleanup.push(() => clearInterval(timer));
+}
+
+// 말로 꾸미기 입력 칸 (마감재 탭·추천 탭 공통)
+function aiBoxHtml(where) {
+  return `<div class="ai-box" data-ai="${where}">
+    <h3>말로 꾸미기 <span class="badge ai">AI 추천</span></h3>
+    <p class="hint-sm">원하는 분위기를 편하게 적어 주세요. 벽지·바닥재를 골라 3D에 입히고, LG 가전 색 추천도 같이 바뀌어요.</p>
+    <textarea class="ai-prompt" rows="3" maxlength="500" aria-label="원하는 분위기" placeholder="예) 따뜻한 오크 마루에 회벽 느낌으로, 호텔처럼 차분하게"></textarea>
+    <div class="chips ai-ex"></div>
+    <button class="primary ai-go">추천 받기</button>
+    <div class="ai-res"></div>
+  </div>`;
+}
+
+// LG 봇 ‘하우니’: HouseTwin 집 모양 오리지널 캐릭터 (웜그레이 몸, LG 레드 지붕)
+const BOT_SVG = `<svg viewBox="0 0 64 64" aria-hidden="true" class="bot-art">
+  <ellipse cx="32" cy="58" rx="16" ry="3" class="bot-shadow"/>
+  <g class="bot-body">
+    <path d="M12 30 L32 12 L52 30 V48 a7 7 0 0 1-7 7 H19 a7 7 0 0 1-7-7 Z" fill="#F4F0EA" stroke="#D9D2C7" stroke-width="1.5"/>
+    <path d="M8 31 L32 9 L56 31" fill="none" stroke="#A50034" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="42" y="12" width="5" height="9" rx="1.5" fill="#A50034"/>
+    <rect x="18" y="31" width="28" height="17" rx="8.5" fill="#3B3633"/>
+    <g class="bot-eyes" fill="#FFFFFF"><rect x="24" y="36" width="4" height="6" rx="2"/><rect x="36" y="36" width="4" height="6" rx="2"/></g>
+    <path d="M29.5 44.5 q2.5 2 5 0" fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+    <circle cx="19" cy="50" r="2.4" fill="#F2B8C6"/><circle cx="45" cy="50" r="2.4" fill="#F2B8C6"/>
+  </g></svg>`;
+function botHtml() {
+  return `<div class="bot" id="bot">
+    <section class="bot-panel" id="botPanel" role="dialog" aria-label="LG 봇 하우니" hidden>
+      <header class="bot-head">${BOT_SVG}<div><b>하우니</b><span>LG 봇 · 말로 꾸미기</span></div>
+        <button class="bot-x" id="botClose" aria-label="닫기">×</button></header>
+      <div class="bot-log" id="botLog" aria-live="polite">
+        <div class="msg hb"><p>안녕하세요, 하우니예요! 원하는 집 분위기를 말해 주면 실제 벽지·바닥재를 골라 3D에 바로 입혀 볼게요.</p></div>
+      </div>
+      <div class="chips bot-ex" id="botEx"></div>
+      <form class="bot-form" id="botForm"><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 밝은 우드에 호텔처럼" aria-label="하우니에게 말하기">
+        <button class="primary" aria-label="보내기">보내기</button></form>
+    </section>
+    <button class="bot-btn" id="botBtn" aria-expanded="false" aria-controls="botPanel" title="하우니에게 말로 꾸미기">${BOT_SVG}<span class="bot-tip">말로 꾸며 볼까요?</span></button>
+  </div>`;
 }
