@@ -14,6 +14,7 @@ import io
 import os
 import re
 
+import numpy as np
 from PIL import Image, ImageFilter
 
 SIZE = (1536, 1024)  # 이미지 AI가 받는 가로 크기
@@ -30,7 +31,10 @@ PROMPT = """Turn this 3D interior visualization into a realistic interior photog
 Keep exactly the same camera angle, room shape, walls, windows, doors, and every object's position, size and shape.
 Make surfaces look real: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight
 through the windows with soft shadows and bounce light, gentle depth like a real camera.
-Do not add, remove or move any furniture or appliance. No people, no text, no logos, no watermarks.
+The protected areas are real appliances standing in this room: give them natural contact shadows on the floor
+and soft light around them so they sit in the scene, but do not repaint them.
+Do not add, remove or move anything: no new furniture, devices, outlets, cables, plants, tableware or decorations.
+No people, no text, no logos, no watermarks.
 {extra}"""
 
 
@@ -62,6 +66,61 @@ def product_alpha(mask: Image.Image) -> Image.Image:
     """흰 부분(LG 제품) = 255. 가장자리 1~2픽셀 번짐은 막으려고 살짝 넓힌다."""
     a = mask.convert("L").point(lambda v: 255 if v > 127 else 0)
     return a.filter(ImageFilter.MaxFilter(5))
+
+
+SPECK = 0.002  # 화면의 0.2%보다 작은 제품 조각은 버린다 (멀리 걸친 모서리가 AI 사진 위에 흰 점으로 남음)
+SHADE_GAIN = (0.8, 1.1)  # 제품 밝기를 주변 사진 빛에 맞추는 범위. 색(비율)은 그대로 두고 밝기만
+
+
+def drop_specks(alpha: Image.Image) -> Image.Image:
+    """작은 덩어리 지우기. 1/4로 줄여 덩어리를 세고 원래 크기로 되돌린다."""
+    w, h = alpha.size
+    small = np.array(alpha.resize((w // 4, h // 4), Image.NEAREST)) > 127
+    seen = np.zeros_like(small)
+    keep = np.zeros_like(small)
+    limit = SPECK * small.size
+    for y0, x0 in zip(*np.nonzero(small)):
+        if seen[y0, x0]:
+            continue
+        stack, part = [(y0, x0)], []
+        seen[y0, x0] = True
+        while stack:
+            y, x = stack.pop()
+            part.append((y, x))
+            for ny, nx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                if 0 <= ny < small.shape[0] and 0 <= nx < small.shape[1] and small[ny, nx] and not seen[ny, nx]:
+                    seen[ny, nx] = True
+                    stack.append((ny, nx))
+        if len(part) >= limit:
+            ys, xs = zip(*part)
+            keep[list(ys), list(xs)] = True
+    big = Image.fromarray((keep * 255).astype(np.uint8)).resize((w, h), Image.NEAREST)
+    return Image.fromarray(np.minimum(np.array(alpha), np.array(big)))
+
+
+def match_light(view: Image.Image, out: Image.Image, alpha: Image.Image) -> Image.Image:
+    """제품 바로 둘레에서 3D와 AI 사진의 밝기 차이를 재서 제품 밝기만 맞춘다 (스티커처럼 떠 보이지 않게)."""
+    a = np.array(alpha) > 127
+    if not a.any():
+        return view
+    w, h = alpha.size  # 넓은 MaxFilter는 느려서 1/4 크기에서 넓힌다
+    wide = alpha.resize((w // 4, h // 4), Image.BILINEAR).filter(ImageFilter.MaxFilter(9)).resize((w, h), Image.NEAREST)
+    ring = (np.array(wide) > 127) & ~a
+    if ring.sum() < 50:
+        return view
+    lum = lambda im: np.array(im.convert("L"), dtype=np.float32)
+    gain = float(np.clip(lum(out)[ring].mean() / max(lum(view)[ring].mean(), 1.0), *SHADE_GAIN))
+    v = np.array(view, dtype=np.float32)
+    v[a] = np.clip(v[a] * gain, 0, 255)
+    return Image.fromarray(v.astype(np.uint8))
+
+
+def contact_shadow(out: Image.Image, alpha: Image.Image) -> Image.Image:
+    """제품 아래쪽에 옅은 접지 그림자. AI가 못 그려 줘도 바닥에 붙어 보이게."""
+    sh = alpha.filter(ImageFilter.MaxFilter(9)).transform(alpha.size, Image.AFFINE, (1, 0, 0, 0, 1, -8))
+    sh = np.array(sh.filter(ImageFilter.GaussianBlur(12)), dtype=np.float32) / 255 * 0.35
+    o = np.array(out, dtype=np.float32) * (1 - sh[..., None])
+    return Image.fromarray(np.clip(o, 0, 255).astype(np.uint8))
 
 
 def png_bytes(img: Image.Image) -> bytes:
@@ -96,7 +155,7 @@ def edit_any_model(client, **kw):
 
 
 def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") -> Image.Image:
-    alpha = product_alpha(mask)
+    alpha = drop_specks(product_alpha(mask))
     ai_mask = Image.new("RGBA", SIZE, (0, 0, 0, 0))
     ai_mask.putalpha(alpha)  # 제품 자리는 불투명(못 바꿈), 나머지는 투명(바꿔도 됨)
     r = edit_any_model(client, image=("view.png", png_bytes(view), "image/png"), mask=("mask.png", png_bytes(ai_mask), "image/png"),
@@ -104,9 +163,10 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     out = Image.open(io.BytesIO(base64.b64decode(r.data[0].b64_json))).convert("RGB")
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)
-    keep = alpha.filter(ImageFilter.GaussianBlur(1))  # 제품 테두리만 살짝 섞는다
+    out = contact_shadow(out, alpha)
+    keep = alpha.filter(ImageFilter.GaussianBlur(1.5))  # 제품 테두리만 살짝 섞는다
     keep = keep.point(lambda v: 255 if v >= 250 else v)
-    return Image.composite(view, out, keep)
+    return Image.composite(match_light(view, out, alpha), out, keep)
 
 
 def default_client():
