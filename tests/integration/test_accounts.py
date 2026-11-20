@@ -183,7 +183,7 @@ def test_manual_and_auto_save_then_restore(client):
     r = c.post(f"/api/projects/{pid}/saves/{s1['save_id']}/restore", headers=h)
     assert r.status_code == 200, r.text
     proj = c.get(f"/api/projects/{pid}").json()
-    assert proj["scene_state"]["materials"]["wall"]["hex"].upper() == "#EEEEEE"
+    assert proj["scene_state"]["materials"]["wall"].upper() == "#EEEEEE"
     assert proj["version"] > v_before and proj["owner_id"] == a["user"]["user_id"]
     assert [z["name"] for z in c.get(f"/api/projects/{pid}/zones").json()] == ["주방"]
 
