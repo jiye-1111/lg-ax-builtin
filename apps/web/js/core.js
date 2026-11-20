@@ -29,11 +29,27 @@ export const mm = (v) => (v == null ? "–" : `${Math.round(v).toLocaleString()}
 // API 서버 주소. config.js에서 정한다 (비우면 웹과 같은 서버)
 export const API_BASE = String(window.LGB_API || "").replace(/\/+$/, "");
 export const apiUrl = (path) => (path.startsWith("/api/") ? API_BASE + path : path);
+// ---------- 로그인 상태 ----------
+// 웹과 API가 다른 사이트라 쿠키 대신 토큰을 Authorization 헤더로 보낸다. 서버에는 토큰 해시만 남는다.
+const AUTH_KEY = "lgb.auth";
+const authListeners = new Set();
+let authState = (() => { try { const a = JSON.parse(localStorage.getItem(AUTH_KEY) || "null"); return a?.token ? a : null; } catch { return null; } })();
+export const currentUser = () => authState?.user || null;
+export const authToken = () => authState?.token || null;
+export function setAuth(token, user) {
+  authState = token ? { token, user } : null;
+  try { authState ? localStorage.setItem(AUTH_KEY, JSON.stringify(authState)) : localStorage.removeItem(AUTH_KEY); } catch { /* 저장 못 해도 이번 창에선 로그인 유지 */ }
+  authListeners.forEach((f) => f(currentUser()));
+}
+export const onAuth = (f) => { authListeners.add(f); return () => authListeners.delete(f); };
+
 export async function api(path, opt = {}) {
-  const r = await fetch(apiUrl(path), {
-    ...opt,
-    headers: opt.body && !(opt.body instanceof FormData) ? { "content-type": "application/json", ...(opt.headers || {}) } : opt.headers,
-  });
+  const headers = { ...(opt.body && !(opt.body instanceof FormData) ? { "content-type": "application/json" } : {}), ...(opt.headers || {}) };
+  const tok = authToken();
+  if (tok && path.startsWith("/api/")) headers.authorization = `Bearer ${tok}`;
+  const r = await fetch(apiUrl(path), { ...opt, headers });
+  // 토큰이 만료됐거나 계정이 정지되면 로그아웃 상태로 돌린다
+  if (r.status === 401 && tok && authToken() === tok) setAuth(null);
   if (r.status === 204) return null;
   const data = await r.json().catch(() => ({}));
   if (!r.ok) {

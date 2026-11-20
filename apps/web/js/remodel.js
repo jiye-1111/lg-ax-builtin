@@ -5,6 +5,8 @@ import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
+import { swatchUrl, TEXTURE_KO } from "./finishes.js";
+import { mountSaveBar } from "./account.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -13,6 +15,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
           <button data-view="3d" class="on">3D</button><button data-view="plan">평면</button><button data-view="split">나란히</button></div>
@@ -23,11 +26,17 @@ export async function customer(pid) {
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="chips" id="cats"></div>
+          <div class="filters" aria-label="제품 필터">
+            <label>폭<select id="fW"><option value="">전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select></label>
+            <label>높이<select id="fH"><option value="">전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select></label>
+            <label>색상<select id="fColor"><option value="">전체</option></select></label>
+          </div>
         </div>
         <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
       </aside>
 
       <section class="stage" aria-label="우리 집">
+        <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
@@ -54,6 +63,8 @@ export async function customer(pid) {
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
             <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>Esc</kbd> 마우스 풀기</li></ul>
+            <h4>저장 (로그인하면)</h4>
+            <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
         </div>
@@ -73,8 +84,19 @@ export async function customer(pid) {
           <section data-panel="sel" id="insp"></section>
           <section data-panel="list"><ul class="list" id="pls"></ul></section>
           <section data-panel="finish">
-            <h3>벽·바닥</h3><div id="mats"></div>
-            <h3 class="gap">스타일</h3><div id="style"></div>
+            <div class="ai-box">
+              <h3>말로 꾸미기 <span class="badge ai">AI 추천</span></h3>
+              <p class="hint-sm">원하는 분위기를 편하게 적어 주세요. 벽지·바닥재를 골라 3D에 입히고, LG 가전 색 추천도 같이 바뀌어요.</p>
+              <textarea id="aiPrompt" rows="3" maxlength="500" placeholder="예) 따뜻한 오크 마루에 회벽 느낌으로, 호텔처럼 차분하게"></textarea>
+              <div class="chips ai-ex" id="aiEx"></div>
+              <button class="primary" id="aiGo">추천 받기</button>
+              <div id="aiRes"></div>
+            </div>
+            <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
+            <h3 class="gap">바닥재</h3><div class="fin-grid" id="finFloor"></div>
+            <p class="hint-sm fin-note">색은 화면용 근사색이에요. 실제 품번 색은 제조사 샘플북으로 확인해 주세요. 카드의 ‘출처’에서 원문을 볼 수 있어요.</p>
+            <details class="gap"><summary>색만 바꾸기</summary><div id="mats"></div></details>
+            <h3 class="gap">지금 스타일</h3><div id="style"></div>
           </section>
           <section data-panel="zones">
             <p class="hint-sm">위쪽 ‘네모 영역’으로 주방 자리를 그리면, 그 안에 들어가는 제품을 골라 줘요.</p>
@@ -224,10 +246,21 @@ export async function customer(pid) {
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
+  // 다나와식 필터: 종류(칩) + 폭·높이·색상
+  const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
+  document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
+  const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
+  ["fW", "fH", "fColor"].forEach((id) => (document.getElementById(id).onchange = () => {
+    const c = document.getElementById("fColor").value;
+    if (c) families.forEach((f) => { const v = f.variants.find((x) => x.color === c); if (v) pick[f.family_id] = v.sku; });
+    renderLib();
+  }));
   const renderLib = () => {
     const q = document.getElementById("q").value.trim().toLowerCase();
+    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
     const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
-      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q))))
+      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
+      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH) && (!fC || f.variants.some((v) => v.color === fC)))
       .sort((a, b) => a.demo_only - b.demo_only);
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
@@ -254,12 +287,66 @@ export async function customer(pid) {
     });
     document.querySelectorAll("#lib [data-sku]").forEach((li) => {
       li.onclick = () => {
-        if (li.classList.contains("nosize")) { toast("치수 정보가 없어 놓을 수 없는 제품입니다", true); return; }
-        armed = armed === li.dataset.sku ? null : li.dataset.sku; mode = "move"; syncMode(); setHint(); renderLib();
+        if (armed && armed === li.dataset.sku) { armed = null; ghost(null); setHint(); renderLib(); return; }
+        openDetail(li.dataset.sku);
       };
       li.ondragstart = (e) => e.dataTransfer.setData("text/sku", li.dataset.sku);
     });
   };
+  // ---- 제품 상세 창: 사진·모델명·치수·설치 사양·색상을 한 번에 보고 "넣어 보기" ----
+  const pdModal = document.getElementById("pdModal");
+  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
+  const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", utility: "다용도실", bedroom: "침실", entrance: "현관", other: "기타" };
+  const mmOr = (v) => (v == null ? `<span class="muted">확인 안 됨</span>` : `${mm(v)} mm`);
+  const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
+  const openDetail = (sku) => {
+    const p = prodOf(sku), f = familyOf(sku);
+    if (!p || !f) return;
+    pick[f.family_id] = sku;
+    const v = f.variants.find((x) => x.sku === sku) || {};
+    const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d, rs = p.required_space_mm || {}, cl = p.clearance_mm || {};
+    const rows = [
+      ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : `<span class="muted">확인 안 됨</span>`],
+      ["설치 필요 공간", [rs.w, rs.h, rs.d].some((x) => x != null) ? `가로 ${mmOr(rs.w)} · 높이 ${mmOr(rs.h)} · 깊이 ${mmOr(rs.d)}` : `<span class="muted">확인 안 됨</span>`],
+      ["여유 공간", [cl.side, cl.top, cl.back].some((x) => x != null) ? `옆 ${mmOr(cl.side)} · 위 ${mmOr(cl.top)} · 뒤 ${mmOr(cl.back)}` : `<span class="muted">확인 안 됨</span>`],
+      ["문 열림", p.door_swing_mm ? `${mm(p.door_swing_mm)} mm` : `<span class="muted">확인 안 됨</span>`],
+      ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "—")],
+      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", ") || "—")],
+      ["색상 · 재질", esc(finishLabel(v)) || "—"],
+      ["모델명", `<span class="mono">${esc(sku)}</span>`],
+    ];
+    pdModal.innerHTML = `
+      <div class="pd-top">
+        <div class="pd-photo${v.thumb ? " has-photo" : ""}" style="background-color:${esc(v.hex || "#fff")}${v.thumb ? `;background-image:url('${esc(v.thumb)}')` : ""}" role="img" aria-label="${esc(f.name)} ${esc(finishLabel(v))}"><span>${esc(CATEGORY[p.category] || p.category)}</span></div>
+        <div class="pd-title">
+          <h2>${esc(f.name)}</h2>
+          <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
+          ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(finishLabel(x))}</button>`).join("")}</div>
+        </div>
+        <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
+      </div>
+      <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
+      ${(p.spec_notes || []).length ? `<details class="pd-notes"><summary>설치 사양 근거 ${p.spec_notes.length}개</summary><ul>${p.spec_notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></details>` : ""}
+      <div class="pd-actions">
+        <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
+        ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
+        <span class="pd-src muted">LGE.COM 확인 ${esc(p.source_checked_at || "")}</span>
+      </div>`;
+    pdModal.hidden = false;
+    pdModal.querySelectorAll("[data-pd-variant]").forEach((b) => (b.onclick = () => { openDetail(b.dataset.pdVariant); renderLib(); }));
+    document.getElementById("pdClose").onclick = closeDetail;
+    const place = document.getElementById("pdPlace");
+    if (sized) place.onclick = () => {
+      closeDetail();
+      if (walking) setWalking(false);
+      armed = sku; mode = "move"; syncMode(); setHint(); renderLib();
+      if (matchMedia("(max-width: 900px)").matches) document.querySelector(".canvas").scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    place.focus({ preventScroll: true });
+    pdModal.scrollTop = 0;
+  };
+  pdModal.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeDetail(); } });
   document.getElementById("q").oninput = renderLib;
   renderCats(); renderLib();
 
@@ -575,13 +662,74 @@ export async function customer(pid) {
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
   document.getElementById("zoneSel").onchange = (e) => { zoneSel = e.target.value; renderRecs(); };
 
+  // ---- 실제 벽지·바닥재 (data/finishes, 2026 트렌드 조사) ----
+  let FIN = [];
+  const finById = (id) => FIN.find((f) => f.id === id);
+  const curFinish = (kind) => project?.scene_state.finish_ids?.[kind] || null;
+  const finishSet = () => Object.fromEntries(["wall", "floor"].map((k) => [k, finById(curFinish(k)?.id)]).filter(([, f]) => f));
+  const finCard = (f) => {
+    const cur = curFinish(f.kind), on = cur?.id === f.id, tone = on ? cur.tone : f.tones[0].hex;
+    return `<article class="fin ${on ? "on" : ""}">
+      <button class="fin-pick" data-fin="${esc(f.id)}" data-tone="${esc(tone)}" aria-pressed="${on}" title="${esc(f.name)} 적용">
+        <img src="${swatchUrl(f, tone)}" alt="" width="120" height="120"><span class="tex">${TEXTURE_KO[f.texture]}</span>${on ? `<span class="chk">적용 중</span>` : ""}</button>
+      <div class="fin-body"><b>${esc(f.name)}</b><span class="muted">${esc(f.brand)} · ${esc(f.line)}</span>
+        ${f.tones.length > 1 ? `<div class="fin-tones" role="radiogroup" aria-label="톤">${f.tones.map((t) => `<button class="vsw ${on && t.hex === tone ? "on" : ""}" data-fin="${esc(f.id)}" data-tone="${esc(t.hex)}" title="${esc(t.name)}" aria-label="${esc(t.name)}" role="radio" aria-checked="${on && t.hex === tone}"><i style="background:${esc(t.hex)}"></i></button>`).join("")}</div>` : ""}
+        <span class="fin-trend">${esc(f.trend || "")}</span>
+        <a class="fin-src" href="${esc(f.source_url)}" target="_blank" rel="noopener">출처 · ${esc(f.source_checked_at)}</a></div></article>`;
+  };
+  const renderFinishes = () => {
+    if (!FIN.length) return;
+    document.getElementById("finWall").innerHTML = FIN.filter((f) => f.kind === "wall").map(finCard).join("");
+    document.getElementById("finFloor").innerHTML = FIN.filter((f) => f.kind === "floor").map(finCard).join("");
+    document.querySelectorAll("[data-panel=finish] [data-fin]").forEach((b) => (b.onclick = guard(async () => {
+      const f = finById(b.dataset.fin);
+      await post(`/api/projects/${pid}/finishes`, { finish_id: f.id, tone: b.dataset.tone });
+      toast(`${f.kind === "wall" ? "벽" : "바닥"}에 ${f.name}을 입혔어요`);
+      await refresh(true);
+    })));
+  };
+  const AI_EX = ["따뜻한 오크 마루에 회벽 느낌", "대리석 바닥에 호텔처럼 차분하게", "밝은 화이트 미니멀", "린넨 느낌 벽에 그린 포인트", "어둡고 시크한 모던"];
+  document.getElementById("aiEx").innerHTML = AI_EX.map((t) => `<button class="chip" data-ex="${esc(t)}">${esc(t)}</button>`).join("");
+  document.querySelectorAll("[data-ex]").forEach((b) => (b.onclick = () => { document.getElementById("aiPrompt").value = b.dataset.ex; }));
+  const aiRow = (m, applied) => `<li><img src="${swatchUrl(m.finish, m.tone.hex, 48)}" alt="" width="36" height="36">
+      <div><b>${esc(m.finish.name)}</b> <span class="muted">${esc(m.tone.name)}</span>${applied ? ` <span class="badge fit">적용</span>` : ""}
+        <span class="muted why">${esc(m.reasons.join(" · ") || "기본 순서")}</span></div>
+      ${applied ? "" : `<button class="small ghost" data-fin="${esc(m.finish.id)}" data-tone="${esc(m.tone.hex)}">입히기</button>`}</li>`;
+  const ENGINE = { claude: "Claude가 해석", openai: "OpenAI가 해석", rules: "키워드로 해석" };
+  const showAi = (d) => {
+    const box = document.getElementById("aiRes");
+    box.innerHTML = `<div class="ai-out">
+      <p class="ai-sum">${esc(d.summary)}</p>
+      <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
+        <span class="badge ${d.engine === "rules" ? "src" : "ai"}">${ENGINE[d.engine] || "키워드로 해석"}</span></div>
+      ${["wall", "floor"].map((k) => `<h4>${k === "wall" ? "벽지" : "바닥재"} 추천</h4><ul class="ai-list">${d.finishes[k].map((m, i) => aiRow(m, i === 0 && d.applied[k])).join("")}</ul>`).join("")}
+      <button class="small ghost" id="aiToRecs">이 스타일로 LG 가전 색 추천 보기</button></div>`;
+    box.querySelectorAll("[data-fin]").forEach((b) => (b.onclick = guard(async () => {
+      await post(`/api/projects/${pid}/finishes`, { finish_id: b.dataset.fin, tone: b.dataset.tone });
+      await refresh(true);
+    })));
+    document.getElementById("aiToRecs").onclick = () => setTab("zones");
+  };
+  document.getElementById("aiGo").onclick = guard(async (e) => {
+    const prompt = document.getElementById("aiPrompt").value.trim();
+    if (!prompt) { toast("원하는 분위기를 적어 주세요", true); return; }
+    const b = e.target; b.disabled = true; b.textContent = "분위기 읽는 중…";
+    try {
+      const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
+      showAi(d);
+      toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
+      await refresh(true);
+    } finally { b.disabled = false; b.textContent = "추천 받기"; }
+  });
+  api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
+
   const renderStyle = () => {
     const s = project.style;
     document.getElementById("style").innerHTML = s.prompt || s.palette.length ? `
-      <p style="margin:0 0 8px">“${esc(s.prompt || "")}”</p>
+      <p style="margin:0 0 8px">“${esc(s.prompt || "")}”</p>${s.summary ? `<p class="hint-sm">${esc(s.summary)}</p>` : ""}
       <div class="row"><div class="palette">${s.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
       <span class="muted">${s.materials.map(esc).join(" · ")}</span></div>`
-      : `<p class="muted" style="margin:0;font-size:12px">Claude 또는 Codex에서 <b>“화이트 우드 톤으로 바꿔 줘”</b>처럼 말하면 스타일이 저장되고 추천에 반영됩니다.</p>`;
+      : `<p class="muted" style="margin:0;font-size:12px">위 ‘말로 꾸미기’에 적거나, Claude·Codex에서 <b>“화이트 우드 톤으로 바꿔 줘”</b>처럼 말하면 스타일이 저장되고 추천에 반영됩니다.</p>`;
   };
   const renderZones = () => {
     document.getElementById("zones").innerHTML = zones.length ? zones.map((z) => `
@@ -826,12 +974,13 @@ export async function customer(pid) {
     renderZones();
     renderStyle();
     renderMats();
+    renderFinishes();
     renderRecs();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
-    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
@@ -845,7 +994,10 @@ export async function customer(pid) {
     }
     toast(e.message, true);
   }
-  if (project) rememberHome(pid, token || project.share_token);
+  if (project) {
+    rememberHome(pid, token || project.share_token);
+    mountSaveBar(document.getElementById("savebar"), pid, () => token || project.share_token);
+  }
   if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; showSim(); }
   // 채팅(Claude·Codex) 쪽 변경을 2초마다 확인
   const timer = setInterval(() => refresh().catch(() => {}), 2000);

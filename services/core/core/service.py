@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from recommender.cmf import rank_cmf
+from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.pose import Pose, check_pose, snap_to_wall
 from sim.regions import REGIONS
@@ -18,6 +19,8 @@ from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
 
 from . import config
+from .ai_style import interpret_style
+from .accounts import Accounts, Forbidden, is_approved_tech
 from .models import MeasuredDims, Product, Room, Zone
 from .store import Store
 
@@ -91,12 +94,16 @@ class Catalog:
 
 # ---------------- 서비스 ----------------
 class Service:
-    def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None):
+    def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
+                 stylist=None):
         self.root = Path(storage or config.storage_dir())
         self.root.mkdir(parents=True, exist_ok=True)
         self.db = Store(self.root / "app.sqlite3")
         self.catalog = catalog or Catalog(config.catalog_paths())
         self.fit_cfg = fit_cfg or FitConfig.from_env()
+        self.finishes = load_finishes(config.ROOT / "data" / "finishes" / "finishes.json")
+        self.stylist = stylist or interpret_style  # (prompt, catalog_brief) -> StyleIntent
+        self.accounts = Accounts(self.db)
 
     # ---- 경로 ----
     def pdir(self, pid: str) -> Path:
@@ -128,7 +135,7 @@ class Service:
 
     # ---- F2·F4 스캔 등록 ----
     def create_project_from_usdz(self, data: bytes, filename: str = "room.usdz", request_id: str | None = None,
-                                 scanned_by: str = "technician") -> dict:
+                                 scanned_by: str = "technician", user: dict | None = None) -> dict:
         from worker.runner import process_scan  # 지연 import: pxr 로딩 비용
 
         if request_id:
@@ -155,6 +162,9 @@ class Service:
             "scene_state": {"materials": {}, "finish": None, "placements": []},
             "style": {"prompt": None, "reference_image": None, "palette": [], "materials": []},
             "share_token": secrets.token_urlsafe(8), "version": 0,
+            # 로그인한 채로 올리면 고객은 주인, 기사는 담당 기사가 된다
+            "owner_id": user["user_id"] if user and user["role"] == "customer" else None,
+            "technician_id": user["user_id"] if is_approved_tech(user) and user["role"] == "technician" else None,
         }
         self.db.put("project", pid, proj)
         self._set_request_status(request_id, "scanned")
@@ -163,6 +173,97 @@ class Service:
 
     def list_projects(self) -> list[dict]:
         return self.db.list("project")
+
+    # ---- 내 집 · 저장 ----
+    def my_projects(self, user: dict) -> list[dict]:
+        uid = user["user_id"]
+        return [p for p in self.db.list("project") if uid in (p.get("owner_id"), p.get("technician_id"))]
+
+    def claim_project(self, pid: str, user: dict, share_token: str) -> dict:
+        """로그인 전에 꾸미던 집을 내 계정으로 가져온다. 고객 링크의 토큰이 있어야 한다."""
+        p = self.get_project(pid)
+        if not secrets.compare_digest(str(share_token), str(p["share_token"])):
+            raise Forbidden("이 집의 고객 링크가 아닙니다")
+        if p.get("owner_id") == user["user_id"]:
+            return p
+        if p.get("owner_id"):
+            raise Forbidden("이미 다른 계정에 저장된 집입니다")
+        if user["role"] != "customer":
+            raise Forbidden("집을 내 계정으로 가져오는 건 고객 계정만 됩니다")
+        p["owner_id"] = user["user_id"]
+        self._save_project(p)
+        return self.get_project(pid)
+
+    def _can_save(self, p: dict, user: dict) -> None:
+        if user["role"] == "admin" or user["user_id"] in (p.get("owner_id"), p.get("technician_id")):
+            return
+        raise Forbidden("이 집을 저장할 권한이 없습니다. 내 계정으로 가져온 집만 저장돼요")
+
+    # 저장본에 넣지 않는 것: 스캔 원본·3D 파일 경로·주인 정보처럼 되돌리면 안 되는 값
+    _KEEP = ("project_id", "request_id", "created_at", "status", "scan", "scene", "share_token", "version",
+             "updated_at", "owner_id", "technician_id", "floorplan", "customer_url", "technician_url")
+
+    def save_snapshot(self, pid: str, user: dict, kind: str = "manual", label: str | None = None) -> dict:
+        if kind not in ("manual", "auto"):
+            raise Invalid("kind는 manual 또는 auto")
+        p = self.get_project(pid)
+        self._can_save(p, user)
+        room = self._load_room(pid)
+        state = {"project": {k: v for k, v in p.items() if k not in self._KEEP},
+                 "zones": self.list_zones(pid),
+                 "measured": {w.wall_id: (w.measured.model_dump() if w.measured else None) for w in room.walls}}
+        if kind == "auto":  # 자동 저장은 사람마다 한 칸을 계속 덮어쓴다
+            sid = f"{pid}.auto.{user['user_id']}"
+        else:
+            manual = [x for x in self.db.list("save", parent=pid) if x["kind"] == "manual"]
+            if len(manual) >= 30:
+                raise Invalid("저장본은 집마다 30개까지예요. 안 쓰는 저장본을 지워 주세요")
+            sid = self.db.next_id("s")
+        body = {"save_id": sid, "project_id": pid, "kind": kind,
+                "label": (label or "").strip()[:60] or ("자동 저장" if kind == "auto" else f"저장 {self.db.next_id('sv.' + pid).split('_')[-1].lstrip('0')}"),
+                "by": user["user_id"], "by_name": user["name"], "saved_at": now(), "project_version": p["version"],
+                "placements": len(p["scene_state"].get("placements") or []), "zones": len(state["zones"]),
+                "state": state}
+        self.db.put("save", sid, body, parent=pid)
+        return {k: v for k, v in body.items() if k != "state"}
+
+    def list_saves(self, pid: str, user: dict) -> list[dict]:
+        self._can_save(self.get_project(pid), user)
+        out = [{k: v for k, v in x.items() if k != "state"} for x in self.db.list("save", parent=pid)]
+        return sorted(out, key=lambda x: x["saved_at"], reverse=True)
+
+    def _get_save(self, pid: str, sid: str) -> dict:
+        s = self.db.get("save", sid)
+        if not s or s["project_id"] != pid:
+            raise NotFound(f"저장본 없음: {sid}")
+        return s
+
+    def delete_save(self, pid: str, sid: str, user: dict) -> None:
+        self._can_save(self.get_project(pid), user)
+        self._get_save(pid, sid)
+        self.db.delete("save", sid)
+
+    def restore_save(self, pid: str, sid: str, user: dict) -> dict:
+        p = self.get_project(pid)
+        self._can_save(p, user)
+        st = self._get_save(pid, sid)["state"]
+        # 프로젝트 상태
+        p = {k: v for k, v in p.items() if k in self._KEEP}
+        p.update(st["project"])
+        self._save_project(p)
+        # 영역
+        for z in self.db.list("zone", parent=pid):
+            self.db.delete("zone", z["zone_id"])
+        for z in st["zones"]:
+            self.db.put("zone", z["zone_id"], z, parent=pid)
+        # 벽 실측값
+        room = self._load_room(pid)
+        for w in room.walls:
+            m = st["measured"].get(w.wall_id)
+            w.measured = MeasuredDims.model_validate(m) if m else None
+        self._save_room(pid, room)
+        self._rebuild(pid)
+        return self.get_project(pid)
 
     def get_project(self, pid: str) -> dict:
         p = self.db.get("project", pid)
@@ -384,6 +485,61 @@ class Service:
             st["finish"] = finish
         self._save_project(p)
         return self._rebuild(pid)
+
+    # ---- 벽지·바닥재 (data/finishes) ----
+    def get_finish(self, finish_id: str):
+        for f in self.finishes:
+            if f.id == finish_id:
+                return f
+        raise NotFound(f"마감재 없음: {finish_id}")
+
+    def apply_finish(self, pid: str, finish_id: str, tone: str | None = None) -> dict:
+        """실제 벽지·바닥재를 벽 전체 또는 바닥에 적용. 3D 색은 그 톤(근사색), 질감은 웹이 finish_ids로 그린다."""
+        f = self.get_finish(finish_id)
+        try:
+            t = f.tone(tone)
+        except ValueError as e:
+            raise Invalid(str(e)) from None
+        p = self.get_project(pid)
+        st = p["scene_state"]
+        st.setdefault("finish_ids", {})[f.kind] = {"id": f.id, "tone": t.hex}
+        st["materials"][f.kind] = t.hex
+        if f.kind == "wall":
+            st.pop("wall_colors", None)  # 벽마다 칠한 색보다 벽지가 우선
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def finishes_brief(self) -> str:
+        return "\n".join(f"- [{'벽' if f.kind == 'wall' else '바닥'}] {f.brand} {f.name} ({TEXTURE_KO[f.texture]}): {f.trend or ''}"
+                         for f in self.finishes)
+
+    def ai_style(self, pid: str, prompt: str, zone_id: str | None = None, apply_finishes: bool = True) -> dict:
+        """고객의 말 → 스타일 저장 → 코드가 벽지·바닥재 순위 계산 → (선택) 1순위 적용. 가전 색 추천도 이 스타일을 따른다."""
+        prompt = (prompt or "").strip()
+        if not prompt:
+            raise Invalid("원하는 분위기를 적어 주세요")
+        if len(prompt) > 500:
+            raise Invalid("500자 안으로 적어 주세요")
+        self.get_project(pid)
+        intent = self.stylist(prompt, catalog_brief=self.finishes_brief())
+        style = self.set_style(pid, prompt, intent.palette, intent.materials, zone_id)
+        ranked = {k: rank_finishes(self.finishes, k, intent.palette, intent.materials,
+                                   intent.wall_texture if k == "wall" else intent.floor_texture, top_k=3)
+                  for k in ("wall", "floor")}
+        applied = {}
+        if apply_finishes:
+            for k, r in ranked.items():
+                if r and r[0].score > 0:
+                    self.apply_finish(pid, r[0].finish.id, r[0].tone.hex)
+                    applied[k] = r[0].to_dict()
+        p = self.get_project(pid)
+        p["style"]["summary"] = intent.summary
+        p["style"]["engine"] = intent.engine
+        self._save_project(p)
+        return {"engine": intent.engine, "summary": intent.summary,
+                "style": {**style["project_style"], "summary": intent.summary, "engine": intent.engine},
+                "intent": {"wall_texture": intent.wall_texture, "floor_texture": intent.floor_texture},
+                "finishes": {k: [m.to_dict() for m in r] for k, r in ranked.items()}, "applied": applied}
 
     def place_product(self, pid: str, zone_id: str, sku: str, color: str | None = None) -> dict:
         prod = self.catalog.get(sku)

@@ -382,7 +382,7 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .lib #lib > li.muted { grid-column: 1 / -1; padding: 12px; }
 
 
-.stage { grid-area: stage; display: flex; flex-direction: column; overflow: hidden; }
+.stage { grid-area: stage; position: relative; display: flex; flex-direction: column; overflow: hidden; }
 .toolbar { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
 .canvas { position: relative; flex: 1; min-height: 0; background: var(--drafting); }
 .pane { position: absolute; overflow: hidden; transition: inset .25s var(--ease), width .25s var(--ease), height .25s var(--ease); }
@@ -534,6 +534,125 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .furn-btn { display: inline-flex; align-items: center; }
 .studio-title h1 { font-size: 24px; letter-spacing: -.035em; }
 
+/* ---- 마감재: 말로 꾸미기(AI) + 실제 벽지·바닥재 카드 ---- */
+.badge.ai { color: var(--lg); background: var(--lg-soft); }
+.ai-box { background: var(--drafting); border: 1px solid var(--line-soft); border-radius: 14px; padding: 14px; }
+.ai-box h3 { margin-top: 0; }
+.ai-box textarea { width: 100%; resize: vertical; min-height: 64px; font: inherit; font-size: var(--t-sm); }
+.ai-box .ai-ex { margin: 8px 0 10px; }
+.ai-box #aiGo { width: 100%; }
+.ai-out { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+.ai-out .ai-sum { margin: 0 0 8px; font-size: var(--t-sm); line-height: 1.55; }
+.ai-out h4 { margin: 12px 0 6px; font-size: var(--t-xs); color: var(--graphite); font-weight: 600; }
+.ai-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.ai-list li { display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center; font-size: var(--t-xs); }
+.ai-list img { border-radius: 8px; border: 1px solid rgba(0, 0, 0, .08); }
+.ai-list .why { display: block; margin-top: 2px; line-height: 1.4; }
+#aiToRecs { margin-top: 12px; width: 100%; }
+.fin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.fin { background: var(--sheet); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; }
+.fin.on { border-color: var(--lg); box-shadow: 0 0 0 1px var(--lg); }
+.fin-pick { position: relative; padding: 0; border: 0; border-radius: 0; background: var(--drafting); display: block; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; }
+.fin-pick:hover { background: var(--drafting); transform: none; }
+.fin-pick img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease; }
+.fin-pick:hover img { transform: scale(1.04); }
+.fin-pick .tex { position: absolute; left: 6px; top: 6px; font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, .88); color: var(--ink); padding: 1px 7px; border-radius: 999px; }
+.fin-pick .chk { position: absolute; right: 6px; top: 6px; font-size: 11px; font-weight: 700; background: var(--lg); color: #fff; padding: 1px 7px; border-radius: 999px; }
+.fin-body { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 3px; font-size: var(--t-xs); line-height: 1.4; }
+.fin-body b { font-size: 13px; }
+.fin-tones { display: flex; gap: 4px; margin: 3px 0; }
+.fin-tones .vsw { width: 22px; height: 22px; padding: 2px; border-radius: 50%; background: var(--sheet); border: 1px solid var(--line); display: inline-grid; place-items: center; }
+.fin-tones .vsw i { width: 16px; height: 16px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .12); display: block; }
+.fin-tones .vsw:hover { border-color: var(--ink); background: var(--sheet); }
+.fin-tones .vsw.on { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
+.fin-trend { color: var(--graphite); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.fin-src { color: var(--graphite); font-size: 11px; text-decoration: underline; text-underline-offset: 2px; }
+.fin-note { margin-top: 10px; }
+details > summary { cursor: pointer; font-size: var(--t-sm); font-weight: 600; padding: 4px 0; }
+
+/* ---------- 계정: 상단 버튼·메뉴 ---------- */
+.acct { position: relative; }
+.acct-btn { background: var(--sheet); color: var(--ink); border-color: var(--line); padding: 7px 14px; font-size: var(--t-sm); white-space: nowrap; }
+.acct-btn:hover { background: var(--sheet); border-color: var(--ink); }
+.acct-btn.on { padding: 4px 12px 4px 4px; gap: 8px; }
+.acct-ava { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--lg); color: #fff; font-weight: 700; font-size: var(--t-sm); }
+.acct-role { font-size: 11px; font-weight: 600; color: var(--graphite); background: var(--drafting); border-radius: 999px; padding: 1px 8px; }
+.acct-role.technician { color: #1f4f7a; background: #e4eef8; }
+.acct-role.admin { color: var(--lg); background: var(--lg-soft); }
+.acct-menu { position: absolute; right: 0; top: calc(100% + 8px); min-width: 210px; padding: 8px; background: var(--sheet); border-radius: 16px; box-shadow: var(--shadow-float); z-index: 30; display: grid; }
+.acct-menu[hidden] { display: none; }
+.acct-mail { margin: 4px 10px 8px; font-size: var(--t-xs); color: var(--graphite); }
+.acct-menu a, .acct-menu button { all: unset; cursor: pointer; padding: 9px 10px; border-radius: 10px; font-size: var(--t-sm); }
+.acct-menu a:hover, .acct-menu button:hover, .acct-menu a:focus-visible, .acct-menu button:focus-visible { background: var(--drafting); }
+.acct-menu .acct-out { color: var(--nofit); border-top: 1px solid var(--line-soft); margin-top: 4px; border-radius: 0 0 10px 10px; }
+
+/* ---------- 로그인 창 ---------- */
+dialog.auth, dialog.saves { border: 0; padding: 0; border-radius: 24px; background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-float); width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; }
+dialog.saves { width: min(620px, calc(100vw - 32px)); }
+dialog::backdrop { background: rgba(29, 28, 26, .38); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+dialog[open] { animation: dlg-in .22s var(--ease); }
+@keyframes dlg-in { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+.auth-form, .saves-in { position: relative; padding: 28px 28px 24px; }
+.auth-form h2, .saves-in h2 { font-size: 22px; margin: 0 0 4px; }
+.auth-x { position: absolute; right: 14px; top: 14px; width: 34px; height: 34px; padding: 0; background: transparent; color: var(--graphite); border: 0; font-size: 22px; font-weight: 400; }
+.auth-x:hover { background: var(--drafting); color: var(--ink); }
+.auth-reason { margin: 0 0 4px; color: var(--graphite); font-size: var(--t-sm); }
+.role-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 0 6px; }
+.role-pick button { flex-direction: column; align-items: flex-start; gap: 2px; padding: 14px 14px 12px; border-radius: 16px; text-align: left; background: var(--drafting); color: var(--ink); border: 1px solid var(--line-soft); }
+.role-pick button:hover { background: var(--sheet); border-color: var(--line); }
+.role-pick button[aria-checked="true"] { background: var(--sheet); border-color: var(--lg); box-shadow: inset 0 0 0 1px var(--lg); }
+.role-pick b { font-size: var(--t-lg); }
+.role-pick span { font-size: var(--t-xs); font-weight: 400; color: var(--graphite); line-height: 1.4; }
+.role-pick button[aria-checked="true"] b { color: var(--lg); }
+.auth-form label em { font-style: normal; color: var(--graphite); opacity: .8; margin-left: 4px; }
+.auth-2 { display: grid; grid-template-columns: 1.4fr 1fr; gap: 8px; }
+.auth-note { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: #e4eef8; color: #1f4f7a; font-size: var(--t-xs); }
+.auth-err { margin: 12px 0 0; color: var(--nofit); font-size: var(--t-sm); }
+.auth-go { width: 100%; margin-top: 18px; padding: 13px 16px; font-size: var(--t-md); }
+.auth-switch { text-align: center; margin: 14px 0 0; font-size: var(--t-sm); color: var(--graphite); }
+.auth-switch a { color: var(--ink); font-weight: 600; }
+
+/* ---------- 리모델링 저장 막대 ---------- */
+.savebar { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+.save-state { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-xs); color: var(--graphite); white-space: nowrap; margin-right: 4px; }
+.save-state i { width: 8px; height: 8px; border-radius: 50%; background: var(--unk); }
+.save-state.ok i { background: var(--fit); box-shadow: 0 0 0 3px var(--fit-bg); }
+.save-state.busy i { background: var(--cond); animation: pulse 1s infinite alternate; }
+.save-state.off i { background: #c9c3b9; }
+@keyframes pulse { to { opacity: .3; } }
+kbd { font: inherit; font-size: 10px; font-weight: 600; padding: 0 5px; border-radius: 5px; background: rgba(255, 255, 255, .18); }
+button.ghost kbd { background: var(--drafting); }
+.saves-in form { margin: 14px 0 6px; flex-wrap: nowrap; }
+.saves-in form input { flex: 1; }
+.saves-list { list-style: none; margin: 8px 0 0; padding: 0; }
+.saves-list li { display: flex; align-items: center; gap: 6px; padding: 12px 0; border-bottom: 1px solid var(--line-soft); flex-wrap: wrap; }
+.saves-list li > div { display: grid; gap: 2px; min-width: 0; }
+.saves-list .muted { font-size: var(--t-xs); }
+
+/* ---------- 내 집 · 기사 관리 ---------- */
+.page-head { display: flex; align-items: flex-end; gap: 16px; margin-bottom: 18px; }
+.page-head > div { flex: 1; }
+.page-head h1 { font-size: 28px; }
+.page-head .sub { margin-bottom: 0; }
+.homes { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+.homes a { display: grid; gap: 4px; padding: 18px 20px; border-radius: var(--r-sheet); background: var(--sheet); box-shadow: var(--shadow-sheet); text-decoration: none; transition: box-shadow .15s var(--ease); }
+.homes a:hover { box-shadow: var(--shadow-float); }
+.homes a b { font-size: var(--t-lg); }
+.homes a span { font-size: var(--t-xs); color: var(--graphite); }
+.homes a .go { color: var(--lg); font-weight: 600; font-size: var(--t-sm); margin-top: 8px; }
+.homes .empty { grid-column: 1 / -1; padding: 28px; border: 1px dashed var(--line); border-radius: var(--r-sheet); color: var(--graphite); text-align: center; }
+.gate { max-width: 520px; margin: 40px auto; }
+.gate .sub { margin-bottom: 16px; }
+.seg .count { font-size: 11px; color: var(--graphite); }
+table.techs td { vertical-align: middle; }
+
+@media (max-width: 760px) {
+  .acct-name, .acct-role { display: none; }
+  .acct-btn.on { padding: 4px; }
+  .savebar { width: 100%; margin-left: 0; order: 5; }
+  .page-head { flex-direction: column; align-items: stretch; }
+}
+@media (prefers-reduced-motion: reduce) { dialog[open], .save-state.busy i { animation: none; } }
 /* 조작키 창 */
 .keys-pop { position: absolute; top: 12px; left: 12px; z-index: 6; width: 300px; max-height: calc(100% - 24px); overflow-y: auto; padding: 14px 16px 16px;
   background: rgba(255, 255, 255, .92); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); border-radius: 18px; box-shadow: var(--shadow-float); }
@@ -561,3 +680,38 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .lib .prod .dot.tile.thumb span { position: relative; z-index: 1; }
 .insp-photo { height: 150px; border-radius: 14px; background: radial-gradient(120% 90% at 50% 100%, #e7e1d6 0%, var(--warm-grey) 70%); display: grid; place-items: center; margin-bottom: 10px; }
 .insp-photo img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }
+/* 제품 필터 (종류는 칩, 나머지는 작은 선택 상자) */
+.lib .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.lib .filters label { margin: 0; display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
+.lib .filters select { margin: 0; padding: 5px 8px; font-size: var(--t-xs); border-radius: 10px; background: var(--drafting); }
+
+/* 제품 상세 창: 누르면 3D 위에 뜬다 */
+.pd-modal { position: absolute; top: 12px; left: 12px; bottom: 12px; z-index: 7; width: min(440px, calc(100% - 24px)); overflow-y: auto; padding: 16px;
+  background: rgba(255, 255, 255, .96); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: var(--shadow-float);
+  display: flex; flex-direction: column; gap: 14px; animation: pd-in .22s var(--ease) both; }
+.pd-modal[hidden] { display: none; }
+@keyframes pd-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.pd-top { display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 14px; align-items: start; }
+.pd-photo { aspect-ratio: 3 / 4; border-radius: 14px; border: 1px solid rgba(0, 0, 0, .06); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 6px;
+  box-shadow: inset 0 -40px 40px -30px rgba(0, 0, 0, .14); }
+.pd-photo span { font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, .85); padding: 1px 7px; border-radius: 999px; }
+.pd-title h2 { font-size: 17px; line-height: 1.35; margin: 0 0 4px; }
+.pd-title p { margin: 0 0 10px; font-size: var(--t-xs); }
+.pd-variants { display: flex; flex-wrap: wrap; gap: 6px; }
+.pd-close { align-self: start; }
+.pd-spec { font-size: var(--t-sm); }
+.pd-spec th { width: 96px; color: var(--graphite); font-weight: 500; font-size: var(--t-xs); padding: 8px 6px 8px 0; vertical-align: top; }
+.pd-spec td { padding: 8px 0; }
+.pd-notes { font-size: var(--t-xs); color: var(--graphite); }
+.pd-notes summary { cursor: pointer; }
+.pd-notes ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.pd-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+.pd-actions .primary { padding: 12px 24px; font-size: var(--t-md); }
+.pd-src { font-size: 11px; margin-left: auto; }
+@media (max-width: 900px) {
+  .pd-modal { position: fixed; top: 12vh; left: 8px; right: 8px; bottom: 8px; width: auto; z-index: 30; }
+  .pd-top { grid-template-columns: 96px minmax(0, 1fr); }
+  .pd-close { grid-column: 1 / -1; grid-row: 1; justify-self: end; }
+}
+/* 상세 창 사진: 우리 모델 렌더. 잘리지 않게 contain, 바탕은 Warm Grey */
+.pd-photo.has-photo { background-color: var(--warm-grey) !important; background-size: contain; background-repeat: no-repeat; box-shadow: none; }

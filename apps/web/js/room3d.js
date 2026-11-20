@@ -2,6 +2,7 @@
 // 방 glb(glb.py)는 노드마다 단위 상자를 scale로 늘린 모양이다. 노드 scale = (폭, 높이, 깊이).
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { finishTexture, tileMeters, BUMP, ROUGH } from "./finishes.js";
 
 const FURN_DIR = "models/furniture/";
 const PLANK_M = 2.4;          // 바닥 무늬 한 장이 덮는 길이 (m)
@@ -187,19 +188,32 @@ export function shadowShell(model) {
   return g;
 }
 
-/** 바닥 마루, 벽 걸레받이, 창 유리·창틀, 문 나무·문틀. 반환: 컷어웨이(앞쪽 벽 흐리게)에 넣을 메시들 */
-export function dressRoom(model) {
+/** 고른 실제 벽지·바닥재 질감을 입힌다. size = 덮을 면의 (가로, 세로) m */
+function finishMaterial(finish, color, w, h, extra = {}) {
+  const map = finishTexture(finish), tm = tileMeters(finish);
+  map.repeat.set(Math.max(1, w / tm), Math.max(1, h / tm));
+  return new THREE.MeshStandardMaterial({ color, map, bumpMap: map, bumpScale: BUMP[finish.texture] ?? 0.004,
+    roughness: ROUGH[finish.texture] ?? 0.9, envMapIntensity: finish.texture === "stone" ? 0.6 : 0.3, ...extra });
+}
+
+/** 바닥 마루, 벽 걸레받이, 창 유리·창틀, 문 나무·문틀. 반환: 컷어웨이(앞쪽 벽 흐리게)에 넣을 메시들
+ *  finishes = { wall?: 마감재, floor?: 마감재 } (data/finishes의 항목) */
+export function dressRoom(model, finishes = {}) {
   const extra = [], add = [];
   const trim = new THREE.MeshStandardMaterial({ color: 0xf3f2ee, roughness: 0.45 });
   model.traverse((o) => {
     if (!o.isMesh) return;
     const kind = o.userData?.kind, s = o.scale;
     if (kind === "floor") {
-      const tex = plankTexture().clone();
-      tex.needsUpdate = true;
-      tex.repeat.set(s.x / PLANK_M, s.z / PLANK_M);
-      const floor = new THREE.Mesh(new THREE.PlaneGeometry(s.x, s.z),
-        new THREE.MeshStandardMaterial({ color: o.material.color, map: tex, roughness: 0.62, envMapIntensity: 0.35 }));
+      let mat;
+      if (finishes.floor) mat = finishMaterial(finishes.floor, o.material.color, s.x, s.z);
+      else {
+        const tex = plankTexture().clone();
+        tex.needsUpdate = true;
+        tex.repeat.set(s.x / PLANK_M, s.z / PLANK_M);
+        mat = new THREE.MeshStandardMaterial({ color: o.material.color, map: tex, roughness: 0.62, envMapIntensity: 0.35 });
+      }
+      const floor = new THREE.Mesh(new THREE.PlaneGeometry(s.x, s.z), mat);
       floor.rotation.x = -Math.PI / 2;
       floor.position.set(o.position.x, 0.0005, o.position.z);
       floor.receiveShadow = true;
@@ -207,7 +221,12 @@ export function dressRoom(model) {
       o.material.visible = false;
       add.push(floor);
     } else if (kind === "wall") {
-      Object.assign(o.material, { roughness: 0.92 });
+      if (finishes.wall) {
+        const old = o.material;
+        o.material = finishMaterial(finishes.wall, old.color, s.x, s.y,
+          { transparent: old.transparent, opacity: old.opacity, depthWrite: old.depthWrite });
+        old.dispose();
+      } else Object.assign(o.material, { roughness: 0.92 });
       const bb = worldBox(o, s.x, BASEBOARD_H, s.z + 0.024, trim.clone(), BASEBOARD_H / 2);
       add.push(bb);
       extra.push(bb);

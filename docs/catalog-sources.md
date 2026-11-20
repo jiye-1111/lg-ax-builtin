@@ -78,3 +78,7 @@ hex_approx는 이 묶음부터 제품 사진 중앙값 대신 LGE.COM 색상 이
 - 오븐: LGE.COM에 빌트인 오븐이 없어 카운터형 광파오븐·전자레인지만 넣음
 - 세탁기·건조기·스타일러 등 설치 공간 권장값 (제품 페이지에 없음)
 - 후드: LGE.COM 국내 메뉴에 단독 후드 제품이 없음
+
+## 벽지·바닥재 (data/finishes/finishes.json)
+2026-11-20 확인. 항목별 출처 URL은 JSON의 `source_url`, 조사 정리는 `docs/finish-trends-2026.md`.
+- 제품명·특징·규격은 기사·제조사 발표에 적힌 그대로. 톤 색은 공식 값이 없어 화면용 근사색(`tone_basis: approx`), Cloud Dancer만 공식 값.

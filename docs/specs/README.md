@@ -8,6 +8,7 @@
 | [usdz-analysis-2026-11-18.md](usdz-analysis-2026-11-18.md) | 실제 UGScan 내보내기 구조 분석 (첫 샘플) | `tests/unit/test_converter_real.py` |
 | [fit-rules.md](fit-rules.md) | 빌트인 적합 판정 규칙 | `tests/unit/test_fit.py` |
 | [cmf.md](cmf.md) | 색상·재질 매칭 | `tests/unit/test_cmf.py` |
+| [finishes.md](finishes.md) | 벽지·바닥재, 말로 꾸미기(AI 추천) | `tests/unit/test_finishes.py`, `tests/unit/test_ai_style.py`, `tests/integration/test_finish_api.py` |
 | [catalog.md](catalog.md) | 제품 카탈로그 스키마·수집 규칙 | `core.models.Product` 검증 |
 | [api.md](api.md) | REST API | `tests/integration/test_api_flow.py` |
 | [mcp-tools.md](mcp-tools.md) | MCP 도구·전송·인증 | `tests/integration/test_mcp_*.py` |
