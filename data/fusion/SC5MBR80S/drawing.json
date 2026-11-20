@@ -3,7 +3,7 @@
  "unit": "mm",
  "drawn_at": "2026-11-20",
  "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
- "source": "https://static.lge.co.kr/kr/images/spec/sc5mbr80s_2p.jpg — SC5GMR80S와 같은 몸체, 문 색만 다름 (이 치수도는 직접 열어 보지 않고 같은 2026년형이라 같은 몸체로 둠)",
+ "source": "https://static.lge.co.kr/kr/images/spec/sc5mbr80s_2p.jpg — 치수도 확인함: SC5GMR80S와 같은 구성(왼쪽 검정 조작부 띠, 어두운 본체), 문 색만 샌드 베이지",
  "geometry_from": "SC5GMR80S",
  "colors": {
   "door": {

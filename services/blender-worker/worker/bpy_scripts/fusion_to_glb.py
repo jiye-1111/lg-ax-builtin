@@ -21,6 +21,7 @@ import json
 import sys
 from pathlib import Path
 
+import bmesh
 import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -63,6 +64,15 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
     panel_hex = drawing.get("colors", {}).get("panel", {}).get("hex_approx")  # 조작부처럼 색이 따로 있는 판
     pal["panel"] = material("panel", panel_hex, 0.35) if panel_hex else pal["trim"]
     pal["wood"] = material("wood", "#9A6A43", 0.55)  # 와인셀러 선반 앞 나무
+    # 마감: 홈·받침은 더 어둡고 거칠게(그늘처럼 보이게), 유리(표시창·문 유리)는 매끈한 코팅 반사
+    pal["trim"] = material("trim", "#17181A", 0.8)
+    pal["display"] = material("display", "#0A0B0D", 0.05, 0.0, 1.0)
+    if "글라스" in (opt.get("material") or ""):  # 유리 문: 코팅 반사가 또렷하게
+        bsdf = pal["finish"].node_tree.nodes["Principled BSDF"]
+        bsdf.inputs["Roughness"].default_value = 0.07
+        if "Coat Weight" in bsdf.inputs:
+            bsdf.inputs["Coat Weight"].default_value = 1.0
+            bsdf.inputs["Coat Roughness"].default_value = 0.03
     if geo is None:  # 색만 다른 모델은 몸체 공유
         geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src
     objs = []
@@ -87,6 +97,15 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
         ob.select_set(True)
         bpy.context.view_layer.objects.active = ob
         bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
+        # STL은 삼각형마다 꼭짓점이 따로라 그대로 두면 필렛이 각져 보이고 파일도 크다:
+        # 겹친 꼭짓점을 합치고(0.01mm) 평평한 면은 큰 면 하나로 줄인 뒤 30° 기준으로 부드럽게.
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-5)
+        bmesh.ops.dissolve_limit(bm, angle_limit=0.0087, verts=bm.verts, edges=bm.edges, delimit={"NORMAL"})
+        bmesh.ops.triangulate(bm, faces=bm.faces)
+        bm.to_mesh(ob.data)
+        bm.free()
         bpy.ops.object.shade_auto_smooth(angle=0.5236)
     pts = [ob.matrix_world @ v.co for ob in objs for v in ob.data.vertices]
     lo = [min(p[i] for p in pts) for i in range(3)]
