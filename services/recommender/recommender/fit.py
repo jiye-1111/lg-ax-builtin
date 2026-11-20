@@ -112,6 +112,7 @@ def judge_dimension(available_mm, required_mm, measured: bool, cfg: FitConfig) -
 
 def required_space(p: Product) -> tuple[dict[str, Optional[float]], bool]:
     """필요 설치 치수(mm). required_space_mm 우선, 없으면 제품 치수 + 이격.
+    옆 이격은 양옆 각각(side × 2). 한쪽에만 두면 되는 값(side_total)이 있으면 그 값을 한 번만 더한다.
     두 번째 값: 이격 정보가 없어 제품 치수만으로 계산했는지."""
     rs, pd, cl = p.required_space_mm, p.product_dims_mm, p.clearance_mm
     clearance_unknown = False
@@ -127,7 +128,8 @@ def required_space(p: Product) -> tuple[dict[str, Optional[float]], bool]:
             return dim
         return dim + extra
 
-    w = pick(rs.w, pd.w, None if cl.side is None else 2 * cl.side)
+    side = cl.side_total if cl.side_total is not None else None if cl.side is None else 2 * cl.side
+    w = pick(rs.w, pd.w, side)
     h = pick(rs.h, pd.h, cl.top)
     d = pick(rs.d, pd.d, cl.back)
     return {"width": w, "height": h, "depth": d}, clearance_unknown

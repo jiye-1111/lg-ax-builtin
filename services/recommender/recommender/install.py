@@ -27,6 +27,48 @@ def _line(code: str, label: str, status: str, detail: str = "") -> dict:
     return {"code": code, "label": label, "status": status, "detail": detail}
 
 
+def _mm(v: float) -> str:
+    return f"{round(v):,} mm"
+
+
+def _water_detail(p: Product) -> str:
+    m, bits = p.install_mm, []
+    if "water_source_max" in m:
+        bits.append(f"수도에서 {m['water_source_max'] / 1000:g} m 안")
+    if p.needs_drain:
+        bits.append("배수 호스 연결 필요")
+    if "hose_hole_dia" in m:
+        bits.append(f"호스가 지나갈 싱크대 구멍 약 {_mm(m['hose_hole_dia'])}")
+    return " · ".join(bits)
+
+
+def _water_purifier_lines(p: Product) -> list[dict]:
+    """정수기 설치가이드의 현장 확인 항목. 스캔으로는 알 수 없어 모두 '현장 확인'."""
+    m, c, out = p.install_mm, p.clearance_mm, []
+    if "faucet_hole_dia" in m:
+        bits = [f"구멍 지름 {_mm(m['faucet_hole_dia'])}"]
+        if "faucet_ring_dia" in m:
+            bits.append(f"위쪽 고정 자리 지름 {_mm(m['faucet_ring_dia'])}")
+        if "faucet_under_w" in m and "faucet_under_d" in m:
+            bits.append(f"아래쪽 가로 {_mm(m['faucet_under_w'])} × 세로 {_mm(m['faucet_under_d'])}")
+        out.append(_line("faucet", "출수구 자리 (싱크볼·상판)", "site", " · ".join(bits)))
+    if p.install_form == "빌트인":
+        bits = []
+        if c.back is not None and c.side_total is not None:
+            bits.append(f"하부장 안 벽 쪽 {_mm(c.back)}, 옆 쪽 {_mm(c.side_total)} 여유")
+        if "faucet_to_body_max" in m:
+            bits.append(f"출수구에서 본체까지 {_mm(m['faucet_to_body_max'])} 안")
+        if "cord_hole_dia" in m:
+            bits.append(f"하부장에 콘센트가 없으면 전선 구멍 {_mm(m['cord_hole_dia'])}")
+        out.append(_line("body", "하부장 안 본체 자리", "site", " · ".join(bits)))
+    elif p.install_form == "데스크" and c.top is not None:
+        out.append(_line("above", "제품 위 여유", "site", f"위로 {_mm(c.top)} 넘게 비어 있어야 해요 (상부장 아래에 놓을 때)"))
+    if "cabinet_top_min" in m:
+        out.append(_line("above", "가구장 안에 놓을 때", "site",
+                         f"위로 {_mm(m['cabinet_top_min'])} 넘게 비우고 바닥에 바로 놓아야 해요 (슬라이딩 선반 위 불가)"))
+    return out
+
+
 def _item(room: Room, x: dict, p: Product) -> dict:
     d = p.product_dims_mm
     reasons = x.get("reasons") or []
@@ -69,7 +111,8 @@ def _item(room: Room, x: dict, p: Product) -> dict:
         checks.append(_line("carry", "현관·복도·엘리베이터", "site", f"폭 {round(thin):,} mm 넘게 비어 있어야 들어와요"))
     checks.append(_line("power", "콘센트 위치", "site"))
     if p.category in NEEDS_WATER:
-        checks.append(_line("water", "급수·배수 연결 위치", "site"))
+        checks.append(_line("water", "급수·배수 연결 위치", "site", _water_detail(p)))
+    checks += _water_purifier_lines(p)
 
     status = max((c["status"] for c in checks), key=_RANK.get)
     return {"placement_id": x.get("placement_id"), "sku": p.sku, "name": p.name, "category": p.category,

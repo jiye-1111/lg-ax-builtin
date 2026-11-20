@@ -783,8 +783,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": 100,
         "top": null,
-        "back": null
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -793,7 +794,8 @@
         "d": null
       },
       "spec_notes": [
-        "언더싱크형. 파우셋 48 x 264 x 188"
+        "언더싱크형. 파우셋 48 x 264 x 188",
+        "하부장 안 본체: 벽 쪽 10mm, 옆 쪽 100mm 여유. 출수구: 타공 지름 28mm, 데코링 52mm, 싱크볼 하판 가로 102mm × 세로 70mm, 출수구-본체 최대 730mm, 원수에서 5m 이내, 콘센트 없으면 55mm 타공: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -813,7 +815,18 @@
       "price_krw": 1839000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "빌트인",
+      "install_mm": {
+        "faucet_hole_dia": 28,
+        "faucet_ring_dia": 52,
+        "faucet_under_w": 102,
+        "faucet_under_d": 70,
+        "faucet_to_body_max": 730,
+        "water_source_max": 5000,
+        "cord_hole_dia": 55,
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WU523ACB",
@@ -835,8 +848,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": 100,
         "top": null,
-        "back": null
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -845,7 +859,8 @@
         "d": null
       },
       "spec_notes": [
-        "언더싱크형. 파우셋 48 x 264 x 188"
+        "언더싱크형. 파우셋 48 x 264 x 188",
+        "하부장 안 본체: 벽 쪽 10mm, 옆 쪽 100mm 여유. 출수구: 타공 지름 28mm, 데코링 52mm, 싱크볼 하판 가로 102mm × 세로 70mm, 출수구-본체 최대 730mm, 원수에서 5m 이내, 콘센트 없으면 55mm 타공: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -865,7 +880,18 @@
       "price_krw": 1839000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "빌트인",
+      "install_mm": {
+        "faucet_hole_dia": 28,
+        "faucet_ring_dia": 52,
+        "faucet_under_w": 102,
+        "faucet_under_d": 70,
+        "faucet_to_body_max": 730,
+        "water_source_max": 5000,
+        "cord_hole_dia": 55,
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "Y323MEF",
@@ -14966,8 +14992,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -14977,7 +15004,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 132 x 363 x 425: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -14997,7 +15025,12 @@
       "price_krw": 1716000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD523AWB",
@@ -15019,8 +15052,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15030,7 +15064,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15050,7 +15085,12 @@
       "price_krw": 1839000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WD523VCT",
@@ -15072,8 +15112,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15083,7 +15124,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15103,7 +15145,12 @@
       "price_krw": 1891000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WD523ACB",
@@ -15125,8 +15172,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15136,7 +15184,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15156,7 +15205,12 @@
       "price_krw": 1454000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WD520AWB",
@@ -15178,8 +15232,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15189,7 +15244,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15209,7 +15265,12 @@
       "price_krw": 1410000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WD520VHT",
@@ -15231,8 +15292,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15242,7 +15304,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15262,7 +15325,12 @@
       "price_krw": 1484000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WD520VCT",
@@ -15284,8 +15352,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15295,7 +15364,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15315,7 +15385,12 @@
       "price_krw": 1598000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WU923AS",
@@ -15324,7 +15399,7 @@
       "zone_fit": [
         "kitchen"
       ],
-      "install_type": "freestanding",
+      "install_type": "built_in",
       "product_dims_mm": {
         "w": 170,
         "h": 420,
@@ -15337,8 +15412,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": 100,
         "top": null,
-        "back": null
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15348,7 +15424,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 420 x 410: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "하부장 안 본체: 벽 쪽 10mm, 옆 쪽 100mm 여유. 출수구: 타공 지름 28mm, 데코링 52mm, 싱크볼 하판 가로 102mm × 세로 70mm, 출수구-본체 최대 730mm, 원수에서 5m 이내, 콘센트 없으면 55mm 타공: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15368,7 +15445,18 @@
       "price_krw": 1934000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "빌트인",
+      "install_mm": {
+        "faucet_hole_dia": 28,
+        "faucet_ring_dia": 52,
+        "faucet_under_w": 102,
+        "faucet_under_d": 70,
+        "faucet_to_body_max": 730,
+        "water_source_max": 5000,
+        "cord_hole_dia": 55,
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WU923ACB",
@@ -15377,7 +15465,7 @@
       "zone_fit": [
         "kitchen"
       ],
-      "install_type": "freestanding",
+      "install_type": "built_in",
       "product_dims_mm": {
         "w": 170,
         "h": 420,
@@ -15390,8 +15478,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": 100,
         "top": null,
-        "back": null
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15401,7 +15490,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 420 x 410: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "하부장 안 본체: 벽 쪽 10mm, 옆 쪽 100mm 여유. 출수구: 타공 지름 28mm, 데코링 52mm, 싱크볼 하판 가로 102mm × 세로 70mm, 출수구-본체 최대 730mm, 원수에서 5m 이내, 콘센트 없으면 55mm 타공: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15421,7 +15511,18 @@
       "price_krw": 2021000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "빌트인",
+      "install_mm": {
+        "faucet_hole_dia": 28,
+        "faucet_ring_dia": 52,
+        "faucet_under_w": 102,
+        "faucet_under_d": 70,
+        "faucet_to_body_max": 730,
+        "water_source_max": 5000,
+        "cord_hole_dia": 55,
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD525ACB",
@@ -15443,8 +15544,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15454,7 +15556,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 419 x 550: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15474,7 +15577,12 @@
       "price_krw": 1337000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD525AHB",
@@ -15496,8 +15604,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15507,7 +15616,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 419 x 550: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15527,7 +15637,12 @@
       "price_krw": 1246000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD524VCT",
@@ -15549,8 +15664,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15560,7 +15676,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15580,7 +15697,12 @@
       "price_krw": 2038000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD524VHMT",
@@ -15602,8 +15724,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15613,7 +15736,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15633,7 +15757,12 @@
       "price_krw": 1776000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD524ACB",
@@ -15655,8 +15784,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15666,7 +15796,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -15686,7 +15817,12 @@
       "price_krw": 1513000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD723RH",
@@ -15708,8 +15844,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15719,7 +15856,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 240 x 465 x 497: 제품 페이지 스펙 표",
-        "구분: 냉동얼음정수기"
+        "구분: 냉동얼음정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉동얼음정수기"
@@ -15739,7 +15877,12 @@
       "price_krw": 2754000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD721RE",
@@ -15761,8 +15904,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15772,7 +15916,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 240 x 465 x 497: 제품 페이지 스펙 표",
-        "구분: 냉동얼음정수기"
+        "구분: 냉동얼음정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉동얼음정수기"
@@ -15792,7 +15937,12 @@
       "price_krw": 2853000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD722RE",
@@ -15814,8 +15964,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15825,7 +15976,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 240 x 465 x 497: 제품 페이지 스펙 표",
-        "구분: 냉동얼음정수기"
+        "구분: 냉동얼음정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉동얼음정수기"
@@ -15845,7 +15997,12 @@
       "price_krw": 2926000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD724RE",
@@ -15867,8 +16024,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15878,7 +16036,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 240 x 465 x 497: 제품 페이지 스펙 표",
-        "구분: 냉동얼음정수기"
+        "구분: 냉동얼음정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉동얼음정수기"
@@ -15898,7 +16057,12 @@
       "price_krw": 3043000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD323ACB",
@@ -15920,8 +16084,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15931,7 +16096,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 168 x 398 x 400: 제품 페이지 스펙 표",
-        "구분: 냉정수기"
+        "구분: 냉정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉정수기"
@@ -15951,7 +16117,12 @@
       "price_krw": 1598000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WU823AS",
@@ -15960,7 +16131,7 @@
       "zone_fit": [
         "kitchen"
       ],
-      "install_type": "freestanding",
+      "install_type": "built_in",
       "product_dims_mm": {
         "w": 170,
         "h": 420,
@@ -15973,8 +16144,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": 100,
         "top": null,
-        "back": null
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -15984,7 +16156,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 420 x 410: 제품 페이지 스펙 표",
-        "구분: 냉정수기"
+        "구분: 냉정수기",
+        "하부장 안 본체: 벽 쪽 10mm, 옆 쪽 100mm 여유. 출수구: 타공 지름 28mm, 데코링 52mm, 싱크볼 하판 가로 102mm × 세로 70mm, 출수구-본체 최대 730mm, 원수에서 5m 이내, 콘센트 없으면 55mm 타공: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉정수기"
@@ -16004,7 +16177,18 @@
       "price_krw": 1803000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "빌트인",
+      "install_mm": {
+        "faucet_hole_dia": 28,
+        "faucet_ring_dia": 52,
+        "faucet_under_w": 102,
+        "faucet_under_d": 70,
+        "faucet_to_body_max": 730,
+        "water_source_max": 5000,
+        "cord_hole_dia": 55,
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD325AS",
@@ -16026,8 +16210,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16037,7 +16222,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 419 x 550: 제품 페이지 스펙 표",
-        "구분: 냉정수기"
+        "구분: 냉정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉정수기"
@@ -16057,7 +16243,12 @@
       "price_krw": 1451000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD325AHB",
@@ -16079,8 +16270,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16090,7 +16282,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 170 x 419 x 550: 제품 페이지 스펙 표",
-        "구분: 냉정수기"
+        "구분: 냉정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉정수기"
@@ -16110,7 +16303,12 @@
       "price_krw": 1337000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WD121MCB",
@@ -16132,8 +16330,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16143,7 +16342,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 132 x 358 x 230: 제품 페이지 스펙 표",
-        "구분: 정수전용"
+        "구분: 정수전용",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "정수전용"
@@ -16163,7 +16363,12 @@
       "price_krw": 976000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "WS513SH",
@@ -16185,8 +16390,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": null,
         "top": null,
-        "back": null
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16196,7 +16402,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 360 x 1,257 x 462: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 벽면과 10~15cm. 가구장 안에 놓으면 상부 35cm 이상, 바닥에 직접 닿게 (슬라이딩 선반 위 불가): 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -16216,7 +16423,11 @@
       "price_krw": 2316000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "스탠드",
+      "install_mm": {
+        "cabinet_top_min": 350
+      }
     },
     {
       "sku": "WD522MH",
@@ -16238,8 +16449,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16249,7 +16461,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 132 x 363 x 451: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -16269,7 +16482,12 @@
       "price_krw": 1956000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": null,
+      "install_mm": {
+        "hose_hole_dia": 10
+      }
     },
     {
       "sku": "WS511SH",
@@ -16291,8 +16509,9 @@
       },
       "clearance_mm": {
         "side": null,
+        "side_total": null,
         "top": null,
-        "back": null
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16302,7 +16521,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 260 x 1,158 x 467: 제품 페이지 스펙 표",
-        "구분: 냉온정수기"
+        "구분: 냉온정수기",
+        "설치 여유: 벽면과 10~15cm. 가구장 안에 놓으면 상부 35cm 이상, 바닥에 직접 닿게 (슬라이딩 선반 위 불가): 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "냉온정수기"
@@ -16322,7 +16542,11 @@
       "price_krw": 1365000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "스탠드",
+      "install_mm": {
+        "cabinet_top_min": 350
+      }
     },
     {
       "sku": "WD221MCB",
@@ -16344,8 +16568,9 @@
       },
       "clearance_mm": {
         "side": null,
-        "top": null,
-        "back": null
+        "side_total": 100,
+        "top": 150,
+        "back": 10
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -16355,7 +16580,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 132 x 358 x 230: 제품 페이지 스펙 표",
-        "구분: 온정수기"
+        "구분: 온정수기",
+        "설치 여유: 제품 위 15cm 이상, 벽면 쪽 10mm, 옆면 쪽 100mm 이상 (미확보 시 설치 불가). 싱크대 타공 약 9~10mm, 원수·배수 모두 연결하면 약 15mm: 정수기 설치가이드 https://www.lge.co.kr/story/user-guide/lg-water-purifiers-install-guide"
       ],
       "options": {
         "kind": "온정수기"
@@ -16375,7 +16601,12 @@
       "price_krw": 1195000,
       "price_checked_at": "2026-11-20",
       "model_3d": null,
-      "demo_only": false
+      "demo_only": false,
+      "install_form": "데스크",
+      "needs_drain": true,
+      "install_mm": {
+        "hose_hole_dia": 15
+      }
     },
     {
       "sku": "W2421KKAM",

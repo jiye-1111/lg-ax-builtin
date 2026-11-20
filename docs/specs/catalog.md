@@ -12,3 +12,4 @@
 - 기본값 `CATALOG_INCLUDE_DEMO=0` (실데이터만). 거실 제품은 아직 가상 데이터뿐이라 거실 추천을 보여 주려면 1로.
 - 테스트는 `tests/conftest.py`에서 가상 데이터를 켠다.
 - 필드 추가: `cutout_mm`(상판 타공), `spec_notes`(값마다 어디서 가져왔는지).
+- 정수기 필드: `install_form`(데스크·스탠드·빌트인), `install_mm`(설치가이드의 현장 치수, 키는 `fit-rules.md` "정수기 설치 규격"), `needs_drain`, `clearance_mm.side_total`(한쪽에만 두면 되는 옆 여유).
