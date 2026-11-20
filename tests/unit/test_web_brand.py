@@ -66,3 +66,12 @@ def test_remodel_is_simple():
     assert 'data-tab="lib"' not in js
     css = (WEB / "style.css").read_text(encoding="utf-8")
     assert '"lib stage side"' in css
+
+
+def test_product_detail_and_filters():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    # 제품을 누르면 상세 창, 거기서 넣어 보기
+    assert 'id="pdModal"' in js and 'id="pdPlace"' in js
+    # 다나와식 필터: 폭, 높이, 색상
+    for f in ('id="fW"', 'id="fH"', 'id="fColor"'):
+        assert f in js

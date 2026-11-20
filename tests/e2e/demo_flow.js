@@ -47,7 +47,11 @@ const j = async (p) => (await fetch(BASE + p)).json();
   const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
 
   // S10 3D에서 놓기 → 끌기 → 돌리기
+  // 제품 카드를 누르면 상세 창(사진·치수·사양·색상) → "넣어 보기"로 집어 든다
   await page.click("#lib .prod:not(.nosize) >> nth=0");
+  check("제품 상세 창", await page.isVisible("#pdModal") && /가로/.test(await page.textContent("#pdModal")) && (await page.$$("#pdModal [data-pd-variant]")).length >= 1);
+  await page.click("#pdPlace");
+  check("넣어 보기로 집어 들기", (await page.$$("#lib .prod.armed")).length === 1 && !(await page.isVisible("#pdModal")));
   let [sx, sy] = await toScreen([cx - 0.4, cy + 0.7]);
   await page.mouse.move(sx, sy);
   await wait(500);
@@ -118,6 +122,7 @@ const j = async (p) => (await fetch(BASE + p)).json();
   await page.click('.studio-head [data-view="plan"]');
   await wait(500);
   await page.click("#lib .prod:not(.nosize) >> nth=1");
+  await page.click("#pdPlace");
   const box = await (await page.$("#plan")).boundingBox();
   await page.mouse.click(box.x + box.width * 0.5, box.y + box.height * 0.75);
   await wait(2000);
