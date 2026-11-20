@@ -146,7 +146,8 @@ def product_size(p: Product) -> Optional[tuple[float, float, float]]:
 
 def _clear(p: Product) -> tuple[float, float, float, bool]:
     c = p.clearance_mm
-    unknown = c.side is None or c.back is None or c.top is None
+    # side_total(한쪽에만 두면 되는 옆 여유)은 어느 쪽에 둘지 몰라 사각형에는 넣지 않는다
+    unknown = (c.side is None and c.side_total is None) or c.back is None or c.top is None
     return (c.side or 0) / 1000, (c.back or 0) / 1000, (c.top or 0) / 1000, unknown
 
 

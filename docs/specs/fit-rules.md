@@ -8,7 +8,7 @@
 ## 필요 치수 (mm)
 | 축 | `required_space_mm` 있으면 | 없으면 |
 |----|----|----|
-| 폭 | 그 값 | 제품 w + 2 × side 이격 |
+| 폭 | 그 값 | 제품 w + 2 × side 이격. `side_total`(한쪽에만 두면 되는 옆 여유)이 있으면 제품 w + side_total |
 | 높이 | 그 값 | 제품 h + top 이격 |
 | 깊이 | 그 값 | 제품 d + back 이격 |
 - 이격값이 null이면 제품 치수만 쓰고 `clearance_unknown` 표시, 최종 판정을 **조건부 이하**로 제한.
@@ -89,3 +89,17 @@
 - 크기순: 폭이 좁은 순. 가격순: 싼 순, 가격을 모르면 맨 뒤.
 - 필터 값(용량 구간 400L 이하 / 400~600L / 600L 이상, 색상 묶음, 가격대)은 고른 용량·색상·가격과 상관없이 그 종류 전체에서 센다. 가격을 아는 제품이 없으면 가격은 null.
 - 추천 이유 문장("폭 950 mm 공간에 들어가요 (여유 28 mm)" 등)도 코드가 만든다.
+
+## 정수기 설치 규격
+출처는 LGE.COM 정수기 설치가이드 하나다 (`docs/catalog-sources.md` "정수기 설치 규격"). 테스트 `tests/unit/test_water_purifier.py`.
+
+| 형태 `install_form` | 판정에 쓰는 이격 `clearance_mm` | 현장 확인으로 남기는 값 `install_mm` |
+|---|---|---|
+| 데스크 (WD) | 옆 100(`side_total`), 위 150, 뒤 10 | 싱크대 호스 구멍 `hose_hole_dia` 10 (배수까지 연결하면 15) |
+| 스탠드 (WS) | 뒤 100. 옆·위는 가이드에 없어 null | 가구장 안에 놓을 때 위 `cabinet_top_min` 350 |
+| 빌트인 (WU) | 하부장 안 본체: 옆 100(`side_total`), 뒤 10. 위는 null | 출수구 구멍 `faucet_hole_dia` 28, 데코링 `faucet_ring_dia` 52, 싱크볼 아래 `faucet_under_w` 102 × `faucet_under_d` 70, 출수구-본체 `faucet_to_body_max` 730, 수도에서 `water_source_max` 5000, 전선 구멍 `cord_hole_dia` 55, 호스 구멍 `hose_hole_dia` 15 |
+
+- 옆 100은 "옆 쪽으로 100mm"라 한쪽에만 두면 된다. 폭에는 한 번만 더하고, 자유 배치 사각형(R)에는 어느 쪽인지 몰라 넣지 않는다.
+- 이격이 null인 축이 남아 있으면 전처럼 조건부 이하(`clearance_unknown`).
+- `needs_drain`: 냉동얼음·라이트온·음성인식·상하좌우 정수기는 배수 호스 연결이 꼭 필요하다(true). 나머지는 가이드에 없어 null.
+- 출수구 자리, 하부장 안 자리, 수도·배수 거리는 스캔으로 알 수 없다. 설치 전 확인 목록(`recommender/install.py`)에 '현장 확인' 줄로 치수와 함께 낸다 (`faucet`, `body`, `above`, `water`).

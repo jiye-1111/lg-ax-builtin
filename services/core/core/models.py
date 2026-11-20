@@ -100,7 +100,8 @@ class Dims(_Strict):
 
 
 class Clearance(_Strict):
-    side: Optional[float] = None
+    side: Optional[float] = None        # 양옆 각각
+    side_total: Optional[float] = None  # 한쪽에만 두어도 되는 옆 여유 (정수기: "옆 쪽으로 100mm"). 폭에 한 번만 더한다
     top: Optional[float] = None
     back: Optional[float] = None
 
@@ -135,5 +136,9 @@ class Product(_Strict):
     # LGE.COM 제품 페이지의 판매가(원, 회원 로그인 전 화면에 보이는 값). 못 읽었으면 null. 자주 바뀌니 확인한 날을 같이 적는다
     price_krw: Optional[int] = None
     price_checked_at: Optional[str] = None
+    # 정수기 설치 형태(데스크·스탠드·빌트인)와 설치가이드의 현장 치수(mm). 키는 docs/specs/catalog.md
+    install_form: Optional[str] = None
+    install_mm: dict[str, float] = Field(default_factory=dict)
+    needs_drain: Optional[bool] = None  # 배수 호스 연결이 꼭 필요한지. 가이드에 없으면 null
     model_3d: Optional[str] = None
     demo_only: bool = False  # True면 LGE.COM 값이 아닌 시연·테스트용 가상 데이터
