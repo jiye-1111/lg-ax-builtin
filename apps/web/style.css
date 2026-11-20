@@ -259,10 +259,12 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .plan .sunpatch { fill: #ffd54a; fill-opacity: .55; stroke: #e0a800; }
 .plan .compass circle { fill: #fff; stroke: var(--ink); }
 .plan .compass path { fill: var(--lg); }
-.plan .router circle { fill: #fff; stroke: var(--wifi); }
+.plan .router-sym rect { fill: var(--ink); }
+.plan .router-sym path { stroke: var(--ink); }
 .plan .route { fill: none; stroke: var(--route); stroke-linecap: round; stroke-linejoin: round; stroke-opacity: .85; }
-.plan .narrow { fill: var(--nofit); fill-opacity: .8; }
-.plan .mark circle { fill: #fff; stroke: var(--ink); }
+.plan .narrow { fill: none; stroke: var(--nofit); stroke-opacity: .9; }
+.plan .tag rect { fill: var(--ink); fill-opacity: .82; }
+.plan .tag text { fill: #fff; font-weight: 600; }
 
 /* ---------- 첫 화면: 실사 렌더 위에 카피 ---------- */
 .hero { position: relative; min-height: max(720px, 100svh); display: flex; flex-direction: column; isolation: isolate; overflow: hidden; }

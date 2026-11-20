@@ -789,13 +789,16 @@ class Service:
                 out.append(rect(tuple(x["center_xz"]), x["yaw_rad"] - _m.pi / 2, x["size_m"][0], x["size_m"][2]))
         return out
 
-    def set_router(self, pid: str, center_xz, band: str = "5") -> dict:
+    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None) -> dict:
         if band not in ("2.4", "5"):
             raise Invalid("band는 2.4 또는 5")
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
         p = self.get_project(pid)
-        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band}
+        prev = p["scene_state"].get("router") or {}
+        # 방향은 화면 표시용 (신호 계산은 무지향). 자리만 옮기면 원래 방향을 그대로 둔다
+        yaw = float(yaw_rad) if yaw_rad is not None else float(prev.get("yaw_rad", 0.0))
+        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band, "yaw_rad": yaw}
         return self._save_project(p)
 
     def wifi(self, pid: str, band: str | None = None) -> dict:

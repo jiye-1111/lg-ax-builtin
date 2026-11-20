@@ -175,6 +175,7 @@ export async function customer(pid) {
     onLeave: () => { if (armed) ghost(null); },
     onClick: ({ hit, point }) => {
       if (point && floorAction(point)) return;
+      if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }
       if (hit?.type === "placement") { selPl = hit.id; selObj = null; setTab("sel"); }
       else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
       else { selPl = null; selObj = null; }
@@ -511,6 +512,10 @@ export async function customer(pid) {
   const ROT_STEP = 45, ROT_FINE = 15, NUDGE = 0.1, NUDGE_FINE = 0.01;
   const objOf = (id) => room.objects.find((o) => o.object_id === id);
   const poseOf = (hit) => {
+    if (hit.type === "router") {
+      const rt = project.scene_state.router;
+      return rt && { kind: "router", id: "router", xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0 };
+    }
     if (hit.type === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === hit.id);
       return x && { kind: "placement", id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad };
@@ -526,7 +531,10 @@ export async function customer(pid) {
   let editSeq = 0; // 화면에서 바꾼 횟수: 읽는 도중 바뀌면 그 응답은 버리고 다시 읽는다
   const applyLocal = (it) => {
     editSeq++;
-    if (it.kind === "placement") {
+    if (it.kind === "router") {
+      const rt = project.scene_state.router;
+      if (rt) { rt.center_xz = [...it.xz]; rt.yaw_rad = it.yaw; }
+    } else if (it.kind === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
       if (x) { x.center_xz = [...it.xz]; x.yaw_rad = it.yaw; }
     } else {
@@ -536,6 +544,12 @@ export async function customer(pid) {
   };
   const savePose = guard(async (it) => {
     applyLocal(it);
+    if (it.kind === "router") {
+      // 공유기를 내려놓으면 그 자리에서 신호를 다시 계산한다
+      project = await put(`/api/projects/${pid}/router`, { center_xz: it.xz, yaw_rad: it.yaw, band });
+      if (sim === "wifi") await runWifi();
+      return;
+    }
     if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false }) });
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
@@ -996,18 +1010,23 @@ export async function customer(pid) {
   const runWifi = async () => {
     const box = document.getElementById("simres");
     const rt = project.scene_state.router;
-    if (!rt) { setOverlay(""); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
+    if (!rt) { setOverlay(""); viewer.setRouter(null); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
     const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
     const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
     const [x0, y0] = g.origin, c = g.cell_m, cells = [];
     g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.28"/>`); }));
-    const [rx, ry] = g.router, r = pv.sw(9);
-    setOverlay(cells.join("") + `<g class="router"><circle cx="${rx}" cy="${ry}" r="${r}" style="stroke-width:${pv.sw(2)}px"/><text x="${rx}" y="${ry}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">📶</text></g>`);
+    const [rx, ry] = g.router;
+    // 평면도에는 실제 크기 윗면 기호(본체 + 안테나 4개), 3D에는 실제 공유기 모델
+    const yawDeg = ((rt.yaw_rad ?? 0) * 180) / Math.PI;
+    const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
+    setOverlay(cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
+    viewer.setRouter(rt);
     const pct = (v) => `${Math.round((v || 0) * 100)}%`;
     box.innerHTML = `
       <p style="margin:0 0 6px">${["good", "ok", "weak"].map((k) => `<span class="badge" style="background:${WCOLOR[k]}22;color:${WCOLOR[k]}">${WLABEL[k]} ${pct(g.share[k])}</span>`).join(" ")} · 가장 약한 곳 <b>${g.min_dbm} dBm</b></p>
       ${g.zones.length ? `<ul class="reasons">${g.zones.map((z) => `<li>${esc(z.name)}: ${z.min_dbm == null ? "영역 안 칸 없음" : `가장 약한 곳 ${z.min_dbm} dBm · 약함 ${pct(z.share.weak)}`}</li>`).join("")}</ul>` : `<p class="muted" style="font-size:12px;margin:0">영역을 그리면 영역별 요약도 보여 드려요.</p>`}
-      <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
+      <p class="muted" style="font-size:12px;margin:6px 0 0">3D에서 공유기를 누르면 집어 들어요. 옮기거나 R로 돌려 내려놓으면 다시 계산해요.</p>
+      <details class="sim-notes"><summary>참고 사항</summary>공유기 모델: TP-Link Archer AX55 공개 치수 261.1×134.5×41 mm · 참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
   };
   const wifiCtl = async () => {
     document.getElementById("simctl").innerHTML = `
@@ -1033,15 +1052,24 @@ export async function customer(pid) {
     const box = document.getElementById("simres");
     const f = await api(`/api/projects/${pid}/sim/flow`);
     const parts = [];
-    const lw = pv.sw(3);
+    const lw = pv.sw(2);
+    const paths = [];
     for (const [k, r] of Object.entries(f.routes)) {
       if (!r.reachable) continue;
-      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px"/>`);
-      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="${pv.sw(5)}"/>`);
+      paths.push(r.path);
+      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px;stroke-dasharray:${pv.sw(6)} ${pv.sw(5)}"/>`);
+      // 좁은 곳: 바닥에 얇은 빨간 고리 (0.9 m보다 좁음)
+      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
     }
-    if (f.entrance) { const [x, y] = f.entrance.point; parts.push(`<g class="mark"><circle cx="${x}" cy="${y}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚪</text></g>`); }
-    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(`<g class="mark"><circle cx="${v[0]}" cy="${v[1]}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${v[0]}" y="${v[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚰</text></g>`);
+    // 현관·싱크는 바닥에 글자 표시 (그림 문자 대신)
+    const tag = (x, y, t) => {
+      const fs = 0.16, w = fs * 0.95 * t.length + 0.12, h = fs + 0.1;
+      return `<g class="tag"><rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2}"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${fs}px">${t}</text></g>`;
+    };
+    if (f.entrance) parts.push(tag(...f.entrance.point, "현관"));
+    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(tag(v[0], v[1], "싱크"));
     setOverlay(parts.join(""));
+    viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 현관에서 제품 앞까지 걷는다
     const rows = Object.entries(f.routes).map(([k, r]) => {
       const nm = esc(f.names[k] || k);
       if (!r.reachable) return `<li><span class="badge no_fit">못 감</span> ${nm}: 현관에서 갈 길이 막혔어요</li>`;
@@ -1052,7 +1080,7 @@ export async function customer(pid) {
     box.innerHTML = `
       ${rows ? `<ul class="reasons">${rows}</ul>` : `<p class="muted" style="margin:0">제품을 놓으면 현관에서 제품 앞까지 동선을 그려 드려요.</p>`}
       ${t ? `<p style="margin:6px 0 0">주방 작업 삼각형(냉장고·싱크·쿡탑) 합계 <b>${t.perimeter_m} m</b> (${t.legs_m.join(" / ")} m) <span class="badge ${t.ok ? "fit" : "conditional"}">${t.ok ? "권장 범위" : "권장 범위 밖"}</span></p>` : ""}
-      <details class="sim-notes"><summary>참고 사항</summary>빨간 점 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
+      <details class="sim-notes"><summary>참고 사항</summary>걷는 사람 키 170 cm, 보통 걸음 1.3 m/s · 빨간 고리 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
   };
   const flowCtl = async () => {
     document.getElementById("simctl").innerHTML = `
@@ -1069,6 +1097,8 @@ export async function customer(pid) {
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
     if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
+    if (sim !== "wifi") viewer.setRouter(null);
+    if (sim !== "flow") viewer.setWalkers([]);
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
     draw();
     if (SIMS[sim]) await SIMS[sim]();
