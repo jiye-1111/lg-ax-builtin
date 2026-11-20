@@ -93,3 +93,11 @@ def test_facets_count_within_category_and_hide_price_when_unknown():
 def test_limit_and_total():
     res = find_products([_p(f"p{i}") for i in range(10)], Conditions(limit=3))
     assert len(res["items"]) == 3 and res["total"] == 10
+
+
+def test_product_without_color_name_has_no_color_group():
+    """LGE.COM에 색상 이름이 없는 제품(TV 등)은 화면용 근사색만으로 색 묶음에 넣지 않는다."""
+    from recommender.finder import product_color_group
+    tv = _p("TV", color=None, hex_="#D9D8D4", cat="tv", cap=None)
+    assert product_color_group(tv) is None
+    assert skus(find_products([tv, _p("A", color="퓨어 실버")], Conditions(color="실버·그레이"))) == ["A"]

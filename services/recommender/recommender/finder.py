@@ -61,7 +61,8 @@ def _first_cmf(p: Product):
 
 def product_color_group(p: Product) -> Optional[str]:
     c = _first_cmf(p)
-    return color_group(c.color, c.hex_approx) if c else None
+    # 색상 이름이 없으면(LGE.COM에 색상 표기가 없는 TV 등) 근사색만으로 묶지 않는다
+    return color_group(c.color, c.hex_approx) if c and c.color else None
 
 
 @dataclass(frozen=True)
