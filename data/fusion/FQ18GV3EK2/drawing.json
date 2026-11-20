@@ -1,0 +1,42 @@
+{
+ "sku": "FQ18GV3EK2",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/FQ17EV3ED1.akor_2p.jpg (폭 350, 높이 1840, 두께 295). 위 판(약 1180) + 아래 판(660), 위쪽 둥근 고리 무늬(지름 약 256). 나눔·고리 위치는 치수도 비율 근사값",
+ "front": {
+  "w": 350,
+  "h": 1840,
+  "parts": [
+   {
+    "name": "door/upper",
+    "x": 0,
+    "y": 0,
+    "w": 350,
+    "h": 1180
+   },
+   {
+    "name": "handle/ring",
+    "x": 47,
+    "y": 37,
+    "w": 256,
+    "h": 256,
+    "shape": "circle"
+   },
+   {
+    "name": "door/lower",
+    "x": 5,
+    "y": 1180,
+    "w": 340,
+    "h": 660
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "에센스 화이트",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

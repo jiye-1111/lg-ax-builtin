@@ -1,0 +1,72 @@
+{
+ "sku": "SC5GMR80S",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/sc5gmr80s_2p.jpg (폭 600, 높이 1965, 깊이 620). 왼쪽 검정 조작부 띠(폭 약 100) + 문 판, 어두운 본체",
+ "front": {
+  "w": 600,
+  "h": 1965,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 600,
+    "h": 1965
+   },
+   {
+    "name": "display/control_strip",
+    "x": 0,
+    "y": 0,
+    "w": 100,
+    "h": 1950
+   },
+   {
+    "name": "door/0_panel",
+    "x": 100,
+    "y": 0,
+    "w": 500,
+    "h": 1950
+   },
+   {
+    "name": "vent/plinth",
+    "x": 15,
+    "y": 1950,
+    "w": 570,
+    "h": 15
+   }
+  ]
+ },
+ "side": {
+  "w": 620,
+  "h": 1965,
+  "parts": [
+   {
+    "name": "door/side",
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 1950
+   },
+   {
+    "name": "body",
+    "x": 40,
+    "y": 0,
+    "w": 580,
+    "h": 1965
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "블랙틴트미러",
+   "material": "미러",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2A2B2E",
+   "from": "치수도 측면 이미지가 어두운 회색"
+  }
+ }
+}

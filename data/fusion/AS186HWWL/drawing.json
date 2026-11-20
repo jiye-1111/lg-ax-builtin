@@ -1,0 +1,52 @@
+{
+ "sku": "AS186HWWL",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/as186hwwl.akor_2p.jpg (지름 315, 높이 511). 원통 본체 + 넓은 받침판, 위 어두운 그릴",
+ "front": {
+  "w": 315,
+  "h": 511,
+  "parts": [
+   {
+    "name": "trim/top_grille",
+    "x": 23.5,
+    "y": 0,
+    "w": 268,
+    "h": 20,
+    "shape": "circle"
+   },
+   {
+    "name": "door/body",
+    "x": 15.5,
+    "y": 20,
+    "w": 284,
+    "h": 466,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/gap",
+    "x": 47.5,
+    "y": 486,
+    "w": 220,
+    "h": 13,
+    "shape": "circle"
+   },
+   {
+    "name": "door/base_plate",
+    "x": 0,
+    "y": 499,
+    "w": 315,
+    "h": 12,
+    "shape": "circle"
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "화이트 (그릴: 다크 그레이)",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

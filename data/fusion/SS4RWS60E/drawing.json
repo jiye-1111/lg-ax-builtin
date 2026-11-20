@@ -1,0 +1,15 @@
+{
+ "sku": "SS4RWS60E",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/ss4rws60e.akor_2p.jpg — SS4RHS60E와 같은 몸체, 색만 다름 (이 치수도는 직접 열어 보지 않음)",
+ "geometry_from": "SS4RHS60E",
+ "colors": {
+  "door": {
+   "name": "에센스 화이트",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

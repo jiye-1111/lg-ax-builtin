@@ -1,0 +1,60 @@
+{
+ "sku": "AS305DWWL",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/as305dwwa.akor_2p.jpg (지름 376, 높이 1073). 위·아래 원통 2단, 가운데 어두운 틈, 위 검정 뚜껑, 아래 받침",
+ "front": {
+  "w": 376,
+  "h": 1073,
+  "parts": [
+   {
+    "name": "display/top",
+    "x": 18,
+    "y": 0,
+    "w": 340,
+    "h": 28,
+    "shape": "circle"
+   },
+   {
+    "name": "door/upper",
+    "x": 0,
+    "y": 28,
+    "w": 376,
+    "h": 507,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/gap",
+    "x": 28,
+    "y": 535,
+    "w": 320,
+    "h": 55,
+    "shape": "circle"
+   },
+   {
+    "name": "door/lower",
+    "x": 0,
+    "y": 590,
+    "w": 376,
+    "h": 463,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/base",
+    "x": 8,
+    "y": 1053,
+    "w": 360,
+    "h": 20,
+    "shape": "circle"
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "크리미스노우",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

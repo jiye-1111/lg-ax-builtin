@@ -1,0 +1,50 @@
+{
+ "sku": "27LX6TPGA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/27LX6TPGA.AKR_2p.jpg (가로 모드: 헤드 623x364, 높이 1065~1265 중 최대 1265, 받침 지름 398, 봉 길이 896)",
+ "note": "카탈로그 높이가 최대 높이(1265)라 가장 높인 상태로 만듦",
+ "front": {
+  "w": 623,
+  "h": 1265,
+  "parts": [
+   {
+    "name": "door/head_frame",
+    "x": 0,
+    "y": 0,
+    "w": 623,
+    "h": 364
+   },
+   {
+    "name": "display/screen",
+    "x": 12,
+    "y": 12,
+    "w": 599,
+    "h": 340
+   },
+   {
+    "name": "door/pole",
+    "x": 296.5,
+    "y": 175,
+    "w": 30,
+    "h": 1060
+   },
+   {
+    "name": "door/base",
+    "x": 112.5,
+    "y": 1235,
+    "w": 398,
+    "h": 30,
+    "shape": "circle"
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "화이트",
+   "material": null,
+   "from": "카탈로그 cmf_options (화면 뒤 몸체·받침 색)"
+  }
+ }
+}
