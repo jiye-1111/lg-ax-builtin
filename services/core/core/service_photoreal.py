@@ -48,4 +48,5 @@ class PhotorealMixin:
         path = self.pdir(pid) / "scene" / "photoreal.png"
         path.parent.mkdir(parents=True, exist_ok=True)
         out.save(path, "PNG")
+        view.save(path.with_name("photoreal_in.png"), "PNG")  # 결과가 이상할 때 AI에 보낸 화면과 견줘 보려고 (웹에는 안 나감)
         return {"url": f"/api/projects/{pid}/files/photoreal.png?v={int(t)}", "model": photoreal.MODEL}

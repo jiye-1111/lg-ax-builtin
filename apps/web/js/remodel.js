@@ -438,12 +438,6 @@ export async function customer(pid) {
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
-  // 같은 모델 안에 색 이름이 같은 SKU가 여럿이면 (기능·연식만 다름) 모델명을 붙여 구분한다
-  const optLabel = (f, x) => {
-    const l = finishLabel(x);
-    if (!l) return x.sku; // LGE.COM에 색 정보가 없는 모델(TV 등): 색 대신 모델명만
-    return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
-  };
   // 목록 카드의 색 동그라미는 색마다 하나만
   // 색 점은 LGE.COM에 색 이름이 있는 것만 (hex_approx는 3D 근사색이라 색상 표시로 쓰지 않는다)
   const colorDots = (f) => f.variants.filter((x, i, a) => x.color && a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
@@ -609,6 +603,22 @@ export async function customer(pid) {
   // ---- 제품 상세 창: 사진·모델명·크기·색상 ----
   // 카탈로그 spec_notes(근거)·필요 공간 같은 숫자는 판정에만 쓰고 화면에는 내지 않는다
   const pdModal = document.getElementById("pdModal");
+  // 지예: 색 칩에 모델 번호가 붙어 20개 넘게 늘어지면 보기 싫다 → 칩은 색마다 하나, 같은 색 안의 모델은 작은 목록에서 고른다
+  const pdOptions = (f, sku) => {
+    const opts = f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku);
+    const cur = opts.find((x) => x.sku === sku) || f.variants.find((x) => x.sku === sku) || {};
+    const groups = [];
+    opts.forEach((x) => { const k = finishLabel(x); const g = groups.find((y) => y.k === k); if (g) g.items.push(x); else groups.push({ k, items: [x] }); });
+    const mine = groups.find((g) => g.k === finishLabel(cur)) || { items: [cur] };
+    const chips = groups.length > 1 || groups[0]?.k
+      ? `<div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${groups.filter((g) => g.k).map((g) => { const on = g === mine, to = on ? sku : g.items[0].sku, x = g.items[0];
+        return `<button class="swatch ${on ? "on" : ""}" data-pd-variant="${esc(to)}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(g.k)}</button>`; }).join("")}</div>`
+      : "";
+    const models = mine.items.length > 1
+      ? `<label class="pd-model"><span>모델</span><select id="pdModel" aria-label="모델 고르기">${mine.items.map((x) => `<option value="${esc(x.sku)}" ${x.sku === sku ? "selected" : ""}>${esc(x.sku)}</option>`).join("")}</select></label>`
+      : "";
+    return chips + models;
+  };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   // 지예: 들어가는지는 넣고 나서 3D에서 판단한다 (초록/빨강). 상세 창에는 판정 줄을 두지 않는다
   const openDetail = (sku) => {
@@ -629,7 +639,7 @@ export async function customer(pid) {
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
-          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku).map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}">${x.color ? `<i style="background:${esc(x.hex || "#fff")}"></i>` : ""}${esc(optLabel(f, x))}</button>`).join("")}</div>
+          ${pdOptions(f, sku)}
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
@@ -640,6 +650,8 @@ export async function customer(pid) {
       </div>`;
     pdModal.hidden = false;
     pdModal.querySelectorAll("[data-pd-variant]").forEach((b) => (b.onclick = () => { openDetail(b.dataset.pdVariant); renderLib(); }));
+    const pdModel = document.getElementById("pdModel");
+    if (pdModel) pdModel.onchange = () => { openDetail(pdModel.value); renderLib(); };
     document.getElementById("pdClose").onclick = closeDetail;
     const place = document.getElementById("pdPlace");
     if (sized) place.onclick = () => {

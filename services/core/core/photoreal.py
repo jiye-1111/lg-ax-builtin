@@ -2,7 +2,7 @@
 
 LG 제품은 바꾸면 안 된다 (실제 치수·색). 그래서
 1) 브라우저가 같은 시점에서 LG 제품만 흰색인 마스크를 같이 보낸다
-2) AI에는 제품 자리를 막은 마스크를 주고 (투명 = 바꿔도 되는 곳)
+2) AI에는 지금 화면 전체를 참고 그림으로 주고 (마스크 없이, 구도·가구 유지)
 3) 받은 그림 위에 제품 픽셀을 3D 그대로 다시 얹는다 (AI가 마스크를 넘어 손대도 제품은 그대로)
 사진은 프로젝트 scene/photoreal.png 하나만 남긴다 (매번 덮어씀).
 """
@@ -71,7 +71,7 @@ def product_alpha(mask: Image.Image) -> Image.Image:
 
 
 SPECK = 0.002  # 화면의 0.2%보다 작은 제품 조각은 버린다 (멀리 걸친 모서리가 AI 사진 위에 흰 점으로 남음)
-SHADE_GAIN = (0.6, 1.15)  # 제품에 AI 사진의 빛을 입히는 범위. 색(채널 비율)은 그대로 두고 밝기만
+SHADE_GAIN = (0.85, 1.1)  # 제품에 AI 사진의 빛을 입히는 범위. 색(채널 비율)은 그대로 두고 밝기만
 SHADE_BLUR = 6  # 빛만 가져오고 AI가 그린 모양·글자는 안 가져오게 흐리는 정도
 
 
@@ -155,10 +155,16 @@ def edit_any_model(client, **kw):
 
 def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") -> Image.Image:
     alpha = drop_specks(product_alpha(mask))
-    ai_mask = Image.new("RGBA", SIZE, (0, 0, 0, 0))
-    ai_mask.putalpha(alpha)  # 제품 자리는 불투명(못 바꿈), 나머지는 투명(바꿔도 됨)
-    r = edit_any_model(client, image=("view.png", png_bytes(view), "image/png"), mask=("mask.png", png_bytes(ai_mask), "image/png"),
-                       prompt=PROMPT.format(extra=extra).strip(), size=f"{SIZE[0]}x{SIZE[1]}", quality=QUALITY, n=1)
+    # 마스크를 주면 작은 모델이 마스크 밖을 새 방으로 다시 그려 버린다 (거실 → 주방 → 빈 방). 마스크 없이 지금 화면 전체를
+    # 참고 그림으로 주고 (input_fidelity high: 구도·가구 유지), 제품 자리는 아래에서 3D 픽셀로 다시 덮는다
+    kw = dict(image=("view.png", png_bytes(view), "image/png"), prompt=PROMPT.format(extra=extra).strip(),
+              size=f"{SIZE[0]}x{SIZE[1]}", quality=QUALITY, n=1)
+    try:
+        r = edit_any_model(client, input_fidelity="high", **kw)
+    except Exception as e:  # noqa: BLE001
+        if "input_fidelity" not in str(e):
+            raise
+        r = edit_any_model(client, **kw)  # 이 모델은 input_fidelity를 모른다
     out = Image.open(io.BytesIO(base64.b64decode(r.data[0].b64_json))).convert("RGB")
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)

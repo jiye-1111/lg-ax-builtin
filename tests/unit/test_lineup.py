@@ -48,9 +48,9 @@ def test_whole_lgecom_lineup_is_in_the_catalog():
 
 
 def test_card_shows_one_dot_per_color():
-    """같은 색 SKU가 여럿인 모델은 카드에 색 동그라미 하나, 상세 창에서 모델명으로 구분한다."""
+    """같은 색 SKU가 여럿인 모델은 카드에 색 동그라미 하나, 상세 창에서는 색 칩 하나 + 모델 목록으로 구분한다."""
     js = (WEB / "js/remodel.js").read_text(encoding="utf-8")
-    assert "colorDots(f)" in js and "optLabel(f, x)" in js
+    assert "colorDots(f)" in js and 'id="pdModel"' in js
 
 
 def test_catalog_records_lgecom_sale_status():
