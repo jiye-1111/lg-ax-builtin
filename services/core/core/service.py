@@ -885,8 +885,17 @@ class Service:
         pls = [x for x in p["scene_state"]["placements"] if x.get("placement_id")]
         items = {x["placement_id"]: {} for x in pls}
         day = day or _date.today().isoformat()
+        estimated = False
+        sp = p
+        if (p.get("site") or {}).get("north_deg") is None:
+            # 북쪽을 아직 안 정했으면 저장하지 않고 추정값으로 계산한다 (가장 큰 창이 남쪽을 본다고 가정)
+            from sim.orientation import estimate_north
+            est = estimate_north(room, (p.get("site") or {}).get("axis_deg"))
+            if est:
+                base = {"region": "서울", **REGIONS["서울"], **(p.get("site") or {})}
+                sp, estimated = {**p, "site": {**base, "north_deg": est["north_deg"]}}, True
         try:
-            site, d, _ = self._sun_site(p, day, None)
+            site, d, _ = self._sun_site(sp, day, None)
         except Invalid as e:
             if "형식" in str(e):
                 raise
@@ -906,7 +915,8 @@ class Service:
                 h = float(hours[k])
                 shy = cat in self.SUN_SHY and h >= 1
                 label = (f"하루 약 {h:.1f}시간 볕이 들어요" if h >= 0.5 else "직사광이 거의 안 들어요") + (" · 직사광은 피하는 게 좋아요" if shy else "")
-                items[k]["daylight"] = {"status": "warn" if shy else "ok", "hours": round(h, 1), "label": label}
+                items[k]["daylight"] = {"status": "warn" if shy else "ok", "hours": round(h, 1), "estimated": estimated,
+                                        "label": label + (" (집 방향은 큰 창 기준 추정)" if estimated else "")}
             if cfg is None:
                 items[k]["wifi"] = {"status": "unknown", "grade": None, "dbm": None, "label": "공유기 자리를 정하면 알려 드려요"}
             else:

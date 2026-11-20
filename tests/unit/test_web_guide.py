@@ -1,4 +1,4 @@
-"""리모델링 화면 안내 구성 (지예 목업): 5단계 진행, 설치 적합성 검사 카드, 구매·설치 신청.
+"""리모델링 화면 안내 구성 (지예 정정 목업): 3단계 진행, 설치 확인 카드, 구매·설치 신청, 첫 안내.
 
 없는 기능을 가짜로 채우지 않는다: 검사 항목은 판정 코드(recommender.pose.LABELS)에서만 만들고,
 전원·배관처럼 데이터가 없는 것은 '기사 확인'으로 안내한다.
@@ -13,9 +13,9 @@ GUIDE = (WEB / "js" / "guide.js").read_text(encoding="utf-8")
 REMODEL = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
 
 
-def test_five_steps_in_order():
+def test_three_steps_in_order():
     labels = re.findall(r'label: "([^"]+)"', GUIDE.split("export function stepState", 1)[1].split("export", 1)[0])
-    assert labels == ["집 스캔", "제품 선택", "3D 배치", "설치 적합성", "결과 확인"]
+    assert labels == ["공간 확인", "제품 고르기", "설치 확인"]
     assert 'id="progress"' in REMODEL
 
 
@@ -43,9 +43,23 @@ def test_selected_product_shows_dimensions_and_needed_space():
     assert 'id="needTag"' in REMODEL
 
 
-def test_guide_bar_uses_zone_recommendations_and_install_check():
-    # 아래 안내 줄은 새 계산을 만들지 않고 영역 추천과 설치 전 확인 목록 응답을 그대로 쓴다
-    assert 'id="guideBar"' in REMODEL
-    assert "/recommendations" in REMODEL and "/install-check" in REMODEL
-    assert "공간별 추천" in GUIDE and "설치 전 체크리스트" in GUIDE
+def test_simple_layout_from_corrected_mockup():
+    """지예: 탭·토글이 많아 지저분하다 → 오른쪽 탭 없음, 3D 위·아래 조작 버튼, 살아 보기는 버튼 하나."""
+    assert "side-tabs" not in REMODEL and 'data-tab="' not in REMODEL
+    assert 'id="guideBar"' not in REMODEL and 'data-view="split"' not in REMODEL
+    for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
+               'id="finBtn"', 'id="extraBtn"', 'id="homeMenu"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
+        assert el in REMODEL, el
+    # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품, 제품 자리 채광·와이파이
+    for path in ("/auto-align", "/auto-place", "/suggest", "/life-check"):
+        assert path in REMODEL, path
     assert 'badge rec' in REMODEL
+    assert "채광" in GUIDE and "와이파이" in GUIDE and "설치 가능합니다!" in GUIDE
+
+
+def test_first_visit_tour_with_haunie():
+    tour = (WEB / "js" / "tour.js").read_text(encoding="utf-8")
+    assert "startTour(" in REMODEL and "tourSeen()" in REMODEL and 'id="tourBtn"' in REMODEL
+    assert "집 스캔이 끝났어요!" in REMODEL and "직접 체험해 볼까요?" in REMODEL
+    assert "localStorage" in tour and "tour-hole" in tour
+    assert "./js/tour.js" in (WEB / "sw.js").read_text(encoding="utf-8")
