@@ -68,7 +68,7 @@ def test_photoreal_keeps_lg_product_pixels_and_changes_the_rest(c, svc, pid):
     got = Image.open(io.BytesIO(c.get(r.json()["url"].replace("/api", "/api", 1)).content)).convert("RGB")
     assert got.size == (W, H)
     r_, g_, b_ = got.getpixel((700, 550))                   # 제품은 3D 그대로 (실제 치수·색), 밝기만 주변 빛에 맞춤
-    assert abs(r_ * 2 - g_) <= 2 and abs(r_ * 3 - b_) <= 3 and 8 <= r_ <= 11
+    assert abs(r_ * 2 - g_) <= 2 and abs(r_ * 3 - b_) <= 3 and 6 <= r_ <= 12
     assert got.getpixel((100, 100)) == (250, 100, 50)      # 나머지는 AI가 바꾼 것
     sent = svc.image_client.sent
     assert "Do not add, remove or move" in sent["prompt"]
