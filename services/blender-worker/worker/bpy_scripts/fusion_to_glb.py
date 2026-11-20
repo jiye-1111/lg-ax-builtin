@@ -104,6 +104,46 @@ def box_uv(mesh: bpy.types.Mesh, tile_m: float) -> None:
             uv[li].uv = (u / tile_m, v / tile_m)
 
 
+def grip_lips(objs: list, finish: bpy.types.Material) -> list:
+    """손잡이 홈 단면: 홈 아래쪽 문 윗모서리가 안쪽으로 비스듬히 깎인 모양(손가락이 들어가는 턱)을 덧붙인다.
+
+    Fusion에서는 홈을 문 사이의 평평한 띠(trim_grip_groove*)로만 만든다. 여기서 홈마다 삼각 단면 쐐기를
+    문 재질로 넣는다: 문 앞면 아래 모서리에서 홈 안쪽 벽의 60% 높이까지 올라가는 경사면.
+    """
+    doors = [o for o in objs if role_of(o.name) == "door"]
+    out = []
+    for g in [o for o in objs if o.name.startswith("trim_grip_groove")]:
+        if not doors:
+            break
+        xs = [v.co.x for v in g.data.vertices]
+        ys = [v.co.y for v in g.data.vertices]
+        zs = [v.co.z for v in g.data.vertices]
+        front = min(v.co.y for d in doors for v in d.data.vertices) + 0.003  # 문 앞면에서 필렛만큼 뒤
+        back, z0, h = min(ys), min(zs), max(zs) - min(zs)
+        if back - front < 0.005:
+            continue
+        x0, x1 = min(xs), max(xs)
+        bm = bmesh.new()
+        tri = [(front, z0), (back, z0), (back, z0 + h * 0.6)]
+        a = [bm.verts.new((x0, y, z)) for y, z in tri]
+        b = [bm.verts.new((x1, y, z)) for y, z in tri]
+        bm.faces.new(a)
+        bm.faces.new(b[::-1])
+        for i in range(3):
+            j = (i + 1) % 3
+            bm.faces.new((a[j], a[i], b[i], b[j]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        bmesh.ops.triangulate(bm, faces=bm.faces)
+        me = bpy.data.meshes.new(g.name.replace("trim_grip_groove", "door_grip_lip"))
+        bm.to_mesh(me)
+        bm.free()
+        me.materials.append(finish)
+        ob = bpy.data.objects.new(me.name, me)
+        bpy.context.scene.collection.objects.link(ob)
+        out.append(ob)
+    return out
+
+
 def load_drawing(src: Path) -> dict:
     p = src / "drawing.json"  # 레퍼런스에서 확인한 치수·색
     return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
@@ -188,6 +228,8 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
             v.co.x -= (lo[0] + hi[0]) / 2
             v.co.y -= (lo[1] + hi[1]) / 2
             v.co.z -= lo[2]
+    objs += grip_lips(objs, pal["finish"])
+    for ob in objs:
         ob.parent = root
         kind = textured.get(ROLE_MAT[role_of(ob.name)])
         if kind:
