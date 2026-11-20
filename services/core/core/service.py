@@ -11,6 +11,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from recommender.cmf import rank_cmf
+from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.pose import Pose, check_pose, snap_to_wall
 from sim.regions import REGIONS
@@ -18,6 +19,7 @@ from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
 
 from . import config
+from .ai_style import interpret_style
 from .models import MeasuredDims, Product, Room, Zone
 from .store import Store
 
@@ -86,12 +88,15 @@ class Catalog:
 
 # ---------------- 서비스 ----------------
 class Service:
-    def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None):
+    def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
+                 stylist=None):
         self.root = Path(storage or config.storage_dir())
         self.root.mkdir(parents=True, exist_ok=True)
         self.db = Store(self.root / "app.sqlite3")
         self.catalog = catalog or Catalog(config.catalog_paths())
         self.fit_cfg = fit_cfg or FitConfig.from_env()
+        self.finishes = load_finishes(config.ROOT / "data" / "finishes" / "finishes.json")
+        self.stylist = stylist or interpret_style  # (prompt, catalog_brief) -> StyleIntent
 
     # ---- 경로 ----
     def pdir(self, pid: str) -> Path:
@@ -379,6 +384,61 @@ class Service:
             st["finish"] = finish
         self._save_project(p)
         return self._rebuild(pid)
+
+    # ---- 벽지·바닥재 (data/finishes) ----
+    def get_finish(self, finish_id: str):
+        for f in self.finishes:
+            if f.id == finish_id:
+                return f
+        raise NotFound(f"마감재 없음: {finish_id}")
+
+    def apply_finish(self, pid: str, finish_id: str, tone: str | None = None) -> dict:
+        """실제 벽지·바닥재를 벽 전체 또는 바닥에 적용. 3D 색은 그 톤(근사색), 질감은 웹이 finish_ids로 그린다."""
+        f = self.get_finish(finish_id)
+        try:
+            t = f.tone(tone)
+        except ValueError as e:
+            raise Invalid(str(e)) from None
+        p = self.get_project(pid)
+        st = p["scene_state"]
+        st.setdefault("finish_ids", {})[f.kind] = {"id": f.id, "tone": t.hex}
+        st["materials"][f.kind] = t.hex
+        if f.kind == "wall":
+            st.pop("wall_colors", None)  # 벽마다 칠한 색보다 벽지가 우선
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def finishes_brief(self) -> str:
+        return "\n".join(f"- [{'벽' if f.kind == 'wall' else '바닥'}] {f.brand} {f.name} ({TEXTURE_KO[f.texture]}): {f.trend or ''}"
+                         for f in self.finishes)
+
+    def ai_style(self, pid: str, prompt: str, zone_id: str | None = None, apply_finishes: bool = True) -> dict:
+        """고객의 말 → 스타일 저장 → 코드가 벽지·바닥재 순위 계산 → (선택) 1순위 적용. 가전 색 추천도 이 스타일을 따른다."""
+        prompt = (prompt or "").strip()
+        if not prompt:
+            raise Invalid("원하는 분위기를 적어 주세요")
+        if len(prompt) > 500:
+            raise Invalid("500자 안으로 적어 주세요")
+        self.get_project(pid)
+        intent = self.stylist(prompt, catalog_brief=self.finishes_brief())
+        style = self.set_style(pid, prompt, intent.palette, intent.materials, zone_id)
+        ranked = {k: rank_finishes(self.finishes, k, intent.palette, intent.materials,
+                                   intent.wall_texture if k == "wall" else intent.floor_texture, top_k=3)
+                  for k in ("wall", "floor")}
+        applied = {}
+        if apply_finishes:
+            for k, r in ranked.items():
+                if r and r[0].score > 0:
+                    self.apply_finish(pid, r[0].finish.id, r[0].tone.hex)
+                    applied[k] = r[0].to_dict()
+        p = self.get_project(pid)
+        p["style"]["summary"] = intent.summary
+        p["style"]["engine"] = intent.engine
+        self._save_project(p)
+        return {"engine": intent.engine, "summary": intent.summary,
+                "style": {**style["project_style"], "summary": intent.summary, "engine": intent.engine},
+                "intent": {"wall_texture": intent.wall_texture, "floor_texture": intent.floor_texture},
+                "finishes": {k: [m.to_dict() for m in r] for k, r in ranked.items()}, "applied": applied}
 
     def place_product(self, pid: str, zone_id: str, sku: str, color: str | None = None) -> dict:
         prod = self.catalog.get(sku)
