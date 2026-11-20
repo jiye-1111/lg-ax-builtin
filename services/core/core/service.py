@@ -314,6 +314,9 @@ class Service:
 
     def _save_project(self, p: dict) -> dict:
         p = {k: v for k, v in p.items() if k not in ("customer_url", "technician_url")}
+        rt = (p.get("scene_state") or {}).get("router")
+        if rt and p.get("scan"):  # 책상을 치우거나 옮기면 그 위 공유기도 같이 내려온다
+            rt["height_m"] = self._surface_top(p, tuple(rt["center_xz"]))
         p["version"] = int(p.get("version", 0)) + 1
         p["updated_at"] = now()
         self.db.put("project", p["project_id"], p)
@@ -1018,7 +1021,8 @@ class Service:
         from sim.wifi import WifiConfig, grade, rssi_at
 
         p, room = self.get_project(pid), self.get_room(pid)
-        pls = [x for x in p["scene_state"]["placements"] if x.get("placement_id")]
+        # 가구·가벽은 채광·와이파이 안내가 필요 없다 (LG 가전만)
+        pls = [x for x in p["scene_state"]["placements"] if x.get("placement_id") and not is_decor(x["sku"])]
         items = {x["placement_id"]: {} for x in pls}
         day = day or _date.today().isoformat()
         estimated = False
@@ -1089,8 +1093,42 @@ class Service:
         prev = p["scene_state"].get("router") or {}
         # 방향은 화면 표시용 (신호 계산은 무지향). 자리만 옮기면 원래 방향을 그대로 둔다
         yaw = float(yaw_rad) if yaw_rad is not None else float(prev.get("yaw_rad", 0.0))
-        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band, "yaw_rad": yaw}
+        xz = (float(center_xz[0]), float(center_xz[1]))
+        p["scene_state"]["router"] = {"center_xz": list(xz), "band": band, "yaw_rad": yaw, "height_m": 0.0}  # 높이는 저장할 때 채운다
         return self._save_project(p)
+
+    # 공유기를 올려 둘 수 있는 것: 놓은 것(가전·가구) 중 윗면이 2.2 m 이하인 것(웹 3D도 같은 규칙),
+    # 스캔 가구 중 탁자·수납장. 가벽·파티션·러그는 빼고
+    SURFACE_MAX_M = 2.2
+    NOT_SURFACE = frozenset({"decor:wall", "decor:partition", "decor:rug", "decor:plant", "decor:lamp"})
+    SURFACE_SCANNED = frozenset({"table", "storage"})
+
+    def _surface_top(self, p: dict, xz: tuple[float, float]) -> float:
+        """그 자리 아래 가구 윗면 높이(m). 아무것도 없으면 바닥(0). 겹치면 가장 높은 윗면."""
+        def inside(c, yaw, w, d):
+            dx, dz = xz[0] - c[0], xz[1] - c[1]
+            u = dx * math.cos(yaw) + dz * math.sin(yaw)
+            v = -dx * math.sin(yaw) + dz * math.cos(yaw)
+            return abs(u) <= w / 2 and abs(v) <= d / 2
+
+        tops = [0.0]
+        for x in p["scene_state"].get("placements", []):
+            if x["sku"] in self.NOT_SURFACE or not x.get("size_m"):
+                continue
+            w, h, d = x["size_m"]
+            # 놓은 제품은 폭 방향이 yaw - 90° (웹 3D·동선과 같은 규칙)
+            if h <= self.SURFACE_MAX_M and inside(x["center_xz"], x.get("yaw_rad", math.pi / 2) - math.pi / 2, w, d):
+                tops.append(float(h))
+        hidden = set(p["scene_state"].get("hidden_objects") or [])
+        poses = p["scene_state"].get("object_poses") or {}  # 지금 저장하려는 자리 (DB의 옛 자리 말고)
+        for o in self._load_room(p["project_id"]).objects:
+            if o.category not in self.SURFACE_SCANNED or o.object_id in hidden:
+                continue
+            q = poses.get(o.object_id)
+            c, yaw = ((q["center_xz"][0], q["center_xz"][1]), q["yaw_rad"]) if q else ((o.position[0], o.position[2]), o.yaw_rad)
+            if inside(c, yaw, o.bbox_m.w, o.bbox_m.d):
+                tops.append(o.position[1] + o.bbox_m.h / 2)
+        return round(max(tops), 3)
 
     def wifi(self, pid: str, band: str | None = None) -> dict:
         from sim.wifi import WifiConfig, coverage, grade
@@ -1164,7 +1202,11 @@ class Service:
                 continue
             w, _, d = x["size_m"]
             yaw = x["yaw_rad"]
+            if is_flat(x["sku"]):  # 러그는 밟고 지나간다
+                continue
             extra.append(rect(tuple(x["center_xz"]), yaw - _m.pi / 2, w, d))
+            if is_decor(x["sku"]):  # 가구·가벽은 피해 가기만, 걸어가는 목적지는 LG 가전
+                continue
             reach = d / 2 + 0.35  # 제품 정면 앞에 서는 자리
             targets[x["placement_id"]] = (x["center_xz"][0] + _m.cos(yaw) * reach, x["center_xz"][1] + _m.sin(yaw) * reach)
             try:

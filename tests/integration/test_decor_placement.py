@@ -106,3 +106,44 @@ def test_nan_size_is_rejected(c, pid):
     r = c.post(f"/api/projects/{pid}/auto-place", content='{"sku": "decor:wall", "size_m": [NaN, 2.4, 0.1]}',
                headers={"content-type": "application/json"})
     assert r.status_code == 422
+
+
+def test_router_sits_on_desk_or_shelf_top(c, pid):
+    """지예: 공유기를 책상·선반 위에 놓을 수 있게 → 놓은 자리 아래 가구 윗면 높이를 저장한다."""
+    desk = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:desk"}).json()["placement"]
+    r = c.put(f"/api/projects/{pid}/router", json={"center_xz": desk["center_xz"]})
+    assert r.status_code == 200, r.text
+    assert r.json()["scene_state"]["router"]["height_m"] == pytest.approx(desk["size_m"][1])
+    shelf = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:shelf"}).json()["placement"]
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": shelf["center_xz"]}).json()["scene_state"]["router"]
+    assert rt["height_m"] == pytest.approx(shelf["size_m"][1])
+    # 가구가 없는 바닥이면 0, 러그 위도 바닥
+    rug = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:rug"}).json()["placement"]
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": rug["center_xz"]}).json()["scene_state"]["router"]
+    assert rt["height_m"] == 0
+
+
+def test_router_comes_down_when_desk_is_removed(c, pid):
+    desk = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:desk"}).json()["placement"]
+    c.put(f"/api/projects/{pid}/router", json={"center_xz": desk["center_xz"]})
+    assert c.delete(f"/api/projects/{pid}/placements/{desk['placement_id']}").status_code in (200, 204)
+    assert c.get(f"/api/projects/{pid}").json()["scene_state"]["router"]["height_m"] == 0
+
+
+def test_flow_walks_to_lg_products_not_furniture(c, pid):
+    sofa = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:sofa"}).json()["placement"]
+    lg = c.post(f"/api/projects/{pid}/auto-place", json={"sku": SKU}).json()["placement"]
+    routes = c.get(f"/api/projects/{pid}/sim/flow").json()["routes"]
+    assert lg["placement_id"] in routes and sofa["placement_id"] not in routes
+
+
+def test_router_on_desk_edge_uses_desk_width(c, pid):
+    """책상 가운데가 아니라 폭 끝쪽에 놓아도 책상 위 (폭 방향 = yaw - 90°)."""
+    desk = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:desk"}).json()["placement"]
+    import math
+    w = desk["size_m"][0]
+    yaw = desk["yaw_rad"] - math.pi / 2
+    x, z = desk["center_xz"]
+    edge = [x + math.cos(yaw) * w * 0.4, z + math.sin(yaw) * w * 0.4]
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": edge}).json()["scene_state"]["router"]
+    assert rt["height_m"] == pytest.approx(desk["size_m"][1])

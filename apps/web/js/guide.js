@@ -77,12 +77,12 @@ export function fitCardHtml(placement, life = null) {
     const x = life?.[k];
     if (x) rows.push({ label, verdict: x.status === "unknown" ? "unknown" : "info", why: x.label, word: "", life: x.status === "unknown" ? k : "" });
   }
-  const scan = (placement.reasons || []).some((r) => r.code === "scan_based");
   return `<section class="fit-card v-${v}" aria-label="설치 확인 결과">
     <header><span class="mark" aria-hidden="true">${v === "fit" ? "✓" : v === "no_fit" ? "✕" : "!"}</span><h3>${BANNER[v]}</h3></header>
     ${rows.length ? `<ul>${rows.map((r) => `<li class="v-${r.verdict}"><span class="dot" aria-hidden="true"></span><span class="what">${esc(r.label)}${r.why ? `<small>${esc(r.why)}</small>` : ""}</span>${r.life ? `<button class="small ghost" data-life="${r.life}">정하기</button>` : `<b>${esc(r.word)}</b>`}</li>`).join("")}</ul>` : ""}
-    <details class="fit-note"><summary>더 알아두기</summary>전원·배관 위치와 옆·뒤 여유는 설치 기사가 방문해서 확인해요.${scan ? " 치수는 스캔값 기준이에요." : ""}</details>
   </section>`;
 }
 
 export const VERDICT_LABEL = VERDICT;
+// 전원·배관은 검사하지 않는다. 고르고 놓는 동안에는 띄우지 않고, 신청할 때 한 번만 알린다
+export const INSTALL_NOTE = "전원·배관 위치는 설치 기사가 방문해서 확인해요";

@@ -120,6 +120,22 @@
     "h": 2.4,
     "d": 0.1
    }
+  },
+  "dresser": {
+   "file": "dresser.glb",
+   "ref_m": {
+    "w": 0.8,
+    "h": 0.9,
+    "d": 0.45
+   }
+  },
+  "basecab": {
+   "file": "basecab.glb",
+   "ref_m": {
+    "w": 1.2,
+    "h": 0.85,
+    "d": 0.6
+   }
   }
  }
 }

@@ -12,12 +12,16 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
-import { WALK_SPEED, pathLength, poseAt, routeClock } from "./walker.js";
+import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
 import { dressRoom, furnish, shadowShell, furnitureTemplate, fitFurniture } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 const SELECT_HEX = 0xa50034;
 const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
+const SURFACE_MAX_M = 2.2; // 공유기를 올릴 수 있는 가장 높은 윗면 (선반 꼭대기까지). 서버 Service.SURFACE_MAX_M과 같게
+const NOT_SURFACE = new Set(["decor:wall", "decor:partition", "decor:rug", "decor:plant", "decor:lamp"]); // 서버 NOT_SURFACE와 같게
+const skuOf = (o) => { while (o && !o.userData?.sku) o = o.parent; return o?.userData?.sku; };
+const GHOST_NEAR_M = 0.8; // 미리 보기 상자가 카메라와 이만큼 가까우면 그리지 않는다
 // 바닥 텍스처용 SVG에는 페이지 CSS가 안 먹으므로 오버레이 스타일을 같이 넣는다 (style.css의 .plan 오버레이와 같은 색)
 const OVERLAY_CSS = `.sunpatch{fill:#ffd54a;fill-opacity:.55;stroke:#e0a800}.route{fill:none;stroke:#4b45b0;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.9}
 .narrow{fill:none;stroke:#b3261e;stroke-opacity:.9}.tag rect{fill:#1c2024;fill-opacity:.82}.tag text{fill:#fff;font-weight:600}.router-sym rect{fill:#1c2024}.router-sym path{stroke:#1c2024}text{font-family:Pretendard,sans-serif}`;
@@ -29,6 +33,7 @@ const loadAsset = (url) => {
   return assets.get(url);
 };
 const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walker.glb";
+const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
 const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
 const MAX_WALKERS = 4;
 
@@ -129,6 +134,9 @@ export function makeViewer(el, handlers = {}) {
   ctl.enableDamping = true;
   ctl.maxPolarAngle = Math.PI * 0.49; // 바닥 아래로는 못 내려가게
   ctl.minDistance = 1.2;                // 가구 속으로 파고들지 않게
+  // 휠을 누른 채 끌면 화면 중심을 옮긴다 (CAD·Blender처럼). 확대는 휠 굴리기, 오른쪽 끌기도 이동
+  ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN };
+  ctl.screenSpacePanning = false; // 바닥과 나란히 움직여 시점이 바닥 아래로 빠지지 않게
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
   let model = null, framed = false, keepCam = false, alive = true, walls = [], center = new THREE.Vector3();
@@ -383,10 +391,19 @@ export function makeViewer(el, handlers = {}) {
   };
   // 평면 yaw → 3D 회전: 제품은 -(yaw - 90°), 스캔 가구는 -yaw (glb.py와 같은 규칙)
   const rotY = (kind, yaw) => (kind === "placement" ? -(yaw - Math.PI / 2) : -yaw);
+  // 공유기를 들고 다니면 아래 가구(책상·선반) 윗면에 올라간다. 놓으면 서버가 같은 규칙으로 높이를 저장한다
+  const downRay = new THREE.Raycaster(), DOWN = new THREE.Vector3(0, -1, 0), rayFrom = new THREE.Vector3();
+  const surfaceY = (xz) => {
+    rayFrom.set(xz[0], SURFACE_MAX_M + 0.1, xz[1]);
+    downRay.set(rayFrom, DOWN);
+    const hit = downRay.intersectObjects(products.children, true).find((h) => h.object.isMesh && h.point.y <= SURFACE_MAX_M && !NOT_SURFACE.has(skuOf(h.object)));
+    return hit ? hit.point.y : 0;
+  };
   const placeHeld = () => {
     if (!held) return;
+    const top = held.kind === "router" ? surfaceY(held.xz) : null;
     for (const { node, baseY } of held.nodes) {
-      node.position.set(held.xz[0], baseY + held.lift, held.xz[1]);
+      node.position.set(held.xz[0], (top ?? baseY) + held.lift, held.xz[1]);
       node.rotation.set(0, rotY(held.kind, held.yaw), 0);
     }
   };
@@ -456,7 +473,7 @@ export function makeViewer(el, handlers = {}) {
     // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
     g.position.set(p.center_xz[0], 0, p.center_xz[1]);
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
-    g.userData = { placementId: p.placement_id };
+    g.userData = { placementId: p.placement_id, sku: p.sku };
     return g;
   };
   const clear = (grp) => {
@@ -492,6 +509,14 @@ export function makeViewer(el, handlers = {}) {
     const snap = (v) => Math.round(v / step) * step;
     return [snap(hit.x), snap(hit.z)];
   };
+  // 가구 윗면(책상·선반)을 가리키면 그 윗면 자리. 공유기처럼 위에 올려놓는 물건을 놓을 때만 쓴다
+  const surfacePoint = (e) => {
+    setNdc(e);
+    const hit = ray.intersectObjects(products.children, true).find((h) => h.object.isMesh && h.face && h.point.y <= SURFACE_MAX_M && !NOT_SURFACE.has(skuOf(h.object))
+      && tmp.copy(h.face.normal).transformDirection(h.object.matrixWorld).y > 0.7);
+    return hit ? [hit.point.x, hit.point.z] : floorPoint(e);
+  };
+  const pointFor = (e) => (handlers.onSurface?.() ? surfacePoint(e) : floorPoint(e));
   const pick = (e) => {
     setNdc(e);
     const targets = [...products.children];
@@ -532,6 +557,7 @@ export function makeViewer(el, handlers = {}) {
       // 제품 위에서 누르면 카메라 회전을 멈추고 끌기
       ctl.enabled = false;
       const g = products.children.find((c) => c.userData.placementId === hit.id);
+      if (g) g.userData.dirty = true;
       dragging = { id: hit.id, start: down.p, orig: g ? [g.position.x, g.position.z] : down.p, group: g, moved: false };
       renderer.domElement.setPointerCapture?.(e.pointerId);
     }
@@ -564,7 +590,7 @@ export function makeViewer(el, handlers = {}) {
       }
       return;
     }
-    handlers.onHover?.(p);
+    handlers.onHover?.(handlers.onSurface?.() ? surfacePoint(e) || p : p);
   };
   const onUp = (e) => {
     if (walk) { look = null; return; }
@@ -578,7 +604,7 @@ export function makeViewer(el, handlers = {}) {
     }
     if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > CLICK_PX) return; // 카메라를 돌린 것
     if (d.held) { handlers.onHoldClick?.(held); return; }
-    handlers.onClick?.({ hit: d.hit, point: floorPoint(e), event: e });
+    handlers.onClick?.({ hit: d.hit, point: pointFor(e), event: e });
   };
   const dom = renderer.domElement;
   dom.style.touchAction = "none";
@@ -586,6 +612,7 @@ export function makeViewer(el, handlers = {}) {
   dom.addEventListener("pointermove", onMove);
   dom.addEventListener("pointerup", onUp);
   dom.addEventListener("pointerleave", () => handlers.onLeave?.());
+  dom.addEventListener("mousedown", (e) => { if (e.button === 1) e.preventDefault(); }); // 휠 누름: 브라우저 자동 스크롤 대신 화면 이동
   dom.addEventListener("dragover", (e) => { e.preventDefault(); const p = floorPoint(e); if (p) handlers.onHover?.(p); });
   dom.addEventListener("drop", (e) => {
     e.preventDefault();
@@ -600,11 +627,14 @@ export function makeViewer(el, handlers = {}) {
     if (walkersPaused) return;
     for (const w of walkers) {
       w.t += dt;
-      const { s, moving } = w.clock(w.t);
+      const { s, moving, v } = w.clock(w.t);
       const p = poseAt(w.path, s);
       w.node.position.set(p.xz[0], 0, p.xz[1]);
-      // 모퉁이에서 휙 돌지 않고 0.15초쯤에 걸쳐 돈다
-      w.heading += angleTo(w.heading, p.heading) * Math.min(1, dt / 0.15);
+      // 몸은 발밑이 아니라 조금 앞(0.35 m)을 보고 0.3초쯤에 걸쳐 돈다 (모퉁이에서 휙 돌지 않게)
+      const ahead = poseAt(w.path, s + LOOK_AHEAD_M);
+      const want = Math.hypot(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) > 0.05 ? Math.atan2(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) : p.heading;
+      w.heading += angleTo(w.heading, want) * Math.min(1, dt / TURN_S);
+      if (moving) w.walk.timeScale = Math.max(v, 0.25) * w.stepRate; // 가속·감속할 때 걸음도 같이
       w.node.rotation.y = w.heading;
       if (moving !== w.moving) {
         w.moving = moving;
@@ -656,8 +686,24 @@ export function makeViewer(el, handlers = {}) {
     setPlacements(list, selectedId) {
       last = { ...last, list, selectedId };
       if (dragging || (held?.kind === "placement" && !held.dropping)) return;
-      clear(products);
-      for (const p of list) if (p.size_m) products.add(productBox(p, { selected: p.placement_id === selectedId }));
+      // 바뀐 것만 다시 만든다. 놓을 때마다 전부 새로 만들면 가구가 많을수록 버벅인다
+      const keep = new Map();
+      for (const c of products.children) if (c.userData.key && !c.userData.dirty) keep.set(c.userData.key, c);
+      const next = [];
+      for (const p of list) {
+        if (!p.size_m) continue;
+        const selected = p.placement_id === selectedId;
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku)]);
+        const old = keep.get(key);
+        if (old) { keep.delete(key); next.push(old); continue; }
+        const g = productBox(p, { selected });
+        g.userData.key = key;
+        next.push(g);
+      }
+      const stay = new Set(next);
+      const gone = products.children.filter((c) => !stay.has(c));
+      if (gone.length) { const tmpG = new THREE.Group(); gone.forEach((c) => tmpG.add(c)); clear(tmpG); }
+      next.forEach((g) => { if (g.parent !== products) products.add(g); });
     },
     /** 고른 제품이 차지하는 공간(본체 + 문 여는 공간 + 이격)을 바닥에 점선으로. null이면 지운다. pts: 평면 좌표 [[x, y], …] */
     setNeed(pts) {
@@ -678,19 +724,34 @@ export function makeViewer(el, handlers = {}) {
     /** 미리 보기 상자 (pose-check 결과). null이면 지운다. */
     setGhost(res) {
       last = { ...last, ghost: res };
+      if (!res?.size_m) { clear(ghost); return; }
+      // 카메라 바로 앞(화면 아래 끝)에 오면 반투명 상자가 화면을 하얗게 덮는다 → 그때는 그리지 않는다
+      const [gx, gz] = res.pose.center_xz;
+      const reach = Math.hypot(res.size_m[0], res.size_m[2]) / 2 + GHOST_NEAR_M;
+      ghost.visible = walk || Math.hypot(cam.position.x - gx, cam.position.z - gz) >= reach;
+      // 마우스를 따라갈 때는 같은 모양이면 자리·방향만 옮긴다 (매번 새로 만들면 버벅인다)
+      const key = JSON.stringify([res.sku, res.size_m, res.verdict, res.hex, templates.has(res.sku)]);
+      const cur = ghost.children[0];
+      if (cur && cur.userData.ghostKey === key) {
+        cur.position.set(gx, 0, gz);
+        cur.rotation.y = -((res.pose.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
+        return;
+      }
       clear(ghost);
-      if (res?.size_m) ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex, sku: res.sku }, { preview: true }));
+      ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex, sku: res.sku }, { preview: true }));
+      ghost.children[0].userData.ghostKey = key;
     },
     /** 끄는 동안 판정 색만 바꾼다 */
     setDragVerdict(id, verdict) {
       const g = products.children.find((c) => c.userData.placementId === id);
       if (!g) return;
+      g.userData.dirty = true; // 색을 바꿨으니 다음 그리기에서 새로 만든다
       const hex = VERDICT_HEX[verdict] ?? VERDICT_HEX.unknown;
       g.children.forEach((c) => { if ((c.isLineSegments && !c.userData.dim) || c.userData.verdictPlate) c.material.color.setHex(hex); });
     },
     /** 공유기 자리 {center_xz, yaw_rad}. null이면 숨긴다. 들고 있는 동안에는 자리를 덮지 않는다 */
     setRouter(rt) {
-      routerPose = rt ? { xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0 } : null;
+      routerPose = rt ? { xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0, y: rt.height_m ?? 0 } : null;
       if (!rt) { if (held?.kind === "router") api.cancelHold(); routerG.visible = false; return; }
       loadAsset(ROUTER_URL).then((g) => {
         if (!g || !alive) return;
@@ -700,9 +761,26 @@ export function makeViewer(el, handlers = {}) {
           routerG.add(m);
         }
         if (!routerPose || held?.kind === "router") return;
-        routerG.position.set(routerPose.xz[0], 0, routerPose.xz[1]);
+        routerG.position.set(routerPose.xz[0], routerPose.y, routerPose.xz[1]);
         routerG.rotation.set(0, -routerPose.yaw, 0);
         routerG.visible = true;
+      });
+    },
+    /** 공유기 놓기: 마우스를 따라다니는 공유기. null이면 원래 자리로 (없으면 숨김) */
+    routerFollow(xz) {
+      loadAsset(ROUTER_URL).then((g) => {
+        if (!g || !alive) return;
+        if (!routerG.children.length) {
+          const m = g.scene.clone(true);
+          m.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+          routerG.add(m);
+        }
+        if (xz) {
+          routerG.position.set(xz[0], surfaceY(xz), xz[1]);
+          routerG.visible = true;
+        } else if (routerPose) {
+          routerG.position.set(routerPose.xz[0], routerPose.y, routerPose.xz[1]);
+        } else routerG.visible = false;
       });
     },
     /** 동선 경로들([[x,y],...] 목록)을 사람이 하나씩 걷는다. 빈 목록이면 지운다 */
@@ -721,12 +799,13 @@ export function makeViewer(el, handlers = {}) {
           node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
           const mixer = new THREE.AnimationMixer(node);
           const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
-          walk.timeScale = WALK_SPEED * walkClip.duration / STRIDE_M; // 발이 미끄러지지 않게 걸음 길이에 맞춘다
+          const stepRate = walkClip.duration / STRIDE_M; // 1 m 갈 때 도는 동작 길이: 발이 미끄러지지 않게 빠르기에 맞춘다
+          walk.timeScale = WALK_SPEED * stepRate;
           idle.play();
           walkersG.add(node);
-          const len = pathLength(path);
-          walkers.push({ node, mixer, walk, idle, path, moving: false, heading: poseAt(path, 0).heading,
-            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.5 }), t: -i * 1.2 });
+          const smooth = smoothPath(path), len = pathLength(smooth); // 격자 계단을 펴고 모퉁이는 둥글게
+          walkers.push({ node, mixer, walk, idle, path: smooth, moving: false, heading: poseAt(smooth, 0.3).heading, stepRate,
+            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.5, ease: WALK_EASE_S }), t: -i * 1.2 });
         });
       });
     },
@@ -766,6 +845,7 @@ export function makeViewer(el, handlers = {}) {
       api.cancelHold();
       const nodes = heldNodes(item);
       if (!nodes.length) return false;
+      nodes.forEach((n) => { if (n.userData.placementId) n.userData.dirty = true; }); // 들어 옮긴 것은 다시 그릴 때 새로 만든다
       held = { ...item, nodes: nodes.map((n) => ({ node: n, baseY: n.position.y, orig: n.position.clone(), rot: n.rotation.y })),
         lift: 0, dropping: false, grab: grabPoint ? [item.xz[0] - grabPoint[0], item.xz[1] - grabPoint[1]] : [0, 0] };
       if (grid) grid.visible = true;

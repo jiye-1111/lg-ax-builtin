@@ -27,6 +27,8 @@ DECOR: dict[str, dict] = {
     "desk": {"label": "책상", "group": "furniture", "model": "desk", "size_mm": (1200, 730, 600)},
     "storage": {"label": "수납장", "group": "storage", "model": "storage", "size_mm": (1000, 1900, 450)},
     "shelf": {"label": "선반", "group": "storage", "model": "shelf", "size_mm": (800, 1800, 300)},
+    "dresser": {"label": "서랍장", "group": "storage", "model": "dresser", "size_mm": (800, 900, 450)},
+    "basecab": {"label": "주방 하부장", "group": "storage", "model": "basecab", "size_mm": (1200, 850, 600)},
     "island": {"label": "아일랜드", "group": "storage", "model": "island", "size_mm": (1800, 900, 900)},
     "tvstand": {"label": "거실장", "group": "storage", "model": "tvstand", "size_mm": (1600, 450, 400)},
     "rug": {"label": "러그", "group": "decor", "model": "rug", "size_mm": (2000, 12, 1400), "flat": True},
