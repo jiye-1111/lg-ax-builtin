@@ -97,7 +97,10 @@ class Ideas(BaseModel):
     @classmethod
     def _short_seen(cls, v: Optional[str]) -> Optional[str]:
         v = (v or "").strip().rstrip(".") or None
-        return v if v is None or len(v) <= 60 else v[:59].rstrip(" ,·") + "…"
+        if v is None or len(v) <= SEEN_MAX:
+            return v
+        cut = max(v.rfind(c, 0, SEEN_MAX) for c in ("·", ",", "/"))  # 끊기 좋은 자리에서 자른다 (말줄임표 없이)
+        return v[:cut if cut > 10 else SEEN_MAX].rstrip(" ,·/")
 
 
 SYSTEM = """너는 LG전자 매장의 인테리어 컨설턴트다. 고객의 실제 집(스캔)과 고른 가전, 목표 가격을 보고
@@ -115,9 +118,12 @@ PHOTO_RULES = """
 고객이 사진을 한 장 붙였다. 사진은 '이런 느낌으로 살고 싶다'는 참고일 뿐이다.
 - 사진에서는 분위기, 주요 색(palette), 재질(materials), 벽·바닥 질감, 보이는 가구 종류, 공간 용도만 읽는다.
 - 사진 속 가구·가전의 브랜드나 제품명을 추측하지 않는다. 사람 얼굴·글자·개인 정보는 무시한다.
-- seen에 사진에서 읽은 느낌을 한 줄로 적는다. 세 조합 모두 사진 느낌을 따르되 price_plan만 다르게.
+- seen에는 사진에서 읽은 느낌을 짧은 말 세 개로, '·'로 잇는다. 예: 짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명
+- 세 조합 모두 사진 느낌을 따르되 price_plan만 다르게.
+- name, why, tips, seen은 모두 한국어로 쓴다 (영어 이름 금지).
 - 실내 공간 사진이 아니면 not_a_room을 true로."""
 
+SEEN_MAX = 40
 PHOTO_TYPES = {"image/jpeg": b"\xff\xd8\xff", "image/png": b"\x89PNG", "image/webp": b"RIFF"}
 PHOTO_MAX_BYTES = 5 * 1024 * 1024
 _DATA_URL = re.compile(r"^data:(image/[a-z]+);base64,([A-Za-z0-9+/=\s]+)$")
