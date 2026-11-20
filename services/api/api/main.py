@@ -588,6 +588,21 @@ def results(pid: str, s: Service = S):
     return s.results(pid)
 
 
+@app.post("/api/projects/{pid}/install-request", status_code=201)
+def install_request(pid: str, body: RequestIn, s: Service = S):
+    return s.create_install_request(pid, body.name, body.contact, body.address, body.preferred_at)
+
+
+@app.get("/api/projects/{pid}/files/before.glb")
+def before_file(pid: str, s: Service = S):
+    return FileResponse(s.before_glb(pid), headers={"Cache-Control": "no-store"})
+
+
+@app.get("/api/projects/{pid}/install-check")
+def install_check(pid: str, s: Service = S):
+    return s.install_check(pid)
+
+
 @app.post("/api/projects/{pid}/floorplan", status_code=201)
 async def upload_floorplan(pid: str, file: UploadFile = File(...), s: Service = S):
     data = await file.read()

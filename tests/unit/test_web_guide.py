@@ -30,7 +30,7 @@ def test_fit_rows_cover_every_reason_code():
 def test_no_fake_checks_and_clear_cta():
     assert "전원" in GUIDE and "기사" in GUIDE  # 전원·배관은 검사한 척하지 않고 기사 확인으로
     assert 'id="orderBtn"' in REMODEL and "구매 및 설치 신청" in REMODEL
-    assert 'id="orderSheet"' in REMODEL and "#/r" in REMODEL  # 방문 신청 화면으로 이어진다
+    assert 'id="orderSheet"' in REMODEL and "installRequestBox(irBox" in REMODEL  # 놓은 제품 그대로 방문 설치 신청으로 이어진다
     assert "./js/guide.js" in (WEB / "sw.js").read_text(encoding="utf-8")
     assert "studio.css" in (WEB / "index.html").read_text(encoding="utf-8")
 

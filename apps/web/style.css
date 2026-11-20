@@ -217,6 +217,28 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .palette { display: flex; gap: 4px; }
 .palette i { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .1); }
 .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); flex: none; display: inline-block; }
+/* 설치 전 확인 목록 */
+.ic-sum { font-weight: 600; margin: 0 0 10px; }
+.ic-list, .ic-checks { list-style: none; margin: 0; padding: 0; }
+.ic-item { padding: 12px 0; border-top: 1px solid var(--line, #e5e1da); }
+.ic-item:first-child { border-top: 0; padding-top: 0; }
+.ic-head { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.ic-dims { font-size: var(--t-xs); margin: 2px 0 8px; }
+.ic-checks li { display: grid; grid-template-columns: 5.2em 1fr; gap: 8px; align-items: baseline; padding: 3px 0; font-size: var(--t-sm); }
+.ic-checks .badge { text-align: center; }
+.ic-checks em { font-style: normal; font-size: var(--t-xs); }
+.ic-fold > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.ic-fold > div { padding-top: 8px; }
+.ir-box form label { display: block; margin-top: 8px; font-size: var(--t-xs); }
+.ir-box form input { width: 100%; }
+.ir-box[hidden], .ir-box [hidden], .before-pane[hidden], .ic-fold[hidden] { display: none !important; }
+#beforeBtn { top: 52px; }
+#beforeBtn[aria-pressed="true"] { background: var(--ink); color: #fff; border-color: var(--ink); z-index: 6; }
+.before-pane { position: absolute; inset: 0; z-index: 5; }
+.before-pane .viewer { height: 100%; border-radius: 0; }
+.before-tag { position: absolute; z-index: 4; left: 12px; bottom: 12px; padding: 6px 12px; border-radius: 999px; background: rgba(29, 28, 26, .78); color: #fff; font-size: var(--t-xs); pointer-events: none; }
+.minimap #beforeBtn, .minimap .before-pane, .studio[data-view="plan"] #beforeBtn { display: none; }
+.furn-btn:disabled { opacity: .4; cursor: default; }
 .reasons { list-style: none; margin: 0; padding: 0; font-size: var(--t-sm); }
 .reasons li { padding: 4px 0; display: flex; gap: 8px; align-items: baseline; }
 

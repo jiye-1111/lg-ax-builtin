@@ -170,3 +170,25 @@ def test_freestanding_door_space_unknown_uses_default_and_is_conditional():
 def test_doorless_freestanding_needs_no_front_space():
     r = check_pose(room(objects=[TABLE]), washer(door=None, category="tv"), AT_WALL, CFG)
     assert r.verdict == Verdict.FIT and not r.reasons
+
+
+# ---- 들여오는 길: 방 문 폭 ----
+def door(width, oid="d1"):
+    return Opening(opening_id=oid, type="door", wall_id="w3", offset_m=0.2, width_m=width, height_m=2.0)
+
+
+def test_product_wider_than_every_door_needs_entry_check():
+    r = check_pose(room(openings=[door(0.65)]), fridge(), Pose((2.0, 1.2), 0.0), CFG)  # 가장 얇은 쪽 0.7 m
+    assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"entry_narrow"}
+    assert r.reasons[0]["ref"] == "d1"
+
+
+def test_widest_door_decides_entry():
+    r = check_pose(room(openings=[door(0.65), door(0.9, "d2").model_copy(update={"offset_m": 2.5})]),
+                   fridge(), Pose((2.0, 1.2), 0.0), CFG)
+    assert "entry_narrow" not in codes(r)
+
+
+def test_no_scanned_door_skips_entry_check():
+    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    assert "entry_narrow" not in codes(r)

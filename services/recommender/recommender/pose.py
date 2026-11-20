@@ -7,6 +7,7 @@ yaw = 제품 정면이 향하는 방향 (영역 자동 배치·glb와 같은 규
 - 필요 공간(R): 본체 + 양옆·뒤 이격(clearance_mm). 이격이 없으면 0으로 보고 조건부 이하로 제한.
 - 여유(M): R을 마진만큼 사방으로 키운 것.
 장애물(벽·스캔 가구·다른 배치)과 F가 겹치면 불가, R이 겹치면 불가(이격 부족), M만 겹치면 조건부.
+들여오는 길: 제품의 가장 얇은 쪽이 스캔된 문 폭보다 크면 조건부.
 """
 from __future__ import annotations
 
@@ -35,6 +36,7 @@ LABELS = {
     "door_blocked": "문이 열리지 않음",
     "door_swing_assumed": "문 열림 범위에 걸침 (반대쪽으로 열린다고 가정)",
     "covers_window": "창을 가림",
+    "entry_narrow": "방 문보다 제품이 커서 들여올 길 확인 필요",
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
@@ -255,6 +257,14 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     if front_assumed:
         add("front_space_assumed", Verdict.CONDITIONAL,
             label=f"문 열림 공간 정보 없음 (앞 {cfg.front_default_mm:.0f} mm로 가정)")
+
+    # 들여오는 길: 가장 넓은 문으로도 제품의 가장 얇은 쪽이 못 지나가면 확인 필요
+    doors = [op for op in room.openings if op.type in ("door", "opening") and op.width_m > 0]
+    if doors:
+        widest = max(doors, key=lambda op: op.width_m)
+        if min(w_m, d_m) > widest.width_m + EPS:
+            add("entry_narrow", Verdict.CONDITIONAL, widest.opening_id)
+
     if clear_unknown:
         add("clearance_unknown", Verdict.CONDITIONAL)
     if cfg.scanned_max_conditional:
