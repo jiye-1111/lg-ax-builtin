@@ -19,19 +19,21 @@ export async function customer(pid) {
       </header>
 
       <aside class="lib" data-panel="lib" aria-label="LG 제품">
-        <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
-        <input id="q" type="search" placeholder="제품 이름·모델명 검색" aria-label="제품 검색">
-        <div class="chips" id="cats"></div>
-        <ul class="list" id="lib"></ul>
-        <p class="hint-sm">제품을 누른 뒤 3D 바닥이나 평면을 누르세요. 끌어다 놓아도 돼요. 벽 가까이 놓으면 등이 벽에 붙어요.</p>
+        <div class="lib-side">
+          <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
+          <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
+          <div class="chips" id="cats"></div>
+        </div>
+        <ul class="list" id="lib" aria-label="제품을 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
       </aside>
 
       <section class="stage" aria-label="우리 집">
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
-            <button data-mode="move" class="on" title="제품 놓기·옮기기">놓기·옮기기</button><button data-mode="rect" title="사각형 영역 그리기">영역 □</button><button data-mode="poly" title="다각형 영역 그리기">영역 ⬠</button></div>
+            <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
           <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 치우기</button>
           <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>둘러보기</button>
+          <button class="furn-btn" id="keysBtn" aria-expanded="false" aria-controls="keysPop" title="마우스·키보드 조작 방법"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>조작키</button>
           <span class="spacer"></span>
           <div class="seg sims" role="group" aria-label="살아 보기">
             <span class="seg-label">살아 보기</span>
@@ -43,6 +45,16 @@ export async function customer(pid) {
           <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
             <button class="pip-swap" data-swap="3d" title="3D를 가운데 크게 보기">3D 크게</button>
             <button class="render-btn" id="render">렌더 이미지</button></div>
+          <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
+            <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
+            <h4>제품</h4>
+            <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+              <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Esc</kbd> 취소</li></ul>
+            <h4>화면</h4>
+            <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
+            <h4>둘러보기</h4>
+            <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>Esc</kbd> 마우스 풀기</li></ul>
+          </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
         </div>
         <p class="hint" id="hint"></p>
@@ -51,7 +63,6 @@ export async function customer(pid) {
 
       <aside class="side" aria-label="선택한 제품과 설정">
         <nav class="side-tabs" role="tablist">
-          <button data-tab="lib" class="m-only">제품</button>
           <button data-tab="sel">선택</button>
           <button data-tab="list">놓은 제품 <span class="count" id="plCount">0</span></button>
           <button data-tab="finish">마감재</button>
@@ -66,7 +77,7 @@ export async function customer(pid) {
             <h3 class="gap">스타일</h3><div id="style"></div>
           </section>
           <section data-panel="zones">
-            <p class="hint-sm">평면 도구에서 ‘영역 □’로 주방 자리를 그리면, 그 안에 들어가는 제품을 골라 줍니다.</p>
+            <p class="hint-sm">위쪽 ‘네모 영역’으로 주방 자리를 그리면, 그 안에 들어가는 제품을 골라 줘요.</p>
             <ul class="list" id="zones"></ul>
             <select id="zoneSel" aria-label="영역 선택"></select>
             <div id="recs" class="cards"></div>
@@ -101,8 +112,13 @@ export async function customer(pid) {
     studio.querySelectorAll("[data-tab]").forEach((b) => b.classList?.toggle("on", b.dataset.tab === t));
   };
   studio.querySelectorAll(".side-tabs [data-tab]").forEach((b) => (b.onclick = () => setTab(b.dataset.tab)));
-  const TABS = ["lib", "sel", "list", "finish", "zones", "extra"], VIEWS = ["3d", "plan", "split"];
-  setTab(TABS.includes(saved.tab) ? saved.tab : matchMedia("(max-width: 900px)").matches ? "lib" : "sel");
+  const TABS = ["sel", "list", "finish", "zones", "extra"], VIEWS = ["3d", "plan", "split"];
+  setTab(TABS.includes(saved.tab) ? saved.tab : "sel");
+  // 조작키 창: 버튼으로 열고 닫는다
+  const keysPop = document.getElementById("keysPop"), keysBtn = document.getElementById("keysBtn");
+  const showKeys = (on) => { keysPop.hidden = !on; keysBtn.classList.toggle("on", on); keysBtn.setAttribute("aria-expanded", on); };
+  keysBtn.onclick = () => showKeys(keysPop.hidden);
+  document.getElementById("keysClose").onclick = () => showKeys(false);
   const setView = (v, keepCamera = false) => {
     if (v === "plan" && walking) setWalking(false); // 평면만 볼 때는 둘러보기를 끝낸다
     studio.dataset.view = v;
@@ -214,8 +230,8 @@ export async function customer(pid) {
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
       const many = f.variants.length > 1;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
-        <i class="dot" style="background:${esc(v.hex || "#fff")}"></i>
-        <div style="flex:1;min-width:0"><div class="name">${esc(f.name)}</div>
+        <i class="dot tile" style="background:${esc(v.hex || "#fff")}"><span>${esc(CATEGORY[f.category] || f.category)}</span></i>
+        <div class="body"><div class="name">${esc(f.name)}</div>
           <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
             <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
@@ -506,10 +522,8 @@ export async function customer(pid) {
       box.querySelector("#oreset")?.addEventListener("click", guard(async () => { await api(`/api/projects/${pid}/objects/${o.object_id}/pose`, { method: "DELETE" }); await refresh(true); }));
       return;
     }
-    box.innerHTML = `<div class="insp-empty"><h2>아직 고른 게 없어요</h2>
-      <p>3D나 평면에서 놓은 제품이나 스캔된 가구를 누르면 여기에 판정과 조작 버튼이 나와요.</p>
-      <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
-        <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li><li><kbd>Esc</kbd> 취소</li></ul></div>`;
+    box.innerHTML = `<div class="insp-empty"><h2>무엇을 놓아 볼까요?</h2>
+      <ol class="how"><li>아래 <b>LG 제품</b>에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
   const renderPlacements = () => {
     const pls = project.scene_state.placements;
@@ -567,7 +581,7 @@ export async function customer(pid) {
     document.getElementById("zones").innerHTML = zones.length ? zones.map((z) => `
       <li><b>${esc(z.name || z.purpose)}</b><span class="muted">${esc(z.zone_id)} · 벽 ${esc((z.wall_ids.length ? z.wall_ids : z.auto_wall_ids || []).join(", ") || "없음")}</span>
         <span class="spacer"></span><button class="small ghost" data-del="${esc(z.zone_id)}">삭제</button></li>`).join("")
-      : `<li class="muted">평면도 위 '영역 □'으로 영역을 그리세요.</li>`;
+      : `<li class="muted">위쪽 ‘네모 영역’이나 ‘자유 영역’으로 평면에 영역을 그려 주세요.</li>`;
     document.querySelectorAll("[data-del]").forEach((b) => (b.onclick = guard(async () => {
       await api(`/api/projects/${pid}/zones/${b.dataset.del}`, { method: "DELETE" });
       if (zoneSel === b.dataset.del) zoneSel = null;
