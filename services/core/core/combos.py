@@ -29,6 +29,9 @@ SlotRole = Literal["anchor", "pair", "front", "rug", "facing", "wall", "corner",
 Purpose = Literal["bedroom", "living", "kitchen", "study"]
 PricePlan = Literal["target", "save", "upgrade"]
 PLAN_FACTOR = {"target": 1.0, "save": 0.75, "upgrade": 1.25}
+# 가전을 안 골랐을 때 그 공간에 흔히 두는 LG 가전 (하나 둘만. 나열하지 않는다)
+PURPOSE_CATS = {"kitchen": ["refrigerator", "water_purifier"], "bedroom": ["air_conditioner", "air_purifier"],
+                "living": ["tv", "air_conditioner"], "study": ["air_purifier"]}
 PLAN_KO = {"target": "목표 가격에 맞춤", "save": "아끼는 조합", "upgrade": "한 단계 위"}
 PURPOSE_KO = {"bedroom": "침실", "living": "거실", "kitchen": "주방", "study": "서재"}
 # 협탁은 서랍장 모델을 작게 쓴다 (판정·3D 모두 크기만 다름)
@@ -55,6 +58,11 @@ class Idea(BaseModel):
     furniture: list[Slot] = Field(description="놓을 가구 3~8개. anchor는 하나만, 맨 앞에")
     price_plan: PricePlan = Field(description="target 목표 가격에 맞춤 · save 아끼기 · upgrade 한 단계 위. 세 조합이 서로 달라야 함")
     appliance_point: str = Field(description="이 컨셉에서 가전을 고를 때 볼 점 한 문장 (색·크기·소음 등). 제품명·숫자 없이")
+
+    @field_validator("name")
+    @classmethod
+    def _plain_name(cls, v: str) -> str:  # AI가 이름 끝에 붙이는 '(target)' 같은 말 빼기
+        return re.sub(r"\s*[(\[]?\b(target|save|upgrade)\b[)\]]?\s*$", "", v, flags=re.I).strip() or v
 
     @field_validator("palette")
     @classmethod
@@ -84,6 +92,12 @@ class Ideas(BaseModel):
     seen: Optional[str] = Field(None, description="사진이 있을 때만: 사진에서 읽은 느낌 한 줄, 30자 안. "
                                                   "예: 짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명. 사진이 없으면 null")
     not_a_room: bool = Field(False, description="사진이 실내 공간 사진이 아니면 true (그때 ideas는 비워도 됨)")
+
+    @field_validator("seen")
+    @classmethod
+    def _short_seen(cls, v: Optional[str]) -> Optional[str]:
+        v = (v or "").strip().rstrip(".") or None
+        return v if v is None or len(v) <= 60 else v[:59].rstrip(" ,·") + "…"
 
 
 SYSTEM = """너는 LG전자 매장의 인테리어 컨설턴트다. 고객의 실제 집(스캔)과 고른 가전, 목표 가격을 보고

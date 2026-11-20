@@ -15,7 +15,7 @@ from recommender.layout import Item, arrange
 from recommender.pose import Pose
 
 from .ai_products import CATEGORY_KO
-from .combos import (PLAN_FACTOR, PLAN_KO, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
+from .combos import (PLAN_FACTOR, PLAN_KO, PURPOSE_CATS, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
                      rule_ideas, slot_sku)
 from .decor import decor_product, is_decor
 from .models import Product, StyleTags
@@ -106,13 +106,17 @@ class ComboMixin:
         engine, seen = "ai", (ideas.seen if image and ideas else None)
         if not ideas or not ideas.ideas:
             ideas, engine = rule_ideas(prompt, purpose), "rules"
+        auto = not cats  # 가전을 안 골랐으면 그 공간에 흔히 두는 LG 가전을 넣는다 (가구만 주지 않게)
+        if auto:
+            cats = list(PURPOSE_CATS.get(ideas.purpose, []))
+            pools = {c: self._combo_pool(room, c) for c in cats}
         others = [x for x in p["scene_state"]["placements"] if not x.get("combo") and x.get("size_m")]
         meds = {c: median(x.price_krw for x in v) for c, v in pools.items() if v}
         combos = [self._one_combo(room, p, others, idea, pools, meds, budget, i) for i, idea in enumerate(ideas.ideas[:3])]
         p["scene_state"]["combos"] = combos
         self._save_project(p)
         return {"engine": engine, "purpose": ideas.purpose, "purpose_label": PURPOSE_KO.get(ideas.purpose, ""),
-                "budget": budget, "categories": cats, "combos": combos, "seen": seen}
+                "budget": budget, "categories": cats, "auto_categories": auto, "combos": combos, "seen": seen}
 
     def _one_combo(self, room, p: dict, others: list[dict], idea: Idea, pools: dict, meds: dict, budget, idx: int) -> dict:
         tags = StyleTags(palette=idea.palette, materials=idea.materials)
@@ -224,11 +228,13 @@ class ComboMixin:
         if not n:
             msg = "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요."
         elif photo and out["seen"]:
-            msg = f"사진은 ‘{out['seen']}’ 느낌이에요. 이 집에 맞춰 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
+            msg = f"사진에서 읽은 느낌: {out['seen']}. 이 집에 맞춰 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
         elif photo:
             msg = f"사진을 읽지 못해서 {'적어 준 말로' if prompt else '기본 분위기로'} {n}가지를 꾸며 봤어요. 마음에 드는 조합을 누르면 한 번에 들어가요."
         else:
             msg = f"{out['purpose_label'] or '이 공간'}을 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
+        if n and out.get("auto_categories") and out["categories"]:
+            msg += f" 가전은 이 공간에 흔히 두는 {'·'.join(CATEGORY_KO[c] for c in out['categories'])}로 넣었어요."
         return {"type": "combos", "message": msg, **out}
 
     def clear_combo(self, pid: str) -> dict:
