@@ -23,6 +23,7 @@ from pathlib import Path
 
 import bmesh
 import bpy
+import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_products import material, palette  # noqa: E402  (같은 재질표를 쓴다)
@@ -45,6 +46,62 @@ def unit_scale(objs: list, height_mm: float) -> float:
         if abs(raw * to_m * 1000 - height_mm) <= 2.0:
             return to_m
     raise ValueError(f"STL 높이 {raw}가 카탈로그 높이 {height_mm}mm와 어떤 단위로도 안 맞는다")
+
+
+# 표면 질감: 코드로 직접 만든 작은 노멀맵 (외부 자료 없음, docs/model-sources.md). 값 = 한 장이 덮는 실제 크기(m)
+TEXTURE_TILE_M = {"hairline": 0.064, "fabric": 0.016}
+TEXTURE_STRENGTH = {"hairline": 0.55, "fabric": 1.0}
+
+
+def normal_image(kind: str) -> bpy.types.Image:
+    """hairline: 세로 결(가로로만 변하는 가는 줄), fabric: 가로세로 엮인 직물."""
+    rng = np.random.default_rng(7)
+    if kind == "hairline":
+        w, h = 256, 4
+        line = rng.random(w)
+        line = (line + np.roll(line, 1) + np.roll(line, 2)) / 3
+        hgt = np.tile(line, (h, 1))
+    else:
+        w = h = 64
+        y, x = np.mgrid[0:h, 0:w]
+        n = 8  # 한 장에 실 8가닥
+        over = ((x * n // w) + (y * n // h)) % 2
+        hgt = np.where(over == 1, np.abs(np.sin(np.pi * n * x / w)), np.abs(np.sin(np.pi * n * y / h))) * 0.6
+    dx = (np.roll(hgt, -1, axis=1) - np.roll(hgt, 1, axis=1)) * 1.5
+    dy = (np.roll(hgt, -1, axis=0) - np.roll(hgt, 1, axis=0)) * 1.5
+    nz = np.ones_like(hgt)
+    ln = np.sqrt(dx * dx + dy * dy + nz * nz)
+    rgba = np.stack([-dx / ln * 0.5 + 0.5, -dy / ln * 0.5 + 0.5, nz / ln * 0.5 + 0.5, np.ones_like(hgt)], axis=-1)
+    img = bpy.data.images.new(f"normal_{kind}", w, h, alpha=False)
+    img.colorspace_settings.name = "Non-Color"
+    img.pixels.foreach_set(rgba.astype(np.float32).ravel())
+    img.file_format = "PNG"
+    img.pack()
+    return img
+
+
+def add_texture(mat: bpy.types.Material, kind: str, images: dict) -> None:
+    if kind not in images:
+        images[kind] = normal_image(kind)
+    nt = mat.node_tree
+    tex = nt.nodes.new("ShaderNodeTexImage")
+    tex.image = images[kind]
+    nm = nt.nodes.new("ShaderNodeNormalMap")
+    nm.inputs["Strength"].default_value = TEXTURE_STRENGTH[kind]
+    nt.links.new(tex.outputs["Color"], nm.inputs["Color"])
+    nt.links.new(nm.outputs["Normal"], nt.nodes["Principled BSDF"].inputs["Normal"])
+
+
+def box_uv(mesh: bpy.types.Mesh, tile_m: float) -> None:
+    """면이 향한 축에 맞춰 실제 크기 그대로 UV를 편다 (정면·옆면은 u = 가로, v = 높이 → 결이 세로로 선다)."""
+    uv = mesh.uv_layers.new(name="UVMap").data
+    for poly in mesh.polygons:
+        n = poly.normal
+        axis = max(range(3), key=lambda i: abs(n[i]))
+        for li in poly.loop_indices:
+            co = mesh.vertices[mesh.loops[li].vertex_index].co
+            u, v = ((co.y, co.z), (co.x, co.z), (co.x, co.y))[axis]
+            uv[li].uv = (u / tile_m, v / tile_m)
 
 
 def load_drawing(src: Path) -> dict:
@@ -73,6 +130,16 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
         if "Coat Weight" in bsdf.inputs:
             bsdf.inputs["Coat Weight"].default_value = 1.0
             bsdf.inputs["Coat Roughness"].default_value = 0.03
+    # 표면 질감: 메탈·스테인리스 마감과 금속 부품은 헤어라인, drawing.json colors.door.texture로 따로 정할 수도 있다
+    textured, images = {}, {}
+    door_tex = drawing.get("colors", {}).get("door", {}).get("texture")
+    if not door_tex and any(k in (opt.get("material") or "") for k in ("메탈", "스테인리스")):
+        door_tex = "hairline"
+    if door_tex:
+        textured["finish"] = door_tex
+    textured["handle"] = "hairline"
+    for mat_key, kind in textured.items():
+        add_texture(pal[mat_key], kind, images)
     if geo is None:  # 색만 다른 모델은 몸체 공유
         geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src
     objs = []
@@ -122,6 +189,9 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
             v.co.y -= (lo[1] + hi[1]) / 2
             v.co.z -= lo[2]
         ob.parent = root
+        kind = textured.get(ROLE_MAT[role_of(ob.name)])
+        if kind:
+            box_uv(ob.data, TEXTURE_TILE_M[kind])
     bb = {"w": (hi[0] - lo[0]) * 1000, "h": (hi[2] - lo[2]) * 1000, "d": (hi[1] - lo[1]) * 1000}
     path = out / f"{name}.glb"
     bpy.ops.object.select_all(action="SELECT")
