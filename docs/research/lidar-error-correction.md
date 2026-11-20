@@ -70,7 +70,7 @@ UGScan은 RoomPlan 결과만 내보내서 우리가 원본 깊이를 받을 수 
 | 5 | 잰 길이로 전체 배율 보정 | 작음 | 조건부. 기준이 판정 자리 가까이 있을 때만 |
 | 6 | 같은 부엌 2~3번 스캔해 차이 표시 | 중간 | σ를 실제로 잴 수 있음 |
 | 7 | 직각 맞추기 | 작음 | RoomPlan에는 효과 없음. 다른 입력 대비용 |
-| 8 | 자체 스캔 앱 + TSDF 융합 / 학습 기반 깊이 보정 | 큼 | cm 수준 개선. 시연 범위 밖 |
+| 8 | 원본 깊이(Stray Scanner) 융합 + 평면 맞춤, AI 깊이 보정 | 중간 | 줄자 없이 벽 치수 오차를 줄이는 유일한 길. §8에 프로토타입 |
 
 ## 6. 판정에 오차 반영하기
 
@@ -92,7 +92,7 @@ UGScan은 RoomPlan 결과만 내보내서 우리가 원본 깊이를 받을 수 
 | 1.0 m | 30 mm | 28 mm | 21 mm |
 | 3.0 m | 30 mm | 63 mm | 27 mm |
 
-σ 값은 문헌의 1~3 cm, 약 1.4%를 바탕으로 잡은 가정이다. 같은 부엌을 여러 번 스캔해 보면 우리 환경 값으로 바꿀 수 있다. **판정 규칙(`fit-rules.md`)은 아직 바꾸지 않았다.** 바꿀 때는 규칙 문서와 테스트를 먼저 고친다.
+σ 값은 문헌의 1~3 cm, 약 1.4%를 바탕으로 잡은 가정이다. 같은 부엌을 여러 번 스캔해 보면 우리 환경 값으로 바꿀 수 있다. 이 규칙은 `fit-rules.md`와 판정 코드에 반영했다 (애매한 구간은 화면에 "확인 필요").
 
 ## 7. 실제 교실 스캔으로 돌려 본 결과
 
@@ -117,6 +117,52 @@ UGScan은 RoomPlan 결과만 내보내서 우리가 원본 깊이를 받을 수 
 - 오차가 방 전체에 고르게 퍼져 있으면 다른 벽 하나만 재도 오차가 약 4분의 1로 준다.
 - 드리프트처럼 벽마다 다르게 틀리면 다른 벽을 잰 값으로는 못 고친다. 문헌은 이쪽(드리프트)에 가깝다고 본다 [6][9]. 그래서 1순위가 "넣을 자리를 직접 재기"다.
 - 직각 맞춤은 넣은 각도 오차를 완전히 되돌리지만, 실제 RoomPlan 스캔에는 애초에 그런 오차가 없다.
+
+## 8. 줄자 없이 정확도 올리기: 원본 깊이로 벽 치수 다시 재기
+
+실측을 부탁하지 않고 오차를 줄이려면, RoomPlan이 정리해 준 상자(3 cm 격자) 대신 **원본 깊이를 직접 받아서 벽면을 다시 맞추는** 길밖에 없다. UGScan은 원본 깊이를 내보내지 않아서 캡처 앱을 하나 더 쓴다.
+
+### 무엇으로 찍나
+| 앱 | 원본 깊이 내보내기 | 비용 | 판단 |
+|---|---|---|---|
+| **Stray Scanner** [27][28] | 깊이 PNG(256×192, mm), 신뢰도(0·1·2), 프레임별 위치·카메라 값(`odometry.csv`) | 무료, MIT | **이걸로** |
+| Record3D [29] | EXR 깊이 등 | 무료는 3번까지, 이후 유료 | 보류 |
+| Polycam [30] | 개발자 모드를 켜고 찍어야 원본 데이터 | 요금제 확인 못 함 | 보류 |
+| 3D Scanner App | 프레임별 사진·위치. 깊이 포함 여부 확인 못 함 | 무료 | 보류 |
+
+### 어떻게 보정하나
+코드: `services/blender-worker/worker/rawdepth.py` (테스트 `tests/unit/test_rawdepth.py`, 앱에는 아직 연결하지 않음)
+
+1. 신뢰도가 높은(2) 픽셀만 3D 점으로 바꾼다. 유리·스테인리스처럼 틀리기 쉬운 곳이 여기서 빠진다.
+2. 여러 프레임의 점을 1 cm 칸으로 평균한다 (간단한 깊이 융합). Open3D의 TSDF [31][32]로 바꿀 수 있지만 벽 치수만 재는 데는 numpy로 충분해서 의존성을 늘리지 않았다.
+3. RANSAC으로 평면을 찾고 안쪽 점으로 최소제곱 다시 맞춘다. 벽면 하나에 점 10만 개가 들어가서 면 위치가 mm 단위로 잡힌다.
+4. UGScan 스캔과 따로 찍어서 좌표계가 다르므로, 벽 방향과 위치를 스스로 맞춘 뒤 RoomPlan 벽 ↔ 평면을 짝짓는다. 4면 이상 안 맞으면(다른 방이면) 아무것도 고치지 않는다.
+5. 마주 보는 벽 사이 거리를 평면 기준으로 다시 잰다.
+
+### 합성 주방으로 돌려 본 결과
+실제 원본 깊이 캡처가 아직 없어서 3.0 × 2.4 m 합성 주방으로 시험했다. RoomPlan 쪽에는 배율 +1.5%와 3 cm 격자 오차를 넣었다 (`uv run python docs/research/rawdepth_experiment.py`, 24프레임, 10회).
+
+| 조건 | RoomPlan 벽 사이 거리 오차 | 원본 깊이로 다시 잰 뒤 (평균 / 최대) |
+|---|---|---|
+| 깊이 노이즈 1%, 위치 밀림 없음 | 50.0 mm | **1.2 / 12.8 mm** |
+| 깊이 노이즈 1%, 프레임마다 1 mm 밀림 | 50.0 mm | **3.3 / 12.5 mm** |
+| 깊이 노이즈 1%, 프레임마다 3 mm 밀림 | 50.0 mm | 10.5 / 44.5 mm |
+| 깊이 노이즈 1%, 프레임마다 10 mm 밀림 | 50.0 mm | 25.4 / 48.0 mm |
+| 깊이 노이즈 2%, 위치 밀림 없음 | 50.0 mm | 17.9 / 49.1 mm |
+
+- 깊이 노이즈는 평균으로 사라진다. 남는 오차는 거의 다 **위치 밀림(드리프트)** 이다. 그래서 캡처는 **주방만, 30초 안쪽으로 짧게** 찍어야 한다. 아이패드 실험의 위치 오차 4.45 mm [25] 수준이면 표의 둘째~셋째 줄쯤이다.
+- 합성 결과라서 실제 값은 아니다. 실제 캡처 하나로 확인해야 하고, 그때 확인할 것: Stray Scanner 위치값의 카메라 축 규칙(문서에 안 적혀 있음), 깊이 치우침(1.5 m 넘으면 짧게 읽힌다는 보고 [36]).
+
+### AI 깊이 보정 (Prompt Depth Anything)
+- 라이다 깊이(192×256)를 힌트로 넣어 고해상도 깊이를 만든다 [26][33]. 코드·가중치 Apache-2.0, `transformers`에 들어가 있고 [34] 작은 모델(vits, 2,510만 파라미터)과 ONNX 판 [35]이 있다.
+- 논문 수치: 픽셀 깊이 오차 2.51 → 1.35 cm, 융합한 형상 정확도 8.11 → 6.99 cm (ScanNet++).
+- 쓰임새: 벽처럼 넓은 면은 점이 이미 충분해서 이득이 작다. **가전 넣을 자리의 모서리·문틀처럼 좁은 경계**를 또렷하게 잡는 데 쓴다. 깊이 프레임을 넣는 자리(`Frame.depth_m`)에 보정된 깊이를 그대로 넣으면 된다.
+- 이 작업 환경에서는 Hugging Face가 막혀 있어 모델을 받지 못했다. CPU 속도는 공개된 수치가 없다 (GPU A100에서 vits 80 FPS). 팀 PC에서 받아 실제 캡처로 켜고 끈 차이를 재는 게 다음 순서다.
+
+### 다음 순서
+1. 아이폰에 Stray Scanner를 깔고 주방(또는 교실 한 구석)을 30초쯤 찍어 폴더째 올린다. 레이저 거리계로 한두 군데만 재 두면 정답과 비교할 수 있다 (한 번이면 되고, 사용자에게 시키는 게 아니라 검증용).
+2. 그 캡처로 축 규칙 확인 → `refine_room` 결과와 비교 → Prompt Depth Anything 켜고 끈 차이.
+3. 괜찮으면 앱에 "정밀 스캔 올리기(선택)"로 붙여서, 보정된 벽은 좁은 마진으로 판정한다.
 
 ## 출처
 1. Apple ML Research, 3D Parametric Room Representation with RoomPlan — https://machinelearning.apple.com/research/roomplan
@@ -145,3 +191,13 @@ UGScan은 RoomPlan 결과만 내보내서 우리가 원본 깊이를 받을 수 
 24. Baruch 외, ARKitScenes — https://arxiv.org/abs/2111.08897
 25. Li 외, MobileBrick CVPR 2023 — https://arxiv.org/abs/2303.01932
 26. Lin 외, Prompt Depth Anything — https://arxiv.org/abs/2412.14015
+27. Stray Scanner (MIT) — https://github.com/strayrobots/scanner
+28. Stray Scanner 내보내기 형식 — https://github.com/strayrobots/scanner/blob/main/docs/format.md
+29. Record3D — https://apps.apple.com/us/app/id1477716895
+30. Polycam 원본 데이터 내보내기 — https://learn.poly.cam/hc/en-us/articles/38276871185044-How-to-Extract-Raw-Data-and-What-Is-Included
+31. StrayVisualizer (Open3D TSDF 융합 예제) — https://github.com/kekeblom/StrayVisualizer
+32. Open3D — https://pypi.org/project/open3d/
+33. Prompt Depth Anything 저장소 — https://github.com/DepthAnything/PromptDA
+34. transformers 문서 — https://huggingface.co/docs/transformers/en/model_doc/prompt_depth_anything
+35. ONNX 판 — https://huggingface.co/onnx-community/promptda_vits_hf
+36. Apple Developer Forums 773571 (깊이가 멀수록 짧게 읽힌다는 보고, Apple 확인 아님) — https://developer.apple.com/forums/thread/773571
