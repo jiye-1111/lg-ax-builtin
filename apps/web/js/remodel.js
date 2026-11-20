@@ -6,6 +6,7 @@ import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
+import { mountSaveBar } from "./account.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -14,6 +15,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
           <button data-view="3d" class="on">3D</button><button data-view="plan">평면</button><button data-view="split">나란히</button></div>
@@ -24,11 +26,17 @@ export async function customer(pid) {
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="chips" id="cats"></div>
+          <div class="filters" aria-label="제품 필터">
+            <label>폭<select id="fW"><option value="">전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select></label>
+            <label>높이<select id="fH"><option value="">전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select></label>
+            <label>색상<select id="fColor"><option value="">전체</option></select></label>
+          </div>
         </div>
-        <ul class="list" id="lib" aria-label="제품을 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
+        <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
       </aside>
 
       <section class="stage" aria-label="우리 집">
+        <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
@@ -55,6 +63,8 @@ export async function customer(pid) {
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
             <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>Esc</kbd> 마우스 풀기</li></ul>
+            <h4>저장 (로그인하면)</h4>
+            <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
         </div>
@@ -231,10 +241,21 @@ export async function customer(pid) {
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
+  // 다나와식 필터: 종류(칩) + 폭·높이·색상
+  const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
+  document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
+  const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
+  ["fW", "fH", "fColor"].forEach((id) => (document.getElementById(id).onchange = () => {
+    const c = document.getElementById("fColor").value;
+    if (c) families.forEach((f) => { const v = f.variants.find((x) => x.color === c); if (v) pick[f.family_id] = v.sku; });
+    renderLib();
+  }));
   const renderLib = () => {
     const q = document.getElementById("q").value.trim().toLowerCase();
+    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
     const items = families.filter((f) => (!cat || f.category === cat) && (!q || f.name.toLowerCase().includes(q)
-      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q))))
+      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
+      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH) && (!fC || f.variants.some((v) => v.color === fC)))
       .sort((a, b) => a.demo_only - b.demo_only);
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
@@ -261,12 +282,66 @@ export async function customer(pid) {
     });
     document.querySelectorAll("#lib [data-sku]").forEach((li) => {
       li.onclick = () => {
-        if (li.classList.contains("nosize")) { toast("치수 정보가 없어 놓을 수 없는 제품입니다", true); return; }
-        armed = armed === li.dataset.sku ? null : li.dataset.sku; mode = "move"; syncMode(); setHint(); renderLib();
+        if (armed && armed === li.dataset.sku) { armed = null; ghost(null); setHint(); renderLib(); return; }
+        openDetail(li.dataset.sku);
       };
       li.ondragstart = (e) => e.dataTransfer.setData("text/sku", li.dataset.sku);
     });
   };
+  // ---- 제품 상세 창: 사진·모델명·치수·설치 사양·색상을 한 번에 보고 "넣어 보기" ----
+  const pdModal = document.getElementById("pdModal");
+  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
+  const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", other: "기타" };
+  const mmOr = (v) => (v == null ? `<span class="muted">확인 안 됨</span>` : `${mm(v)} mm`);
+  const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
+  const openDetail = (sku) => {
+    const p = prodOf(sku), f = familyOf(sku);
+    if (!p || !f) return;
+    pick[f.family_id] = sku;
+    const v = f.variants.find((x) => x.sku === sku) || {};
+    const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d, rs = p.required_space_mm || {}, cl = p.clearance_mm || {};
+    const rows = [
+      ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : `<span class="muted">확인 안 됨</span>`],
+      ["설치 필요 공간", [rs.w, rs.h, rs.d].some((x) => x != null) ? `가로 ${mmOr(rs.w)} · 높이 ${mmOr(rs.h)} · 깊이 ${mmOr(rs.d)}` : `<span class="muted">확인 안 됨</span>`],
+      ["여유 공간", [cl.side, cl.top, cl.back].some((x) => x != null) ? `옆 ${mmOr(cl.side)} · 위 ${mmOr(cl.top)} · 뒤 ${mmOr(cl.back)}` : `<span class="muted">확인 안 됨</span>`],
+      ["문 열림", p.door_swing_mm ? `${mm(p.door_swing_mm)} mm` : `<span class="muted">확인 안 됨</span>`],
+      ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "—")],
+      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", ") || "—")],
+      ["색상 · 재질", esc(finishLabel(v)) || "—"],
+      ["모델명", `<span class="mono">${esc(sku)}</span>`],
+    ];
+    pdModal.innerHTML = `
+      <div class="pd-top">
+        <div class="pd-photo" style="background-color:${esc(v.hex || "#fff")}"><span>${esc(CATEGORY[p.category] || p.category)}</span></div>
+        <div class="pd-title">
+          <h2>${esc(f.name)}</h2>
+          <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
+          ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(finishLabel(x))}</button>`).join("")}</div>
+        </div>
+        <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
+      </div>
+      <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
+      ${(p.spec_notes || []).length ? `<details class="pd-notes"><summary>설치 사양 근거 ${p.spec_notes.length}개</summary><ul>${p.spec_notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></details>` : ""}
+      <div class="pd-actions">
+        <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
+        ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
+        <span class="pd-src muted">LGE.COM 확인 ${esc(p.source_checked_at || "")}</span>
+      </div>`;
+    pdModal.hidden = false;
+    pdModal.querySelectorAll("[data-pd-variant]").forEach((b) => (b.onclick = () => { openDetail(b.dataset.pdVariant); renderLib(); }));
+    document.getElementById("pdClose").onclick = closeDetail;
+    const place = document.getElementById("pdPlace");
+    if (sized) place.onclick = () => {
+      closeDetail();
+      if (walking) setWalking(false);
+      armed = sku; mode = "move"; syncMode(); setHint(); renderLib();
+      if (matchMedia("(max-width: 900px)").matches) document.querySelector(".canvas").scrollIntoView({ behavior: "smooth", block: "center" });
+    };
+    place.focus({ preventScroll: true });
+    pdModal.scrollTop = 0;
+  };
+  pdModal.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeDetail(); } });
   document.getElementById("q").oninput = renderLib;
   renderCats(); renderLib();
 
@@ -535,7 +610,7 @@ export async function customer(pid) {
       return;
     }
     box.innerHTML = `<div class="insp-empty"><h2>무엇을 놓아 볼까요?</h2>
-      <ol class="how"><li>아래 <b>LG 제품</b>에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
+      <ol class="how"><li><b>LG 제품</b> 목록에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
   const renderPlacements = () => {
     const pls = project.scene_state.placements;
@@ -913,7 +988,10 @@ export async function customer(pid) {
     }
     toast(e.message, true);
   }
-  if (project) rememberHome(pid, token || project.share_token);
+  if (project) {
+    rememberHome(pid, token || project.share_token);
+    mountSaveBar(document.getElementById("savebar"), pid, () => token || project.share_token);
+  }
   if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; showSim(); }
   // 채팅(Claude·Codex) 쪽 변경을 2초마다 확인
   const timer = setInterval(() => refresh().catch(() => {}), 2000);

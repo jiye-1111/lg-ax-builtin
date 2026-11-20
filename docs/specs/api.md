@@ -6,7 +6,19 @@
 |--------|------|------|
 | GET | `/api/health` | Blender 경로, 카탈로그 수(가상 데이터 수) |
 | POST | `/api/requests` | 상담 요청 F1 (목업) `{name, contact, address, preferred_at}` |
-| GET | `/api/requests` | 요청 목록 |
+| GET | `/api/requests` | 요청 목록 (승인된 기사·관리자만) |
+| POST | `/api/auth/signup` | 회원가입 `{email, password, name, role: customer\|technician, phone?, center?, employee_no?}` → `{token, user}` |
+| POST | `/api/auth/login` | 로그인 `{email, password}` → `{token, user}` |
+| POST | `/api/auth/logout` | 로그아웃 (토큰 폐기) |
+| GET | `/api/auth/me` | 내 계정 |
+| GET | `/api/me/projects` | 내 집(고객) · 맡은 집(기사) |
+| GET·PATCH | `/api/admin/technicians[/{uid}]` | 기사 목록 · 상태 바꾸기 `{status}` (관리자) |
+| POST | `/api/projects/{pid}/claim` | 로그인 전에 꾸민 집 가져오기 `{share_token}` |
+| GET·POST | `/api/projects/{pid}/saves` | 저장본 목록 · 저장 `{kind: manual\|auto, label?}` |
+| POST | `/api/projects/{pid}/saves/{sid}/restore` | 저장본으로 되돌리기 |
+| DELETE | `/api/projects/{pid}/saves/{sid}` | 저장본 지우기 |
+
+계정·저장 규칙은 [accounts.md](accounts.md).
 | POST | `/api/projects` | 스캔 업로드 F2·F4 (multipart `file`, `request_id?`, `scanned_by=technician|customer`) → 프로젝트 + `customer_url` |
 | GET | `/api/projects`, `/api/projects/{pid}` | 프로젝트 |
 | GET | `/api/projects/{pid}/version` | 상태 버전 (웹 폴링, 채팅 동기화) |

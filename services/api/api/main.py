@@ -3,16 +3,19 @@ from __future__ import annotations
 
 import mimetypes
 import os
+import time
+from collections import defaultdict, deque
 from functools import lru_cache
 from typing import Optional
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from core import config
+from core.accounts import AuthError, Conflict, Forbidden, is_approved_tech
 from core.service import Invalid, NotFound, Service
 
 WEB_DIR = config.ROOT / "apps" / "web"
@@ -60,7 +63,186 @@ async def _ke(_, e):
     return JSONResponse({"detail": f"찾을 수 없음: {e}"}, status_code=404)
 
 
+@app.exception_handler(AuthError)
+async def _auth(_, e):
+    return JSONResponse({"detail": str(e) or "로그인이 필요합니다"}, status_code=401,
+                        headers={"WWW-Authenticate": "Bearer"})
+
+
+@app.exception_handler(Forbidden)
+async def _forbidden(_, e):
+    return JSONResponse({"detail": str(e) or "권한이 없습니다"}, status_code=403)
+
+
+@app.exception_handler(Conflict)
+async def _conflict(_, e):
+    return JSONResponse({"detail": str(e)}, status_code=409)
+
+
 S = Depends(get_service)
+
+
+# ---------- 로그인 ----------
+# 웹(housetwin.pages.dev)과 API가 다른 사이트라서 쿠키 대신 Authorization: Bearer 토큰을 쓴다.
+def _bearer(authorization: Optional[str]) -> Optional[str]:
+    if authorization and authorization.lower().startswith("bearer "):
+        return authorization[7:].strip() or None
+    return None
+
+
+def optional_user(authorization: Optional[str] = Header(None), s: Service = S) -> Optional[dict]:
+    return s.accounts.user_for_token(_bearer(authorization))
+
+
+def current_user(u: Optional[dict] = Depends(optional_user)) -> dict:
+    if u is None:
+        raise AuthError("로그인이 필요합니다")
+    return u
+
+
+def technician_user(u: dict = Depends(current_user)) -> dict:
+    if not is_approved_tech(u):
+        raise Forbidden("승인된 기사 계정만 볼 수 있어요" if u["role"] == "technician" else "기사 전용 화면입니다")
+    return u
+
+
+def admin_user(u: dict = Depends(current_user)) -> dict:
+    if u["role"] != "admin":
+        raise Forbidden("관리자만 할 수 있어요")
+    return u
+
+
+ME, ME_OPT, TECH, ADMIN = Depends(current_user), Depends(optional_user), Depends(technician_user), Depends(admin_user)
+
+# 비밀번호 대입 막기: 10분 동안 같은 이메일로 5번, 같은 IP에서 20번 틀리면 잠깐 막는다
+# (강의실처럼 여러 명이 같은 공유기를 쓰면 IP가 같아서 IP 쪽은 넉넉하게)
+LOGIN_WINDOW_S = 600
+LOGIN_MAX_FAILS = {"e": 5, "ip": 20}
+_fails: dict[str, deque] = defaultdict(deque)
+
+
+def reset_login_limits() -> None:
+    _fails.clear()
+
+
+def _limited(keys: list[str]) -> bool:
+    cut = time.monotonic() - LOGIN_WINDOW_S
+    for k in keys:
+        q = _fails[k]
+        while q and q[0] < cut:
+            q.popleft()
+        if len(q) >= LOGIN_MAX_FAILS[k.split(":", 1)[0]]:
+            return True
+    return False
+
+
+class SignupIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=8, max_length=128)
+    name: str = Field(min_length=1, max_length=40)
+    role: str = Field(pattern=r"^(customer|technician)$")
+    phone: Optional[str] = Field(None, max_length=30)
+    center: Optional[str] = Field(None, max_length=60)
+    employee_no: Optional[str] = Field(None, max_length=30)
+
+
+class LoginIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    email: str = Field(min_length=3, max_length=254)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class TechStatusIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    status: str = Field(pattern=r"^(pending|approved|suspended|rejected)$")
+
+
+class ClaimIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    share_token: str = Field(min_length=1, max_length=64)
+
+
+class SaveIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    kind: str = Field("manual", pattern=r"^(manual|auto)$")
+    label: Optional[str] = Field(None, max_length=60)
+
+
+@app.post("/api/auth/signup", status_code=201)
+def signup(body: SignupIn, s: Service = S):
+    try:
+        token, user = s.accounts.signup(body.email, body.password, body.name, body.role, body.phone, body.center,
+                                        body.employee_no)
+    except (ValueError, TypeError) as e:
+        raise HTTPException(422, str(e))
+    return {"token": token, "user": user}
+
+
+@app.post("/api/auth/login")
+def login(body: LoginIn, request: Request, s: Service = S):
+    keys = [f"e:{body.email.strip().lower()}", f"ip:{request.client.host if request.client else '-'}"]
+    if _limited(keys):
+        raise HTTPException(429, "로그인 시도가 너무 많아요. 10분 뒤에 다시 해 주세요")
+    try:
+        token, user = s.accounts.login(body.email, body.password)
+    except AuthError:
+        for k in keys:
+            _fails[k].append(time.monotonic())
+        raise
+    return {"token": token, "user": user}
+
+
+@app.post("/api/auth/logout", status_code=204)
+def logout(authorization: Optional[str] = Header(None), s: Service = S):
+    tok = _bearer(authorization)
+    if tok:
+        s.accounts.logout(tok)
+
+
+@app.get("/api/auth/me")
+def me(u: dict = ME):
+    return u
+
+
+@app.get("/api/me/projects")
+def my_projects(u: dict = ME, s: Service = S):
+    return s.my_projects(u)
+
+
+@app.get("/api/admin/technicians")
+def admin_technicians(_: dict = ADMIN, s: Service = S):
+    return s.accounts.technicians()
+
+
+@app.patch("/api/admin/technicians/{uid}")
+def admin_set_technician(uid: str, body: TechStatusIn, _: dict = ADMIN, s: Service = S):
+    return s.accounts.set_technician_status(uid, body.status)
+
+
+@app.post("/api/projects/{pid}/claim")
+def claim_project(pid: str, body: ClaimIn, u: dict = ME, s: Service = S):
+    return s.claim_project(pid, u, body.share_token)
+
+
+@app.get("/api/projects/{pid}/saves")
+def list_saves(pid: str, u: dict = ME, s: Service = S):
+    return s.list_saves(pid, u)
+
+
+@app.post("/api/projects/{pid}/saves", status_code=201)
+def save_project(pid: str, body: SaveIn, u: dict = ME, s: Service = S):
+    return s.save_snapshot(pid, u, body.kind, body.label)
+
+
+@app.post("/api/projects/{pid}/saves/{sid}/restore")
+def restore_save(pid: str, sid: str, u: dict = ME, s: Service = S):
+    return s.restore_save(pid, sid, u)
+
+
+@app.delete("/api/projects/{pid}/saves/{sid}", status_code=204)
+def delete_save(pid: str, sid: str, u: dict = ME, s: Service = S):
+    s.delete_save(pid, sid, u)
 
 
 # ---------- 입력 모델 ----------
@@ -178,19 +360,20 @@ def create_request(body: RequestIn, s: Service = S):
 
 
 @app.get("/api/requests")
-def list_requests(s: Service = S):
+def list_requests(_: dict = TECH, s: Service = S):
+    """고객 이름·연락처·주소가 있어서 승인된 기사와 관리자만 본다."""
     return s.list_requests()
 
 
 @app.post("/api/projects", status_code=201)
 async def upload_scan(file: UploadFile = File(...), request_id: Optional[str] = Form(None),
-                      scanned_by: str = Form("technician"), s: Service = S):
+                      scanned_by: str = Form("technician"), u: Optional[dict] = ME_OPT, s: Service = S):
     data = await file.read()
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "파일이 너무 큽니다")
     if not data:
         raise HTTPException(422, "빈 파일")
-    return s.create_project_from_usdz(data, file.filename or "room.usdz", request_id or None, scanned_by)
+    return s.create_project_from_usdz(data, file.filename or "room.usdz", request_id or None, scanned_by, user=u)
 
 
 @app.get("/api/projects")

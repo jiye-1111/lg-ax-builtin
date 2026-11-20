@@ -62,5 +62,16 @@ def test_remodel_is_simple():
     # 기호 대신 말로: 네모 영역 / 자유 영역
     assert "영역 □" not in js and "영역 ⬠" not in js
     assert "네모 영역" in js and "자유 영역" in js
-    # 제품 목록은 오른쪽 탭이 아니라 아래 서랍 하나
+    # 제품 목록은 오른쪽 탭이 아니라 왼쪽 세로 목록 하나 (지예: 가로보다 세로)
     assert 'data-tab="lib"' not in js
+    css = (WEB / "style.css").read_text(encoding="utf-8")
+    assert '"lib stage side"' in css
+
+
+def test_product_detail_and_filters():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    # 제품을 누르면 상세 창, 거기서 넣어 보기
+    assert 'id="pdModal"' in js and 'id="pdPlace"' in js
+    # 다나와식 필터: 폭, 높이, 색상
+    for f in ('id="fW"', 'id="fH"', 'id="fColor"'):
+        assert f in js
