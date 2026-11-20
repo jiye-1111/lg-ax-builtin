@@ -7,7 +7,9 @@
 - 파일 이름 앞부분이 역할이다: body, door_*, top_*(상판, 색 바뀌는 겉판), handle_*, vent_*, trim_*, display,
   print_*(상판 인쇄), panel_*(drawing.json colors.panel 색), chrome_*.
 - 같은 폴더의 drawing.json(레퍼런스 치수·색)에 colors.body.hex_approx가 있으면 본체 색으로 쓴다.
-  geometry_from: "<다른 SKU>"가 있으면 그 SKU 폴더의 STL을 쓴다 (색·재질만 다른 모델). 역할별 재질은 build_products와 같다
+  geometry_from: "<다른 SKU>"가 있으면 그 SKU 폴더의 STL을 쓴다 (색·재질만 다른 모델).
+  companion: {src, suffix, height_mm, offset_m}가 있으면 따로 놓이는 부품(정수기 파우셋 등)도 <SKU><suffix>.glb로
+  만들고 apps/web/models/products/companions.json에 놓을 위치를 적는다. 색 옵션은 그 부품 finish에 들어간다. 역할별 재질은 build_products와 같다
   (문 앞판 재질 이름 "finish"는 웹에서 색을 바꿀 때 쓴다).
 - 부품은 합치지 않고 따로 둔다. 웹에서 문만 골라 열거나 강조할 수 있게.
 - STL 단위(mm/cm)는 카탈로그 높이와 비교해서 맞춘다.
@@ -44,18 +46,24 @@ def unit_scale(objs: list, height_mm: float) -> float:
     raise ValueError(f"STL 높이 {raw}가 카탈로그 높이 {height_mm}mm와 어떤 단위로도 안 맞는다")
 
 
-def build(prod: dict, src: Path, out: Path) -> dict:
+def load_drawing(src: Path) -> dict:
+    p = src / "drawing.json"  # 레퍼런스에서 확인한 치수·색
+    return json.loads(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: float | None = None,
+          name: str | None = None) -> dict:
     bpy.ops.wm.read_factory_settings(use_empty=True)
     opt = (prod.get("cmf_options") or [{}])[0]
     pal = palette(opt.get("hex_approx") or "#F2F2F0", opt.get("material"))
-    drawing_path = src / "drawing.json"  # 레퍼런스에서 확인한 본체 색이 있으면 그 색으로
-    drawing = json.loads(drawing_path.read_text(encoding="utf-8")) if drawing_path.exists() else {}
+    drawing = load_drawing(src)
     body_hex = drawing.get("colors", {}).get("body", {}).get("hex_approx")
     if body_hex:
         pal["body"] = material("body", body_hex, 0.5, 0.3)
     panel_hex = drawing.get("colors", {}).get("panel", {}).get("hex_approx")  # 조작부처럼 색이 따로 있는 판
     pal["panel"] = material("panel", panel_hex, 0.35) if panel_hex else pal["trim"]
-    geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src  # 색만 다른 모델은 몸체 공유
+    if geo is None:  # 색만 다른 모델은 몸체 공유
+        geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src
     objs = []
     for stl in sorted(geo.glob("*.stl")):
         bpy.ops.wm.stl_import(filepath=str(stl))
@@ -66,8 +74,9 @@ def build(prod: dict, src: Path, out: Path) -> dict:
         objs.append(ob)
     if not objs:
         raise FileNotFoundError(f"{geo}에 STL이 없다")
-    s = unit_scale(objs, prod["product_dims_mm"]["h"])
-    root = bpy.data.objects.new(prod["sku"], None)
+    name = name or prod["sku"]
+    s = unit_scale(objs, height_mm or prod["product_dims_mm"]["h"])
+    root = bpy.data.objects.new(name, None)
     bpy.context.scene.collection.objects.link(root)
     for ob in objs:
         ob.scale = (s, s, s)
@@ -88,7 +97,7 @@ def build(prod: dict, src: Path, out: Path) -> dict:
             v.co.z -= lo[2]
         ob.parent = root
     bb = {"w": (hi[0] - lo[0]) * 1000, "h": (hi[2] - lo[2]) * 1000, "d": (hi[1] - lo[1]) * 1000}
-    path = out / f"{prod['sku']}.glb"
+    path = out / f"{name}.glb"
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(filepath=str(path), export_format="GLB", export_yup=True, export_apply=True,
                               export_materials="EXPORT", export_cameras=False, export_lights=False)
@@ -106,8 +115,19 @@ def main() -> None:
     prods = {p["sku"]: p for p in json.loads(Path(a.catalog).read_text(encoding="utf-8"))["products"]}
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    info = build(prods[a.sku], Path(a.src), out)  # 같은 이름으로 덮어쓰기만, index.json은 그대로 (docs/specs/drawings.md)
+    src = Path(a.src)
+    info = build(prods[a.sku], src, out)  # 같은 이름으로 덮어쓰기만, index.json은 그대로 (docs/specs/drawings.md)
     print(a.sku, info)
+    comp = load_drawing(src).get("companion")
+    if comp:  # 정수기 파우셋처럼 본체와 떨어져 같이 놓이는 부품 → <SKU><suffix>.glb + companions.json
+        name = a.sku + comp["suffix"]
+        cinfo = build(prods[a.sku], src, out, geo=src.parent / comp["src"], height_mm=comp["height_mm"], name=name)
+        cpath = out / "companions.json"
+        comps = json.loads(cpath.read_text(encoding="utf-8")) if cpath.exists() else {"models": {}}
+        comps["models"][a.sku] = {"file": cinfo["file"], "offset_m": comp["offset_m"], "note": comp.get("note", "")}
+        comps["_note"] = "fusion_to_glb.py가 씀. 본체와 같이 놓이는 부품 (offset_m = 본체 바닥 가운데 기준 x, y(위), z(앞))"
+        cpath.write_text(json.dumps(comps, ensure_ascii=False, indent=1), encoding="utf-8")
+        print(name, cinfo)
 
 
 if __name__ == "__main__":
