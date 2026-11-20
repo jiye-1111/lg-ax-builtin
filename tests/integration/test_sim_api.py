@@ -133,3 +133,14 @@ def test_address_sets_lat_lon_and_building_based_north(c, pid, monkeypatch):
     monkeypatch.setattr(g, "_http_get", lambda url, headers: "[]")
     r = c.put(f"/api/projects/{pid}/site", json={"address": "없는 주소"})
     assert r.status_code == 422 and "주소" in r.json()["detail"]
+
+
+def test_router_keeps_yaw_when_moved(c, pid):
+    """3D에서 공유기를 돌려 놓으면 방향이 저장되고, 자리만 옮길 때(추천 자리 등)는 방향이 그대로 남는다."""
+    r = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.5, 2.0]})
+    assert r.status_code == 200, r.text
+    assert r.json()["scene_state"]["router"]["yaw_rad"] == 0  # 처음 놓을 때 방향을 안 주면 0
+    r = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.5, 2.0], "band": "5", "yaw_rad": 1.2})
+    assert r.json()["scene_state"]["router"]["yaw_rad"] == pytest.approx(1.2)
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.0, 2.5], "band": "5"}).json()["scene_state"]["router"]
+    assert rt["center_xz"] == [-4.0, 2.5] and rt["yaw_rad"] == pytest.approx(1.2)
