@@ -27,9 +27,9 @@ export async function customer(pid) {
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="chips" id="cats"></div>
           <div class="filters" aria-label="제품 필터">
-            <label>폭<select id="fW"><option value="">전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select></label>
-            <label>높이<select id="fH"><option value="">전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select></label>
-            <label>색상<select id="fColor"><option value="">전체</option></select></label>
+            <select id="fW" aria-label="폭"><option value="">폭 전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select>
+            <select id="fH" aria-label="높이"><option value="">높이 전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select>
+            <select id="fColor" aria-label="색상"><option value="">색상 전체</option></select>
           </div>
         </div>
         <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
@@ -40,12 +40,12 @@ export async function customer(pid) {
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
-          <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 치우기</button>
+          <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 치우기</button>
           <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>둘러보기</button>
           <button class="furn-btn" id="keysBtn" aria-expanded="false" aria-controls="keysPop" title="마우스·키보드 조작 방법"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>조작키</button>
           <span class="spacer"></span>
           <div class="seg sims" role="group" aria-label="살아 보기">
-            <span class="seg-label">살아 보기</span>
+            <span class="seg-label sr-only">살아 보기</span>
             <button data-sim="" class="on">끄기</button><button data-sim="daylight"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>채광</button><button data-sim="wifi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg>와이파이</button><button data-sim="flow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="13" cy="4" r="2"/><path d="m9 21 2.5-6.5L14 17v4M7 11l3-3.5h4l2.5 4.5M10.5 7.5 9 14"/></svg>동선</button></div>
         </div>
         <div class="canvas">
@@ -67,9 +67,9 @@ export async function customer(pid) {
             <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
+          <p class="hint" id="hint" aria-live="polite"></p>
+          <div class="sheet" id="simctl"></div>
         </div>
-        <p class="hint" id="hint"></p>
-        <div class="sheet" id="simctl"></div>
       </section>
 
       <aside class="side" aria-label="선택한 제품과 설정">
@@ -112,6 +112,8 @@ export async function customer(pid) {
       ${botHtml()}
     </div>`;
   const studio = $app.querySelector(".studio");
+  // 휴대폰에서는 3D가 작아서, 살아 보기 설정 카드를 3D 위가 아니라 3D 아래에 둔다
+  if (matchMedia("(max-width: 900px)").matches) studio.querySelector(".stage").append(document.getElementById("simctl"));
   // 큰 화면이 아닌 쪽(평면 또는 3D)은 오른쪽 패널 아래 미니맵으로 옮겨서 시야를 가리지 않게 한다
   const canvasEl = studio.querySelector(".canvas"), minimap = document.getElementById("minimap");
   const planPane = studio.querySelector(".plan-pane"), viewPane = studio.querySelector(".view-pane");
@@ -212,7 +214,7 @@ export async function customer(pid) {
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   const HINT = {
-    move: "제품이나 가구를 누르면 집어 들어요. 다시 누르면 내려놓기 · R 돌리기 · Delete 지우기 · WASD 카메라 이동 · Q/E 카메라 돌기",
+    move: "제품이나 가구를 누르면 집어 들고, 다시 누르면 내려놓아요. 나머지 키는 조작키에서 볼 수 있어요",
     rect: "평면도에서 드래그해 영역을 그리세요 (5cm 단위).",
     poly: "꼭짓점을 차례로 누르고, 첫 점을 다시 누르거나 더블클릭하면 완성됩니다.",
   };
@@ -261,7 +263,7 @@ export async function customer(pid) {
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile" style="background:${esc(v.hex || "#fff")}"><span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}</div>
-          <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
+          <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
             <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
@@ -624,7 +626,7 @@ export async function customer(pid) {
     const fb = document.getElementById("furn");
     const all = room.objects.length, allGone = all > 0 && gone.length >= all;
     fb.hidden = all === 0;
-    fb.textContent = allGone ? `가구 ${all}개 되돌리기` : "가구 모두 치우기";
+    fb.textContent = allGone ? `가구 ${all}개 되돌리기` : "가구 치우기";
     fb.classList.toggle("on", allGone);
     fb.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: !allGone }); toast(allGone ? "스캔 가구를 되돌렸어요" : "스캔 가구를 모두 치웠어요"); await refresh(true); });
   };
@@ -896,7 +898,7 @@ export async function customer(pid) {
     box.innerHTML = `
       <p style="margin:0 0 6px">${s.up ? `해 높이 <b>${s.altitude_deg.toFixed(0)}°</b> · <b>${dir}쪽</b> 하늘(방위 ${s.azimuth_deg.toFixed(0)}°) · 빛 색 ${s.kelvin.toLocaleString()} K${s.altitude_deg < 10 ? " (해 질 녘)" : ""} · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"}${daily ? ` · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)` : ""}</p>
       ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
-      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</p>`;
+      <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</details>`;
   };
   const daylightCtl = async () => {
     regions = regions || (await api("/api/regions"));
@@ -972,7 +974,7 @@ export async function customer(pid) {
     box.innerHTML = `
       <p style="margin:0 0 6px">${["good", "ok", "weak"].map((k) => `<span class="badge" style="background:${WCOLOR[k]}22;color:${WCOLOR[k]}">${WLABEL[k]} ${pct(g.share[k])}</span>`).join(" ")} · 가장 약한 곳 <b>${g.min_dbm} dBm</b></p>
       ${g.zones.length ? `<ul class="reasons">${g.zones.map((z) => `<li>${esc(z.name)}: ${z.min_dbm == null ? "영역 안 칸 없음" : `가장 약한 곳 ${z.min_dbm} dBm · 약함 ${pct(z.share.weak)}`}</li>`).join("")}</ul>` : `<p class="muted" style="font-size:12px;margin:0">영역을 그리면 영역별 요약도 보여 드려요.</p>`}
-      <p class="muted" style="font-size:12px;margin:6px 0 0">참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</p>`;
+      <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
   };
   const wifiCtl = async () => {
     document.getElementById("simctl").innerHTML = `
@@ -1017,7 +1019,7 @@ export async function customer(pid) {
     box.innerHTML = `
       ${rows ? `<ul class="reasons">${rows}</ul>` : `<p class="muted" style="margin:0">제품을 놓으면 현관에서 제품 앞까지 동선을 그려 드려요.</p>`}
       ${t ? `<p style="margin:6px 0 0">주방 작업 삼각형(냉장고·싱크·쿡탑) 합계 <b>${t.perimeter_m} m</b> (${t.legs_m.join(" / ")} m) <span class="badge ${t.ok ? "fit" : "conditional"}">${t.ok ? "권장 범위" : "권장 범위 밖"}</span></p>` : ""}
-      <p class="muted" style="font-size:12px;margin:6px 0 0">빨간 점 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</p>`;
+      <details class="sim-notes"><summary>참고 사항</summary>빨간 점 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
   };
   const flowCtl = async () => {
     document.getElementById("simctl").innerHTML = `
