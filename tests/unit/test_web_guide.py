@@ -175,3 +175,8 @@ def test_detail_color_chips_have_no_model_numbers():
     # 같은 색 모델이 여럿이면 칩에 모델 번호를 붙여 20개 넘게 늘어지던 것: 칩은 색마다 하나, 모델은 작은 목록
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert "optLabel" not in js and 'id="pdModel"' in js and "${esc(g.k)}</button>" in js
+
+
+def test_haeuni_shows_life_picks_with_guide_link_and_combo_follow_up():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'd.type === "life"' in js and "LGE.COM 기준" in js and "categories: d.categories, life: d.life" in js

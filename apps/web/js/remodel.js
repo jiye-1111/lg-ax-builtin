@@ -1513,7 +1513,7 @@ export async function customer(pid) {
   botBtn.onclick = () => openBot(!bot.classList.contains("open"));
   document.getElementById("botClose").onclick = () => { openBot(false); botBtn.focus(); };
   bot.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); openBot(false); botBtn.focus(); } });
-  document.getElementById("botEx").innerHTML = AI_EX.slice(0, 3).map((t) => `<button class="chip" data-say="${esc(t)}">${esc(t)}</button>`).join("");
+  document.getElementById("botEx").innerHTML = [...AI_EX.slice(0, 2), "맞벌이 4인 가족, 장은 주말에 몰아서 봐요"].map((t) => `<button class="chip" data-say="${esc(t)}">${esc(t)}</button>`).join("");
   document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => { botIn.value = b.dataset.say; botForm.requestSubmit(); }));
   // 사진 한 장으로 꾸미기: 긴 변 1024px JPEG로 줄여서 보낸다 (서버는 AI에 한 번 보내고 버린다)
   const PHOTO_MAX = 1024, PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -1560,6 +1560,32 @@ export async function customer(pid) {
       } else if (d.type === "combos") {
         wait.innerHTML = `<p>${esc(d.message)}</p>${comboCardsHtml(d)}`;
         bindComboCards(wait, pid, () => refresh(true));
+      } else if (d.type === "life") {
+        // 생활 이야기: 가전마다 하나 + 한 줄 이유(LGE.COM 구매 가이드 기준) → 넣어 보기, 이어서 배치 추천
+        const row = (it) => `<li class="best"><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
+          <span class="nm"><b>${esc(it.family_name || it.product.name)}</b>${it.product.price_krw ? `<small>${it.product.price_krw.toLocaleString("ko-KR")}원</small>` : ""}
+          <small>${esc(it.need.why)}${it.need.source_url ? ` · <a href="${esc(it.need.source_url)}" target="_blank" rel="noopener">LGE.COM 기준</a>` : ""}</small></span>
+          <button class="small primary" data-try="${esc(it.product.sku)}">넣어 보기</button></li>`;
+        wait.innerHTML = `<p>${esc(d.message)}</p>${d.items.length ? `<ul class="bot-prods">${d.items.map(row).join("")}</ul>
+          <div class="chips"><button class="chip" id="lifeCombo">이 가전으로 배치 추천 받기</button></div>` : ""}`;
+        wait.querySelectorAll("[data-try]").forEach((b) => (b.onclick = () => {
+          const sku = b.dataset.try;
+          if (!prodOf(sku)) return;
+          openBot(false);
+          if (walking) setWalking(false);
+          arm(sku);
+        }));
+        const more = wait.querySelector("#lifeCombo");
+        if (more) more.onclick = async () => {
+          more.disabled = true;
+          const w2 = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
+          try {
+            const c = await post(`/api/projects/${pid}/assist`, { prompt, categories: d.categories, life: d.life });
+            w2.innerHTML = `<p>${esc(c.message)}</p>${comboCardsHtml(c)}`;
+            bindComboCards(w2, pid, () => refresh(true));
+          } catch { w2.innerHTML = `<p>앗, 지금은 배치를 못 만들었어요. 잠시 뒤 다시 눌러 주세요.</p>`; more.disabled = false; }
+          botLog.scrollTop = botLog.scrollHeight;
+        };
       } else {
         const [best, ...alt] = d.items || [];
         const row = (it, big) => `<li class="${big ? "best" : ""}"><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
@@ -2013,7 +2039,7 @@ function botHtml() {
       <header class="bot-head">${BOT_SVG}<div><b>하우니</b><span>LG 봇 · 말로 꾸미기</span></div>
         <button class="bot-x" id="botClose" aria-label="닫기">×</button></header>
       <div class="bot-log" id="botLog" aria-live="polite">
-        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요. 마음에 드는 방 사진을 붙여도 돼요.</p></div>
+        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요. 마음에 드는 방 사진을 붙여도 되고, 가족 이야기를 해 주면 맞는 용량의 가전을 골라 드려요.</p></div>
       </div>
       <div class="chips bot-ex" id="botEx"></div>
       <div class="bot-photo-prev" id="botPhotoPrev" hidden></div>

@@ -12,7 +12,7 @@ from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from core import config
 from core.decor import decor_items
@@ -490,14 +490,26 @@ def make_combos(pid: str, body: CombosIn, s: Service = S):
     return s.make_combos(pid, body.categories, body.budget, body.prompt, body.zone_id)
 
 
+class LifeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    people: Optional[int] = Field(None, ge=1, le=12)
+    baby: bool = False
+    lots_of_food: bool = False
+    kimchi: Optional[Literal["none", "small", "lots"]] = None
+    dual_income: bool = False
+
+
 class AssistIn(BaseModel):
     prompt: str = Field("", max_length=500)
     image: Optional[str] = Field(None, max_length=7_500_000)  # 하우니에 붙인 사진 (data URL, 5MB 안). 저장하지 않는다
+    # 생활 이야기로 고른 가전으로 이어서 배치 추천할 때
+    categories: Optional[list[Literal["refrigerator", "kimchi_refrigerator", "washer", "washer_dryer"]]] = Field(None, max_length=4)
+    life: Optional[LifeIn] = None  # 그때 읽은 생활 사실 (용량 범위를 조합에서도 지키려고)
 
 
 @app.post("/api/projects/{pid}/assist")
 def assist(pid: str, body: AssistIn, s: Service = S):
-    return s.assist(pid, body.prompt, body.image)
+    return s.assist(pid, body.prompt, body.image, body.categories, body.life.model_dump() if body.life else None)
 
 
 @app.delete("/api/projects/{pid}/combos/applied")

@@ -30,6 +30,7 @@ from .accounts import Accounts, Forbidden, is_approved_tech
 from .decor import decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .service_combos import ComboMixin
+from .service_life import LifeMixin
 from .service_photoreal import PhotorealMixin
 from .store import Store
 
@@ -102,7 +103,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service(ComboMixin, PhotorealMixin):
+class Service(ComboMixin, PhotorealMixin, LifeMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())

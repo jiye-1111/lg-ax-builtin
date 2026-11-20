@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v39"; // 추천 배치(조합 카드), 하우니 한 개 추천, 살아 보기 스위치 3D 위로
+const VERSION = "lgb-shell-v40"; // 추천 배치(조합 카드), 하우니 한 개 추천, 살아 보기 스위치 3D 위로
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/guide.js", "./js/tour.js", "./js/combos.js",
