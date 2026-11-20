@@ -45,7 +45,8 @@ def test_selected_product_shows_needed_space_without_size_labels():
 
 def test_simple_layout_from_corrected_mockup():
     """지예: 탭·토글이 많아 지저분하다 → 오른쪽 탭 없음, 3D 위·아래 조작 버튼, 살아 보기는 버튼 하나."""
-    assert "side-tabs" not in REMODEL and 'data-tab="' not in REMODEL
+    # 탭은 왼쪽 라이브러리(전체/LG 가전/가구/수납/소품) 하나뿐, 오른쪽은 탭 없음
+    assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 5
     assert 'id="guideBar"' not in REMODEL and 'data-view="split"' not in REMODEL
     for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
                'id="finBtn"', 'id="extraBtn"', 'id="homeMenu"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
@@ -101,3 +102,22 @@ def test_three_areas_layout_and_feedback():
     # 저장 상태 다섯 가지
     for word in ("저장 중…", "저장 실패", "저장 안 된 변경", "로그인 필요", "자동 저장됨"):
         assert word in account, word
+
+
+def test_space_library_tabs_decor_and_wall_edit():
+    """왼쪽 라이브러리: 전체/LG 가전/가구/수납/소품 + 벽 추가·제거·파티션, 가구는 정보 없이 모양만, 신청은 LG만."""
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    for tab in ('data-tab="all"', 'data-tab="lg"', 'data-tab="furniture"', 'data-tab="storage"', 'data-tab="decor"'):
+        assert tab in js
+    assert "/api/decor" in js and "벽체 & 구조 변경" in js and 'id="wallRm"' in js
+    assert "/walls/${wid}/hidden" in js and "setWallPick" in js
+    # 벽 추가는 바닥에서 시작점 → 끝점, 철거·가벽은 가상 체험이라고 알린다
+    assert "setWallDraw" in js and "시작점" in js and "가상 체험" in js
+    # 3D 메뉴: 크기 조절·복사, 오른쪽 배치 설정
+    assert '"actCopy"' in js and '"actSize"' in js and "배치 설정" in js and "/copy`" in js
+    # 신청·합계는 LG 가전만
+    assert "lgOnly(project.scene_state.placements)" in js
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert 'startsWith("decor:")' in viewer and "fitFurniture" in viewer and "setWallPick" in viewer
+    for k in ("sofa", "table", "chair", "desk", "shelf", "storage", "rug", "lamp", "plant", "wall", "partition", "wall-remove"):
+        assert (WEB / "img" / "decor" / f"{k}.webp").exists(), k

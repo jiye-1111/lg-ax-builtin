@@ -208,8 +208,9 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     if not inside_room(room, c):
         add("outside_room", Verdict.NO_FIT)
 
-    hidden = set(hidden)
-    obstacles: list[tuple[str, str, list[g.Pt]]] = [("wall", w.wall_id, wall_rect(w)) for w in room.walls]
+    hidden = set(hidden)  # 치운 가구 id + 철거한 벽 id
+    obstacles: list[tuple[str, str, list[g.Pt]]] = [("wall", w.wall_id, wall_rect(w)) for w in room.walls
+                                                     if w.wall_id not in hidden]
     obstacles += [("object", o.object_id, rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d))
                   for o in room.objects if o.object_id not in hidden]
     for o in others:
@@ -303,6 +304,8 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
     margin = cfg.margin_scanned_mm / 1000
     best, best_key = None, None
     for wall in room.walls:
+        if wall.wall_id in hidden:  # 철거한 벽에는 붙이지 않는다
+            continue
         f = _inward(room, wall)
         half = w_m / 2 + side + margin
         if f.length < 2 * half:

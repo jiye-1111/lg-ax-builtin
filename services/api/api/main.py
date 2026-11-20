@@ -15,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from core import config
+from core.decor import decor_items
 from core.accounts import AuthError, Conflict, Forbidden, is_approved_tech
 from core.service import Invalid, NotFound, Service
 from recommender.finder import Conditions
@@ -298,6 +299,7 @@ class PlaceIn(BaseModel):
     yaw_rad: float = 0.0
     snap: bool = True
     color: Optional[str] = None
+    size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
 
 
 class PoseIn(BaseModel):
@@ -307,6 +309,7 @@ class PoseIn(BaseModel):
     yaw_rad: float = 0.0
     snap: bool = True
     placement_id: Optional[str] = None
+    size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
 
 
 class MoveIn(BaseModel):
@@ -316,6 +319,7 @@ class MoveIn(BaseModel):
     snap: bool = True
     color: Optional[str] = None
     sku: Optional[str] = Field(None, description="같은 모델의 다른 색·재질 SKU")
+    size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
 
 
 class SiteIn(BaseModel):
@@ -470,7 +474,7 @@ def apply_material(pid: str, body: MaterialIn, s: Service = S):
 @app.post("/api/projects/{pid}/placements")
 def place(pid: str, body: PlaceIn, s: Service = S):
     if body.center_xz is not None:
-        return s.place_at(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.color)
+        return s.place_at(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.color, size_m=body.size_m)
     if body.zone_id is None:
         raise HTTPException(422, "zone_id 또는 center_xz가 필요합니다")
     return s.place_product(pid, body.zone_id, body.sku, body.color)
@@ -480,11 +484,28 @@ class AutoPlaceIn(BaseModel):
     model_config = {"extra": "forbid"}
     sku: str
     color: Optional[str] = None
+    size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
 
 
 @app.post("/api/projects/{pid}/auto-place")
 def auto_place(pid: str, body: AutoPlaceIn, s: Service = S):
-    return s.auto_place(pid, body.sku, body.color)
+    return s.auto_place(pid, body.sku, body.color, body.size_m)
+
+
+@app.post("/api/projects/{pid}/placements/{plid}/copy")
+def copy_placement(pid: str, plid: str, s: Service = S):
+    return s.copy_placement(pid, plid)
+
+
+@app.get("/api/decor")
+def decor_list():
+    """공간 꾸미기 라이브러리 (일반 가구·수납·소품·가벽, 모양만)."""
+    return {"items": decor_items()}
+
+
+@app.put("/api/projects/{pid}/walls/{wid}/hidden")
+def hide_wall(pid: str, wid: str, body: HiddenIn, s: Service = S):
+    return s.set_wall_hidden(pid, wid, body.hidden)
 
 
 @app.post("/api/projects/{pid}/placements/{plid}/auto-align")
@@ -505,12 +526,12 @@ def suggest(pid: str, body: SuggestIn, s: Service = S):
 
 @app.post("/api/projects/{pid}/pose-check")
 def pose_check(pid: str, body: PoseIn, s: Service = S):
-    return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id)
+    return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id, body.size_m)
 
 
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
-    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku)
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")

@@ -506,3 +506,39 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .studio:not(.app) #insp .swatches { display: flex; flex-wrap: wrap; gap: 6px; }
 .studio:not(.app) #insp .swatch { padding: 2px; border-radius: 50%; font-size: 0; gap: 0; }
 .studio:not(.app) #insp .swatch i { width: 22px; height: 22px; margin: 0; }
+
+/* ---- 공간 꾸미기 라이브러리: 전체 / LG 가전 / 가구 / 수납 / 소품 ---- */
+.lib-tabs { display: flex; gap: 5px; flex-wrap: nowrap; margin-bottom: 10px; }
+.lib-tabs button { flex: 0 0 auto; padding: 6px 11px; white-space: nowrap; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--graphite); font-size: 13px; font-weight: 500; }
+.lib-tabs button:hover { color: var(--ink); border-color: var(--ink); }
+.lib-tabs button.on { background: var(--lg); border-color: var(--lg); color: #fff; }
+.lib:not([data-tab="lg"]) .lg-part { display: none !important; }
+.lib[data-tab="lg"] .decor-lib { display: none; }
+.decor-lib .dsec { margin: 4px 0 14px; }
+.decor-lib .dsec h3 { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+.decor-lib .dgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; }
+.dtile { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 0 8px; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--sheet); font-size: 12px; color: var(--ink); cursor: grab; }
+.dtile:hover { border-color: var(--lg); box-shadow: 0 4px 14px rgba(0, 0, 0, .06); }
+.dtile.on { border-color: var(--lg); background: var(--lg-soft); color: var(--lg); font-weight: 600; }
+.dtile .dimg { display: block; width: 100%; aspect-ratio: 1 / .78; border-radius: 11px 11px 0 0; background: linear-gradient(180deg, #fbfaf8, var(--warm-grey)); overflow: hidden; }
+.dtile .dimg img { width: 100%; height: 100%; object-fit: contain; }
+.dsec-lg { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--drafting); font-size: 13px; font-weight: 600; color: var(--ink); }
+.dsec-lg:hover { border-color: var(--lg); color: var(--lg); }
+/* 고른 꾸미기 가구: 배치 설정 */
+.decor-photo { background: linear-gradient(180deg, #fbfaf8, var(--warm-grey)); }
+.decor-photo img { object-fit: contain; }
+.decor-set { margin-top: 10px; padding: 12px; border: 1px solid var(--line-soft); border-radius: 12px; background: var(--sheet); transition: box-shadow .3s; }
+.decor-set.flash { box-shadow: 0 0 0 3px var(--lg-soft); }
+.decor-set h3 { margin: 0 0 8px; font-size: 14px; }
+.decor-set dl { margin: 0; display: grid; gap: 8px; }
+.decor-set dl > div { display: grid; grid-template-columns: 72px 1fr; align-items: center; gap: 8px; font-size: 13px; }
+.decor-set dt { color: var(--graphite); }
+.decor-set dd { margin: 0; font-variant-numeric: tabular-nums; }
+.decor-set dd.sz { display: flex; align-items: center; gap: 8px; }
+.decor-set dd.sz input { flex: 1; accent-color: var(--lg); }
+.decor-set dd.sz output { min-width: 64px; text-align: right; font-size: 12px; }
+.decor-set dd.ok { color: var(--fit); font-weight: 600; }
+.decor-set dd.ok::before { content: "✓ "; }
+.decor-set dd.bad { color: var(--nofit); font-size: 12px; }
+.decor-set select { width: auto; padding: 4px 8px; }
+.decor-set .tool-row { margin-top: 10px; }

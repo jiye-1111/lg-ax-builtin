@@ -252,3 +252,10 @@ def test_find_spot_returns_none_when_nothing_fits():
 
 def test_find_spot_unknown_dims_is_none():
     assert find_spot(room(), fridge(w=None), CFG) is None
+
+
+def test_removed_wall_is_not_an_obstacle():
+    # 벽 철거: hidden에 벽 id를 넣으면 그 벽은 장애물이 아니다 (방 안 판정은 나머지 벽으로)
+    pose = Pose((2.0, 0.2), UP)
+    assert "hits_wall" in codes(check_pose(room(), fridge(), pose, CFG))
+    assert "hits_wall" not in codes(check_pose(room(), fridge(), pose, CFG, hidden=["w1"]))
