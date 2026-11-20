@@ -5,7 +5,7 @@
 - 브랜치: `claude/project-thread-nqfl5j` (main 81c233d까지 합쳐 둠. main으로 직접 푸시는 권한이 막혀 있어 PR로 합쳐야 한다). 커밋은 제품군마다 하나씩.
 - 커밋 작성자: 이 PC에는 git 전역 이름이 없어서 `git -c user.name="jiye-1111" -c user.email=<지예 이메일> commit ...`으로 커밋했다.
 
-## 진행 상황: 28 / 53
+## 진행 상황: 35 / 53
 
 끝남 (`data/fusion/<SKU>/drawing.json` 있음):
 
@@ -19,10 +19,10 @@
 | 컨버터블 패키지 | X323MEF, Y323MEF, Z323MEF, X324GB7, Y324GB7 |
 | 와인셀러 | W1213GG, W1212GB, W0492GG, W0082GLE |
 | 오븐·전자레인지 | MLJ32ERS, MLJ39ER, MW23FDI |
+| 세탁·건조 | WL21WDU, WL21EGZU(투톤 색은 아직 한 색), FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER |
 
-남음 (25):
+남음 (18):
 
-- 세탁·건조: WL21WDU, WL21EGZU, FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER
 - 스타일러·슈케어: SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E
 - TV·스탠바이미: OLED65C5ENA, 65QNED65BBA, OLED77B6BNA, 27LX6TPGA, 32LX6BPGA
 - 에어컨·공기 관련: FQ18GV3EK2, FQ17GU1ED2, AS305DWWL, AS356NSMA, AS186HWWL, HY706RWUAB, DQ235MWGA

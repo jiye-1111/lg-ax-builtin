@@ -91,6 +91,12 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
     pts = [ob.matrix_world @ v.co for ob in objs for v in ob.data.vertices]
     lo = [min(p[i] for p in pts) for i in range(3)]
     hi = [max(p[i] for p in pts) for i in range(3)]
+    if drawing.get("fit_depth") and name == prod["sku"]:  # 같은 몸체를 깊이만 조금 다른 모델에 쓸 때 (예: 830 → 824)
+        sy = prod["product_dims_mm"]["d"] / 1000 / (hi[1] - lo[1])
+        for ob in objs:
+            for v in ob.data.vertices:
+                v.co.y *= sy
+        lo[1], hi[1] = lo[1] * sy, hi[1] * sy
     for ob in objs:  # 바닥 가운데 원점
         for v in ob.data.vertices:
             v.co.x -= (lo[0] + hi[0]) / 2

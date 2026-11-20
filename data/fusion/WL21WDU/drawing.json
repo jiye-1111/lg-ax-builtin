@@ -1,0 +1,86 @@
+{
+ "sku": "WL21WDU",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/wl21wdu.akor_2p.jpg (폭 700, 높이 1890, 깊이 830). 위 건조기·아래 세탁기 둥근 문 2개(지름 약 600), 가운데 검정 조작부 띠. 문 위치·크기는 치수도 비율 근사값",
+ "front": {
+  "w": 700,
+  "h": 1890,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 700,
+    "h": 1890
+   },
+   {
+    "name": "trim/door_ring_upper",
+    "x": 50,
+    "y": 112,
+    "w": 600,
+    "h": 600,
+    "shape": "circle"
+   },
+   {
+    "name": "display/door_glass_upper",
+    "x": 130,
+    "y": 192,
+    "w": 440,
+    "h": 440,
+    "shape": "circle"
+   },
+   {
+    "name": "display/control",
+    "x": 10,
+    "y": 823,
+    "w": 680,
+    "h": 95
+   },
+   {
+    "name": "trim/door_ring_lower",
+    "x": 50,
+    "y": 1070,
+    "w": 600,
+    "h": 600,
+    "shape": "circle"
+   },
+   {
+    "name": "display/door_glass_lower",
+    "x": 130,
+    "y": 1150,
+    "w": 440,
+    "h": 440,
+    "shape": "circle"
+   }
+  ]
+ },
+ "side": {
+  "w": 830,
+  "h": 1890,
+  "parts": [
+   {
+    "name": "trim/door_ring",
+    "x": 0,
+    "y": 112,
+    "w": 50,
+    "h": 600
+   },
+   {
+    "name": "door/shell",
+    "x": 50,
+    "y": 0,
+    "w": 780,
+    "h": 1890
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "릴리 화이트 / 릴리 화이트",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+  }
+ }
+}

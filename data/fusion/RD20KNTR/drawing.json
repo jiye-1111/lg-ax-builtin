@@ -1,0 +1,16 @@
+{
+ "sku": "RD20KNTR",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/rd20kntr.akor_2p.jpg (폭 700, 높이 990, 깊이 824) — FX24KNTR와 같은 구성이라 몸체를 같이 쓰고 깊이만 824로 맞춤",
+ "geometry_from": "FX24KNTR",
+ "fit_depth": true,
+ "colors": {
+  "door": {
+   "name": "스페이스 블랙",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+  }
+ }
+}
