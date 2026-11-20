@@ -552,15 +552,12 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
   #keysBtn { display: none; }
 }
 
-/* 제품 사진 카드: 사진은 우리 3D 모델을 Blender로 렌더한 것. 바탕은 고른 색을 아주 옅게 깐다 */
-.lib .prod .thumb { position: relative; display: grid; place-items: center; width: 100%; height: 132px; border-radius: 12px; overflow: hidden;
-  background: radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--tint) 22%, var(--warm-grey)) 0%, var(--warm-grey) 70%);
-  border: 1px solid rgba(0, 0, 0, .05); }
-.lib .prod .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 6px; box-sizing: border-box; transition: transform .18s ease; pointer-events: none; }
-.lib .prod:hover .thumb img { transform: scale(1.04); }
-.lib .prod.armed .thumb { background: radial-gradient(120% 90% at 50% 100%, var(--lg-soft) 0%, var(--warm-grey) 75%); }
-.lib .prod .thumb .tag { position: absolute; left: 8px; top: 8px; font-size: 11px; font-weight: 600; color: var(--ink);
-  background: rgba(255, 255, 255, .82); padding: 1px 8px; border-radius: 999px; backdrop-filter: blur(4px); }
-@media (max-width: 640px) { .lib .prod .thumb { height: 112px; } }
+/* 제품 사진 카드: 사진은 우리 3D 모델을 Blender로 렌더한 것. 타일 크기·배치는 .dot.tile 규칙을 따르고, 바탕만 고른 색을 아주 옅게 */
+.lib .prod .dot.tile.thumb { position: relative; overflow: hidden;
+  background: radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--tint) 22%, var(--warm-grey)) 0%, var(--warm-grey) 70%); }
+.lib .prod .dot.tile.thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 4px; box-sizing: border-box; transition: transform .18s ease; pointer-events: none; }
+.lib .prod:hover .dot.tile.thumb img { transform: scale(1.05); }
+.lib .prod.armed .dot.tile.thumb { background: radial-gradient(120% 90% at 50% 100%, var(--lg-soft) 0%, var(--warm-grey) 75%); }
+.lib .prod .dot.tile.thumb span { position: relative; z-index: 1; }
 .insp-photo { height: 150px; border-radius: 14px; background: radial-gradient(120% 90% at 50% 100%, #e7e1d6 0%, var(--warm-grey) 70%); display: grid; place-items: center; margin-bottom: 10px; }
 .insp-photo img { max-width: 100%; max-height: 100%; object-fit: contain; padding: 8px; }

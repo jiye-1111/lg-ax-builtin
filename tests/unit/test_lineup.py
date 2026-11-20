@@ -35,6 +35,6 @@ def test_every_product_has_a_photo_rendered_from_its_model():
 
 def test_product_drawer_picks_by_photo():
     js = (WEB / "js/remodel.js").read_text(encoding="utf-8")
-    assert 'class="thumb"' in js and "v.thumb" in js
+    assert 'class="dot tile thumb"' in js and "v.thumb" in js   # 사진은 카드 위 타일 자리
     sw = (WEB / "sw.js").read_text(encoding="utf-8")
     assert "img/products/" in sw
