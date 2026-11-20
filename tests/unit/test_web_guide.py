@@ -33,3 +33,11 @@ def test_no_fake_checks_and_clear_cta():
     assert 'id="orderSheet"' in REMODEL and "#/r" in REMODEL  # 방문 신청 화면으로 이어진다
     assert "./js/guide.js" in (WEB / "sw.js").read_text(encoding="utf-8")
     assert "studio.css" in (WEB / "index.html").read_text(encoding="utf-8")
+
+
+def test_selected_product_shows_dimensions_and_needed_space():
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    # 고른 제품에는 치수선(mm), 바닥에는 판정과 같은 계산으로 얻은 필요 공간
+    assert "dimLines(w, h, d)" in viewer and "setNeed(pts)" in viewer
+    assert "viewer.setNeed(r.required)" in REMODEL and "pose-check" in REMODEL
+    assert 'id="needTag"' in REMODEL

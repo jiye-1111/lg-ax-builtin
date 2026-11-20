@@ -73,6 +73,7 @@ export async function customer(pid) {
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
           <p class="hint" id="hint" aria-live="polite"></p>
+          <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
           <div class="sheet" id="simctl"></div>
         </div>
       </section>
@@ -968,6 +969,22 @@ export async function customer(pid) {
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
     drawDraft();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
+    syncNeed();
+  };
+  // 고른 제품이 차지하는 공간(본체 + 문 여는 공간)을 3D 바닥에 표시. 판정과 같은 계산(pose-check)을 그대로 쓴다
+  let needKey = "";
+  const syncNeed = async () => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === selPl);
+    const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}` : "";
+    if (key === needKey) return;
+    needKey = key;
+    if (!x) { viewer.setNeed(null); document.getElementById("needTag").hidden = true; return; }
+    try {
+      const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id });
+      if (needKey !== key) return;
+      viewer.setNeed(r.required);
+      document.getElementById("needTag").hidden = !r.required?.length;
+    } catch { viewer.setNeed(null); }
   };
   const setOverlay = (html) => {
     overlay = html;
