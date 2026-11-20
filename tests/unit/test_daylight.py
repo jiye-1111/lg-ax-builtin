@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 
 
 from core.models import Opening, Room, ScannedDims, Wall
-from sim.daylight import Site, daily_sun_hours, sun_patches
+from sim.daylight import Site, daily_sun_hours, sun_hours_at, sun_patches
 
 KST = timezone(timedelta(hours=9))
 
@@ -58,3 +58,10 @@ def test_hours_at_points():
     g = daily_sun_hours(room(), SITE, date(2026, 12, 21), points={"pl1": (2.0, 2.0), "pl2": (0.2, 0.3)})
     # 창 정면 안쪽은 볕이 들고, 창 아래 벽 쪽 구석은 창턱 그림자라 안 든다
     assert g["points"]["pl1"] > 1 and g["points"]["pl2"] == 0
+
+
+def test_sun_hours_at_points_only_matches_the_grid():
+    pts = {"pl1": (2.0, 2.0), "pl2": (0.2, 0.3)}
+    full = daily_sun_hours(room(), SITE, date(2026, 12, 21), points=pts)["points"]
+    assert sun_hours_at(room(), SITE, date(2026, 12, 21), pts) == full
+    assert sun_hours_at(room(), SITE, date(2026, 12, 21), {}) == {}

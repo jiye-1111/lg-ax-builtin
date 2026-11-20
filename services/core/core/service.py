@@ -668,6 +668,38 @@ class Service:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color, wall_id=r.pose.wall_id)
 
+    def auto_align(self, pid: str, placement_id: str) -> dict:
+        """자동 정렬: 가까운 벽이 있으면 그 벽에 붙이고, 없거나 붙여도 안 들어가면 가장 잘 들어가는 자리로 옮긴다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        x = self._find_placement(p, placement_id)
+        prod = self.catalog.get(x["sku"])
+        snapped = self._pose(room, prod, x["center_xz"], x["yaw_rad"], True)
+        if snapped.wall_id and self._judge(room, p, prod, snapped, placement_id).verdict.value != "no_fit":
+            return self.move_placement(pid, placement_id, list(snapped.center_xz), snapped.yaw_rad, snap=True)
+        others = [y for y in p["scene_state"]["placements"] if y.get("placement_id") != placement_id and y.get("size_m")]
+        r = find_spot(room, prod, self.fit_cfg, others=others, hidden=self._hidden(p))
+        if r is None:
+            raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
+        return self.move_placement(pid, placement_id, list(r.pose.center_xz), r.pose.yaw_rad, snap=True)
+
+    def suggest(self, pid: str, skus: list[str], limit: int = 3) -> dict:
+        """후보 제품 가운데 이 집 벽을 따라 실제로 들어가는 자리가 있는 것만 골라 준다 (적합 먼저)."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        others = [y for y in p["scene_state"]["placements"] if y.get("size_m")]
+        rank = {"fit": 0, "conditional": 1, "unknown": 2}
+        found = []
+        for i, sku in enumerate(dict.fromkeys(skus)):
+            try:
+                prod = self.catalog.get(sku)
+            except KeyError:
+                continue
+            r = find_spot(room, prod, self.fit_cfg, others=others, hidden=self._hidden(p), step_m=0.25)
+            if r is None:
+                continue
+            found.append((rank.get(r.verdict.value, 3), i, {"sku": sku, "verdict": r.verdict.value, "wall_id": r.pose.wall_id}))
+        found.sort(key=lambda t: t[:2])
+        return {"items": [t[2] for t in found[:limit]]}
+
     def _find_placement(self, p: dict, placement_id: str) -> dict:
         x = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None)
         if x is None:
@@ -839,14 +871,61 @@ class Service:
                 "facings": window_facings(room, site["north_deg"]),
                 "daily": daily, "assumptions": notes + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
+    # ---- 제품 자리에서 살아 보기: 채광·와이파이를 결과 문장으로 ----
+    SUN_SHY = ("refrigerator", "kimchi_refrigerator", "wine_cellar", "freezer")  # 직사광을 피해 설치하는 제품
+
+    def life_check(self, pid: str, day: str | None = None) -> dict:
+        """놓은 제품마다 그 자리의 하루 직사광 시간과 와이파이 세기. 북쪽·공유기를 안 정했으면 status=unknown."""
+        from datetime import date as _date
+
+        from sim.daylight import sun_hours_at
+        from sim.wifi import WifiConfig, grade, rssi_at
+
+        p, room = self.get_project(pid), self.get_room(pid)
+        pls = [x for x in p["scene_state"]["placements"] if x.get("placement_id")]
+        items = {x["placement_id"]: {} for x in pls}
+        day = day or _date.today().isoformat()
+        try:
+            site, d, _ = self._sun_site(p, day, None)
+        except Invalid as e:
+            if "형식" in str(e):
+                raise
+            site = None
+        hours = sun_hours_at(room, site, d, {x["placement_id"]: tuple(x["center_xz"]) for x in pls}) if site else {}
+        rt = p["scene_state"].get("router")
+        cfg = WifiConfig.from_env(rt.get("band", "5")) if rt else None
+        for x in pls:
+            k = x["placement_id"]
+            try:
+                cat = self.catalog.get(x["sku"]).category
+            except KeyError:
+                cat = ""
+            if site is None:
+                items[k]["daylight"] = {"status": "unknown", "hours": None, "label": "집 방향을 정하면 알려 드려요"}
+            else:
+                h = float(hours[k])
+                shy = cat in self.SUN_SHY and h >= 1
+                label = (f"하루 약 {h:.1f}시간 볕이 들어요" if h >= 0.5 else "직사광이 거의 안 들어요") + (" · 직사광은 피하는 게 좋아요" if shy else "")
+                items[k]["daylight"] = {"status": "warn" if shy else "ok", "hours": round(h, 1), "label": label}
+            if cfg is None:
+                items[k]["wifi"] = {"status": "unknown", "grade": None, "dbm": None, "label": "공유기 자리를 정하면 알려 드려요"}
+            else:
+                v = rssi_at(room, tuple(rt["center_xz"]), tuple(x["center_xz"]), cfg, blockers=self._metal_blockers(p, exclude=k))
+                g = grade(v, cfg)
+                items[k]["wifi"] = {"status": "warn" if g == "weak" else "ok", "grade": g, "dbm": round(v, 1),
+                                    "label": {"good": "연결이 잘 돼요", "ok": "연결돼요", "weak": "신호가 약해요"}[g]}
+        return {"date": d.isoformat() if site else day, "items": items}
+
     # ---- 살아 보기: 와이파이 (S7) ----
     METAL = ("refrigerator", "kimchi_refrigerator")
 
-    def _metal_blockers(self, p: dict) -> list:
+    def _metal_blockers(self, p: dict, exclude: str | None = None) -> list:
         from recommender.pose import rect
         import math as _m
         out = []
         for x in p["scene_state"]["placements"]:
+            if exclude and x.get("placement_id") == exclude:
+                continue
             try:
                 cat = self.catalog.get(x["sku"]).category
             except KeyError:

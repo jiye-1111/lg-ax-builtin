@@ -152,3 +152,18 @@ def daily_sun_hours(room: Room, site: Site, day: date, cell_m: float = 0.25, ste
             "values": [[rnd(v) for v in row] for row in values],
             "points": {k: round(v, 2) for k, v in pvals.items()}, "step_min": step_min,
             "assumptions": list(ASSUMPTIONS)}
+
+
+def sun_hours_at(room: Room, site: Site, day: date, points: dict[str, tuple[float, float]], step_min: int = 15) -> dict[str, float]:
+    """지정 지점만 하루 직사광 시간을 센다 (격자 없이, 제품 자리 판정용)."""
+    if not points:
+        return {}
+    out = {k: 0.0 for k in points}
+    t = datetime(day.year, day.month, day.day, tzinfo=site.tz)
+    for _ in range(24 * 60 // step_min):
+        polys = [p["polygon"] for p in sun_patches(room, site, t + timedelta(minutes=step_min / 2))]
+        for k, c in points.items():
+            if polys and any(_inside(c, q) for q in polys):
+                out[k] += step_min / 60
+        t += timedelta(minutes=step_min)
+    return {k: round(v, 2) for k, v in out.items()}

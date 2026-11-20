@@ -204,3 +204,32 @@ def test_auto_place_finds_a_spot_in_the_real_scan(c, pid):
     pl2 = c.post(f"/api/projects/{pid}/auto-place", json={"sku": SKU}).json()["placement"]
     assert all(x["code"] != "overlaps_placement" for x in pl2["reasons"])
     assert c.post(f"/api/projects/{pid}/auto-place", json={"sku": "NOPE"}).status_code == 404
+
+
+def test_auto_align_snaps_to_wall_or_moves_to_a_good_spot(c, pid):
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    room = c.get(f"/api/projects/{pid}/files/room.json").json()
+    xs = [p[0] for w in room["walls"] for p in (w["start"], w["end"])]
+    zs = [p[1] for w in room["walls"] for p in (w["start"], w["end"])]
+    mid = [(min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2]
+    # 방 한가운데 아무렇게나 놓은 제품
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": mid, "yaw_rad": 0.3, "snap": False}).json()["placement"]
+    assert not pl["wall_id"]
+    r = c.post(f"/api/projects/{pid}/placements/{pl['placement_id']}/auto-align")
+    assert r.status_code == 200, r.text
+    moved = r.json()["placement"]
+    assert moved["placement_id"] == pl["placement_id"] and moved["wall_id"]
+    assert moved["verdict"] in {"fit", "conditional"}
+    assert len(r.json()["scene_state"]["placements"]) == 1
+    assert c.post(f"/api/projects/{pid}/placements/nope/auto-align").status_code == 404
+
+
+def test_suggest_returns_products_that_fit_this_home(c, pid):
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    r = c.post(f"/api/projects/{pid}/suggest", json={"skus": [SKU, "NOPE"], "limit": 3})
+    assert r.status_code == 200, r.text
+    items = r.json()["items"]
+    assert [x["sku"] for x in items] == [SKU]
+    assert items[0]["verdict"] in {"fit", "conditional"} and items[0]["wall_id"]
+    assert c.post(f"/api/projects/{pid}/suggest", json={"skus": [], "limit": 3}).json()["items"] == []
+    assert c.post(f"/api/projects/{pid}/suggest", json={"skus": ["x"] * 61}).status_code == 422
