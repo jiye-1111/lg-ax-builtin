@@ -130,7 +130,7 @@ def _zoom(img: Image.Image, k: float, dx: float = 0, dy: float = 0) -> Image.Ima
     """가운데 기준 k배 + (dx, dy)만큼 옮겨 그린다. k<1이면 줄인다 (AI가 키워 그린 걸 되돌릴 때)."""
     w, h = img.size
     a = 1 / k
-    return img.transform((w, h), Image.AFFINE, (a, 0, w / 2 - a * (w / 2 + dx), 0, a, h / 2 - a * (h / 2 + dy)), Image.BILINEAR)
+    return img.transform((w, h), Image.AFFINE, (a, 0, w / 2 - a * (w / 2 + dx), 0, a, h / 2 - a * (h / 2 + dy)), Image.BICUBIC)
 
 
 def align_to_view(view: Image.Image, out: Image.Image) -> tuple[Image.Image, float]:
@@ -145,6 +145,8 @@ def align_to_view(view: Image.Image, out: Image.Image) -> tuple[Image.Image, flo
     best = max([best] + [(score(k, dx, dy), k, dx, dy) for k in (round(k0 - 0.02, 2), k0, round(k0 + 0.02, 2))
                          for dx in (x0 - 1, x0, x0 + 1) for dy in (y0 - 1, y0, y0 + 1)])
     sc, k, dx, dy = best
+    if k == 1.0 and dx == 0 and dy == 0:
+        return out, sc  # 안 건드리면 흐려지지도 않는다
     fixed = _zoom(out, 1 / k, dx * 8, dy * 8)
     inside = _zoom(Image.new("L", out.size, 255), 1 / k, dx * 8, dy * 8)  # 줄이며 생긴 바깥 빈 곳은 3D 배경으로
     return Image.composite(fixed, view, inside), sc
@@ -152,8 +154,9 @@ def align_to_view(view: Image.Image, out: Image.Image) -> tuple[Image.Image, flo
 
 def contact_shadow(out: Image.Image, alpha: Image.Image) -> Image.Image:
     """제품 아래쪽에 옅은 접지 그림자. AI가 못 그려 줘도 바닥에 붙어 보이게."""
-    sh = alpha.filter(ImageFilter.MaxFilter(9)).transform(alpha.size, Image.AFFINE, (1, 0, 0, 0, 1, -8))
-    sh = np.array(sh.filter(ImageFilter.GaussianBlur(12)), dtype=np.float32) / 255 * 0.35
+    # 세게 하면 위에서 내려다본 화면에서 제품 둘레가 회색 판처럼 보인다. AI도 그림자를 그리니 옅게만
+    sh = alpha.transform(alpha.size, Image.AFFINE, (1, 0, 0, 0, 1, -6))
+    sh = np.array(sh.filter(ImageFilter.GaussianBlur(6)), dtype=np.float32) / 255 * 0.15
     o = np.array(out, dtype=np.float32) * (1 - sh[..., None])
     return Image.fromarray(np.clip(o, 0, 255).astype(np.uint8))
 
