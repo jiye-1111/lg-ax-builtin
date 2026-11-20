@@ -61,8 +61,12 @@ class Idea(BaseModel):
 
     @field_validator("name")
     @classmethod
-    def _plain_name(cls, v: str) -> str:  # AI가 이름 끝에 붙이는 '(target)' 같은 말 빼기
-        return re.sub(r"\s*[(\[]?\b(target|save|upgrade)\b[)\]]?\s*$", "", v, flags=re.I).strip() or v
+    def _plain_name(cls, v: str) -> str:  # 가격 성격은 화면에 따로 붙는다. AI가 이름에 넣은 '(target)', '세이브(절약형): ' 빼기
+        out = re.sub(r"\s*[(\[]?\b(target|save|upgrade)\b[)\]]?\s*$", "", v, flags=re.I).strip()
+        head, sep, tail = out.partition(":")
+        if sep and tail.strip() and PLAN_WORDS.search(head):
+            out = tail.strip()
+        return out or v
 
     @field_validator("palette")
     @classmethod
@@ -120,10 +124,11 @@ PHOTO_RULES = """
 - 사진 속 가구·가전의 브랜드나 제품명을 추측하지 않는다. 사람 얼굴·글자·개인 정보는 무시한다.
 - seen에는 사진에서 읽은 느낌을 짧은 말 세 개로, '·'로 잇는다. 예: 짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명
 - 세 조합 모두 사진 느낌을 따르되 price_plan만 다르게.
-- name, why, tips, seen은 모두 한국어로 쓴다 (영어 이름 금지).
+- name, why, tips, seen은 모두 한국어로 쓴다 (영어 이름 금지). name에 가격 성격(목표·아끼기·한 단계 위)을 넣지 않는다.
 - 실내 공간 사진이 아니면 not_a_room을 true로."""
 
 SEEN_MAX = 40
+PLAN_WORDS = re.compile(r"target|save|upgrade|타깃|타겟|세이브|업그레이드|목표|절약|아끼|균형|고급|한 단계", re.I)
 PHOTO_TYPES = {"image/jpeg": b"\xff\xd8\xff", "image/png": b"\x89PNG", "image/webp": b"RIFF"}
 PHOTO_MAX_BYTES = 5 * 1024 * 1024
 _DATA_URL = re.compile(r"^data:(image/[a-z]+);base64,([A-Za-z0-9+/=\s]+)$")
