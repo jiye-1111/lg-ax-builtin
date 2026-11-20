@@ -1,0 +1,47 @@
+{
+ "sku": "OLED65C5ENA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/OLED65C5SNA_wa_2p.jpg (벽걸이: 폭 1441, 높이 826, 두께 45.1). 얇은 화면 판 + 뒤쪽 아래 두꺼운 몸체",
+ "front": {
+  "w": 1441,
+  "h": 826,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 0,
+    "y": 0,
+    "w": 1441,
+    "h": 826
+   }
+  ]
+ },
+ "side": {
+  "w": 45,
+  "h": 826,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 0,
+    "y": 0,
+    "w": 6,
+    "h": 826
+   },
+   {
+    "name": "door/rear_housing",
+    "x": 6,
+    "y": 306,
+    "w": 39,
+    "h": 500
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "블랙",
+   "material": null,
+   "from": "카탈로그 cmf_options (화면 뒤 몸체·받침 색)"
+  }
+ }
+}

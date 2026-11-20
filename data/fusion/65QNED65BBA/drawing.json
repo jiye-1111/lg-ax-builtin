@@ -1,0 +1,68 @@
+{
+ "sku": "65QNED65BBA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/65QNED70BKS.AKRG_2p.jpg (스탠드: 폭 1447, 높이 901(화면 838), 화면 두께 70.8, 받침 폭 1185·깊이 269)",
+ "front": {
+  "w": 1447,
+  "h": 901,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 0,
+    "y": 0,
+    "w": 1447,
+    "h": 838
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 131,
+    "y": 838,
+    "w": 30,
+    "h": 63
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 1286,
+    "y": 838,
+    "w": 30,
+    "h": 63
+   }
+  ]
+ },
+ "side": {
+  "w": 269,
+  "h": 901,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 99,
+    "y": 0,
+    "w": 10,
+    "h": 838
+   },
+   {
+    "name": "door/rear_housing",
+    "x": 109,
+    "y": 41,
+    "w": 61,
+    "h": 780
+   },
+   {
+    "name": "trim/foot",
+    "x": 0,
+    "y": 838,
+    "w": 269,
+    "h": 63
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "블랙",
+   "material": null,
+   "from": "카탈로그 cmf_options (화면 뒤 몸체·받침 색)"
+  }
+ }
+}
