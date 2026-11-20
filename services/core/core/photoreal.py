@@ -19,7 +19,10 @@ from PIL import Image, ImageFilter
 SIZE = (1536, 1024)  # 이미지 AI가 받는 가로 크기
 MIN_SIDE = 480
 MAX_BYTES = 8 * 1024 * 1024
-MODEL = os.getenv("PHOTOREAL_MODEL", "gpt-image-1")
+# 키마다 쓸 수 있는 이미지 모델이 다르다 (PC 키는 gpt-image-1이 '없는 모델'). 정해 두지 않았으면 좋은 것부터 차례로 시도하고
+# 처음 된 모델을 기억한다
+MODELS = [m for m in [os.getenv("PHOTOREAL_MODEL")] if m] or ["gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"]
+MODEL = MODELS[0]
 QUALITY = os.getenv("PHOTOREAL_QUALITY", "medium")
 _DATA_URL = re.compile(r"^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$")
 
@@ -67,13 +70,37 @@ def png_bytes(img: Image.Image) -> bytes:
     return b.getvalue()
 
 
+def _no_such_model(e: Exception) -> bool:
+    t = str(e).lower()
+    return "does not exist" in t or "model_not_found" in t or "invalid model" in t or "not have access to model" in t
+
+
+def edit_any_model(client, **kw):
+    """MODELS를 차례로. '없는 모델'이면 다음, 된 모델은 맨 앞으로 (다음부터 바로 그것)."""
+    global MODEL
+    last = None
+    for m in list(MODELS):
+        try:
+            r = client.edit(model=m, **kw)
+        except Exception as e:  # noqa: BLE001 - openai 예외 종류에 묶이지 않게
+            if not _no_such_model(e):
+                raise
+            last = e
+            continue
+        if MODELS[0] != m:
+            MODELS.remove(m)
+            MODELS.insert(0, m)
+        MODEL = m
+        return r
+    raise last or RuntimeError("쓸 수 있는 이미지 모델이 없음")
+
+
 def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") -> Image.Image:
     alpha = product_alpha(mask)
     ai_mask = Image.new("RGBA", SIZE, (0, 0, 0, 0))
     ai_mask.putalpha(alpha)  # 제품 자리는 불투명(못 바꿈), 나머지는 투명(바꿔도 됨)
-    r = client.edit(model=MODEL, image=("view.png", png_bytes(view), "image/png"),
-                    mask=("mask.png", png_bytes(ai_mask), "image/png"),
-                    prompt=PROMPT.format(extra=extra).strip(), size=f"{SIZE[0]}x{SIZE[1]}", quality=QUALITY, n=1)
+    r = edit_any_model(client, image=("view.png", png_bytes(view), "image/png"), mask=("mask.png", png_bytes(ai_mask), "image/png"),
+                       prompt=PROMPT.format(extra=extra).strip(), size=f"{SIZE[0]}x{SIZE[1]}", quality=QUALITY, n=1)
     out = Image.open(io.BytesIO(base64.b64decode(r.data[0].b64_json))).convert("RGB")
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)
