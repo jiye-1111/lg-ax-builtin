@@ -35,10 +35,10 @@ def test_no_fake_checks_and_clear_cta():
     assert "studio.css" in (WEB / "index.html").read_text(encoding="utf-8")
 
 
-def test_selected_product_shows_dimensions_and_needed_space():
+def test_selected_product_shows_needed_space_without_size_labels():
     viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
-    # 고른 제품에는 치수선(mm), 바닥에는 판정과 같은 계산으로 얻은 필요 공간
-    assert "dimLines(w, h, d)" in viewer and "setNeed(pts)" in viewer
+    # 놓을 때 3D에 치수 글자는 띄우지 않는다 (치수는 제품 카드·상세에서). 바닥에는 판정과 같은 계산으로 얻은 필요 공간
+    assert "dimLines" not in viewer and "dimLabel" not in viewer and "setNeed(pts)" in viewer
     assert "viewer.setNeed(r.required)" in REMODEL and "pose-check" in REMODEL
     assert 'id="needTag"' in REMODEL
 
@@ -82,3 +82,22 @@ def test_start_view_is_never_stuck_on_the_floor():
     viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
     assert "sensibleCam(" in viewer and "ctl.minDistance" in viewer
     assert "renderer.getPixelRatio() !== Math.min(devicePixelRatio" in viewer  # 브라우저 확대·축소(화면 배율)가 바뀌면 다시 잡는다
+
+
+def test_three_areas_layout_and_feedback():
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    account = (WEB / "js" / "account.js").read_text(encoding="utf-8")
+    guide = (WEB / "js" / "guide.js").read_text(encoding="utf-8")
+    # 왼쪽: 기본 필터는 종류·설치 유형·크기만, 카드에 폭·높이·깊이와 '공간에 배치하기'
+    assert 'id="mainSteps"' in REMODEL and 'class="dims"' in REMODEL and "공간에 배치하기" in REMODEL
+    # 가운데: 놓으면 그 자리로 시점 이동, 조작 메뉴는 고른 제품 위에 (상세 포함), 안 되면 이유와 고칠 방법
+    assert "viewer.lookAt(r.placement.center_xz)" in REMODEL and 'actBtn("actInfo"' in REMODEL
+    assert "const FIX = {" in REMODEL and ".act-bar.near" in css
+    # 위: STEP n / 3
+    assert "STEP ${i + 1} / ${n}" in guide
+    # 오른쪽: 설치 체크(누르면 그 제품으로) · 도면(보는 방향) · 추천(빈 화면은 다음 행동) · 합계와 신청
+    for frag in ('id="chkBox"', 'id="mapSlot"', 'id="suggSlot"', 'id="orderTotal"', "focusPlacement", 'id="camMark"', "data-scat", "data-splace"):
+        assert frag in REMODEL, frag
+    # 저장 상태 다섯 가지
+    for word in ("저장 중…", "저장 실패", "저장 안 된 변경", "로그인 필요", "자동 저장됨"):
+        assert word in account, word
