@@ -28,7 +28,7 @@ const out = optionSteps(input.variants, input.sel);
 console.log(JSON.stringify({{ steps: out.steps, skus: out.remaining.map((v) => v.sku), sel: out.sel }}));
 """
     r = subprocess.run(["node", "--input-type=module", "-e", code], input=json.dumps({"variants": variants, "sel": sel}),
-                       capture_output=True, text=True, check=True)
+                       capture_output=True, text=True, encoding="utf-8", check=True)
     return json.loads(r.stdout)
 
 
