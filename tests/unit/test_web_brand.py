@@ -75,3 +75,24 @@ def test_product_detail_and_filters():
     # 다나와식 필터: 폭, 높이, 색상
     for f in ('id="fW"', 'id="fH"', 'id="fColor"'):
         assert f in js
+
+
+def test_remodel_stage_is_uncluttered():
+    """지예: '아직도 조잡해 보인다' → 3D를 가리는 아래 칸을 없애고, 목록은 한 줄씩, 긴 설명은 접는다."""
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    canvas = js.split('<div class="canvas">', 1)[1].split("</section>", 1)[0]
+    # 살아 보기 설정과 안내는 3D 아래 칸이 아니라 3D 위에 뜨는 작은 카드
+    assert 'id="simctl"' in canvas and 'id="hint"' in canvas
+    # 시뮬레이션 가정·범례는 '참고 사항'으로 접어 둔다
+    assert js.count('<details class="sim-notes">') >= 3
+    assert 'style="font-size:12px;margin:6px 0 0">참고용' not in js
+    s = css()
+    assert re.search(r"\.lib #lib\s*{[^}]*grid-template-columns:\s*1fr", s)
+
+
+def test_product_detail_shows_verdict_not_spec_notes():
+    """지예: 상세 창은 '설치 사양 근거' 같은 말 대신 들어가는지(적합/부적합)만. 근거는 카탈로그 데이터로만 둔다."""
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'id="pdVerdict"' in js
+    assert "설치 사양 근거" not in js and "확인 안 됨" not in js
+    assert '"부적합"' in js
