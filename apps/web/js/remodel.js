@@ -242,6 +242,13 @@ export async function customer(pid) {
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
+  // 같은 모델 안에 색 이름이 같은 SKU가 여럿이면 (기능·연식만 다름) 모델명을 붙여 구분한다
+  const optLabel = (f, x) => {
+    const l = finishLabel(x) || "색상 표기 없음";
+    return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
+  };
+  // 목록 카드의 색 동그라미는 색마다 하나만
+  const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
   // 다나와식 필터: 종류(칩) + 폭·높이·색상
   const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
   document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
@@ -262,13 +269,13 @@ export async function customer(pid) {
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
-      const many = f.variants.length > 1;
+      const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}</div>
           <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
-          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
-            <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
+          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
+            <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
     document.querySelectorAll("#lib [data-pick]").forEach((b) => {
@@ -318,7 +325,7 @@ export async function customer(pid) {
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
-          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(finishLabel(x))}</button>`).join("")}</div>
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(optLabel(f, x))}</button>`).join("")}</div>
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
@@ -581,7 +588,7 @@ export async function customer(pid) {
         ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
-        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
+        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(optLabel(f, v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);

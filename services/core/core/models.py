@@ -106,7 +106,7 @@ class Clearance(_Strict):
 
 
 class CmfOption(_Strict):
-    color: str
+    color: Optional[str] = None  # LGE.COM 스펙 표에 색상 표기가 없으면 null
     material: Optional[str] = None
     finish: Optional[str] = None
     hex_approx: Optional[str] = None

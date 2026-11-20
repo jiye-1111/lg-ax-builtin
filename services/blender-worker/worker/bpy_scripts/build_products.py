@@ -131,7 +131,7 @@ def round_part(parts: list, mat: bpy.types.Material, x0: float, x1: float, y0: f
     bm.free()
     me.materials.append(mat)
     for p in me.polygons:
-        p.use_smooth = True
+        p.use_smooth = len(p.vertices) == 4  # 옆면만 부드럽게 (큰 뚜껑 면까지 부드럽게 하면 검게 얼룩진다)
     ob = bpy.data.objects.new("round", me)
     bpy.context.scene.collection.objects.link(ob)
     parts.append(ob)

@@ -8,13 +8,13 @@ export const CATEGORY = {
   oven: "광파오븐", microwave: "전자레인지", cooktop: "인덕션", water_purifier: "정수기",
   washer: "세탁기", dryer: "건조기", wash_tower: "워시타워", washer_dryer: "워시콤보", styler: "스타일러", shoe_care: "슈케어",
   tv: "TV", portable_tv: "스탠바이미", air_conditioner: "에어컨", air_purifier: "공기청정기", humidifier: "가습기",
-  dehumidifier: "제습기", vacuum: "청소기",
+  dehumidifier: "제습기", vacuum: "청소기", massage_chair: "안마의자", plant_grower: "식물재배기",
 };
 // 제품 서랍 위 큰 분류 (LGE.COM 메뉴 묶음과 같은 순서)
 export const CATEGORY_GROUP = [
   ["kitchen", "주방", ["refrigerator", "freezer", "kimchi_refrigerator", "wine_cellar", "dishwasher", "oven", "microwave", "cooktop", "water_purifier"]],
   ["laundry", "세탁·의류", ["washer", "dryer", "wash_tower", "washer_dryer", "styler", "shoe_care"]],
-  ["living", "TV·거실", ["tv", "portable_tv", "air_conditioner"]],
+  ["living", "TV·거실", ["tv", "portable_tv", "air_conditioner", "massage_chair", "plant_grower"]],
   ["air", "공기·청소", ["air_purifier", "humidifier", "dehumidifier", "vacuum"]],
 ];
 export const DIM = { width: "폭", height: "높이", depth: "깊이" };
