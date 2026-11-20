@@ -1,0 +1,96 @@
+{
+ "sku": "DUE6BGE",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/DUE6BGE.akor_2p.jpg (폭 598, 높이 815, 깊이 567, 비스듬한 정면 사진). 문 높이·하부 높이는 사진 비율로 잰 근사값",
+ "colors": {
+  "door": {
+   "name": "네이처 베이지",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2B2B2D",
+   "from": "치수도 이미지 본체가 검정 (49,49,49)"
+  }
+ },
+ "front": {
+  "w": 598,
+  "h": 815,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 598,
+    "h": 690,
+    "note": "검정 캐비닛"
+   },
+   {
+    "name": "door/0",
+    "x": 3,
+    "y": 2,
+    "w": 592,
+    "h": 681
+   },
+   {
+    "name": "trim/handle_line",
+    "x": 6,
+    "y": 45,
+    "w": 586,
+    "h": 3,
+    "note": "문 위쪽 손잡이 띠 경계"
+   },
+   {
+    "name": "display",
+    "x": 320,
+    "y": 23,
+    "w": 80,
+    "h": 12
+   },
+   {
+    "name": "vent/base_frame",
+    "x": 19,
+    "y": 690,
+    "w": 560,
+    "h": 105,
+    "note": "문 아래 열린 하부(다리 조절부)"
+   },
+   {
+    "name": "trim/leg_left",
+    "x": 19,
+    "y": 690,
+    "w": 30,
+    "h": 125
+   },
+   {
+    "name": "trim/leg_right",
+    "x": 549,
+    "y": 690,
+    "w": 30,
+    "h": 125
+   }
+  ]
+ },
+ "side": {
+  "w": 567,
+  "h": 815,
+  "parts": [
+   {
+    "name": "door/side",
+    "x": 0,
+    "y": 0,
+    "w": 20,
+    "h": 681
+   },
+   {
+    "name": "body",
+    "x": 20,
+    "y": 0,
+    "w": 547,
+    "h": 690
+   }
+  ]
+ }
+}

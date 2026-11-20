@@ -1,0 +1,131 @@
+{
+ "sku": "BEI3QMBLOE",
+ "unit": "mm",
+ "source": "도면 규칙은 Figma 'LG 빌트인 제품 도면'과 같음 (JSON). 전체 치수는 lge.co.kr 스펙 표 값, 문·창·손잡이·조작부 위치는 같은 종류 제품 사진을 보고 그린 화면용 (BEF3AMB4E 도면을 이 제품 크기로 맞춤)",
+ "drawn_at": "2026-11-20",
+ "front": {
+  "w": 575,
+  "h": 59,
+  "parts": [
+   {
+    "name": "glass",
+    "x": 0,
+    "y": 0,
+    "w": 575,
+    "h": 6
+   },
+   {
+    "name": "housing",
+    "x": 30,
+    "y": 6,
+    "w": 515,
+    "h": 53
+   }
+  ]
+ },
+ "side": {
+  "w": 515,
+  "h": 59,
+  "parts": [
+   {
+    "name": "glass/side",
+    "x": 0,
+    "y": 0,
+    "w": 515,
+    "h": 6
+   },
+   {
+    "name": "housing/side",
+    "x": 30,
+    "y": 6,
+    "w": 455,
+    "h": 53
+   },
+   {
+    "name": "body",
+    "x": 30,
+    "y": 6,
+    "w": 455,
+    "h": 53
+   }
+  ]
+ },
+ "top": {
+  "w": 575,
+  "h": 515,
+  "parts": [
+   {
+    "name": "zone/0",
+    "x": 76,
+    "y": 85,
+    "w": 170,
+    "h": 170,
+    "shape": "circle"
+   },
+   {
+    "name": "zone/1",
+    "x": 86,
+    "y": 286,
+    "w": 150,
+    "h": 150,
+    "shape": "circle"
+   },
+   {
+    "name": "zone/2",
+    "x": 333,
+    "y": 126,
+    "w": 140,
+    "h": 140,
+    "shape": "circle"
+   },
+   {
+    "name": "zone/3",
+    "x": 333,
+    "y": 270,
+    "w": 140,
+    "h": 140,
+    "shape": "circle"
+   },
+   {
+    "name": "control/0",
+    "x": 202,
+    "y": 474,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/1",
+    "x": 242,
+    "y": 474,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/2",
+    "x": 282,
+    "y": 474,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/3",
+    "x": 322,
+    "y": 474,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   },
+   {
+    "name": "control/4",
+    "x": 362,
+    "y": 474,
+    "w": 12,
+    "h": 12,
+    "shape": "circle"
+   }
+  ]
+ }
+}

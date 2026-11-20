@@ -1,0 +1,20 @@
+{
+ "sku": "G646SVV031",
+ "unit": "mm",
+ "geometry_from": "G646GBB031",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/g646svv031.akor_2p.jpg — G646GBB031과 치수·문 나눔이 같고 문 색·재질만 다름",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 실버",
+   "material": "스톤 (스테인리스)",
+   "hex_approx": "#D7D7D7",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2B2B2D",
+   "from": "치수도 측면 이미지가 검정"
+  }
+ }
+}

@@ -61,10 +61,33 @@ def test_model_matches_catalog_dims(prod, index):
     assert abs(b["y0"]) <= 1 and abs(b["cx"]) <= TOL_MM and abs(b["cz"]) <= TOL_MM
 
 
+def companions() -> dict:
+    p = MODELS / "companions.json"
+    return json.loads(p.read_text(encoding="utf-8"))["models"] if p.exists() else {}
+
+
 @pytest.mark.parametrize("prod", CATALOG, ids=[p["sku"] for p in CATALOG])
 def test_model_has_recolorable_finish(prod, index):
-    gltf = read_glb(MODELS / index["models"][prod["sku"]]["file"])
-    assert "finish" in {m["name"] for m in gltf["materials"]}
+    """색 동그라미로 바꿀 finish 재질이 본체나 같이 놓이는 부품(companions.json) 중 하나에 있어야 한다."""
+    files = [index["models"][prod["sku"]]["file"]]
+    if prod["sku"] in companions():
+        files.append(companions()[prod["sku"]]["file"])
+    names = {m["name"] for f in files for m in read_glb(MODELS / f)["materials"]}
+    assert "finish" in names
+
+
+def test_water_purifier_faucet_is_placed_with_body():
+    """정수기 색 옵션은 파우셋 색이다: 본체는 회색 고정, 파우셋(Ø48·높이 264·돌출 188 mm)이 finish를 가진다."""
+    comps = companions()
+    for sku in ("WU523AWB", "WU523ACB"):
+        c = comps[sku]
+        faucet = read_glb(MODELS / c["file"])
+        assert "finish" in {m["name"] for m in faucet["materials"]}
+        b = bbox_mm(faucet)
+        assert abs(b["h"] - 264) <= TOL_MM and abs(b["y0"]) <= 1
+        assert len(c["offset_m"]) == 3 and c["offset_m"][1] > 0.5  # 조리대 위
+        body = read_glb(MODELS / f"{sku}.glb")
+        assert "finish" not in {m["name"] for m in body["materials"]}
 
 
 def test_products_with_figma_drawing_use_it():

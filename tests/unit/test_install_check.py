@@ -17,8 +17,8 @@ def room(measured=False, door=None):
     return Room(walls=walls, openings=ops)
 
 
-def prod(category="refrigerator", w=900, d=700):
-    return Product(sku="T-1", name="테스트 제품", category=category, zone_fit=["kitchen"], install_type="built_in",
+def prod(category="refrigerator", w=900, d=700, install="freestanding", door=600):
+    return Product(sku="T-1", name="테스트 제품", category=category, zone_fit=["kitchen"], install_type=install, door_swing_mm=door,
                    product_dims_mm=Dims(w=w, h=1800, d=d), clearance_mm=Clearance(side=5, top=10, back=50),
                    source_url=None, source_checked_at=None, demo_only=True)
 
@@ -70,9 +70,9 @@ def test_no_fit_is_blocked():
 
 
 def test_front_and_entry_reasons_get_their_own_lines():
-    out = run(placement("conditional", [reason("front_blocked", "chair1"), reason("entry_narrow", "d1")]), room(door=0.65))
+    out = run(placement("no_fit", [reason("front_blocked", "chair1", "no_fit"), reason("entry_narrow", "d1")]), room(door=0.65))
     it = out["items"][0]
-    assert check(it, "front")["status"] == "check"
+    assert check(it, "front")["status"] == "blocked" and it["status"] == "blocked"
     assert check(it, "entry")["status"] == "check" and "650" in check(it, "entry")["detail"]
     # 자리 자체에는 걸리는 것이 없다
     assert check(it, "space")["status"] == "ok"
@@ -95,8 +95,18 @@ def test_water_line_only_for_products_that_need_it():
 
 
 def test_products_used_from_the_front_only_get_front_line():
-    it = run(placement(), p=prod("tv", 900, 200))["items"][0]
+    it = run(placement(), p=prod("tv", 900, 200, door=None))["items"][0]
     assert all(c["code"] != "front" for c in it["checks"])
+
+
+def test_built_in_has_no_front_line():
+    it = run(placement(), p=prod(install="built_in"))["items"][0]
+    assert all(c["code"] != "front" for c in it["checks"])
+
+
+def test_assumed_door_space_asks_to_check():
+    it = run(placement("conditional", [reason("front_space_assumed")]), p=prod(door=None))["items"][0]
+    assert check(it, "front")["status"] == "check" and check(it, "space")["status"] == "ok"
 
 
 def test_unknown_sku_is_skipped():

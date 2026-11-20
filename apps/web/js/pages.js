@@ -132,7 +132,7 @@ export async function installCheck(el, pid) {
       <p class="muted ic-dims">${esc(it.sku)} · ${mm(it.dims_mm.w)} × ${mm(it.dims_mm.h)} × ${mm(it.dims_mm.d)} mm${it.wall_id ? ` · 벽 ${esc(it.wall_id)}` : ""}</p>
       <ul class="ic-checks">${it.checks.map((c) => `<li><span class="badge ${IC_STATUS[c.status][0]}">${IC_STATUS[c.status][1]}</span><span>${esc(c.label)}${c.detail ? ` <em class="muted">${esc(c.detail)}</em>` : ""}</span></li>`).join("")}</ul>
       ${it.source_url ? `<a class="src-link" href="${esc(it.source_url)}" target="_blank" rel="noopener">LGE.COM에서 가격 보고 구매하기 ↗</a>` : ""}</li>`).join("")}</ul>
-    <p class="hint-sm">‘현장 확인’은 스캔으로 알 수 없어서 방문했을 때 보는 항목이에요. 앞 공간은 사람이 서는 폭 0.6 m 기준입니다.</p>`;
+    <p class="hint-sm">‘현장 확인’은 스캔으로 알 수 없어서 방문했을 때 보는 항목이에요.</p>`;
   return d;
 }
 

@@ -1,0 +1,19 @@
+{
+ "sku": "DUE6EWL2E",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/DUE6EWL2E.akor_2p.jpg (폭 598, 높이 815, 깊이 567, 비스듬한 정면 사진). 문 높이·하부 높이는 사진 비율로 잰 근사값",
+ "colors": {
+  "door": {
+   "name": "네이처 에센스 화이트",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2B2B2D",
+   "from": "치수도 이미지 본체가 검정 (49,49,49)"
+  }
+ },
+ "geometry_from": "DUE6BGE"
+}

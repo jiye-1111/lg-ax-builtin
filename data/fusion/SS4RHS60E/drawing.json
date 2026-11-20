@@ -1,0 +1,54 @@
+{
+ "sku": "SS4RHS60E",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/ss4rhs60e.akor_2p.jpg (폭 380, 높이 1008, 깊이 390, 비스듬한 사진). 한 색 본체, 오른쪽 위 작은 표시창, 아래 받침",
+ "front": {
+  "w": 380,
+  "h": 1008,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 380,
+    "h": 983
+   },
+   {
+    "name": "display/panel",
+    "x": 295,
+    "y": 83,
+    "w": 30,
+    "h": 45
+   },
+   {
+    "name": "vent/base",
+    "x": 10,
+    "y": 983,
+    "w": 360,
+    "h": 25
+   }
+  ]
+ },
+ "side": {
+  "w": 390,
+  "h": 1008,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 390,
+    "h": 983
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "에센스 그라파이트",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

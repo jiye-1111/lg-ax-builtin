@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
+import { $app, cleanup, LABEL, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -7,6 +7,8 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox, installCheck, installRequestBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
+import { stepState, stepperHtml, fitCardHtml, guideBarHtml, VERDICT_LABEL } from "./guide.js";
+import { optionSteps } from "./options.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -15,6 +17,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <ol class="steps5" id="progress" aria-label="진행 단계"></ol>
         <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
@@ -25,11 +28,12 @@ export async function customer(pid) {
         <div class="lib-side">
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
-          <div class="chips" id="cats"></div>
+          <div class="ask" id="ask" aria-label="공간 용도"></div>
+          <div class="chips" id="cats" aria-label="가전 종류"></div>
+          <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
           <div class="filters" aria-label="제품 필터">
             <select id="fW" aria-label="폭"><option value="">폭 전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select>
             <select id="fH" aria-label="높이"><option value="">높이 전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select>
-            <select id="fColor" aria-label="색상"><option value="">색상 전체</option></select>
           </div>
         </div>
         <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
@@ -37,6 +41,7 @@ export async function customer(pid) {
 
       <section class="stage" aria-label="우리 집">
         <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
+        <section class="order-sheet" id="orderSheet" role="dialog" aria-label="구매 및 설치 신청" hidden></section>
         <div class="toolbar">
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
@@ -71,8 +76,10 @@ export async function customer(pid) {
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
           <p class="hint" id="hint" aria-live="polite"></p>
+          <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
           <div class="sheet" id="simctl"></div>
         </div>
+        <div class="guide-bar" id="guideBar"></div>
       </section>
 
       <aside class="side" aria-label="선택한 제품과 설정">
@@ -86,8 +93,7 @@ export async function customer(pid) {
         <div class="side-body">
           <section data-panel="sel" id="insp"></section>
           <section data-panel="list"><ul class="list" id="pls"></ul>
-            <details class="gap ic-fold" id="icFold"><summary>설치 전에 확인할 것</summary><div id="icBox"></div></details>
-            <div class="gap ir-box" id="irBox"></div></section>
+            <details class="gap ic-fold" id="icFold"><summary>설치 전에 확인할 것</summary><div id="icBox"></div></details></section>
           <section data-panel="finish">
             ${aiBoxHtml("finish")}
             <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
@@ -113,6 +119,7 @@ export async function customer(pid) {
           </section>
         </div>
         <section class="minimap" id="minimap" aria-label="작은 화면" hidden></section>
+        <div class="order-bar"><button class="primary" id="orderBtn">구매 및 설치 신청</button></div>
       </aside>
       ${botHtml()}
     </div>`;
@@ -197,6 +204,7 @@ export async function customer(pid) {
     onLeave: () => { if (armed) ghost(null); },
     onClick: ({ hit, point }) => {
       if (point && floorAction(point)) return;
+      if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }
       if (hit?.type === "placement") { selPl = hit.id; selObj = null; setTab("sel"); }
       else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
       else { selPl = null; selObj = null; }
@@ -231,6 +239,7 @@ export async function customer(pid) {
   const restoredCam = viewer.setCamera(saved.cam);
   if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
+  let renderProgress = () => {}; // 5단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
@@ -249,50 +258,94 @@ export async function customer(pid) {
 
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
-  // 분류: 주방 · 세탁·의류 · TV·거실 · 공기·청소 (카탈로그에 있는 것만), 그 밖의 종류는 '기타'
-  const have = new Set(catalog.map((p) => p.category));
-  const known = new Set(CATEGORY_GROUP.flatMap(([, , cs]) => cs));
-  const groups = [...CATEGORY_GROUP.filter(([, , cs]) => cs.some((c) => have.has(c))),
-    ...([...have].some((c) => !known.has(c)) ? [["etc", "기타", [...have].filter((c) => !known.has(c))]] : [])];
-  const inGroup = (c) => !cat || (groups.find(([k]) => k === cat)?.[2] || []).includes(c);
-  if (!groups.some(([k]) => k === cat)) cat = "";
+  // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
+  const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
+  const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
+  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || !catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
+  const USES = Object.keys(USE).filter((k) => catsFor(k).length);
+  let use = USES.includes(saved.use) ? saved.use : null; // null: 아직 안 고름, "": 전체 보기
+  if (saved.use === "") use = "";
+  let sel = saved.sel && typeof saved.sel === "object" ? saved.sel : {};
+  if (!catsFor(use).includes(cat)) cat = "";
+  const inScope = (c) => (cat ? c === cat : !use || catsFor(use).includes(c));
+  const setScope = (patch) => {
+    if ("use" in patch) { use = patch.use; cat = ""; sel = {}; }
+    if ("cat" in patch) { cat = patch.cat; sel = sel.install ? { install: sel.install } : {}; }
+    saveUiState(pid, { use, cat, sel });
+    renderCats(); renderLib();
+  };
   const renderCats = () => {
-    document.getElementById("cats").innerHTML = [["", "전체"], ...groups.map(([k, v]) => [k, v])]
+    const ask = document.getElementById("ask");
+    ask.innerHTML = use == null
+      ? `<p class="ask-q">이 공간을 어떤 용도로 쓰실 건가요?</p><div class="chips">${USES.map((k) => `<button class="chip" data-use="${esc(k)}">${esc(USE[k])}</button>`).join("")}<button class="chip" data-use="">전체 보기</button></div>`
+      : `<p class="ask-a"><b>${esc(use ? USE[use] : "전체")}</b>${use ? "에 어울리는 가전" : " 가전"}<button class="linklike" id="useChange">용도 바꾸기</button></p>`;
+    ask.querySelectorAll("[data-use]").forEach((b) => (b.onclick = () => setScope({ use: b.dataset.use })));
+    const ch = document.getElementById("useChange");
+    if (ch) ch.onclick = () => setScope({ use: null });
+    document.getElementById("cats").innerHTML = use == null ? "" : [["", "전체"], ...catsFor(use).map((c) => [c, CATEGORY[c] || c])]
       .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
-    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; saveUiState(pid, { cat }); renderCats(); renderLib(); }));
+    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => setScope({ cat: b.dataset.cat })));
   };
   // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
   const families = await api("/api/catalog/families");
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
-  // 다나와식 필터: 종류(칩) + 폭·높이·색상
-  const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
-  document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
+  // 같은 모델 안에 색 이름이 같은 SKU가 여럿이면 (기능·연식만 다름) 모델명을 붙여 구분한다
+  const optLabel = (f, x) => {
+    const l = finishLabel(x) || "색상 표기 없음";
+    return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
+  };
+  // 목록 카드의 색 동그라미는 색마다 하나만
+  const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
+  // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
-  ["fW", "fH", "fColor"].forEach((id) => (document.getElementById(id).onchange = () => {
-    const c = document.getElementById("fColor").value;
-    if (c) families.forEach((f) => { const v = f.variants.find((x) => x.color === c); if (v) pick[f.family_id] = v.sku; });
-    renderLib();
-  }));
+  ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
+  // (API 서버가 아직 판매 여부를 안 주는 옛 버전이면 전부 보여 준다)
+  const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
+  const sellable = (v) => !saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
+  const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
+  const renderSteps = (steps) => {
+    const box = document.getElementById("steps");
+    box.innerHTML = steps.map((st, i) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-n">${i + 1}</span><span class="step-l">${esc(st.label)}</span>
+      <div class="chips">${st.values.map((v) => `<button class="chip ${st.picked === v.label ? "on" : ""}" data-step="${esc(st.key)}" data-val="${esc(v.label)}" aria-pressed="${st.picked === v.label}">${esc(v.label)} <i>${v.count}</i></button>`).join("")}</div></li>`).join("");
+    box.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
+      if (sel[b.dataset.step] === b.dataset.val) delete sel[b.dataset.step]; else sel[b.dataset.step] = b.dataset.val;
+      saveUiState(pid, { sel });
+      renderLib();
+    }));
+  };
+  let recSkus = new Set(); // 그린 영역에 들어가는 제품 (아래 syncGuide가 채운다)
+  const isRec = (f) => f.variants.some((v) => recSkus.has(v.sku));
   const renderLib = () => {
+    renderProgress();
     const q = document.getElementById("q").value.trim().toLowerCase();
-    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
-    const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
+    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value;
+    const scope = shop.filter((f) => inScope(f.category));
+    // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
+    const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
+    sel = narrowed.sel;
+    renderSteps(narrowed.steps);
+    const left = new Set(narrowed.remaining.map((v) => v.sku));
+    scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
+      if (!left.has(pick[f.family_id] || f.variants[0].sku)) { const v = f.variants.find((x) => left.has(x.sku)); if (v) pick[f.family_id] = v.sku; }
+    });
+    const items = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
-      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH) && (!fC || f.variants.some((v) => v.color === fC)))
-      .sort((a, b) => a.demo_only - b.demo_only);
+      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH))
+      .sort((a, b) => a.demo_only - b.demo_only || isRec(b) - isRec(a)); // 그린 영역에 들어가는 제품을 위로
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
-      const many = f.variants.length > 1;
+      const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
-        <div class="body"><div class="name">${esc(f.name)}</div>
+        <div class="body"><div class="name">${esc(f.name)}${isRec(f) ? ` <span class="badge rec" title="그린 영역에 들어가는 제품이에요">추천</span>` : ""}</div>
           <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
-          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
-            <span class="vlabel">${esc(finishLabel(v))}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v))}</div>`}
+          ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
+            <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
     document.querySelectorAll("#lib [data-pick]").forEach((b) => {
@@ -316,8 +369,9 @@ export async function customer(pid) {
   // ---- 제품 상세 창: 사진·모델명·크기·색상, 그리고 우리 집에 들어가는지(적합/부적합)만 크게 ----
   // 카탈로그 spec_notes(근거)·필요 공간 같은 숫자는 판정에만 쓰고 화면에는 내지 않는다
   const pdModal = document.getElementById("pdModal");
-  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
-  const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", utility: "다용도실", bedroom: "침실", entrance: "현관", other: "기타" };
+  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 핏 (Fit & Max)", freestanding: "일반 (프리스탠딩)", countertop: "조리대 위", undercounter: "하부장 안" };
+  const OPT = { kind: "종류", doors: "도어 수", capacity_l: "용량", wash_kg: "세탁 용량", dry_kg: "건조 용량", capacity: "용량", screen_cm: "화면 크기", door_type: "문 여는 방향" };
+  const OPT_UNIT = { capacity_l: " L", wash_kg: " kg", dry_kg: " kg", screen_cm: " cm" };
   const PD_VERDICT = { fit: "적합", conditional: "조건부 적합", no_fit: "부적합" };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
@@ -358,7 +412,7 @@ export async function customer(pid) {
     const rows = [
       ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : ""],
       ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "")],
-      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", "))],
+      ...Object.entries(p.options || {}).filter(([k]) => OPT[k]).map(([k, val]) => [OPT[k], esc(`${val}${OPT_UNIT[k] || ""}`)]),
       ["색상 · 재질", esc(finishLabel(v))],
       ["모델명", `<span class="mono">${esc(sku)}</span>`],
     ].filter(([, val]) => val);
@@ -369,7 +423,7 @@ export async function customer(pid) {
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
-          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(finishLabel(x))}</button>`).join("")}</div>
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku).map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(optLabel(f, x))}</button>`).join("")}</div>
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
@@ -567,6 +621,10 @@ export async function customer(pid) {
   const ROT_STEP = 45, ROT_FINE = 15, NUDGE = 0.1, NUDGE_FINE = 0.01;
   const objOf = (id) => room.objects.find((o) => o.object_id === id);
   const poseOf = (hit) => {
+    if (hit.type === "router") {
+      const rt = project.scene_state.router;
+      return rt && { kind: "router", id: "router", xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0 };
+    }
     if (hit.type === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === hit.id);
       return x && { kind: "placement", id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad };
@@ -582,7 +640,10 @@ export async function customer(pid) {
   let editSeq = 0; // 화면에서 바꾼 횟수: 읽는 도중 바뀌면 그 응답은 버리고 다시 읽는다
   const applyLocal = (it) => {
     editSeq++;
-    if (it.kind === "placement") {
+    if (it.kind === "router") {
+      const rt = project.scene_state.router;
+      if (rt) { rt.center_xz = [...it.xz]; rt.yaw_rad = it.yaw; }
+    } else if (it.kind === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
       if (x) { x.center_xz = [...it.xz]; x.yaw_rad = it.yaw; }
     } else {
@@ -594,6 +655,12 @@ export async function customer(pid) {
     if (it.kind === "placement") rememberPlacement(it.id);
     else { const o = objOf(it.id); if (o) remember({ kind: "objPose", id: it.id, pose: (project.scene_state.object_poses || {})[it.id] ? { center_xz: [o.position[0], o.position[2]], yaw_rad: o.yaw_rad } : null }); }
     applyLocal(it);
+    if (it.kind === "router") {
+      // 공유기를 내려놓으면 그 자리에서 신호를 다시 계산한다
+      project = await put(`/api/projects/${pid}/router`, { center_xz: it.xz, yaw_rad: it.yaw, band });
+      if (sim === "wifi") await runWifi();
+      return;
+    }
     if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false }) });
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
@@ -661,16 +728,21 @@ export async function customer(pid) {
     if (x) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
       const reasons = (x.reasons || []).map((r) => `<li><span class="badge ${r.verdict}">${LABEL[r.verdict]}</span> ${esc(r.label)}${r.ref ? ` <span class="muted">(${esc(r.ref)})</span>` : ""}</li>`).join("");
+      const fv = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku);
+      const pd = p.product_dims_mm || {};
       box.innerHTML = `
-        <div class="verdict-strip v-${x.verdict}"><span>${LABEL[x.verdict]}</span>${x.wall_id ? `<em>벽 ${esc(x.wall_id)}에 붙임</em>` : ""}</div>
-        ${(() => { const v = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku); return v?.thumb ? `<div class="insp-photo"><img src="${esc(v.thumb)}" alt="${esc(p.name)}"></div>` : ""; })()}
-        <h2 class="insp-name">${esc(p.name)}</h2>
-        <p class="insp-meta">${esc(x.sku)}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
-        ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
+        <div class="insp-prod">
+          <div class="insp-thumb" style="background-color:${esc(x.hex || fv?.hex || "#fff")}">${fv?.thumb ? `<img src="${esc(fv.thumb)}" alt="${esc(p.name)}">` : ""}</div>
+          <div><h2 class="insp-name">${esc(p.name)}</h2>
+            <p class="insp-meta">${pd.w && pd.h && pd.d ? `${mm(pd.w)} × ${mm(pd.h)} × ${mm(pd.d)} mm` : esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
+            <button class="small ghost" id="inspDetail">상세보기</button></div>
+        </div>
+        ${fitCardHtml(x)}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
-        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
+        ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(optLabel(f, v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
+      box.querySelector("#inspDetail").onclick = () => openDetail(x.sku);
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
@@ -702,7 +774,85 @@ export async function customer(pid) {
     box.innerHTML = `<div class="insp-empty"><h2>무엇을 놓아 볼까요?</h2>
       <ol class="how"><li><b>LG 제품</b> 목록에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
+  // ---- 5단계 진행 표시: 지금 상태에서 계산한다 ----
+  renderProgress = () => {
+    const el = document.getElementById("progress");
+    if (!el || !project) return;
+    el.innerHTML = stepperHtml(stepState(project, armed));
+    el.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
+      const k = b.dataset.step, pls = project.scene_state.placements;
+      if (k === "scan") setTab("extra");
+      else if (k === "pick") document.getElementById("q").focus();
+      else if (k === "place") { if (!pls.length) toast("먼저 왼쪽에서 제품을 고르고 3D 바닥을 눌러 놓아 보세요"); else { selPl = pls[0].placement_id; setTab("sel"); draw(); renderInspector(); } }
+      else if (k === "check") { if (!pls.length) toast("제품을 놓으면 그 자리에 들어가는지 바로 검사해요"); else setTab("list"); }
+      else openOrder();
+    }));
+  };
+  // ---- 구매 및 설치 신청: 놓은 제품과 판정을 모아 보여 주고, 구매는 LGE.COM, 설치는 방문 신청으로 잇는다 ----
+  const orderSheet = document.getElementById("orderSheet");
+  const closeOrder = () => { orderSheet.hidden = true; orderSheet.innerHTML = ""; };
+  const openOrder = () => {
+    const pls = project.scene_state.placements;
+    const bad = pls.filter((x) => x.verdict === "no_fit").length;
+    orderSheet.innerHTML = `
+      <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
+      ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
+      <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li>
+        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i>
+        <span class="nm">${esc(p.name)}<small>${esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}</small></span>
+        <span class="badge ${x.verdict}">${VERDICT_LABEL[x.verdict] || "판정 불가"}</span>
+        ${p.source_url && !p.demo_only ? `<a class="btn ghost small" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 구매</a>` : ""}</li>`; }).join("")}</ul>
+      <p class="order-note">구매는 LGE.COM 제품 페이지에서 하고, 설치는 방문 신청을 하면 기사가 실측한 뒤 진행해요. 전원·배관 위치도 그때 확인해요.</p>
+      <div class="order-actions ir-box" id="irBox"></div>`
+      : `<p class="order-sum">아직 놓은 제품이 없어요.</p><p class="order-note">왼쪽 목록에서 제품을 골라 3D에 놓으면, 설치할 수 있는 자리인지 검사한 결과와 함께 신청할 수 있어요.</p>`}`;
+    orderSheet.hidden = false;
+    // 방문 설치 신청: 놓은 제품과 설치 전 확인 목록을 그대로 기사에게 넘긴다
+    const irBox = document.getElementById("irBox");
+    if (irBox) installRequestBox(irBox, pid, project, () => refresh(true).then(() => { if (!orderSheet.hidden) openOrder(); }));
+    document.getElementById("orderClose").onclick = closeOrder;
+    document.getElementById("orderClose").focus({ preventScroll: true });
+  };
+  orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
+  document.getElementById("orderBtn").onclick = openOrder;
+
+  // ---- 3D 아래 안내 줄: 공간별 추천(영역 추천 결과), 설치 전 체크리스트(install-check) ----
+  const zoneRecs = new Map(); // zone_id → { key, count, top, skus }
+  let checkData = null, checkKey = "", checkMissing = false;
+  const renderGuide = () => {
+    const bar = document.getElementById("guideBar");
+    bar.innerHTML = guideBarHtml({ zones: zones.map((z) => ({ zone_id: z.zone_id, name: z.name || z.purpose, ...(zoneRecs.get(z.zone_id) || { count: 0, top: "" }) })),
+      placements: project.scene_state.placements, check: checkData });
+    bar.querySelectorAll("[data-zone]").forEach((b) => (b.onclick = () => { zoneSel = b.dataset.zone; setTab("zones"); renderZones(); renderRecs(); }));
+    bar.querySelector('[data-gb="draw"]')?.addEventListener("click", () => document.querySelector('[data-mode="rect"]').click());
+    bar.querySelector('[data-gb="check"]')?.addEventListener("click", () => { setTab("list"); const f = document.getElementById("icFold"); if (f) f.open = true; });
+  };
+  const syncGuide = async () => {
+    renderGuide();
+    for (const z of zones) {
+      const key = JSON.stringify(z);
+      if (zoneRecs.get(z.zone_id)?.key === key) continue;
+      try {
+        const r = await api(`/api/projects/${pid}/zones/${z.zone_id}/recommendations`);
+        const ok = r.items.filter((it) => it.fit.verdict === "fit" || it.fit.verdict === "conditional");
+        zoneRecs.set(z.zone_id, { key, count: ok.length, top: ok[0]?.product.name || "", skus: ok.map((it) => it.product.sku) });
+      } catch { /* 추천을 못 받으면 줄만 비워 둔다 */ }
+    }
+    for (const id of [...zoneRecs.keys()]) if (!zones.some((z) => z.zone_id === id)) zoneRecs.delete(id);
+    const next = new Set([...zoneRecs.values()].flatMap((v) => v.skus));
+    const changed = next.size !== recSkus.size || [...next].some((x) => !recSkus.has(x));
+    recSkus = next;
+    const pls = project.scene_state.placements;
+    const ck = JSON.stringify(pls.map((x) => [x.placement_id, x.sku, x.center_xz, x.yaw_rad, x.verdict]));
+    if (!checkMissing && ck !== checkKey) {
+      checkKey = ck;
+      try { checkData = pls.length ? await api(`/api/projects/${pid}/install-check`) : null; }
+      catch { checkData = null; checkMissing = true; } // 서버가 아직 확인 목록을 안 주면 판정만 센다
+    }
+    renderGuide();
+    if (changed) renderLib();
+  };
   const renderPlacements = () => {
+    renderProgress();
     const pls = project.scene_state.placements;
     document.getElementById("plCount").textContent = pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `
@@ -712,9 +862,6 @@ export async function customer(pid) {
     document.querySelectorAll("#pls [data-sel]").forEach((li) => (li.onclick = () => { selPl = li.dataset.sel || null; selObj = null; setTab("sel"); draw(); renderInspector(); renderPlacements(); }));
     const fold = document.getElementById("icFold");
     fold.hidden = !pls.length;
-    const irBox = document.getElementById("irBox");
-    irBox.hidden = !pls.length;
-    if (pls.length && !irBox.querySelector("#irForm:not([hidden])")) installRequestBox(irBox, pid, project, () => refresh(true)); // 쓰는 중인 신청서는 지우지 않는다
     if (pls.length && fold.open) installCheck(document.getElementById("icBox"), pid);
     fold.ontoggle = () => { if (fold.open) installCheck(document.getElementById("icBox"), pid); };
     const gone = project.scene_state.hidden_objects || [];
@@ -927,6 +1074,22 @@ export async function customer(pid) {
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
     drawDraft();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
+    syncNeed();
+  };
+  // 고른 제품이 차지하는 공간(본체 + 문 여는 공간)을 3D 바닥에 표시. 판정과 같은 계산(pose-check)을 그대로 쓴다
+  let needKey = "";
+  const syncNeed = async () => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === selPl);
+    const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}` : "";
+    if (key === needKey) return;
+    needKey = key;
+    if (!x) { viewer.setNeed(null); document.getElementById("needTag").hidden = true; return; }
+    try {
+      const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id });
+      if (needKey !== key) return;
+      viewer.setNeed(r.required);
+      document.getElementById("needTag").hidden = !r.required?.length;
+    } catch { viewer.setNeed(null); }
   };
   const setOverlay = (html) => {
     overlay = html;
@@ -978,7 +1141,7 @@ export async function customer(pid) {
   };
   const runDaylight = async () => {
     const box = document.getElementById("simres");
-    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
+    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">창이 없는 방이라 방향을 추정하지 못했어요. 북쪽 방향 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요.</p>`; return; }
     const key = JSON.stringify([simState.date, project.site, project.scene_state.placements.map((x) => [x.placement_id, x.center_xz]), version]);
     const needHeat = simState.heat && heatCache.key !== key;
     const pathKey = JSON.stringify([simState.date, project.site]);
@@ -994,18 +1157,25 @@ export async function customer(pid) {
     setOverlay(daily ? heat(daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join("") : "");
     const s = d.sun, dir = DIRS[Math.round(s.azimuth_deg / 45) % 8];
     const pls = daily ? project.scene_state.placements.filter((x) => x.placement_id in daily.points) : [];
-    box.innerHTML = `
+    const BASIS = { main_window_south: "가장 큰 창이 남쪽을 본다고 보고 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", building_footprint: "주소의 건물 방향에 맞춰 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", manual: "" };
+    const fc = d.facings || [];
+    const facing = fc.length ? `<p class="facing"><b>${esc(fc[0].label)}</b> 집이에요 <span class="muted">가장 큰 창 기준${fc.length > 1 ? ` · 다른 창 ${fc.slice(1).map((x) => esc(x.label)).join(", ")}` : ""}</span>${BASIS[project.site?.north_basis] ? `<em>${BASIS[project.site.north_basis]}</em>` : ""}</p>` : "";
+    box.innerHTML = `${facing}
       <p style="margin:0 0 6px">${s.up ? `해 높이 <b>${s.altitude_deg.toFixed(0)}°</b> · <b>${dir}쪽</b> 하늘(방위 ${s.azimuth_deg.toFixed(0)}°) · 빛 색 ${s.kelvin.toLocaleString()} K${s.altitude_deg < 10 ? " (해 질 녘)" : ""} · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"}${daily ? ` · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)` : ""}</p>
       ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
       <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</details>`;
   };
   const daylightCtl = async () => {
     regions = regions || (await api("/api/regions"));
+    // 스캔에는 나침반이 없다 → 북쪽을 안 정했으면 가장 큰 창이 남쪽을 본다고 보고 먼저 잡아 준다 (슬라이더로 고칠 수 있다)
+    if (project.site?.north_deg == null) { try { project = await put(`/api/projects/${pid}/site`, { auto_north: true }); draw(); } catch { /* 창이 없으면 안내문 */ } }
     const site = project.site || {};
     document.getElementById("simctl").innerHTML = `
       <div class="simgrid">
+        <label class="addr-row">주소 <span class="muted" id="addrNow">${site.address ? esc(site.address) : "적으면 그 위치의 해로 계산해요"}</span>
+          <span class="time-row"><input type="search" id="addr" placeholder="예) 서울 중구 세종대로 110" maxlength="200" autocomplete="street-address"><button class="small ghost" id="addrGo">찾기</button></span></label>
         <label>지역<select id="region">${Object.keys(regions).map((r) => `<option ${r === (site.region || "서울") ? "selected" : ""}>${r}</option>`).join("")}</select></label>
-        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="355" step="5" value="${site.north_deg ?? 0}"></label>
+        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="359" step="1" value="${Math.round(site.north_deg ?? 0)}"></label>
         <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
         <label>시각 <b id="tv">${simState.time}</b><span class="time-row"><button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button><input type="range" id="stime" min="300" max="1260" step="1" value="${Math.round(simMin)}"></span></label>
       </div>
@@ -1013,6 +1183,20 @@ export async function customer(pid) {
         <label class="chip" style="cursor:pointer;display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="sheat" ${simState.heat ? "checked" : ""} style="margin:0;width:auto">하루 햇빛 시간 겹쳐 보기</label></div>
       <div id="simres"></div>`;
     const kick = () => { clearTimeout(simTimer); simTimer = setTimeout(() => guard(runDaylight)(), 120); };
+    // 주소 → 위도·경도 (서버가 찾는다). 건물 방향을 알면 북쪽도 같이 잡힌다
+    const findAddr = guard(async () => {
+      const q = document.getElementById("addr").value.trim();
+      if (!q) return;
+      const b = document.getElementById("addrGo"); b.disabled = true; b.textContent = "찾는 중…";
+      try {
+        project = await put(`/api/projects/${pid}/site`, { address: q });
+        sunPath = { key: null, pts: null };
+        toast("주소 위치로 채광을 다시 계산했어요");
+        draw(); await daylightCtl();
+      } finally { const x = document.getElementById("addrGo"); if (x) { x.disabled = false; x.textContent = "찾기"; } }
+    });
+    document.getElementById("addrGo").onclick = findAddr;
+    document.getElementById("addr").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); findAddr(); } };
     document.getElementById("region").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { region: e.target.value }); kick(); });
     document.getElementById("north").oninput = (e) => {
       document.getElementById("nv").textContent = `${e.target.value}°`;
@@ -1062,18 +1246,23 @@ export async function customer(pid) {
   const runWifi = async () => {
     const box = document.getElementById("simres");
     const rt = project.scene_state.router;
-    if (!rt) { setOverlay(""); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
+    if (!rt) { setOverlay(""); viewer.setRouter(null); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
     const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
     const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
     const [x0, y0] = g.origin, c = g.cell_m, cells = [];
     g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.28"/>`); }));
-    const [rx, ry] = g.router, r = pv.sw(9);
-    setOverlay(cells.join("") + `<g class="router"><circle cx="${rx}" cy="${ry}" r="${r}" style="stroke-width:${pv.sw(2)}px"/><text x="${rx}" y="${ry}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">📶</text></g>`);
+    const [rx, ry] = g.router;
+    // 평면도에는 실제 크기 윗면 기호(본체 + 안테나 4개), 3D에는 실제 공유기 모델
+    const yawDeg = ((rt.yaw_rad ?? 0) * 180) / Math.PI;
+    const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
+    setOverlay(cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
+    viewer.setRouter(rt);
     const pct = (v) => `${Math.round((v || 0) * 100)}%`;
     box.innerHTML = `
       <p style="margin:0 0 6px">${["good", "ok", "weak"].map((k) => `<span class="badge" style="background:${WCOLOR[k]}22;color:${WCOLOR[k]}">${WLABEL[k]} ${pct(g.share[k])}</span>`).join(" ")} · 가장 약한 곳 <b>${g.min_dbm} dBm</b></p>
       ${g.zones.length ? `<ul class="reasons">${g.zones.map((z) => `<li>${esc(z.name)}: ${z.min_dbm == null ? "영역 안 칸 없음" : `가장 약한 곳 ${z.min_dbm} dBm · 약함 ${pct(z.share.weak)}`}</li>`).join("")}</ul>` : `<p class="muted" style="font-size:12px;margin:0">영역을 그리면 영역별 요약도 보여 드려요.</p>`}
-      <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
+      <p class="muted" style="font-size:12px;margin:6px 0 0">3D에서 공유기를 누르면 집어 들어요. 옮기거나 R로 돌려 내려놓으면 다시 계산해요.</p>
+      <details class="sim-notes"><summary>참고 사항</summary>공유기 모델: TP-Link Archer AX55 공개 치수 261.1×134.5×41 mm · 참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
   };
   const wifiCtl = async () => {
     document.getElementById("simctl").innerHTML = `
@@ -1099,15 +1288,24 @@ export async function customer(pid) {
     const box = document.getElementById("simres");
     const f = await api(`/api/projects/${pid}/sim/flow`);
     const parts = [];
-    const lw = pv.sw(3);
+    const lw = pv.sw(2);
+    const paths = [];
     for (const [k, r] of Object.entries(f.routes)) {
       if (!r.reachable) continue;
-      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px"/>`);
-      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="${pv.sw(5)}"/>`);
+      paths.push(r.path);
+      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px;stroke-dasharray:${pv.sw(6)} ${pv.sw(5)}"/>`);
+      // 좁은 곳: 바닥에 얇은 빨간 고리 (0.9 m보다 좁음)
+      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
     }
-    if (f.entrance) { const [x, y] = f.entrance.point; parts.push(`<g class="mark"><circle cx="${x}" cy="${y}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚪</text></g>`); }
-    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(`<g class="mark"><circle cx="${v[0]}" cy="${v[1]}" r="${pv.sw(9)}" style="stroke-width:${pv.sw(1.5)}px"/><text x="${v[0]}" y="${v[1]}" text-anchor="middle" dominant-baseline="central" style="font-size:${pv.sw(10)}px">🚰</text></g>`);
+    // 현관·싱크는 바닥에 글자 표시 (그림 문자 대신)
+    const tag = (x, y, t) => {
+      const fs = 0.16, w = fs * 0.95 * t.length + 0.12, h = fs + 0.1;
+      return `<g class="tag"><rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2}"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${fs}px">${t}</text></g>`;
+    };
+    if (f.entrance) parts.push(tag(...f.entrance.point, "현관"));
+    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(tag(v[0], v[1], "싱크"));
     setOverlay(parts.join(""));
+    viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 현관에서 제품 앞까지 걷는다
     const rows = Object.entries(f.routes).map(([k, r]) => {
       const nm = esc(f.names[k] || k);
       if (!r.reachable) return `<li><span class="badge no_fit">못 감</span> ${nm}: 현관에서 갈 길이 막혔어요</li>`;
@@ -1118,7 +1316,7 @@ export async function customer(pid) {
     box.innerHTML = `
       ${rows ? `<ul class="reasons">${rows}</ul>` : `<p class="muted" style="margin:0">제품을 놓으면 현관에서 제품 앞까지 동선을 그려 드려요.</p>`}
       ${t ? `<p style="margin:6px 0 0">주방 작업 삼각형(냉장고·싱크·쿡탑) 합계 <b>${t.perimeter_m} m</b> (${t.legs_m.join(" / ")} m) <span class="badge ${t.ok ? "fit" : "conditional"}">${t.ok ? "권장 범위" : "권장 범위 밖"}</span></p>` : ""}
-      <details class="sim-notes"><summary>참고 사항</summary>빨간 점 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
+      <details class="sim-notes"><summary>참고 사항</summary>걷는 사람 키 170 cm, 보통 걸음 1.3 m/s · 빨간 고리 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
   };
   const flowCtl = async () => {
     document.getElementById("simctl").innerHTML = `
@@ -1135,6 +1333,8 @@ export async function customer(pid) {
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
     if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
+    if (sim !== "wifi") viewer.setRouter(null);
+    if (sim !== "flow") viewer.setWalkers([]);
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
     draw();
     if (SIMS[sim]) await SIMS[sim]();
@@ -1169,6 +1369,7 @@ export async function customer(pid) {
     renderMats();
     renderFinishes();
     renderRecs();
+    syncGuide();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.

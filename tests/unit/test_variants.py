@@ -22,8 +22,8 @@ def by_sku(fams):
 
 def test_lineup_products_group_into_models():
     fams = families(CAT, shapes())
-    assert len(fams) == 39
-    assert sum(len(f["variants"]) for f in fams) == 53
+    assert len(fams) == 267
+    assert sum(len(f["variants"]) for f in fams) == 1150
 
 
 def test_same_body_different_finish_is_one_model():
@@ -39,6 +39,11 @@ def test_same_body_different_finish_is_one_model():
     assert m["RD20KNTR"] is m["RD21ESER"]
     assert m["SC5GMR80S"] is m["SC5MBR80S"] is m["SC5MSR82A"]
     assert m["SS4RHS60E"] is m["SS4RWS60E"]
+    # LGE.COM 전체를 넣은 뒤에도 같은 몸통의 새 SKU는 원래 모델에 붙는다
+    assert m["G646GBB021"] is m["G646GBB031"]
+    assert m["D646GBB021"] is m["D646GBB041"]
+    assert m["Z386GBB221"] is m["Z386GBB281"]
+    assert m["FQ18GV3BK2"] is m["FQ18GV3EK2"]       # 뷰I 3시리즈 베이지·화이트
 
 
 def test_different_size_or_shape_stays_separate():
@@ -52,8 +57,8 @@ def test_different_size_or_shape_stays_separate():
 
 def test_variants_carry_color_material_and_keep_catalog_order():
     f = by_sku(families(CAT, shapes()))["G646GBB031"]
-    assert [v["sku"] for v in f["variants"]] == ["G646GBB031", "G646MEE021", "G646SVV031"]
-    assert [v["material"] for v in f["variants"]] == ["글라스", "메탈", "스톤 (스테인리스)"]
+    assert [v["sku"] for v in f["variants"]][:3] == ["G646GBB031", "G646MEE021", "G646SVV031"]
+    assert [v["material"] for v in f["variants"]][:3] == ["글라스", "메탈", "스톤 (스테인리스)"]
     assert all(v["hex"] and v["color"] for v in f["variants"])
     assert f["family_id"] == "G646GBB031" and f["category"] == "refrigerator"
 
@@ -71,3 +76,17 @@ def test_no_drawing_falls_back_to_size():
     a = {**CAT[0], "sku": "A1"}
     b = {**CAT[0], "sku": "B1", "cmf_options": [{"color": "블랙", "hex_approx": "#000000"}]}
     assert len(families([a, b], {})) == 1
+
+
+def test_variants_carry_install_type_and_lgecom_options():
+    m = by_sku(families(CAT, shapes()))
+    v = next(x for x in m["S834MEE111"]["variants"] if x["sku"] == "S834MEE111")
+    assert v["install_type"] == "freestanding"
+    assert v["options"] == {"kind": "양문형", "doors": "2도어", "door_material": "메탈", "capacity_l": 832}
+    v = next(x for x in m["FX24KNTR"]["variants"] if x["sku"] == "FX24KNTR")
+    assert v["options"]["kind"] == "드럼세탁기" and v["options"]["wash_kg"] == 24
+
+
+def test_washer_door_space_comes_from_lgecom_open_size():
+    p = next(x for x in CAT if x["sku"] == "FX24KNTR")  # 도어 열림 시 700 x 990 x 1,410, 제품 깊이 830
+    assert p["door_swing_mm"] == 1410 - p["product_dims_mm"]["d"]

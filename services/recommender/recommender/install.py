@@ -12,13 +12,13 @@ from typing import Callable, Iterable
 
 from core.models import Product, Room
 
-from .pose import NO_FRONT_USE
+from .fit import FitConfig, front_space
 
 # 급수·배수 연결이 필요한 제품군
 NEEDS_WATER = {"dishwasher", "washer", "wash_tower", "washer_dryer", "water_purifier"}
 # 벽 치수 오차에 따라 결과가 달라지는 이유 → 그 벽을 줄자로 재면 판정이 확실해진다
 MEASURE_CODES = {"tight", "clearance_blocked", "ceiling_tight", "ceiling_low"}
-OWN_LINE = {"front_blocked", "entry_narrow"}
+OWN_LINE = {"front_blocked", "front_space_assumed", "entry_narrow"}
 STATUS = {"fit": "ok", "conditional": "check", "unknown": "check", "no_fit": "blocked"}
 _RANK = {"ok": 0, "site": 0, "check": 1, "blocked": 2}
 
@@ -41,10 +41,14 @@ def _item(room: Room, x: dict, p: Product) -> dict:
         worst = "check"
     checks.append(_line("space", "놓을 자리", worst, " · ".join(r["label"] for r in space)))
 
-    if p.category not in NO_FRONT_USE:
-        blocked = "front_blocked" in by_code
-        checks.append(_line("front", "문 열고 쓰는 앞 공간", "check" if blocked else "ok",
-                            by_code["front_blocked"]["label"] if blocked else ""))
+    front_mm, _ = front_space(p, FitConfig())
+    if front_mm is not None:  # 일반 가전 중 앞으로 문을 여는 것만
+        if "front_blocked" in by_code:
+            checks.append(_line("front", "문 열고 쓰는 앞 공간", "blocked", by_code["front_blocked"]["label"]))
+        elif "front_space_assumed" in by_code:
+            checks.append(_line("front", "문 열고 쓰는 앞 공간", "check", by_code["front_space_assumed"]["label"]))
+        else:
+            checks.append(_line("front", "문 열고 쓰는 앞 공간", "ok"))
 
     need = sorted({r["ref"] for r in reasons if r["code"] in MEASURE_CODES and r.get("ref") in walls
                    and not (walls[r["ref"]].measured and (walls[r["ref"]].measured.length_m or walls[r["ref"]].measured.height_m))})

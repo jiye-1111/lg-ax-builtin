@@ -7,9 +7,7 @@ yaw = 제품 정면이 향하는 방향 (영역 자동 배치·glb와 같은 규
 - 필요 공간(R): 본체 + 양옆·뒤 이격(clearance_mm). 이격이 없으면 0으로 보고 조건부 이하로 제한.
 - 여유(M): R을 마진만큼 사방으로 키운 것.
 장애물(벽·스캔 가구·다른 배치)과 F가 겹치면 불가, R이 겹치면 불가(이격 부족), M만 겹치면 조건부.
-들어가는 것과 쓸 수 있는 것은 다르다. 그래서 두 가지를 더 본다.
-- 앞 사용 공간(U): 본체 앞으로 문을 열고 서서 쓰는 자리. 여기에 무언가 걸리면 조건부.
-- 들여오는 길: 제품의 가장 얇은 쪽이 스캔된 문 폭보다 크면 조건부.
+들여오는 길: 제품의 가장 얇은 쪽이 스캔된 문 폭보다 크면 조건부.
 """
 from __future__ import annotations
 
@@ -20,11 +18,9 @@ from typing import Iterable, Optional, Sequence
 from core.models import Product, Room, Wall
 
 from . import geometry as g
-from .fit import FitConfig, Verdict, worst
+from .fit import FitConfig, Verdict, front_space, worst
 
 DEFAULT_WALL_THICKNESS_M = 0.1
-# 앞에서 문을 열거나 서서 쓰지 않는 제품군 (앞 사용 공간을 보지 않는다)
-NO_FRONT_USE = {"tv", "portable_tv", "air_purifier", "humidifier", "dehumidifier", "vacuum", "air_conditioner"}
 EPS = 1e-6
 
 LABELS = {
@@ -40,10 +36,11 @@ LABELS = {
     "door_blocked": "문이 열리지 않음",
     "door_swing_assumed": "문 열림 범위에 걸침 (반대쪽으로 열린다고 가정)",
     "covers_window": "창을 가림",
-    "front_blocked": "앞이 좁아 문을 다 열거나 서서 쓰기 어려움",
     "entry_narrow": "방 문보다 제품이 커서 들여올 길 확인 필요",
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
+    "front_blocked": "앞쪽 문 열림 공간 부족",
+    "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
 }
 
 
@@ -152,18 +149,6 @@ def _clear(p: Product) -> tuple[float, float, float, bool]:
     return (c.side or 0) / 1000, (c.back or 0) / 1000, (c.top or 0) / 1000, unknown
 
 
-def front_use_rect(p: Product, c: g.Pt, yaw_front: float, w_m: float, d_m: float, cfg: FitConfig) -> Optional[list[g.Pt]]:
-    """본체 앞면에서 앞으로 뻗은 사용 공간. 깊이는 FIT_FRONT_USE_M, 제품에 문 열림 값이 있으면 둘 중 큰 쪽."""
-    if p.category in NO_FRONT_USE:
-        return None
-    depth = max(cfg.front_use_m, (p.door_swing_mm or 0) / 1000)
-    if depth <= 0:
-        return None
-    off = d_m / 2 + depth / 2
-    center = (c[0] + math.cos(yaw_front) * off, c[1] + math.sin(yaw_front) * off)
-    return rect(center, yaw_front - math.pi / 2, w_m, depth)
-
-
 # ---------- snap ----------
 def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Pose:
     """가까운 벽(FIT_SNAP_M 안)이 있으면 제품 등을 그 벽에 붙이고 앞쪽을 방 안으로 돌린다.
@@ -195,8 +180,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     reasons: list[dict] = []
     verdicts: list[Verdict] = []
 
-    def add(code: str, v: Verdict, ref: str | None = None):
-        reasons.append({"code": code, "label": LABELS[code], "ref": ref, "verdict": v.value})
+    def add(code: str, v: Verdict, ref: str | None = None, label: str | None = None):
+        reasons.append({"code": code, "label": label or LABELS[code], "ref": ref, "verdict": v.value})
         verdicts.append(v)
 
     if size is None:
@@ -209,6 +194,9 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
     M = rect(c, yaw, w_m, d_m, left=side + margin, right=side + margin, back=back + margin, front=margin)
+    front_mm, front_assumed = front_space(product, cfg)
+    # 문 열림 공간: 본체 앞면부터 문 열림 깊이만큼 (본체 폭)
+    D = None if front_mm is None else rect(c, yaw, w_m, d_m, back=-d_m, front=front_mm / 1000)
 
     if not inside_room(room, c):
         add("outside_room", Verdict.NO_FIT)
@@ -223,20 +211,15 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd)))
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
-    U = front_use_rect(product, c, pose.yaw_rad, w_m, d_m, cfg)
-    front_ref = None
     for kind, ref, poly in obstacles:
         if overlaps(F, poly):
             add(hit_code[kind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
             add("clearance_blocked", Verdict.NO_FIT, ref)
-        else:
-            if overlaps(M, poly):
-                add("tight", Verdict.CONDITIONAL, ref)
-            if U and front_ref is None and overlaps(U, poly):
-                front_ref = ref
-    if front_ref is not None:  # 걸리는 것이 여럿이어도 한 번만 알린다
-        add("front_blocked", Verdict.CONDITIONAL, front_ref)
+        elif D is not None and overlaps(D, poly):
+            add("front_blocked", Verdict.NO_FIT, ref)
+        elif overlaps(M, poly):
+            add("tight", Verdict.CONDITIONAL, ref)
 
     # 천장: 가장 가까운 벽 높이
     if room.walls:
@@ -270,6 +253,10 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             band = [f.to_world(a, t), f.to_world(b, t), f.to_world(b, t + cfg.snap_m), f.to_world(a, t + cfg.snap_m)]
             if overlaps(R, band):
                 add("covers_window", Verdict.CONDITIONAL, op.opening_id)
+
+    if front_assumed:
+        add("front_space_assumed", Verdict.CONDITIONAL,
+            label=f"문 열림 공간 정보 없음 (앞 {cfg.front_default_mm:.0f} mm로 가정)")
 
     # 들여오는 길: 가장 넓은 문으로도 제품의 가장 얇은 쪽이 못 지나가면 확인 필요
     doors = [op for op in room.openings if op.type in ("door", "opening") and op.width_m > 0]

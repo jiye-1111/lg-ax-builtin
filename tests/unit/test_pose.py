@@ -130,59 +130,49 @@ def test_result_is_serializable():
     assert r["verdict"] == "fit" and len(r["footprint"]) == 4 and r["pose"]["center_xz"] == [2.0, 1.5]
 
 
-# ---------- 앞 사용 공간 · 들여오는 길 ----------
-def chair(x, y, oid="chair1"):
-    return RoomObject(object_id=oid, category="chair", bbox_m=BBox(w=0.4, h=0.8, d=0.4), position=(x, 0.4, y))
-
-
-def tv():
+# ---- 일반(프리스탠딩) 가전: 앞쪽 문 열림 공간 ----
+def washer(door=580, install="freestanding", category="washer"):
     return Product(
-        sku="T-TV", name="테스트 TV", category="tv", zone_fit=["living"], install_type="freestanding",
-        product_dims_mm=Dims(w=900, h=600, d=200), clearance_mm=Clearance(side=5, top=10, back=50),
-        source_url=None, source_checked_at=None, demo_only=True,
+        sku="T-WM", name="테스트 세탁기", category=category, zone_fit=["laundry"], install_type=install,
+        product_dims_mm=Dims(w=700, h=990, d=830), clearance_mm=Clearance(side=5, top=10, back=50),
+        door_swing_mm=door, source_url=None, source_checked_at=None, demo_only=True,
     )
 
 
-def test_furniture_in_front_use_space_is_conditional():
-    # 정면이 +x. 본체 앞면 x=2.35, 앞 사용 공간 0.6 m 안(x=2.6)에 의자
-    r = check_pose(room(objects=[chair(2.6, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG)
-    assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"front_blocked"}
-    assert [x["ref"] for x in r.reasons] == ["chair1"]
+TABLE = RoomObject(object_id="t1", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.5), position=(2.0, 0.375, 1.3))
+AT_WALL = Pose((2.0, 0.05 + 0.05 + 0.03 + 0.415), UP)  # 등이 벽 w1, 앞면 y=0.96
 
 
-def test_furniture_beyond_front_use_space_is_fit():
-    r = check_pose(room(objects=[chair(3.3, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG)
-    assert r.verdict == Verdict.FIT
+def test_freestanding_with_room_to_open_door_is_fit():
+    r = check_pose(room(), washer(), AT_WALL, CFG)
+    assert r.verdict == Verdict.FIT and not r.reasons
 
 
-def test_front_blocked_is_reported_once():
-    objs = [chair(2.6, 1.3, "c1"), chair(2.6, 1.7, "c2")]
-    r = check_pose(room(objects=objs), fridge(), Pose((2.0, 1.5), 0.0), CFG)
-    assert [x["code"] for x in r.reasons] == ["front_blocked"]
+def test_freestanding_door_space_blocked_is_no_fit():
+    # 문 열림 580mm → 앞면에서 y=1.54까지 필요한데 테이블이 y=1.05부터 있음
+    r = check_pose(room(objects=[TABLE]), washer(), AT_WALL, CFG)
+    assert r.verdict == Verdict.NO_FIT and "front_blocked" in codes(r)
 
 
-def test_wall_in_front_use_space_is_conditional():
-    # 정면이 벽 w2(x=4) 쪽, 앞면 x=3.6 → 벽 안쪽 면까지 0.35 m
-    r = check_pose(room(), fridge(), Pose((3.25, 1.5), 0.0), CFG)
-    assert r.verdict == Verdict.CONDITIONAL and "front_blocked" in codes(r)
+def test_built_in_ignores_front_door_space():
+    r = check_pose(room(objects=[TABLE]), washer(install="built_in"), AT_WALL, CFG)
+    assert "front_blocked" not in codes(r) and r.verdict == Verdict.FIT
 
 
-def test_hidden_furniture_does_not_block_front():
-    r = check_pose(room(objects=[chair(2.6, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG, hidden=["chair1"])
-    assert r.verdict == Verdict.FIT
+def test_freestanding_door_space_unknown_uses_default_and_is_conditional():
+    cfg = FitConfig(margin_scanned_mm=30, margin_measured_mm=5, front_default_mm=600)
+    r = check_pose(room(), washer(door=None, category="refrigerator"), AT_WALL, cfg)
+    assert r.verdict == Verdict.CONDITIONAL and "front_space_assumed" in codes(r)
+    r = check_pose(room(objects=[TABLE]), washer(door=None, category="refrigerator"), AT_WALL, cfg)
+    assert r.verdict == Verdict.NO_FIT and "front_blocked" in codes(r)
 
 
-def test_door_swing_widens_front_use_space():
-    p = fridge().model_copy(update={"door_swing_mm": 900})
-    r = check_pose(room(objects=[chair(3.1, 1.5)]), p, Pose((2.0, 1.5), 0.0), CFG)  # 앞면에서 0.55~0.95 m
-    assert "front_blocked" in codes(r)
+def test_doorless_freestanding_needs_no_front_space():
+    r = check_pose(room(objects=[TABLE]), washer(door=None, category="tv"), AT_WALL, CFG)
+    assert r.verdict == Verdict.FIT and not r.reasons
 
 
-def test_products_without_front_door_skip_front_use_space():
-    r = check_pose(room(objects=[chair(2.4, 1.5)]), tv(), Pose((2.0, 1.5), 0.0), CFG)
-    assert "front_blocked" not in codes(r)
-
-
+# ---- 들여오는 길: 방 문 폭 ----
 def door(width, oid="d1"):
     return Opening(opening_id=oid, type="door", wall_id="w3", offset_m=0.2, width_m=width, height_m=2.0)
 

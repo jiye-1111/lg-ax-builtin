@@ -1,0 +1,94 @@
+{
+ "sku": "MLJ39ER",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/mlj39er.akor_2p.jpg (폭 540, 높이 325, 깊이 523, 비스듬한 사진). 검정 본체, 앞면 위쪽 검정 유리(창 + 오른쪽 조작부·다이얼), 아래쪽 베이지 판, 발. 나눔 위치는 사진 비율 근사값",
+ "front": {
+  "w": 540,
+  "h": 325,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 540,
+    "h": 310
+   },
+   {
+    "name": "display/upper_glass",
+    "x": 0,
+    "y": 0,
+    "w": 540,
+    "h": 192
+   },
+   {
+    "name": "chrome/knob",
+    "x": 452,
+    "y": 114,
+    "w": 26,
+    "h": 26,
+    "shape": "circle"
+   },
+   {
+    "name": "door/0_lower_panel",
+    "x": 0,
+    "y": 192,
+    "w": 540,
+    "h": 118
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 25,
+    "y": 310,
+    "w": 30,
+    "h": 15
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 485,
+    "y": 310,
+    "w": 30,
+    "h": 15
+   }
+  ]
+ },
+ "side": {
+  "w": 523,
+  "h": 325,
+  "parts": [
+   {
+    "name": "chrome/knob",
+    "x": 0,
+    "y": 114,
+    "w": 6,
+    "h": 26
+   },
+   {
+    "name": "door/side",
+    "x": 6,
+    "y": 0,
+    "w": 14,
+    "h": 310
+   },
+   {
+    "name": "body",
+    "x": 20,
+    "y": 0,
+    "w": 503,
+    "h": 310
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "카밍 베이지 (외관: 블랙)",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#232325",
+   "from": "치수도 이미지 본체가 검정"
+  }
+ }
+}

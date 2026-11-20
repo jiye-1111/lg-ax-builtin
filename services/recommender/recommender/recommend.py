@@ -15,6 +15,8 @@ def recommend_zone(room: Room, zone: Zone, products: list[Product], cfg: FitConf
     for p in products:
         if zone.purpose not in p.zone_fit:
             continue
+        if not p.demo_only and p.sale_status not in ("ACTIVE", "SOLD_OUT"):  # LGE.COM에서 파는 제품만 추천한다
+            continue
         fit = check_fit(room, zone, p, cfg)
         if fit.verdict == Verdict.NO_FIT and not include_no_fit:
             continue

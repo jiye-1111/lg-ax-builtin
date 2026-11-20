@@ -58,6 +58,6 @@ def test_remodel_has_install_request_and_before_view():
     remodel = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     pages = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
     assert "export function installRequestBox" in pages and "/install-request" in pages
-    assert 'id="irBox"' in remodel
+    assert 'id="irBox"' in remodel and "installRequestBox(irBox" in remodel
     # 처음 모습: 스캔 그대로의 장면을 따로 받아 겹쳐 보여 준다
     assert 'id="beforeBtn"' in remodel and "/files/before.glb" in remodel

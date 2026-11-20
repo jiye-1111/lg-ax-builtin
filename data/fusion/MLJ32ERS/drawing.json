@@ -1,0 +1,87 @@
+{
+ "sku": "MLJ32ERS",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/mlj32ers.akor_2p.jpg (폭 527, 높이 394, 깊이 480, 비스듬한 사진). 검정 본체, 앞면 위쪽은 검정 유리(조작부·창), 아래쪽은 베이지 판, 다이얼 1개. 나눔 위치는 사진 비율 근사값",
+ "colors": {
+  "door": {
+   "name": "카밍 베이지 (외관: 블랙)",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지 아래 판"
+  },
+  "body": {
+   "hex_approx": "#232325",
+   "from": "치수도 이미지 본체가 검정"
+  }
+ },
+ "front": {
+  "w": 527,
+  "h": 394,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 527,
+    "h": 374
+   },
+   {
+    "name": "display/upper_glass",
+    "x": 0,
+    "y": 0,
+    "w": 527,
+    "h": 204
+   },
+   {
+    "name": "chrome/knob",
+    "x": 281.5,
+    "y": 44,
+    "w": 28,
+    "h": 28,
+    "shape": "circle"
+   },
+   {
+    "name": "door/0_lower_panel",
+    "x": 0,
+    "y": 204,
+    "w": 527,
+    "h": 165
+   },
+   {
+    "name": "vent/base",
+    "x": 13.5,
+    "y": 374,
+    "w": 500,
+    "h": 20
+   }
+  ]
+ },
+ "side": {
+  "w": 480,
+  "h": 394,
+  "parts": [
+   {
+    "name": "chrome/knob",
+    "x": 0,
+    "y": 44,
+    "w": 6,
+    "h": 28
+   },
+   {
+    "name": "door/side",
+    "x": 6,
+    "y": 0,
+    "w": 14,
+    "h": 369
+   },
+   {
+    "name": "body",
+    "x": 20,
+    "y": 0,
+    "w": 460,
+    "h": 374
+   }
+  ]
+ }
+}

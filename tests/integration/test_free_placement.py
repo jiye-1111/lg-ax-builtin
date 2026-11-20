@@ -153,7 +153,8 @@ def test_install_check_lists_placed_products(c, pid):
     it = out["items"][0]
     assert it["placement_id"] == pl["placement_id"] and it["dims_mm"]["w"] == 914
     codes = [x["code"] for x in it["checks"]]
-    assert codes[0] == "space" and "front" in codes and "power" in codes and "carry" in codes
+    assert codes[0] == "space" and "power" in codes and "carry" in codes  # 빌트인 핏이라 앞 공간 줄은 없다
+    assert "front" not in codes
     assert it["status"] == {"fit": "ok", "conditional": "check", "no_fit": "blocked"}[pl["verdict"]]
     assert c.get("/api/projects/none/install-check").status_code == 404
 

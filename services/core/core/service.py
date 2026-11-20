@@ -753,18 +753,39 @@ class Service:
         return self._rebuild(pid)
 
     # ---- 살아 보기: 집 위치·방향 (S6~S8) ----
-    def set_site(self, pid: str, north_deg: float | None = None, region: str | None = None) -> dict:
-        """north_deg: 평면도 위쪽에서 북쪽까지 시계 방향 각도. region: 시·도 (채광용 위도·경도)."""
+    def set_site(self, pid: str, north_deg: float | None = None, region: str | None = None,
+                 address: str | None = None, auto_north: bool = False) -> dict:
+        """north_deg: 평면도 위쪽에서 북쪽까지 시계 방향 각도. region: 시·도 (채광용 위도·경도).
+        address: 주소로 위도·경도를 찾고, 건물 외곽선이 있으면 그 방향으로 북쪽도 잡는다.
+        auto_north: 북쪽을 추정한다 (가장 큰 창이 남쪽을 본다고 가정). 스캔에는 나침반 정보가 없다."""
+        from sim.orientation import estimate_north
+
         p = self.get_project(pid)
         site = dict(p.get("site") or {"region": "서울", **REGIONS["서울"]})
-        if north_deg is not None:
-            if not 0 <= north_deg < 360:
-                raise Invalid("north_deg는 0 이상 360 미만")
-            site["north_deg"] = float(north_deg)
         if region is not None:
             if region not in REGIONS:
                 raise Invalid(f"지역은 {', '.join(REGIONS)} 중 하나")
             site.update(region=region, **REGIONS[region])
+            site.pop("address", None)
+            site.pop("axis_deg", None)
+        if address is not None:
+            from sim.geocode import GeocodeError, geocode
+
+            try:
+                g = geocode(address)
+            except GeocodeError as e:
+                raise Invalid(str(e)) from e
+            near = min(REGIONS, key=lambda k: (REGIONS[k]["lat"] - g["lat"]) ** 2 + (REGIONS[k]["lon"] - g["lon"]) ** 2)
+            site.update(region=near, lat=g["lat"], lon=g["lon"], address=g["address"], axis_deg=g["axis_deg"])
+            auto_north = True
+        if auto_north and north_deg is None:
+            est = estimate_north(self.get_room(pid), site.get("axis_deg"))
+            if est:
+                site.update(north_deg=est["north_deg"], north_basis=est["basis"])
+        if north_deg is not None:
+            if not 0 <= north_deg < 360:
+                raise Invalid("north_deg는 0 이상 360 미만")
+            site.update(north_deg=float(north_deg), north_basis="manual")
         p["site"] = site
         return self._save_project(p)
 
@@ -791,6 +812,7 @@ class Service:
         """그 시각 해(3D 빛 방향·색·세기)와 볕 드는 자리. heatmap=False면 하루 직사광 격자를 건너뛴다(시간 슬라이더용).
         path=True면 하루 해 경로(5분 간격)도 준다: 화면이 시각 사이를 이어 그려 채광이 부드럽게 바뀐다."""
         from sim.daylight import daily_sun_hours, sun_light, sun_patches, sun_path
+        from sim.orientation import window_facings
 
         p = self.get_project(pid)
         s, d, when = self._sun_site(p, day, time)
@@ -803,6 +825,7 @@ class Service:
                 "sun": sun_light(s, when),
                 "patches": [{**x, "polygon": [[round(a, 3), round(b, 3)] for a, b in x["polygon"]]} for x in sun_patches(room, s, when)],
                 "path": sun_path(s, d) if path else None,
+                "facings": window_facings(room, site["north_deg"]),
                 "daily": daily, "assumptions": notes + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
     # ---- 살아 보기: 와이파이 (S7) ----
@@ -821,13 +844,16 @@ class Service:
                 out.append(rect(tuple(x["center_xz"]), x["yaw_rad"] - _m.pi / 2, x["size_m"][0], x["size_m"][2]))
         return out
 
-    def set_router(self, pid: str, center_xz, band: str = "5") -> dict:
+    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None) -> dict:
         if band not in ("2.4", "5"):
             raise Invalid("band는 2.4 또는 5")
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
         p = self.get_project(pid)
-        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band}
+        prev = p["scene_state"].get("router") or {}
+        # 방향은 화면 표시용 (신호 계산은 무지향). 자리만 옮기면 원래 방향을 그대로 둔다
+        yaw = float(yaw_rad) if yaw_rad is not None else float(prev.get("yaw_rad", 0.0))
+        p["scene_state"]["router"] = {"center_xz": [float(center_xz[0]), float(center_xz[1])], "band": band, "yaw_rad": yaw}
         return self._save_project(p)
 
     def wifi(self, pid: str, band: str | None = None) -> dict:

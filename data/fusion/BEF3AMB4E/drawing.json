@@ -1,0 +1,80 @@
+{
+ "sku": "BEF3AMB4E",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/bef3amb4.akor_2p.jpg (가로 575, 세로 515, 두께 59). 검정 글라스 상판, 화구 표시 선 3개(왼쪽 와이드존 앞·뒤, 오른쪽), 앞쪽 터치 조작부. 위치는 사진 비율 근사값",
+ "colors": {
+  "top": {
+   "name": "블랙",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#D9D9D6",
+   "from": "치수도 이미지 하우징이 밝은 회색"
+  }
+ },
+ "top": {
+  "w": 575,
+  "h": 515,
+  "parts": [
+   {
+    "name": "top/glass",
+    "x": 0,
+    "y": 0,
+    "w": 575,
+    "h": 515
+   },
+   {
+    "name": "print/zone_left_back",
+    "x": 28,
+    "y": 206,
+    "w": 220,
+    "h": 2.5
+   },
+   {
+    "name": "print/zone_left_front",
+    "x": 28,
+    "y": 346,
+    "w": 220,
+    "h": 2.5
+   },
+   {
+    "name": "print/zone_right",
+    "x": 347,
+    "y": 206,
+    "w": 200,
+    "h": 2.5
+   },
+   {
+    "name": "print/controls",
+    "x": 167,
+    "y": 472,
+    "w": 300,
+    "h": 2,
+    "note": "앞쪽 터치 조작부 줄"
+   }
+  ]
+ },
+ "side": {
+  "w": 515,
+  "h": 59,
+  "parts": [
+   {
+    "name": "top/glass",
+    "x": 0,
+    "y": 0,
+    "w": 515,
+    "h": 6
+   },
+   {
+    "name": "body/housing",
+    "x": 15,
+    "y": 6,
+    "w": 475,
+    "h": 53
+   }
+  ]
+ }
+}

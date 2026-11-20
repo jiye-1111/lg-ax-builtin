@@ -1,0 +1,74 @@
+{
+ "sku": "AS356NSMA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/as356nsma.akor_2p.jpg (지름 377, 높이 1100). 위·아래 원통 2단(패브릭 느낌 베이지), 가운데 얇은 틈, 위 크림색 뚜껑",
+ "front": {
+  "w": 377,
+  "h": 1100,
+  "parts": [
+   {
+    "name": "panel/cap",
+    "x": 0,
+    "y": 0,
+    "w": 377,
+    "h": 90,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/ring",
+    "x": 8.5,
+    "y": 90,
+    "w": 360,
+    "h": 10,
+    "shape": "circle"
+   },
+   {
+    "name": "door/upper",
+    "x": 0,
+    "y": 100,
+    "w": 377,
+    "h": 485,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/gap",
+    "x": 8.5,
+    "y": 585,
+    "w": 360,
+    "h": 15,
+    "shape": "circle"
+   },
+   {
+    "name": "door/lower",
+    "x": 0,
+    "y": 600,
+    "w": 377,
+    "h": 480,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/base",
+    "x": 8.5,
+    "y": 1080,
+    "w": 360,
+    "h": 20,
+    "shape": "circle"
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "카밍 베이지",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지",
+   "texture": "fabric"
+  },
+  "panel": {
+   "name": "뚜껑 크림색",
+   "hex_approx": "#F1ECE3",
+   "from": "치수도 이미지 뚜껑"
+  }
+ }
+}

@@ -1,0 +1,19 @@
+{
+ "sku": "SC5MSR82A",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/sc5msr82a.akor_2p.jpg (폭 600, 높이 1965, 깊이 620) — 구성은 SC5GMR80S와 같고 본체 옆면이 흰색",
+ "geometry_from": "SC5GMR80S",
+ "colors": {
+  "door": {
+   "name": "에센스 화이트",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#EDEEEE",
+   "from": "치수도 측면 이미지가 흰색"
+  }
+ }
+}

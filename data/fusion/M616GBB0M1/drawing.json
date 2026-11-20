@@ -1,0 +1,25 @@
+{
+ "sku": "M616GBB0M1",
+ "unit": "mm",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/m616gbb0m1.akor_2p.jpg (폭 914, 높이 1860, 깊이 698, 후면 핸들 없음). 정면 문 나눔은 G646GBB031과 같은 픽셀 위치. 측면은 앞 약 250mm만 1860 높이이고 그 뒤 본체 윗면이 약 104mm 낮음 (치수도 픽셀 비율로 잰 값)",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "colors": {
+  "door": {"name": "오브제컬렉션 베이지", "material": "글라스", "hex_approx": "#F2EEE9", "from": "카탈로그 cmf_options + 치수도 이미지"},
+  "body": {"hex_approx": "#2B2B2D", "from": "치수도 측면 이미지가 검정"}
+ },
+ "front": {"w": 914, "h": 1860, "parts": [
+  {"name": "body", "x": 0, "y": 0, "w": 914, "h": 1860},
+  {"name": "door/0", "x": 1.5, "y": 0, "w": 451.5, "h": 993},
+  {"name": "door/1", "x": 461, "y": 0, "w": 451.5, "h": 993},
+  {"name": "trim/grip_groove", "x": 2, "y": 993, "w": 910, "h": 50},
+  {"name": "door/2", "x": 1.5, "y": 1043, "w": 451.5, "h": 777},
+  {"name": "door/3", "x": 461, "y": 1043, "w": 451.5, "h": 777},
+  {"name": "vent/plinth", "x": 17, "y": 1820, "w": 880, "h": 40}
+ ]},
+ "side": {"w": 698, "h": 1860, "parts": [
+  {"name": "door/side", "x": 0, "y": 0, "w": 50, "h": 1820},
+  {"name": "body/front", "x": 50, "y": 0, "w": 200, "h": 1860},
+  {"name": "body/rear", "x": 250, "y": 104, "w": 448, "h": 1756}
+ ]}
+}

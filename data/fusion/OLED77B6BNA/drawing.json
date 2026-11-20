@@ -1,0 +1,68 @@
+{
+ "sku": "OLED77B6BNA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/OLED77B6SS.AKRG_2p.jpg (스탠드: 폭 1719, 높이 1057(화면 989), 화면 두께 50.9, 받침 폭 1390·깊이 268)",
+ "front": {
+  "w": 1719,
+  "h": 1057,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 0,
+    "y": 0,
+    "w": 1719,
+    "h": 989
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 164.5,
+    "y": 989,
+    "w": 30,
+    "h": 68
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 1524.5,
+    "y": 989,
+    "w": 30,
+    "h": 68
+   }
+  ]
+ },
+ "side": {
+  "w": 268,
+  "h": 1057,
+  "parts": [
+   {
+    "name": "display/screen",
+    "x": 108.5,
+    "y": 0,
+    "w": 6,
+    "h": 989
+   },
+   {
+    "name": "door/rear_housing",
+    "x": 114.5,
+    "y": 477,
+    "w": 45,
+    "h": 500
+   },
+   {
+    "name": "trim/foot",
+    "x": 0,
+    "y": 989,
+    "w": 268,
+    "h": 68
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "블랙",
+   "material": null,
+   "from": "카탈로그 cmf_options (화면 뒤 몸체·받침 색)"
+  }
+ }
+}

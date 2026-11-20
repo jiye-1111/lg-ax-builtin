@@ -1,0 +1,19 @@
+{
+ "sku": "SC5MBR80S",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/sc5mbr80s_2p.jpg — 치수도 확인함: SC5GMR80S와 같은 구성(왼쪽 검정 조작부 띠, 어두운 본체), 문 색만 샌드 베이지",
+ "geometry_from": "SC5GMR80S",
+ "colors": {
+  "door": {
+   "name": "샌드 베이지",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2A2B2E",
+   "from": "치수도 측면 이미지가 어두운 회색"
+  }
+ }
+}

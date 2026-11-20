@@ -476,6 +476,9879 @@
     "h": 1100.0,
     "d": 245.0
    }
+  },
+  "S834MEE111": {
+   "file": "S834MEE111.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "T873MEE111": {
+   "file": "T873MEE111.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "S834MTE011": {
+   "file": "S834MTE011.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "Q405MEE133": {
+   "file": "Q405MEE133.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "D646MEE021": {
+   "file": "D646MEE021.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "S836MDS002": {
+   "file": "S836MDS002.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "D646SLL041": {
+   "file": "D646SLL041.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "M336DS123": {
+   "file": "M336DS123.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "G646GBB341": {
+   "file": "G646GBB341.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "Q336MQQ171": {
+   "file": "Q336MQQ171.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "M876GBB231": {
+   "file": "M876GBB231.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "S836P012": {
+   "file": "S836P012.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "M336MB122": {
+   "file": "M336MB122.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "Q336MEE133": {
+   "file": "Q336MEE133.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "G646SLL031": {
+   "file": "G646SLL031.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "T876MQQ011": {
+   "file": "T876MQQ011.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "D604MPS52": {
+   "file": "D604MPS52.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 831.0,
+    "h": 1860.0,
+    "d": 741.0
+   }
+  },
+  "B312W31": {
+   "file": "B312W31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "M451PS53": {
+   "file": "M451PS53.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 705.0,
+    "h": 1850.0,
+    "d": 740.0
+   }
+  },
+  "B245W22": {
+   "file": "B245W22.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 555.0,
+    "h": 1573.0,
+    "d": 637.0
+   }
+  },
+  "S656P003": {
+   "file": "S656P003.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 735.0
+   }
+  },
+  "S656GBB143": {
+   "file": "S656GBB143.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 735.0
+   }
+  },
+  "G646MEE032": {
+   "file": "G646MEE032.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "B502S53": {
+   "file": "B502S53.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 780.0,
+    "h": 1800.0,
+    "d": 730.0
+   }
+  },
+  "S656MQQ143": {
+   "file": "S656MQQ143.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 735.0
+   }
+  },
+  "M876GQQ231": {
+   "file": "M876GQQ231.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "Q342GBB133": {
+   "file": "Q342GBB133.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 676.0
+   }
+  },
+  "S836MRQ112": {
+   "file": "S836MRQ112.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "A202S": {
+   "file": "A202S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1383.0,
+    "d": 629.0
+   }
+  },
+  "M344MB14": {
+   "file": "M344MB14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 682.0
+   }
+  },
+  "M516GBB012S": {
+   "file": "M516GBB012S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "B124S14": {
+   "file": "B124S14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 475.0,
+    "h": 1170.0,
+    "d": 487.0
+   }
+  },
+  "D315MHH31": {
+   "file": "D315MHH31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "M301S31": {
+   "file": "M301S31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1720.0,
+    "d": 677.0
+   }
+  },
+  "G646SVV091": {
+   "file": "G646SVV091.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "M402ND": {
+   "file": "M402ND.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1793.0,
+    "d": 735.0
+   }
+  },
+  "F904ND79E": {
+   "file": "F904ND79E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 912.0,
+    "h": 1784.0,
+    "d": 929.0
+   }
+  },
+  "B182W13": {
+   "file": "B182W13.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 555.0,
+    "h": 1400.0,
+    "d": 585.0
+   }
+  },
+  "M876GGA231": {
+   "file": "M876GGA231.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "Q405MQQ153": {
+   "file": "Q405MQQ153.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "M876SVV582S": {
+   "file": "M876SVV582S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "S836MQQ142": {
+   "file": "S836MQQ142.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "B103S14": {
+   "file": "B103S14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 463.0,
+    "h": 820.0,
+    "d": 482.0
+   }
+  },
+  "S836MQQ152": {
+   "file": "S836MQQ152.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "M516MQQ012S": {
+   "file": "M516MQQ012S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "S836GBB172": {
+   "file": "S836GBB172.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "B332S34": {
+   "file": "B332S34.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1720.0,
+    "d": 710.0
+   }
+  },
+  "M516SVV012S": {
+   "file": "M516SVV012S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Q343GIC183S": {
+   "file": "Q343GIC183S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 676.0
+   }
+  },
+  "D315MPS31": {
+   "file": "D315MPS31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "B053S14": {
+   "file": "B053S14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 443.0,
+    "h": 501.0,
+    "d": 450.0
+   }
+  },
+  "B312DS31": {
+   "file": "B312DS31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "T875MHH141": {
+   "file": "T875MHH141.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "D463MRR33": {
+   "file": "D463MRR33.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1845.0,
+    "d": 725.0
+   }
+  },
+  "DF165ME": {
+   "file": "DF165ME.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 530.0,
+    "h": 1300.0,
+    "d": 600.0
+   }
+  },
+  "D502MEE33": {
+   "file": "D502MEE33.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 780.0,
+    "h": 1800.0,
+    "d": 730.0
+   }
+  },
+  "D215MHH13": {
+   "file": "D215MHH13.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 555.0,
+    "h": 1445.0,
+    "d": 637.0
+   }
+  },
+  "M516SGS012S": {
+   "file": "M516SGS012S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "D332MBE34": {
+   "file": "D332MBE34.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1720.0,
+    "d": 710.0
+   }
+  },
+  "D312MBE31": {
+   "file": "D312MBE31.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "DL195ME": {
+   "file": "DL195ME.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 525.0,
+    "h": 1295.0,
+    "d": 555.0
+   }
+  },
+  "D265MEE22": {
+   "file": "D265MEE22.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 555.0,
+    "h": 1680.0,
+    "d": 637.0
+   }
+  },
+  "F858SI14": {
+   "file": "F858SI14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 908.0,
+    "h": 1785.0,
+    "d": 937.0
+   }
+  },
+  "F756SI014": {
+   "file": "F756SI014.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 908.0,
+    "h": 1785.0,
+    "d": 802.0
+   }
+  },
+  "D502MEE53": {
+   "file": "D502MEE53.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 780.0,
+    "h": 1800.0,
+    "d": 730.0
+   }
+  },
+  "M876GNN3A1": {
+   "file": "M876GNN3A1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1865.0,
+    "d": 880.0
+   }
+  },
+  "W826SVV492S": {
+   "file": "W826SVV492S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1866.0,
+    "d": 918.0
+   }
+  },
+  "W826MQQ492S": {
+   "file": "W826MQQ492S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1866.0,
+    "d": 918.0
+   }
+  },
+  "W826GBB492": {
+   "file": "W826GBB492.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1866.0,
+    "d": 918.0
+   }
+  },
+  "M616MQQ0M1": {
+   "file": "M616MQQ0M1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 698.0
+   }
+  },
+  "J825MEE042": {
+   "file": "J825MEE042.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1792.0,
+    "d": 918.0
+   }
+  },
+  "M875SKV282S": {
+   "file": "M875SKV282S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M875MHH282S": {
+   "file": "M875MHH282S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M874SGS1C1S": {
+   "file": "M874SGS1C1S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M622MGB352S": {
+   "file": "M622MGB352S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 698.0
+   }
+  },
+  "M622GCB352S": {
+   "file": "M622GCB352S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 698.0
+   }
+  },
+  "Z330MRRF21": {
+   "file": "Z330MRRF21.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 1787.0,
+    "d": 737.0
+   }
+  },
+  "Z330MEEF11": {
+   "file": "Z330MEEF11.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 1787.0,
+    "d": 737.0
+   }
+  },
+  "Z330MQQF21": {
+   "file": "Z330MQQF21.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 1787.0,
+    "d": 737.0
+   }
+  },
+  "Z386SVV281": {
+   "file": "Z386SVV281.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386GBB221": {
+   "file": "Z386GBB221.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386MQQ221": {
+   "file": "Z386MQQ221.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386SLL261": {
+   "file": "Z386SLL261.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z490MPSF11": {
+   "file": "Z490MPSF11.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1795.0,
+    "d": 838.0
+   }
+  },
+  "Z490MEEF12": {
+   "file": "Z490MEEF12.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1795.0,
+    "d": 838.0
+   }
+  },
+  "K225MB131": {
+   "file": "K225MB131.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "K220S111": {
+   "file": "K220S111.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "K225LW121": {
+   "file": "K225LW121.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "Z495GBB271": {
+   "file": "Z495GBB271.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495SVV271": {
+   "file": "Z495SVV271.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495MQQ261": {
+   "file": "Z495MQQ261.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z135MEE123": {
+   "file": "Z135MEE123.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 900.0,
+    "d": 612.0
+   }
+  },
+  "Z225MEE151": {
+   "file": "Z225MEE151.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "K135LW123": {
+   "file": "K135LW123.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 900.0,
+    "d": 612.0
+   }
+  },
+  "Z484GBB173": {
+   "file": "Z484GBB173.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z484GQQ123S": {
+   "file": "Z484GQQ123S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z484SVV123S": {
+   "file": "Z484SVV123S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z484SGS123S": {
+   "file": "Z484SGS123S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z509MPSF13": {
+   "file": "Z509MPSF13.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1787.0,
+    "d": 730.0
+   }
+  },
+  "Z509MEEF33": {
+   "file": "Z509MEEF33.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1787.0,
+    "d": 730.0
+   }
+  },
+  "Z509MHHF23": {
+   "file": "Z509MHHF23.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1787.0,
+    "d": 730.0
+   }
+  },
+  "Z403MEEF53": {
+   "file": "Z403MEEF53.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 750.0,
+    "h": 1787.0,
+    "d": 795.0
+   }
+  },
+  "Z408MPSF13": {
+   "file": "Z408MPSF13.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 750.0,
+    "h": 1787.0,
+    "d": 795.0
+   }
+  },
+  "Z334SGS171": {
+   "file": "Z334SGS171.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z334GBB122": {
+   "file": "Z334GBB122.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 666.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "W0812GG": {
+   "file": "W0812GG.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1488.0,
+    "d": 585.0
+   }
+  },
+  "W0772GB": {
+   "file": "W0772GB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1198.0,
+    "d": 580.0
+   }
+  },
+  "W400ND": {
+   "file": "W400ND.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1793.0,
+    "d": 735.0
+   }
+  },
+  "W087B": {
+   "file": "W087B.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 282.0,
+    "h": 497.0,
+    "d": 534.0
+   }
+  },
+  "DUE6BGL2E": {
+   "file": "DUE6BGL2E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE5MBL2E": {
+   "file": "DUE5MBL2E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6PFL3E": {
+   "file": "DUE6PFL3E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6GLHE": {
+   "file": "DUE6GLHE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DFE5BGE": {
+   "file": "DFE5BGE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 845.0,
+    "d": 600.0
+   }
+  },
+  "DUB61TBE": {
+   "file": "DUB61TBE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "WD520MH": {
+   "file": "WD520MH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 132.0,
+    "h": 363.0,
+    "d": 425.0
+   }
+  },
+  "WD523AWB": {
+   "file": "WD523AWB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD523VCT": {
+   "file": "WD523VCT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD520VHT": {
+   "file": "WD520VHT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WU923AS": {
+   "file": "WU923AS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 420.0,
+    "d": 410.0
+   }
+  },
+  "WU923ACB": {
+   "file": "WU923ACB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 420.0,
+    "d": 410.0
+   }
+  },
+  "WD525ACB": {
+   "file": "WD525ACB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 419.0,
+    "d": 550.0
+   }
+  },
+  "WD525AHB": {
+   "file": "WD525AHB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 419.0,
+    "d": 550.0
+   }
+  },
+  "WD723RH": {
+   "file": "WD723RH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 465.0,
+    "d": 497.0
+   }
+  },
+  "WD721RE": {
+   "file": "WD721RE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 465.0,
+    "d": 497.0
+   }
+  },
+  "WD325AS": {
+   "file": "WD325AS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 419.0,
+    "d": 550.0
+   }
+  },
+  "WD121MCB": {
+   "file": "WD121MCB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 132.0,
+    "h": 358.0,
+    "d": 230.0
+   }
+  },
+  "WS513SH": {
+   "file": "WS513SH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 360.0,
+    "h": 1257.0,
+    "d": 462.0
+   }
+  },
+  "WD522MH": {
+   "file": "WD522MH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 132.0,
+    "h": 363.0,
+    "d": 451.0
+   }
+  },
+  "WS511SH": {
+   "file": "WS511SH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 260.0,
+    "h": 1158.0,
+    "d": 467.0
+   }
+  },
+  "W2421KKAM": {
+   "file": "W2421KKAM.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL2521EGNR": {
+   "file": "WL2521EGNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2421GGAMR": {
+   "file": "W2421GGAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2520WZNM": {
+   "file": "W2520WZNM.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2320VANQR": {
+   "file": "W2320VANQR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL22MYHU": {
+   "file": "WL22MYHU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525SSP6G": {
+   "file": "WA2525SSP6G.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525UUP6G": {
+   "file": "WA2525UUP6G.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525YMP6G": {
+   "file": "WA2525YMP6G.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525TAP6Z": {
+   "file": "WA2525TAP6Z.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525IIHFR": {
+   "file": "WA2525IIHFR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "FC2521KX6C": {
+   "file": "FC2521KX6C.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 885.0
+   }
+  },
+  "FC2521TX6C": {
+   "file": "FC2521TX6C.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 885.0
+   }
+  },
+  "FC2521UX6C": {
+   "file": "FC2521UX6C.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 885.0
+   }
+  },
+  "FC2521SX6C": {
+   "file": "FC2521SX6C.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 885.0
+   }
+  },
+  "FC2521IQ6C": {
+   "file": "FC2521IQ6C.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 885.0
+   }
+  },
+  "FH25WA": {
+   "file": "FH25WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FH25ESE": {
+   "file": "FH25ESE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FH23KN": {
+   "file": "FH23KN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FH25VA": {
+   "file": "FH25VA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FH11EA": {
+   "file": "FH11EA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 565.0
+   }
+  },
+  "W1310EGN": {
+   "file": "W1310EGN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1655.0,
+    "d": 660.0
+   }
+  },
+  "W1310WAN": {
+   "file": "W1310WAN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1655.0,
+    "d": 660.0
+   }
+  },
+  "W10BN": {
+   "file": "W10BN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1655.0,
+    "d": 660.0
+   }
+  },
+  "FH25LMTH": {
+   "file": "FH25LMTH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1340.0,
+    "d": 830.0
+   }
+  },
+  "FX23GNGR": {
+   "file": "FX23GNGR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX23WNAR": {
+   "file": "FX23WNAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "F17CTPR": {
+   "file": "F17CTPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 650.0,
+    "h": 950.0,
+    "d": 780.0
+   }
+  },
+  "F17HTPR": {
+   "file": "F17HTPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 650.0,
+    "h": 950.0,
+    "d": 780.0
+   }
+  },
+  "F17NTPR": {
+   "file": "F17NTPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 650.0,
+    "h": 950.0,
+    "d": 780.0
+   }
+  },
+  "F17ITPR": {
+   "file": "F17ITPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 650.0,
+    "h": 950.0,
+    "d": 780.0
+   }
+  },
+  "FG21ENR": {
+   "file": "FG21ENR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG21WNR": {
+   "file": "FG21WNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG21KNR": {
+   "file": "FG21KNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG21VNR": {
+   "file": "FG21VNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG21GNR": {
+   "file": "FG21GNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F19WDLPR": {
+   "file": "F19WDLPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F21VDSKR": {
+   "file": "F21VDSKR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F24VDSPR": {
+   "file": "F24VDSPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "F12WVAR": {
+   "file": "F12WVAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 615.0
+   }
+  },
+  "F12VVAR": {
+   "file": "F12VVAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 615.0
+   }
+  },
+  "F8WVR": {
+   "file": "F8WVR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 475.0
+   }
+  },
+  "F8VVR": {
+   "file": "F8VVR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 475.0
+   }
+  },
+  "T19OZ0": {
+   "file": "T19OZ0.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 651.0,
+    "h": 1060.0,
+    "d": 680.0
+   }
+  },
+  "T18PZ7": {
+   "file": "T18PZ7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 651.0,
+    "h": 1060.0,
+    "d": 680.0
+   }
+  },
+  "T17DX3A": {
+   "file": "T17DX3A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1018.0,
+    "d": 670.0
+   }
+  },
+  "T17WX3": {
+   "file": "T17WX3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1018.0,
+    "d": 670.0
+   }
+  },
+  "TR15WV5": {
+   "file": "TR15WV5.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "TR16MV6": {
+   "file": "TR16MV6.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "TR15MV5": {
+   "file": "TR15MV5.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "TA25GZ9": {
+   "file": "TA25GZ9.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 686.0,
+    "h": 1092.0,
+    "d": 721.0
+   }
+  },
+  "T25OZ0": {
+   "file": "T25OZ0.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 686.0,
+    "h": 1092.0,
+    "d": 721.0
+   }
+  },
+  "FX25AF": {
+   "file": "FX25AF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25IF": {
+   "file": "FX25IF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FY9WT": {
+   "file": "FY9WT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 550.0
+   }
+  },
+  "T19MX8A": {
+   "file": "T19MX8A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T19DX8": {
+   "file": "T19DX8.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T21MX9A": {
+   "file": "T21MX9A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 690.0,
+    "h": 1070.0,
+    "d": 730.0
+   }
+  },
+  "T25PX9A": {
+   "file": "T25PX9A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 690.0,
+    "h": 1070.0,
+    "d": 730.0
+   }
+  },
+  "F9WTB": {
+   "file": "F9WTB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 825.0,
+    "d": 550.0
+   }
+  },
+  "TR13MV4": {
+   "file": "TR13MV4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 590.0,
+    "h": 965.0,
+    "d": 610.0
+   }
+  },
+  "TR13WV4": {
+   "file": "TR13WV4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 590.0,
+    "h": 965.0,
+    "d": 610.0
+   }
+  },
+  "FX4WC": {
+   "file": "FX4WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 360.0,
+    "d": 770.0
+   }
+  },
+  "FX4GC": {
+   "file": "FX4GC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 360.0,
+    "d": 770.0
+   }
+  },
+  "FC4KC": {
+   "file": "FC4KC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 360.0,
+    "d": 850.0
+   }
+  },
+  "FC4IC": {
+   "file": "FC4IC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 360.0,
+    "d": 850.0
+   }
+  },
+  "FX2EC": {
+   "file": "FX2EC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 365.0,
+    "d": 700.0
+   }
+  },
+  "RG20WN": {
+   "file": "RG20WN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG20VN": {
+   "file": "RG20VN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG20KN": {
+   "file": "RG20KN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG18WNST": {
+   "file": "RG18WNST.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG19GN": {
+   "file": "RG19GN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG18EN": {
+   "file": "RG18EN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RD20WSQR": {
+   "file": "RD20WSQR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD20VNR": {
+   "file": "RD20VNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD21GSGR": {
+   "file": "RD21GSGR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD20KNR": {
+   "file": "RD20KNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD20ENER": {
+   "file": "RD20ENER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25TSR": {
+   "file": "RD25TSR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25ISR": {
+   "file": "RD25ISR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25ASR": {
+   "file": "RD25ASR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RH10WTA": {
+   "file": "RH10WTA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 660.0
+   }
+  },
+  "RH10VTA": {
+   "file": "RH10VTA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 660.0
+   }
+  },
+  "SC5MBR62B": {
+   "file": "SC5MBR62B.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC3GBE52": {
+   "file": "SC3GBE52.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GUE": {
+   "file": "SC3GUE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "S3BOF": {
+   "file": "S3BOF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 585.0
+   }
+  },
+  "IY15CT80": {
+   "file": "IY15CT80.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1250.0,
+    "h": 880.0,
+    "d": 410.0
+   }
+  },
+  "MH65CC": {
+   "file": "MH65CC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 743.0,
+    "h": 1134.0,
+    "d": 1548.0
+   }
+  },
+  "MH67BR": {
+   "file": "MH67BR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 743.0,
+    "h": 1134.0,
+    "d": 1548.0
+   }
+  },
+  "MH20BR": {
+   "file": "MH20BR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 753.0,
+    "h": 1127.1,
+    "d": 1007.0
+   }
+  },
+  "MH81CC": {
+   "file": "MH81CC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 755.0,
+    "h": 1141.1,
+    "d": 1510.0
+   }
+  },
+  "MH81RR": {
+   "file": "MH81RR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 755.0,
+    "h": 1141.1,
+    "d": 1510.0
+   }
+  },
+  "MH21BBY": {
+   "file": "MH21BBY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 753.0,
+    "h": 1127.1,
+    "d": 1007.0
+   }
+  },
+  "MX91WR": {
+   "file": "MX91WR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 800.0,
+    "h": 1260.0,
+    "d": 1600.0
+   }
+  },
+  "N95TWU": {
+   "file": "N95TWU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 349.0,
+    "h": 103.0,
+    "d": 349.0
+   }
+  },
+  "N95THO": {
+   "file": "N95THO.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 349.0,
+    "h": 103.0,
+    "d": 349.0
+   }
+  },
+  "A720TC": {
+   "file": "A720TC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A720HC": {
+   "file": "A720HC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "AX948BHE": {
+   "file": "AX948BHE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AX958BWE": {
+   "file": "AX958BWE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AI927BA": {
+   "file": "AI927BA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AS520WA": {
+   "file": "AS520WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "AS520HA": {
+   "file": "AS520HA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "K83IGY": {
+   "file": "K83IGY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 285.0,
+    "h": 305.0,
+    "d": 445.0
+   }
+  },
+  "C40SFHT": {
+   "file": "C40SFHT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 260.0,
+    "h": 266.0,
+    "d": 352.0
+   }
+  },
+  "R585WKA1": {
+   "file": "R585WKA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 342.0,
+    "h": 95.0,
+    "d": 342.0
+   }
+  },
+  "K83WGY": {
+   "file": "K83WGY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 285.0,
+    "h": 305.0,
+    "d": 445.0
+   }
+  },
+  "B72WW": {
+   "file": "B72WW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 320.0,
+    "h": 98.0,
+    "d": 320.0
+   }
+  },
+  "C40WGY": {
+   "file": "C40WGY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 260.0,
+    "h": 265.0,
+    "d": 352.0
+   }
+  },
+  "RO585HGH": {
+   "file": "RO585HGH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 342.0,
+    "h": 95.0,
+    "d": 342.0
+   }
+  },
+  "B94AHB": {
+   "file": "B94AHB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 355.0,
+    "h": 106.0,
+    "d": 355.0
+   }
+  },
+  "B95AWBH": {
+   "file": "B95AWBH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 355.0,
+    "h": 106.0,
+    "d": 355.0
+   }
+  },
+  "C33FNT": {
+   "file": "C33FNT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 270.0,
+    "h": 234.0,
+    "d": 400.0
+   }
+  },
+  "MO972WA": {
+   "file": "MO972WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 280.0,
+    "h": 89.0,
+    "d": 280.0
+   }
+  },
+  "C40SGY": {
+   "file": "C40SGY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 260.0,
+    "h": 352.0,
+    "d": 266.0
+   }
+  },
+  "L023E1P42": {
+   "file": "L023E1P42.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 480.0,
+    "h": 261.0,
+    "d": 165.0
+   }
+  },
+  "L023L1P42": {
+   "file": "L023L1P42.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 480.0,
+    "h": 261.0,
+    "d": 165.0
+   }
+  },
+  "OLED48C5ENA": {
+   "file": "OLED48C5ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1071.0,
+    "h": 675.0,
+    "d": 230.0
+   }
+  },
+  "OLED77B6SNA": {
+   "file": "OLED77B6SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 1057.0,
+    "d": 268.0
+   }
+  },
+  "75QNED8MBEA": {
+   "file": "75QNED8MBEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "85QNED92AGA": {
+   "file": "85QNED92AGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1180.0,
+    "d": 450.0
+   }
+  },
+  "OLED42C5ENA": {
+   "file": "OLED42C5ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 932.0,
+    "h": 577.0,
+    "d": 170.0
+   }
+  },
+  "85QNED65BBA": {
+   "file": "85QNED65BBA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "75QNED85AKA": {
+   "file": "75QNED85AKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 965.0,
+    "d": 31.0
+   }
+  },
+  "65QNED8MBEA": {
+   "file": "65QNED8MBEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65QNED70AEA": {
+   "file": "65QNED70AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1455.0,
+    "h": 900.0,
+    "d": 255.0
+   }
+  },
+  "86MRGB83BEA": {
+   "file": "86MRGB83BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1929.0,
+    "h": 1174.0,
+    "d": 359.0
+   }
+  },
+  "65MRGB83BEA": {
+   "file": "65MRGB83BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 906.0,
+    "d": 295.0
+   }
+  },
+  "32LB650BENA": {
+   "file": "32LB650BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 719.0,
+    "h": 456.0,
+    "d": 180.0
+   }
+  },
+  "OLED55C6ENA": {
+   "file": "OLED55C6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1222.0,
+    "h": 757.0,
+    "d": 230.0
+   }
+  },
+  "OLED55B6ENA": {
+   "file": "OLED55B6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 218.0
+   }
+  },
+  "75MRGB83BEA": {
+   "file": "75MRGB83BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "OLED65B6ENA": {
+   "file": "OLED65B6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 900.0,
+    "d": 218.0
+   }
+  },
+  "50NU850BXNA": {
+   "file": "50NU850BXNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "OLED83W6KNA": {
+   "file": "OLED83W6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1844.0,
+    "h": 1061.0,
+    "d": 10.0
+   }
+  },
+  "43LB6500KNB": {
+   "file": "43LB6500KNB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 955.0,
+    "h": 604.0,
+    "d": 188.0
+   }
+  },
+  "55NU850BENA": {
+   "file": "55NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "43NU850BENA": {
+   "file": "43NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 959.0,
+    "h": 618.0,
+    "d": 200.0
+   }
+  },
+  "75QNED80BEA": {
+   "file": "75QNED80BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1667.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "OLED77B6NNA": {
+   "file": "OLED77B6NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 989.0,
+    "d": 51.0
+   }
+  },
+  "55QNED80BEA": {
+   "file": "55QNED80BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 780.0,
+    "d": 230.0
+   }
+  },
+  "65QNED80BEA": {
+   "file": "65QNED80BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1455.0,
+    "h": 904.0,
+    "d": 269.0
+   }
+  },
+  "85QNED80BEA": {
+   "file": "85QNED80BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1889.0,
+    "h": 1149.0,
+    "d": 362.0
+   }
+  },
+  "OLED83G6KNA": {
+   "file": "OLED83G6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1847.0,
+    "h": 1115.0,
+    "d": 321.0
+   }
+  },
+  "OLED77C6QNA": {
+   "file": "OLED77C6QNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1711.0,
+    "h": 1035.0,
+    "d": 267.0
+   }
+  },
+  "OLED65C6SNA": {
+   "file": "OLED65C6SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1441.0,
+    "h": 880.0,
+    "d": 230.0
+   }
+  },
+  "85QNED91BKA": {
+   "file": "85QNED91BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1146.0,
+    "d": 460.0
+   }
+  },
+  "OLED77G6KNA": {
+   "file": "OLED77G6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1712.0,
+    "h": 1039.0,
+    "d": 321.0
+   }
+  },
+  "65QNED91BKA": {
+   "file": "65QNED91BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1445.0,
+    "h": 896.0,
+    "d": 340.0
+   }
+  },
+  "86QNED70AEA": {
+   "file": "86QNED70AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1167.0,
+    "d": 362.0
+   }
+  },
+  "OLED77W6KNA": {
+   "file": "OLED77W6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1713.0,
+    "h": 988.0,
+    "d": 10.0
+   }
+  },
+  "43NANO80ANA": {
+   "file": "43NANO80ANA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 967.0,
+    "h": 621.0,
+    "d": 200.0
+   }
+  },
+  "75QNED92AGA": {
+   "file": "75QNED92AGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1667.0,
+    "h": 1028.0,
+    "d": 392.0
+   }
+  },
+  "50UA7500KNA": {
+   "file": "50UA7500KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1122.0,
+    "h": 718.0,
+    "d": 230.0
+   }
+  },
+  "75NANO80AEA": {
+   "file": "75NANO80AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1678.0,
+    "h": 1027.0,
+    "d": 361.0
+   }
+  },
+  "43UA7500ENA": {
+   "file": "43UA7500ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 968.0,
+    "h": 621.0,
+    "d": 200.0
+   }
+  },
+  "86QNED65ABA": {
+   "file": "86QNED65ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1928.0,
+    "h": 1108.0,
+    "d": 31.0
+   }
+  },
+  "65QNED75AEA": {
+   "file": "65QNED75AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 840.0,
+    "d": 30.0
+   }
+  },
+  "OLED55B5NNA": {
+   "file": "OLED55B5NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 772.0,
+    "d": 235.0
+   }
+  },
+  "OLED65B5NNA": {
+   "file": "OLED65B5NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 896.0,
+    "d": 235.0
+   }
+  },
+  "OLED48B5NNA": {
+   "file": "OLED48B5NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1070.0,
+    "h": 684.0,
+    "d": 235.0
+   }
+  },
+  "86QNED75AEA": {
+   "file": "86QNED75AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1928.0,
+    "h": 1175.0,
+    "d": 359.0
+   }
+  },
+  "65QNED85AKS": {
+   "file": "65QNED85AKS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 904.0,
+    "d": 295.0
+   }
+  },
+  "55QNED70ABA": {
+   "file": "55QNED70ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 772.0,
+    "d": 235.0
+   }
+  },
+  "98QNED89TKA": {
+   "file": "98QNED89TKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2182.0,
+    "h": 1258.0,
+    "d": 110.0
+   }
+  },
+  "75MRGB96BKA": {
+   "file": "75MRGB96BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1673.0,
+    "h": 1045.0,
+    "d": 390.0
+   }
+  },
+  "86MRGB96BKA": {
+   "file": "86MRGB96BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1925.0,
+    "h": 1185.0,
+    "d": 390.0
+   }
+  },
+  "OLED97G6KNA": {
+   "file": "OLED97G6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2155.0,
+    "h": 1628.0,
+    "d": 580.0
+   }
+  },
+  "65NANO80AEA": {
+   "file": "65NANO80AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1454.0,
+    "h": 903.0,
+    "d": 269.0
+   }
+  },
+  "OLED77B5XNA": {
+   "file": "OLED77B5XNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 1057.0,
+    "d": 319.0
+   }
+  },
+  "75QNED70ABA": {
+   "file": "75QNED70ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1678.0,
+    "h": 964.0,
+    "d": 60.0
+   }
+  },
+  "86UT9300KNA": {
+   "file": "86UT9300KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1104.0,
+    "d": 60.0
+   }
+  },
+  "OLED77T6KNA": {
+   "file": "OLED77T6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1768.0,
+    "h": 1663.0,
+    "d": 638.0
+   }
+  },
+  "55NU850BXNA": {
+   "file": "55NU850BXNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 715.0,
+    "d": 71.0
+   }
+  },
+  "86UT93RC0NA": {
+   "file": "86UT93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1164.0,
+    "d": 362.0
+   }
+  },
+  "55UT93RC0NA": {
+   "file": "55UT93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 783.0,
+    "d": 257.0
+   }
+  },
+  "50UT93RC0NA": {
+   "file": "50UT93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1123.0,
+    "h": 720.0,
+    "d": 257.0
+   }
+  },
+  "75QNED90KQA": {
+   "file": "75QNED90KQA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1665.0,
+    "h": 1022.0,
+    "d": 359.0
+   }
+  },
+  "32LB650BGNA": {
+   "file": "32LB650BGNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 719.0,
+    "h": 430.0,
+    "d": 71.0
+   }
+  },
+  "43NA1C90AKA": {
+   "file": "43NA1C90AKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 968.0,
+    "h": 633.0,
+    "d": 257.0
+   }
+  },
+  "55NANO90AKA": {
+   "file": "55NANO90AKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 716.0,
+    "d": 30.0
+   }
+  },
+  "OLED65M4KNA": {
+   "file": "OLED65M4KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1441.0,
+    "h": 836.0,
+    "d": 24.0
+   }
+  },
+  "50UT8350KNA": {
+   "file": "50UT8350KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1121.0,
+    "h": 651.0,
+    "d": 57.0
+   }
+  },
+  "43UR931C0NA": {
+   "file": "43UR931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 968.0,
+    "h": 635.0,
+    "d": 257.0
+   }
+  },
+  "65UQ931C0NA": {
+   "file": "65UQ931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1454.0,
+    "h": 906.0,
+    "d": 269.0
+   }
+  },
+  "OLED97G2KNA": {
+   "file": "OLED97G2KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2155.0,
+    "h": 1225.0,
+    "d": 28.0
+   }
+  },
+  "86UQ9300KNA": {
+   "file": "86UQ9300KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1167.0,
+    "d": 361.0
+   }
+  },
+  "OLED65B2QNA": {
+   "file": "OLED65B2QNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 869.0,
+    "d": 246.0
+   }
+  },
+  "27LX6TEGA": {
+   "file": "27LX6TEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 623.0,
+    "h": 1265.0,
+    "d": 398.0
+   }
+  },
+  "32LX6BEGA": {
+   "file": "32LX6BEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 724.0,
+    "h": 1308.0,
+    "d": 420.0
+   }
+  },
+  "SW09GS1EES": {
+   "file": "SW09GS1EES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1050.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "FQ18GV3BK2": {
+   "file": "FQ18GV3BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV3EE2": {
+   "file": "FQ18GV3EE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV3EN2": {
+   "file": "FQ17GV3EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1BM2": {
+   "file": "FQ17GU1BM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GC1ED2": {
+   "file": "FQ17GC1ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GW1HD2": {
+   "file": "FQ17GW1HD2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20GC2EA2": {
+   "file": "FQ20GC2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "SW16FK1WBS": {
+   "file": "SW16FK1WBS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ07GJ1WES": {
+   "file": "SQ07GJ1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ07GS9EES": {
+   "file": "SQ07GS9EES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "FQ25GN9BE2": {
+   "file": "FQ25GN9BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25GN9HE2": {
+   "file": "FQ25GN9HE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "SQ06FA1WDS": {
+   "file": "SQ06FA1WDS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06EA1WCS": {
+   "file": "SQ06EA1WCS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06EZ1WBS": {
+   "file": "SQ06EZ1WBS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 788.0,
+    "h": 275.0,
+    "d": 192.0
+   }
+  },
+  "FW16FC1EA2": {
+   "file": "FW16FC1EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "SQ06GZ1WCS": {
+   "file": "SQ06GZ1WCS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 778.0,
+    "h": 277.0,
+    "d": 197.0
+   }
+  },
+  "SQ06GS3EBJ": {
+   "file": "SQ06GS3EBJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "PQ08FDBAS": {
+   "file": "PQ08FDBAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 493.0,
+    "h": 773.0,
+    "d": 496.0
+   }
+  },
+  "PQ08FDWAS": {
+   "file": "PQ08FDWAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 493.0,
+    "h": 773.0,
+    "d": 496.0
+   }
+  },
+  "SQ06EJ1WAJ": {
+   "file": "SQ06EJ1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06EJ7HAJ": {
+   "file": "SQ06EJ7HAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 348.0,
+    "d": 192.0
+   }
+  },
+  "SQ06EA7HAJ": {
+   "file": "SQ06EA7HAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 348.0,
+    "d": 192.0
+   }
+  },
+  "FW16HDWWA1": {
+   "file": "FW16HDWWA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "SQ06BDJWAJ": {
+   "file": "SQ06BDJWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 302.0,
+    "d": 189.0
+   }
+  },
+  "SQ06ADJCAJ": {
+   "file": "SQ06ADJCAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 857.0,
+    "h": 348.0,
+    "d": 192.0
+   }
+  },
+  "SQ06ACJCAJ": {
+   "file": "SQ06ACJCAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 857.0,
+    "h": 348.0,
+    "d": 192.0
+   }
+  },
+  "SQ06ADACAJ": {
+   "file": "SQ06ADACAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 774.0,
+    "h": 348.0,
+    "d": 192.0
+   }
+  },
+  "SW06ADACAJ": {
+   "file": "SW06ADACAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 774.0,
+    "h": 348.0,
+    "d": 190.0
+   }
+  },
+  "SQ06BCPWAJ": {
+   "file": "SQ06BCPWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 756.0,
+    "h": 265.0,
+    "d": 184.0
+   }
+  },
+  "SQ06ACJCBJ": {
+   "file": "SQ06ACJCBJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 302.0,
+    "d": 192.0
+   }
+  },
+  "AS235DWSA": {
+   "file": "AS235DWSA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS356LSAA": {
+   "file": "AS356LSAA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1011.0,
+    "h": 540.0,
+    "d": 180.0
+   }
+  },
+  "AS156HWWC": {
+   "file": "AS156HWWC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "AS186LSAA": {
+   "file": "AS186LSAA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 560.0,
+    "h": 540.0,
+    "d": 180.0
+   }
+  },
+  "AS356NSLL": {
+   "file": "AS356NSLL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 377.0,
+    "h": 1100.0,
+    "d": 377.0
+   }
+  },
+  "AS105GWJC": {
+   "file": "AS105GWJC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 500.0,
+    "d": 240.0
+   }
+  },
+  "AS206NSHA": {
+   "file": "AS206NSHA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 347.0,
+    "h": 612.0,
+    "d": 347.0
+   }
+  },
+  "AS065PWHA": {
+   "file": "AS065PWHA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 561.0,
+    "d": 410.0
+   }
+  },
+  "AS195DWWA": {
+   "file": "AS195DWWA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 343.0,
+    "h": 587.0,
+    "d": 343.0
+   }
+  },
+  "FS065PSKA": {
+   "file": "FS065PSKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 265.0,
+    "h": 1120.0,
+    "d": 265.0
+   }
+  },
+  "AS065CWHA": {
+   "file": "AS065CWHA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 710.0,
+    "h": 800.0,
+    "d": 422.0
+   }
+  },
+  "AS155GWDL": {
+   "file": "AS155GWDL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 997.0,
+    "d": 240.0
+   }
+  },
+  "AS064PCBAR": {
+   "file": "AS064PCBAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 561.0,
+    "d": 410.0
+   }
+  },
+  "AS076MWHC": {
+   "file": "AS076MWHC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 360.0,
+    "d": 250.0
+   }
+  },
+  "HW500DAS": {
+   "file": "HW500DAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 390.0,
+    "h": 395.0,
+    "d": 350.0
+   }
+  },
+  "HY505RWLAH": {
+   "file": "HY505RWLAH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 270.0,
+    "h": 750.0,
+    "d": 270.0
+   }
+  },
+  "HW300BBB": {
+   "file": "HW300BBB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 320.0,
+    "h": 370.0,
+    "d": 320.0
+   }
+  },
+  "HW300DBL": {
+   "file": "HW300DBL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 320.0,
+    "h": 370.0,
+    "d": 320.0
+   }
+  },
+  "DQ256MEGA": {
+   "file": "DQ256MEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ256MWGA": {
+   "file": "DQ256MWGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ205PSVA": {
+   "file": "DQ205PSVA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 415.0,
+    "h": 715.0,
+    "d": 296.0
+   }
+  },
+  "DQ205PEGA": {
+   "file": "DQ205PEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 415.0,
+    "h": 715.0,
+    "d": 296.0
+   }
+  },
+  "X326GB7": {
+   "file": "X326GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y321GB3S": {
+   "file": "Y321GB3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y321SS3S": {
+   "file": "Y321SS3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y321MW3S": {
+   "file": "Y321MW3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y321MB3S": {
+   "file": "Y321MB3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "A320S": {
+   "file": "A320S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "K322SC": {
+   "file": "K322SC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 707.0
+   }
+  },
+  "X321SG3S": {
+   "file": "X321SG3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z321GC3CS": {
+   "file": "Z321GC3CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z321MG3CS": {
+   "file": "Z321MG3CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "BEF3ANHLOE": {
+   "file": "BEF3ANHLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3HKBLE": {
+   "file": "BEI3HKBLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3QMBLOE": {
+   "file": "BEI3QMBLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASMLOE": {
+   "file": "BEI3ASMLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASS4E": {
+   "file": "BEI3ASS4E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEY3SRBLE": {
+   "file": "BEY3SRBLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ABWLE": {
+   "file": "BEI3ABWLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "MLJ39PR": {
+   "file": "MLJ39PR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ32HWS": {
+   "file": "MLJ32HWS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 527.0,
+    "h": 394.0,
+    "d": 480.0
+   }
+  },
+  "MLJ28ERN": {
+   "file": "MLJ28ERN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 512.0,
+    "h": 311.0,
+    "d": 488.0
+   }
+  },
+  "ML32WW1": {
+   "file": "ML32WW1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 527.0,
+    "h": 389.0,
+    "d": 472.0
+   }
+  },
+  "MWJ23PI": {
+   "file": "MWJ23PI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW30EDN": {
+   "file": "MW30EDN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 508.0,
+    "h": 290.0,
+    "d": 400.0
+   }
+  },
+  "MW20GDN": {
+   "file": "MW20GDN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 454.0,
+    "h": 261.0,
+    "d": 328.0
+   }
+  },
+  "MWE25HD": {
+   "file": "MWE25HD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 355.0
+   }
+  },
+  "MW25B": {
+   "file": "MW25B.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 370.0
+   }
+  },
+  "MW22CA": {
+   "file": "MW22CA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 346.0
+   }
+  },
+  "98NU850BENB": {
+   "file": "98NU850BENB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2184.0,
+    "h": 1346.0,
+    "d": 432.0
+   }
+  },
+  "75MRGB86BKA": {
+   "file": "75MRGB86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1057.0,
+    "d": 352.0
+   }
+  },
+  "75QNED86BKA": {
+   "file": "75QNED86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1042.0,
+    "d": 370.0
+   }
+  },
+  "86MRGB86BKA": {
+   "file": "86MRGB86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1929.0,
+    "h": 1200.0,
+    "d": 370.0
+   }
+  },
+  "100MRGB96BK": {
+   "file": "100MRGB96BK.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2230.0,
+    "h": 1372.0,
+    "d": 434.0
+   }
+  },
+  "65LX7BKNA": {
+   "file": "65LX7BKNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1467.0,
+    "h": 882.0,
+    "d": 315.0
+   }
+  },
+  "OLED65G6KNA": {
+   "file": "OLED65G6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1441.0,
+    "h": 865.0,
+    "d": 263.0
+   }
+  },
+  "OLED83C6QNA": {
+   "file": "OLED83C6QNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1842.0,
+    "h": 1096.0,
+    "d": 297.0
+   }
+  },
+  "65QNED86BKA": {
+   "file": "65QNED86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 909.0,
+    "d": 285.0
+   }
+  },
+  "OLED55G6KNA": {
+   "file": "OLED55G6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1222.0,
+    "h": 742.0,
+    "d": 263.0
+   }
+  },
+  "65MRGB86BKA": {
+   "file": "65MRGB86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 928.0,
+    "d": 285.0
+   }
+  },
+  "86QNED86BKA": {
+   "file": "86QNED86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1928.0,
+    "h": 1190.0,
+    "d": 370.0
+   }
+  },
+  "75QNED81BMA": {
+   "file": "75QNED81BMA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1667.0,
+    "h": 1059.0,
+    "d": 390.0
+   }
+  },
+  "86MRGB85BMC": {
+   "file": "86MRGB85BMC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1929.0,
+    "h": 1197.0,
+    "d": 370.0
+   }
+  },
+  "75MRGB85BMC": {
+   "file": "75MRGB85BMC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1057.0,
+    "d": 370.0
+   }
+  },
+  "85QNED81BMA": {
+   "file": "85QNED81BMA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1889.0,
+    "h": 1183.0,
+    "d": 390.0
+   }
+  },
+  "55MRGB86BKA": {
+   "file": "55MRGB86BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 786.0,
+    "d": 260.0
+   }
+  },
+  "S836MEE022": {
+   "file": "S836MEE022.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S834MEE141": {
+   "file": "S834MEE141.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S836GBB142": {
+   "file": "S836GBB142.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S836GBB132": {
+   "file": "S836GBB132.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S836MEE122": {
+   "file": "S836MEE122.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S836GBB122": {
+   "file": "S836GBB122.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "T876MEE1H1": {
+   "file": "T876MEE1H1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE012": {
+   "file": "T876MEE012.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE011": {
+   "file": "T876MEE011.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE412": {
+   "file": "T876MEE412.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE111": {
+   "file": "T876MEE111.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE312": {
+   "file": "T876MEE312.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE041": {
+   "file": "T876MEE041.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "T876MEE141": {
+   "file": "T876MEE141.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1787.0,
+    "d": 918.0
+   }
+  },
+  "S836MTE032": {
+   "file": "S836MTE032.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "Q405MEE151": {
+   "file": "Q405MEE151.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Q405MEE171": {
+   "file": "Q405MEE171.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Q405MEE131": {
+   "file": "Q405MEE131.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "D646GBB021": {
+   "file": "D646GBB021.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "D646GBB071": {
+   "file": "D646GBB071.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "D646GBB091": {
+   "file": "D646GBB091.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "D646SLL091": {
+   "file": "D646SLL091.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "G646GBB021": {
+   "file": "G646GBB021.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "G646GBB071": {
+   "file": "G646GBB071.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "G646GBB091": {
+   "file": "G646GBB091.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "G646GBB032": {
+   "file": "G646GBB032.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "G646GBB081": {
+   "file": "G646GBB081.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "H876GBB111": {
+   "file": "H876GBB111.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H876GBB011": {
+   "file": "H876GBB011.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H876GBB442": {
+   "file": "H876GBB442.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB431": {
+   "file": "M876GBB431.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB131": {
+   "file": "M876GBB131.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H876GBB141": {
+   "file": "H876GBB141.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB181": {
+   "file": "M876GBB181.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB161": {
+   "file": "M876GBB161.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H876GBB031": {
+   "file": "H876GBB031.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB282": {
+   "file": "M876GBB282.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB582": {
+   "file": "M876GBB582.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H875GBB442": {
+   "file": "H875GBB442.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBB472": {
+   "file": "M876GBB472.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "H875GBB141": {
+   "file": "H875GBB141.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "M876GBC232": {
+   "file": "M876GBC232.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W826GBB182": {
+   "file": "W826GBB182.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W826GBB482": {
+   "file": "W826GBB482.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "J825GBB142": {
+   "file": "J825GBB142.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W825GBB182": {
+   "file": "W825GBB182.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "S836P022": {
+   "file": "S836P022.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "Q336MEE151": {
+   "file": "Q336MEE151.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "Q336MEE153": {
+   "file": "Q336MEE153.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 597.0,
+    "h": 1860.0,
+    "d": 674.0
+   }
+  },
+  "G646SLL091": {
+   "file": "G646SLL091.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 709.0
+   }
+  },
+  "D604MPS33": {
+   "file": "D604MPS33.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 831.0,
+    "h": 1860.0,
+    "d": 741.0
+   }
+  },
+  "B315W11": {
+   "file": "B315W11.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1640.0,
+    "d": 710.0
+   }
+  },
+  "S656P033": {
+   "file": "S656P033.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 735.0
+   }
+  },
+  "B502S33": {
+   "file": "B502S33.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 780.0,
+    "h": 1800.0,
+    "d": 730.0
+   }
+  },
+  "M876MQQ582S": {
+   "file": "M876MQQ582S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W826MQQ482S": {
+   "file": "W826MQQ482S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "Q342GBB153": {
+   "file": "Q342GBB153.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 676.0
+   }
+  },
+  "Q342GBB133S": {
+   "file": "Q342GBB133S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 676.0
+   }
+  },
+  "J842ND79": {
+   "file": "J842ND79.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 912.0,
+    "h": 1784.0,
+    "d": 929.0
+   }
+  },
+  "M876GGA161": {
+   "file": "M876GGA161.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W826SVV482S": {
+   "file": "W826SVV482S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "W825SVV182S": {
+   "file": "W825SVV182S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1860.0,
+    "d": 918.0
+   }
+  },
+  "S836MQQ022": {
+   "file": "S836MQQ022.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "S836GBB162": {
+   "file": "S836GBB162.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "J816MEE172": {
+   "file": "J816MEE172.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "J816MEE062": {
+   "file": "J816MEE062.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 913.0,
+    "h": 1790.0,
+    "d": 913.0
+   }
+  },
+  "F756SI14": {
+   "file": "F756SI14.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 908.0,
+    "h": 1785.0,
+    "d": 802.0
+   }
+  },
+  "F756SI04": {
+   "file": "F756SI04.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 908.0,
+    "h": 1785.0,
+    "d": 802.0
+   }
+  },
+  "W826GQQ492S": {
+   "file": "W826GQQ492S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 914.0,
+    "h": 1866.0,
+    "d": 918.0
+   }
+  },
+  "Z386SVV261": {
+   "file": "Z386SVV261.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386MEE241": {
+   "file": "Z386MEE241.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386GBB241": {
+   "file": "Z386GBB241.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386GQQ261": {
+   "file": "Z386GQQ261.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "Z386GQQ241": {
+   "file": "Z386GQQ241.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 697.0,
+    "h": 1860.0,
+    "d": 696.0
+   }
+  },
+  "K225S121": {
+   "file": "K225S121.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "Z495GBB261": {
+   "file": "Z495GBB261.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495GBB212": {
+   "file": "Z495GBB212.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495MQQ212": {
+   "file": "Z495MQQ212.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495GQQ251": {
+   "file": "Z495GQQ251.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495MQQ251": {
+   "file": "Z495MQQ251.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z495MQQ271": {
+   "file": "Z495MQQ271.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 838.0
+   }
+  },
+  "Z225MEE152": {
+   "file": "Z225MEE152.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 920.0,
+    "h": 949.0,
+    "d": 691.0
+   }
+  },
+  "Z484GBB152": {
+   "file": "Z484GBB152.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z484GBB123": {
+   "file": "Z484GBB123.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z484MQQ123S": {
+   "file": "Z484MQQ123S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 835.0,
+    "h": 1860.0,
+    "d": 685.0
+   }
+  },
+  "Z408MEEF23": {
+   "file": "Z408MEEF23.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 750.0,
+    "h": 1787.0,
+    "d": 795.0
+   }
+  },
+  "DUE6BGL1E": {
+   "file": "DUE6BGL1E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE5BGL2E": {
+   "file": "DUE5BGL2E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6BGL3E": {
+   "file": "DUE6BGL3E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE5BGL1E": {
+   "file": "DUE5BGL1E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE5BGE": {
+   "file": "DUE5BGE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE5BGHE": {
+   "file": "DUE5BGHE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DEE6BGE": {
+   "file": "DEE6BGE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6BG": {
+   "file": "DUE6BG.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6BGH": {
+   "file": "DUE6BGH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE6BGL2": {
+   "file": "DUE6BGL2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE4BGL1E": {
+   "file": "DUE4BGL1E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE1BGL1E": {
+   "file": "DUE1BGL1E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE1BGLE": {
+   "file": "DUE1BGLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DUE4BGE": {
+   "file": "DUE4BGE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 815.0,
+    "d": 567.0
+   }
+  },
+  "DFE6BGE": {
+   "file": "DFE6BGE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 845.0,
+    "d": 600.0
+   }
+  },
+  "DFE6BGHE": {
+   "file": "DFE6BGHE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 845.0,
+    "d": 600.0
+   }
+  },
+  "WD520AWB": {
+   "file": "WD520AWB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD523ACB": {
+   "file": "WD523ACB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD520VCT": {
+   "file": "WD520VCT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD524VCT": {
+   "file": "WD524VCT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD524ACB": {
+   "file": "WD524ACB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD323ACB": {
+   "file": "WD323ACB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WD524VHMT": {
+   "file": "WD524VHMT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 168.0,
+    "h": 398.0,
+    "d": 400.0
+   }
+  },
+  "WU823AS": {
+   "file": "WU823AS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 420.0,
+    "d": 410.0
+   }
+  },
+  "WD325AHB": {
+   "file": "WD325AHB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 170.0,
+    "h": 419.0,
+    "d": 550.0
+   }
+  },
+  "WD722RE": {
+   "file": "WD722RE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 465.0,
+    "d": 497.0
+   }
+  },
+  "WD724RE": {
+   "file": "WD724RE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 240.0,
+    "h": 465.0,
+    "d": 497.0
+   }
+  },
+  "WD221MCB": {
+   "file": "WD221MCB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 132.0,
+    "h": 358.0,
+    "d": 230.0
+   }
+  },
+  "WL22KDU": {
+   "file": "WL22KDU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525KDFR": {
+   "file": "WA2525KDFR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525KDF": {
+   "file": "WA2525KDF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2421EGAMR": {
+   "file": "W2421EGAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2421EEAMR": {
+   "file": "W2421EEAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2321EEAM": {
+   "file": "W2321EEAM.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2320EGANR": {
+   "file": "W2320EGANR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2420EGZR": {
+   "file": "W2420EGZR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL2522EGZUR": {
+   "file": "WL2522EGZUR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL21EEN": {
+   "file": "WL21EEN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525EGP6Z": {
+   "file": "WA2525EGP6Z.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525EGP6R": {
+   "file": "WA2525EGP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2323EGZNR": {
+   "file": "WA2323EGZNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2421GEAMR": {
+   "file": "W2421GEAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2320GEANR": {
+   "file": "W2320GEANR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2321GEAMR": {
+   "file": "W2321GEAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2420GEZR": {
+   "file": "W2420GEZR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2421WAMR": {
+   "file": "W2421WAMR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2420WHNR": {
+   "file": "W2420WHNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2320WANQR": {
+   "file": "W2320WANQR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2520WZM": {
+   "file": "W2520WZM.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL22WDU": {
+   "file": "WL22WDU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2320WANR": {
+   "file": "W2320WANR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "W2420WDR": {
+   "file": "W2420WDR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525SSP6R": {
+   "file": "WA2525SSP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525UUP6R": {
+   "file": "WA2525UUP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525YMP6R": {
+   "file": "WA2525YMP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525TTP6R": {
+   "file": "WA2525TTP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525TAP6R": {
+   "file": "WA2525TAP6R.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WA2525TTP6Z": {
+   "file": "WA2525TTP6Z.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "FX25WSQR": {
+   "file": "FX25WSQR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX24WNR": {
+   "file": "FX24WNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FH24ENE": {
+   "file": "FH24ENE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FG24EN": {
+   "file": "FG24EN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX23ENER": {
+   "file": "FX23ENER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25EAR": {
+   "file": "FX25EAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25ENR": {
+   "file": "FX25ENR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25EFE": {
+   "file": "FX25EFE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FG24KN": {
+   "file": "FG24KN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25KF": {
+   "file": "FX25KF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX23VNR": {
+   "file": "FX23VNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25VF": {
+   "file": "FX25VF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "W1310BN": {
+   "file": "W1310BN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1655.0,
+    "d": 660.0
+   }
+  },
+  "FX25GAR": {
+   "file": "FX25GAR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25GNR": {
+   "file": "FX25GNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX25GFG": {
+   "file": "FX25GFG.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "F24WDWPR": {
+   "file": "F24WDWPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "F24WDLPR": {
+   "file": "F24WDLPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FG19ENR": {
+   "file": "FG19ENR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG19WNR": {
+   "file": "FG19WNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "FG19VNR": {
+   "file": "FG19VNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F21WDLPR": {
+   "file": "F21WDLPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F19WDWPR": {
+   "file": "F19WDWPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 770.0
+   }
+  },
+  "F24VDLPR": {
+   "file": "F24VDLPR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "TR16WV6": {
+   "file": "TR16WV6.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "TR15DV5": {
+   "file": "TR15DV5.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "TR16DV6": {
+   "file": "TR16DV6.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 970.0,
+    "d": 670.0
+   }
+  },
+  "T21GZ9": {
+   "file": "T21GZ9.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 686.0,
+    "h": 1092.0,
+    "d": 721.0
+   }
+  },
+  "F9WT": {
+   "file": "F9WT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 550.0
+   }
+  },
+  "F9WTQ": {
+   "file": "F9WTQ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 550.0
+   }
+  },
+  "T19MX7": {
+   "file": "T19MX7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T19MX7A": {
+   "file": "T19MX7A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T18MX7": {
+   "file": "T18MX7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T18MX7A": {
+   "file": "T18MX7A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T19DX7": {
+   "file": "T19DX7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T18DX7": {
+   "file": "T18DX7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 632.0,
+    "h": 1040.0,
+    "d": 670.0
+   }
+  },
+  "T23PX9": {
+   "file": "T23PX9.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 690.0,
+    "h": 1070.0,
+    "d": 730.0
+   }
+  },
+  "T23PX9A": {
+   "file": "T23PX9A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 690.0,
+    "h": 1070.0,
+    "d": 730.0
+   }
+  },
+  "F9WTBQ": {
+   "file": "F9WTBQ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 825.0,
+    "d": 550.0
+   }
+  },
+  "FY9WTB": {
+   "file": "FY9WTB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 825.0,
+    "d": 550.0
+   }
+  },
+  "TR10MV4": {
+   "file": "TR10MV4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 590.0,
+    "h": 965.0,
+    "d": 610.0
+   }
+  },
+  "TR10WV4": {
+   "file": "TR10WV4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 590.0,
+    "h": 965.0,
+    "d": 610.0
+   }
+  },
+  "RH18WTSN": {
+   "file": "RH18WTSN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RH18VTLN": {
+   "file": "RH18VTLN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG19KN": {
+   "file": "RG19KN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RG18WNT": {
+   "file": "RG18WNT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 820.0
+   }
+  },
+  "RD20WNR": {
+   "file": "RD20WNR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25VSR": {
+   "file": "RD25VSR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD20GNGR": {
+   "file": "RD20GNGR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25GSGR": {
+   "file": "RD25GSGR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25KS": {
+   "file": "RD25KS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25ESER": {
+   "file": "RD25ESER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25IS": {
+   "file": "RD25IS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD25AS": {
+   "file": "RD25AS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RH10WTW": {
+   "file": "RH10WTW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 850.0,
+    "d": 660.0
+   }
+  },
+  "SC5GMR4E": {
+   "file": "SC5GMR4E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR71": {
+   "file": "SC5MBR71.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5GMR52CS": {
+   "file": "SC5GMR52CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MRR62S": {
+   "file": "SC5MRR62S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MSR42S": {
+   "file": "SC5MSR42S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR42CS": {
+   "file": "SC5MBR42CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MRR42S": {
+   "file": "SC5MRR42S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR52S": {
+   "file": "SC5MBR52S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR5ES": {
+   "file": "SC5MBR5ES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR60S": {
+   "file": "SC5MBR60S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MFR60S": {
+   "file": "SC5MFR60S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MHR60S": {
+   "file": "SC5MHR60S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5GMR60S": {
+   "file": "SC5GMR60S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5GMR5ES": {
+   "file": "SC5GMR5ES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MSR40S": {
+   "file": "SC5MSR40S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR42S": {
+   "file": "SC5MBR42S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR4ES": {
+   "file": "SC5MBR4ES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MSR42CS": {
+   "file": "SC5MSR42CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5GMR4ES": {
+   "file": "SC5GMR4ES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MER42S": {
+   "file": "SC5MER42S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR4E": {
+   "file": "SC5MBR4E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR42": {
+   "file": "SC5MBR42.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MHR60": {
+   "file": "SC5MHR60.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5GMR5E": {
+   "file": "SC5GMR5E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC3GVE": {
+   "file": "SC3GVE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GNE50": {
+   "file": "SC3GNE50.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GNE52": {
+   "file": "SC3GNE52.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GBE50": {
+   "file": "SC3GBE50.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GME50": {
+   "file": "SC3GME50.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GTE52": {
+   "file": "SC3GTE52.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GTE5E": {
+   "file": "SC3GTE5E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3GME51": {
+   "file": "SC3GME51.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "SC3RBE52": {
+   "file": "SC3RBE52.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 600.0
+   }
+  },
+  "S3WGM": {
+   "file": "S3WGM.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 445.0,
+    "h": 1850.0,
+    "d": 585.0
+   }
+  },
+  "MH66CB": {
+   "file": "MH66CB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 743.0,
+    "h": 1134.0,
+    "d": 1548.0
+   }
+  },
+  "MH21RRY": {
+   "file": "MH21RRY.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 753.0,
+    "h": 1127.1,
+    "d": 1007.0
+   }
+  },
+  "A727WC": {
+   "file": "A727WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "AS720WA": {
+   "file": "AS720WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A720WA": {
+   "file": "A720WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A730WA": {
+   "file": "A730WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A720WC": {
+   "file": "A720WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A730WC": {
+   "file": "A730WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "A727WA": {
+   "file": "A727WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 250.0,
+    "h": 1120.0,
+    "d": 260.0
+   }
+  },
+  "AI948WB": {
+   "file": "AI948WB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AI937WA": {
+   "file": "AI937WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AI958WB": {
+   "file": "AI958WB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AI948WA": {
+   "file": "AI948WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AI958WA": {
+   "file": "AI958WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AX9604WE": {
+   "file": "AX9604WE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AX9884WE": {
+   "file": "AX9884WE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AX958AWE": {
+   "file": "AX958AWE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AX948BWE": {
+   "file": "AX948BWE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
+  },
+  "AS527WA": {
+   "file": "AS527WA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "A520WC": {
+   "file": "A520WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "A527WC": {
+   "file": "A527WC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "AS9000WR": {
+   "file": "AS9000WR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "A527HC": {
+   "file": "A527HC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "A520HC": {
+   "file": "A520HC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "AS9000HR": {
+   "file": "AS9000HR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 251.0,
+    "h": 1026.0,
+    "d": 242.0
+   }
+  },
+  "K83IGYQ": {
+   "file": "K83IGYQ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 285.0,
+    "h": 305.0,
+    "d": 445.0
+   }
+  },
+  "B95AWBTH": {
+   "file": "B95AWBTH.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 355.0,
+    "h": 106.0,
+    "d": 355.0
+   }
+  },
+  "L023M1P42": {
+   "file": "L023M1P42.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 480.0,
+    "h": 261.0,
+    "d": 165.0
+   }
+  },
+  "OLED48C6KNA": {
+   "file": "OLED48C6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1071.0,
+    "h": 675.0,
+    "d": 230.0
+   }
+  },
+  "OLED48C6ENA": {
+   "file": "OLED48C6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1071.0,
+    "h": 675.0,
+    "d": 230.0
+   }
+  },
+  "75QNED65BBA": {
+   "file": "75QNED65BBA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75QNED70BKA": {
+   "file": "75QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75QNED65BNA": {
+   "file": "75QNED65BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75QNED65BEA": {
+   "file": "75QNED65BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75QN1C70BKA": {
+   "file": "75QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75NU850BENA": {
+   "file": "75NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75NU810BENA": {
+   "file": "75NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "75NU85CBENA": {
+   "file": "75NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1669.0,
+    "h": 1026.0,
+    "d": 361.0
+   }
+  },
+  "OLED42C6KNA": {
+   "file": "OLED42C6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 932.0,
+    "h": 577.0,
+    "d": 170.0
+   }
+  },
+  "OLED42C6ENA": {
+   "file": "OLED42C6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 932.0,
+    "h": 577.0,
+    "d": 170.0
+   }
+  },
+  "85QNED70BKA": {
+   "file": "85QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85QNED65BNA": {
+   "file": "85QNED65BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85QN1C70BKA": {
+   "file": "85QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85QNED8MBEA": {
+   "file": "85QNED8MBEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85NU850BENA": {
+   "file": "85NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85NU810BENA": {
+   "file": "85NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "85NU85CBENA": {
+   "file": "85NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1890.0,
+    "h": 1148.0,
+    "d": 362.0
+   }
+  },
+  "75NANO90AKA": {
+   "file": "75NANO90AKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 965.0,
+    "d": 31.0
+   }
+  },
+  "65QNED70BKA": {
+   "file": "65QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65QNED65BNA": {
+   "file": "65QNED65BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65QNED65BEA": {
+   "file": "65QNED65BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65QN1C70BKA": {
+   "file": "65QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65NU850BENA": {
+   "file": "65NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65NU810BENA": {
+   "file": "65NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "65NU85CBENA": {
+   "file": "65NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "32LB650BCNA": {
+   "file": "32LB650BCNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 719.0,
+    "h": 456.0,
+    "d": 180.0
+   }
+  },
+  "32LB650BKNA": {
+   "file": "32LB650BKNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 719.0,
+    "h": 456.0,
+    "d": 180.0
+   }
+  },
+  "OLED55C6KNA": {
+   "file": "OLED55C6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1222.0,
+    "h": 757.0,
+    "d": 230.0
+   }
+  },
+  "OLED55C5ENA": {
+   "file": "OLED55C5ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1222.0,
+    "h": 757.0,
+    "d": 230.0
+   }
+  },
+  "OLED55B6KNA": {
+   "file": "OLED55B6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 218.0
+   }
+  },
+  "OLED55B6BNA": {
+   "file": "OLED55B6BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 218.0
+   }
+  },
+  "OLED55B6NNA": {
+   "file": "OLED55B6NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 218.0
+   }
+  },
+  "75QNED75AEA": {
+   "file": "75QNED75AEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75QNED65ABA": {
+   "file": "75QNED65ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75QNED85AKS": {
+   "file": "75QNED85AKS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75NA1C90AGA": {
+   "file": "75NA1C90AGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75UT93RC0NA": {
+   "file": "75UT93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75UR931C0NA": {
+   "file": "75UR931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "75UR93RC0NA": {
+   "file": "75UR93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1032.0,
+    "d": 359.0
+   }
+  },
+  "OLED65B6SNA": {
+   "file": "OLED65B6SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 900.0,
+    "d": 218.0
+   }
+  },
+  "OLED65B6BNA": {
+   "file": "OLED65B6BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 900.0,
+    "d": 218.0
+   }
+  },
+  "50NU850BENA": {
+   "file": "50NU850BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "50NU810BENA": {
+   "file": "50NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "50NU85CBENA": {
+   "file": "50NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "50QNED70BKA": {
+   "file": "50QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "50QN1C70BKA": {
+   "file": "50QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1112.0,
+    "h": 711.0,
+    "d": 230.0
+   }
+  },
+  "55NU810BENA": {
+   "file": "55NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "55NU85CBENA": {
+   "file": "55NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "55QNED65BEA": {
+   "file": "55QNED65BEA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "55QNED70BKA": {
+   "file": "55QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "55QN1C70BKA": {
+   "file": "55QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 776.0,
+    "d": 230.0
+   }
+  },
+  "43NU810BENA": {
+   "file": "43NU810BENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 959.0,
+    "h": 618.0,
+    "d": 200.0
+   }
+  },
+  "43NU85CBENA": {
+   "file": "43NU85CBENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 959.0,
+    "h": 618.0,
+    "d": 200.0
+   }
+  },
+  "43QNED70BKA": {
+   "file": "43QNED70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 959.0,
+    "h": 618.0,
+    "d": 200.0
+   }
+  },
+  "43QN1C70BKA": {
+   "file": "43QN1C70BKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 959.0,
+    "h": 618.0,
+    "d": 200.0
+   }
+  },
+  "OLED77B5SNA": {
+   "file": "OLED77B5SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 989.0,
+    "d": 51.0
+   }
+  },
+  "55UA7500ENA": {
+   "file": "55UA7500ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 780.0,
+    "d": 230.0
+   }
+  },
+  "65UA7500GNA": {
+   "file": "65UA7500GNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1455.0,
+    "h": 904.0,
+    "d": 269.0
+   }
+  },
+  "OLED77C6SNA": {
+   "file": "OLED77C6SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1711.0,
+    "h": 1035.0,
+    "d": 267.0
+   }
+  },
+  "OLED65C6ENA": {
+   "file": "OLED65C6ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1441.0,
+    "h": 880.0,
+    "d": 230.0
+   }
+  },
+  "50UA7500ENA": {
+   "file": "50UA7500ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1122.0,
+    "h": 718.0,
+    "d": 230.0
+   }
+  },
+  "75UQ931C0NA": {
+   "file": "75UQ931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1678.0,
+    "h": 1027.0,
+    "d": 361.0
+   }
+  },
+  "43UA7500GNA": {
+   "file": "43UA7500GNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 968.0,
+    "h": 621.0,
+    "d": 200.0
+   }
+  },
+  "OLED55B5ENA": {
+   "file": "OLED55B5ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1228.0,
+    "h": 772.0,
+    "d": 235.0
+   }
+  },
+  "OLED65B5HNA": {
+   "file": "OLED65B5HNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 896.0,
+    "d": 235.0
+   }
+  },
+  "OLED65B4NNA": {
+   "file": "OLED65B4NNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 896.0,
+    "d": 235.0
+   }
+  },
+  "OLED65B4SNA": {
+   "file": "OLED65B4SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1449.0,
+    "h": 896.0,
+    "d": 235.0
+   }
+  },
+  "65QNED65ABA": {
+   "file": "65QNED65ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 904.0,
+    "d": 295.0
+   }
+  },
+  "65UT93RC0NA": {
+   "file": "65UT93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 904.0,
+    "d": 295.0
+   }
+  },
+  "65UR93RC0NA": {
+   "file": "65UR93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 904.0,
+    "d": 295.0
+   }
+  },
+  "65NANO90ABA": {
+   "file": "65NANO90ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1456.0,
+    "h": 904.0,
+    "d": 295.0
+   }
+  },
+  "OLED77B4SNA": {
+   "file": "OLED77B4SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 1057.0,
+    "d": 319.0
+   }
+  },
+  "86UR931C0NA": {
+   "file": "86UR931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1164.0,
+    "d": 362.0
+   }
+  },
+  "86UR93RC0NA": {
+   "file": "86UR93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1927.0,
+    "h": 1164.0,
+    "d": 362.0
+   }
+  },
+  "55UR931C0NA": {
+   "file": "55UR931C0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 783.0,
+    "d": 257.0
+   }
+  },
+  "55UR93RC0NA": {
+   "file": "55UR93RC0NA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 783.0,
+    "d": 257.0
+   }
+  },
+  "55NA1C90AKA": {
+   "file": "55NA1C90AKA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 783.0,
+    "d": 257.0
+   }
+  },
+  "55NANO90ABA": {
+   "file": "55NANO90ABA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1236.0,
+    "h": 783.0,
+    "d": 257.0
+   }
+  },
+  "27LX6TKGA": {
+   "file": "27LX6TKGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 623.0,
+    "h": 1265.0,
+    "d": 398.0
+   }
+  },
+  "27LX6TEGAA": {
+   "file": "27LX6TEGAA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 623.0,
+    "h": 1265.0,
+    "d": 398.0
+   }
+  },
+  "27LX6TEGAC": {
+   "file": "27LX6TEGAC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 623.0,
+    "h": 1265.0,
+    "d": 398.0
+   }
+  },
+  "32LX6BEGAC": {
+   "file": "32LX6BEGAC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 724.0,
+    "h": 1308.0,
+    "d": 420.0
+   }
+  },
+  "32LX6BEGAA": {
+   "file": "32LX6BEGAA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 724.0,
+    "h": 1308.0,
+    "d": 420.0
+   }
+  },
+  "32LX6BKGA": {
+   "file": "32LX6BKGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 724.0,
+    "h": 1308.0,
+    "d": 420.0
+   }
+  },
+  "SW09FS1EES": {
+   "file": "SW09FS1EES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1050.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "FQ18GV3BA2": {
+   "file": "FQ18GV3BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU1BH2": {
+   "file": "FQ18GU1BH2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU1BG2": {
+   "file": "FQ18GU1BG2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV5BK2": {
+   "file": "FQ18GV5BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV5BA2": {
+   "file": "FQ18GV5BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV6BA2": {
+   "file": "FQ18GV6BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ22GV3EA2": {
+   "file": "FQ22GV3EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV3EK2": {
+   "file": "FQ18FV3EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV3EA2": {
+   "file": "FQ18GV3EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ19FV3ED2": {
+   "file": "FQ19FV3ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU1EK2": {
+   "file": "FQ18GU1EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ19GU1ED2": {
+   "file": "FQ19GU1ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU1EA2": {
+   "file": "FQ18GU1EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FU1EK2": {
+   "file": "FQ18FU1EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FU1EA2": {
+   "file": "FQ18FU1EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV5EK2": {
+   "file": "FQ18GV5EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV5EA2": {
+   "file": "FQ18GV5EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU2EK2": {
+   "file": "FQ18GU2EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ22GU2EA2": {
+   "file": "FQ22GU2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FU2EA2": {
+   "file": "FQ18FU2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GU2EA2": {
+   "file": "FQ18GU2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ19FU2ED2": {
+   "file": "FQ19FU2ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FU2EK2": {
+   "file": "FQ18FU2EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV6EE2": {
+   "file": "FQ18GV6EE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ22GV6EA2": {
+   "file": "FQ22GV6EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ20FV6ED2": {
+   "file": "FQ20FV6ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ22FV6ES2": {
+   "file": "FQ22FV6ES2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV6EA2": {
+   "file": "FQ18GV6EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ16FV6ED2": {
+   "file": "FQ16FV6ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV6EP2": {
+   "file": "FQ18FV6EP2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV6EK2": {
+   "file": "FQ18FV6EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV6EF2": {
+   "file": "FQ18FV6EF2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV6ES2": {
+   "file": "FQ18FV6ES2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ22FV6EA2": {
+   "file": "FQ22FV6EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV6EA2": {
+   "file": "FQ18FV6EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FW18EV3EA1": {
+   "file": "FW18EV3EA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV4EK2": {
+   "file": "FQ18GV4EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GV4EA2": {
+   "file": "FQ18GV4EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EU1EA2": {
+   "file": "FQ18EU1EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV4EP2": {
+   "file": "FQ18FV4EP2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV4EK2": {
+   "file": "FQ18FV4EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV4ES2": {
+   "file": "FQ18FV4ES2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FV4EA2": {
+   "file": "FQ18FV4EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EV3EA2": {
+   "file": "FQ18EV3EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EV3EA2M": {
+   "file": "FQ18EV3EA2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EU2EA2": {
+   "file": "FQ18EU2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EV4EE2": {
+   "file": "FQ18EV4EE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EV4EA1": {
+   "file": "FQ18EV4EA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV3EN2": {
+   "file": "FQ17FV3EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV3ED2": {
+   "file": "FQ17GV3ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV3EM2": {
+   "file": "FQ17FV3EM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU1EN2": {
+   "file": "FQ17FU1EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1EN2": {
+   "file": "FQ17GU1EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU1ED2": {
+   "file": "FQ17FU1ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV5EN2": {
+   "file": "FQ17GV5EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV5ED2": {
+   "file": "FQ17GV5ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU2ED2": {
+   "file": "FQ17GU2ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU2EN2": {
+   "file": "FQ17FU2EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU2EN2": {
+   "file": "FQ17GU2EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU2ED2": {
+   "file": "FQ17FU2ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV6EN2": {
+   "file": "FQ17GV6EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV6ED2": {
+   "file": "FQ17GV6ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV6EP2": {
+   "file": "FQ17FV6EP2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV6ES2": {
+   "file": "FQ17FV6ES2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV6ED2": {
+   "file": "FQ17FV6ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV4EN2": {
+   "file": "FQ17GV4EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GV4ED2": {
+   "file": "FQ17GV4ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU2EN1": {
+   "file": "FQ17GU2EN1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU2ED1": {
+   "file": "FQ17GU2ED1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1EN1": {
+   "file": "FQ17GU1EN1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1ED1": {
+   "file": "FQ17GU1ED1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17EU1EX2": {
+   "file": "FQ17EU1EX2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV4ES2": {
+   "file": "FQ17FV4ES2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV4ED2": {
+   "file": "FQ17FV4ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FV6EN2M": {
+   "file": "FQ17FV6EN2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1BC2": {
+   "file": "FQ17GU1BC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU1BC2": {
+   "file": "FQ17FU1BC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU2BC2": {
+   "file": "FQ17FU2BC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FU2BM2": {
+   "file": "FQ17FU2BM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GC1EH2": {
+   "file": "FQ18GC1EH2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GC1EG2": {
+   "file": "FQ18GC1EG2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EM2": {
+   "file": "FQ17GC1EM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EY2": {
+   "file": "FQ17GC1EY2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EN2": {
+   "file": "FQ17GC1EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GC1EA2": {
+   "file": "FQ18GC1EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EX2": {
+   "file": "FQ17GC1EX2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EC2": {
+   "file": "FQ17GC1EC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GC1EU2": {
+   "file": "FQ18GC1EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GC3EK2": {
+   "file": "FQ18GC3EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC3EM2": {
+   "file": "FQ17GC3EM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC3EN2": {
+   "file": "FQ17GC3EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GC3EA2": {
+   "file": "FQ18GC3EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC3EC2": {
+   "file": "FQ17GC3EC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC3ED2": {
+   "file": "FQ17GC3ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1ET1M": {
+   "file": "FQ17GC1ET1M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC2EM2": {
+   "file": "FQ17GC2EM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EN1": {
+   "file": "FQ17GC1EN1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EY1": {
+   "file": "FQ17GC1EY1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EX1": {
+   "file": "FQ17GC1EX1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1ED1": {
+   "file": "FQ17GC1ED1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ17GC1EX1M": {
+   "file": "FQ17GC1EX1M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 288.0
+   }
+  },
+  "FQ18GW1HN2": {
+   "file": "FQ18GW1HN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17GW1HN2": {
+   "file": "FQ17GW1HN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GW1HR2": {
+   "file": "FQ18GW1HR2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20GW2HA2": {
+   "file": "FQ20GW2HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHU2": {
+   "file": "FQ18HDWHU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17HDWHM2": {
+   "file": "FQ17HDWHM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHY2": {
+   "file": "FQ18HDWHY2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHM2": {
+   "file": "FQ18HDWHM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHN2": {
+   "file": "FQ18HDWHN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17HDWHP2": {
+   "file": "FQ17HDWHP2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20VDWHM2": {
+   "file": "FQ20VDWHM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHA1": {
+   "file": "FQ18HDWHA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHK1": {
+   "file": "FQ18HDWHK1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHR1": {
+   "file": "FQ18HDWHR1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20VDWHA1": {
+   "file": "FQ20VDWHA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GK1HL2": {
+   "file": "FQ18GK1HL2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GK1HK2": {
+   "file": "FQ18GK1HK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17GK1HC2": {
+   "file": "FQ17GK1HC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GK1HS2": {
+   "file": "FQ18GK1HS2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GK1HA2": {
+   "file": "FQ18GK1HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17GK1HM2": {
+   "file": "FQ17GK1HM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17HDKHM2": {
+   "file": "FQ17HDKHM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20VDWHM2M": {
+   "file": "FQ20VDWHM2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18HDWHY2M": {
+   "file": "FQ18HDWHY2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ20VDWHA1M": {
+   "file": "FQ20VDWHA1M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ17HDKHC1": {
+   "file": "FQ17HDKHC1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1820.0,
+    "d": 300.0
+   }
+  },
+  "FQ18GC2EK2": {
+   "file": "FQ18GC2EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC2ER2": {
+   "file": "FQ18GC2ER2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ20GC2EU2": {
+   "file": "FQ20GC2EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC2EA2": {
+   "file": "FQ18GC2EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ17GC2EC2": {
+   "file": "FQ17GC2EC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC2EU2": {
+   "file": "FQ18GC2EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC4EK2": {
+   "file": "FQ18GC4EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ17GC4EN2": {
+   "file": "FQ17GC4EN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC4EA2": {
+   "file": "FQ18GC4EA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ17GC4ED2": {
+   "file": "FQ17GC4ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC1EK2": {
+   "file": "FQ18GC1EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "FQ18GC1ER2": {
+   "file": "FQ18GC1ER2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 320.0
+   }
+  },
+  "SW13GK1WAS": {
+   "file": "SW13GK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SW11GK1WAS": {
+   "file": "SW11GK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SW09GK1WAS": {
+   "file": "SW09GK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SW07FK1WBS": {
+   "file": "SW07FK1WBS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SW07GK1WES": {
+   "file": "SW07GK1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SW09FK1WAS": {
+   "file": "SW09FK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ11GK1WES": {
+   "file": "SQ11GK1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ16GK1WAS": {
+   "file": "SQ16GK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ09GK1WES": {
+   "file": "SQ09GK1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ13GK1WAS": {
+   "file": "SQ13GK1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ11EK1WES": {
+   "file": "SQ11EK1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 998.0,
+    "h": 330.0,
+    "d": 210.0
+   }
+  },
+  "SQ10GJ1WAS": {
+   "file": "SQ10GJ1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06GJ1WES": {
+   "file": "SQ06GJ1WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06GJ1WFS": {
+   "file": "SQ06GJ1WFS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ09GJ1WAS": {
+   "file": "SQ09GJ1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ07GJ3WES": {
+   "file": "SQ07GJ3WES.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06FJ1WFS": {
+   "file": "SQ06FJ1WFS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ09EJ1WAS": {
+   "file": "SQ09EJ1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SW07GJ1WAS": {
+   "file": "SW07GJ1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SW09EJ1WAS": {
+   "file": "SW09EJ1WAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06GJ1WAJ": {
+   "file": "SQ06GJ1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06FJ1WAJ": {
+   "file": "SQ06FJ1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ07GS7EAS": {
+   "file": "SQ07GS7EAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "SQ07GS8EAS": {
+   "file": "SQ07GS8EAS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "FQ18GN9BE2": {
+   "file": "FQ18GN9BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25GN9BK2": {
+   "file": "FQ25GN9BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25FN9BE2": {
+   "file": "FQ25FN9BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ22GN9BE2": {
+   "file": "FQ22GN9BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN9BA2": {
+   "file": "FQ18FN9BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN9BE2": {
+   "file": "FQ18FN9BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN7BP2": {
+   "file": "FQ18GN7BP2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN7BA2": {
+   "file": "FQ18GN7BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN7BK2": {
+   "file": "FQ18FN7BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN7BA2": {
+   "file": "FQ18FN7BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25FN5BA2": {
+   "file": "FQ25FN5BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN5BK2": {
+   "file": "FQ18GN5BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5BU2": {
+   "file": "FQ18FN5BU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FN5BN2": {
+   "file": "FQ17FN5BN2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5BK2": {
+   "file": "FQ18FN5BK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ17FN5BD2": {
+   "file": "FQ17FN5BD2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN5BA2": {
+   "file": "FQ18GN5BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5BH2": {
+   "file": "FQ18FN5BH2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5BR2": {
+   "file": "FQ18FN5BR2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FW20HDNBM2": {
+   "file": "FW20HDNBM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ17ET1BC2": {
+   "file": "FQ17ET1BC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ22ET4BA2": {
+   "file": "FQ22ET4BA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18ET4BA1": {
+   "file": "FQ18ET4BA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN9BK1": {
+   "file": "FQ18FN9BK1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ17ET2BC2": {
+   "file": "FQ17ET2BC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ20ET2BC2M": {
+   "file": "FQ20ET2BC2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25EN6BE2": {
+   "file": "FQ25EN6BE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18EN9BR2": {
+   "file": "FQ18EN9BR2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FW20SDNBM2": {
+   "file": "FW20SDNBM2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FW19SETBA2": {
+   "file": "FW19SETBA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25LDNBE2": {
+   "file": "FQ25LDNBE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ22GN9HE2": {
+   "file": "FQ22GN9HE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN9HE2": {
+   "file": "FQ18GN9HE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN9HA2": {
+   "file": "FQ18GN9HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25FN9HE2": {
+   "file": "FQ25FN9HE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ22FN9HE2": {
+   "file": "FQ22FN9HE2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN7HA2": {
+   "file": "FQ18GN7HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN5HK2": {
+   "file": "FQ18GN5HK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ25FN5HA2": {
+   "file": "FQ25FN5HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18GN5HA2": {
+   "file": "FQ18GN5HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5HH2": {
+   "file": "FQ18FN5HH2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5HR2": {
+   "file": "FQ18FN5HR2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5HA2": {
+   "file": "FQ18FN5HA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5HU2": {
+   "file": "FQ18FN5HU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ17ET1HC2": {
+   "file": "FQ17ET1HC2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ16ET4HS2": {
+   "file": "FQ16ET4HS2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN5HK1": {
+   "file": "FQ18FN5HK1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN7HK1": {
+   "file": "FQ18FN7HK1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN7HA1": {
+   "file": "FQ18FN7HA1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FQ18FN9HE1": {
+   "file": "FQ18FN9HE1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "FW20PENHA2": {
+   "file": "FW20PENHA2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1915.0,
+    "d": 295.0
+   }
+  },
+  "SQ06GA1WAJ": {
+   "file": "SQ06GA1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06FA1WAJ": {
+   "file": "SQ06FA1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SW06FA1WAJ": {
+   "file": "SW06FA1WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ07EA3WBS": {
+   "file": "SQ07EA3WBS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06EA3WAJ": {
+   "file": "SQ06EA3WAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06BDAWAJ": {
+   "file": "SQ06BDAWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "SQ06BCAWAJ": {
+   "file": "SQ06BCAWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 754.0,
+    "h": 308.0,
+    "d": 189.0
+   }
+  },
+  "FW16FC1EU2": {
+   "file": "FW16FC1EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ17FC1ED2": {
+   "file": "FQ17FC1ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC1EB2": {
+   "file": "FQ18FC1EB2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ17FC1EX2": {
+   "file": "FQ17FC1EX2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC1EU2": {
+   "file": "FQ18FC1EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC1EB2M": {
+   "file": "FQ18FC1EB2M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC1EB1": {
+   "file": "FQ18FC1EB1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC1EB1M": {
+   "file": "FQ18FC1EB1M.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ18FC2EU2": {
+   "file": "FQ18FC2EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "FQ20FC2EU2": {
+   "file": "FQ20FC2EU2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1795.0,
+    "d": 266.0
+   }
+  },
+  "SQ06GS3EAJ": {
+   "file": "SQ06GS3EAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "SQ06FS3EAJ": {
+   "file": "SQ06FS3EAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 799.0,
+    "h": 307.0,
+    "d": 235.0
+   }
+  },
+  "SQ06BCJWBJ": {
+   "file": "SQ06BCJWBJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 302.0,
+    "d": 189.0
+   }
+  },
+  "SQ07B9JWAJ": {
+   "file": "SQ07B9JWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 302.0,
+    "d": 189.0
+   }
+  },
+  "SQ07BBJWAJ": {
+   "file": "SQ07BBJWAJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 837.0,
+    "h": 302.0,
+    "d": 189.0
+   }
+  },
+  "SQ06BCPWBJ": {
+   "file": "SQ06BCPWBJ.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 756.0,
+    "h": 265.0,
+    "d": 184.0
+   }
+  },
+  "AS305DWWA": {
+   "file": "AS305DWWA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS285DWWD": {
+   "file": "AS285DWWD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS285DWWA": {
+   "file": "AS285DWWA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS285DWWC": {
+   "file": "AS285DWWC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS186HWWA": {
+   "file": "AS186HWWA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "AS156HWWL": {
+   "file": "AS156HWWL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "AS183HWFS": {
+   "file": "AS183HWFS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "AS153HWFS": {
+   "file": "AS153HWFS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "AS185LGAA": {
+   "file": "AS185LGAA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 560.0,
+    "h": 540.0,
+    "d": 180.0
+   }
+  },
+  "AS336NSLC": {
+   "file": "AS336NSLC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 377.0,
+    "h": 1100.0,
+    "d": 377.0
+   }
+  },
+  "AS185DWWD": {
+   "file": "AS185DWWD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 343.0,
+    "h": 587.0,
+    "d": 343.0
+   }
+  },
+  "DQ235MEGA": {
+   "file": "DQ235MEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ214MEGA": {
+   "file": "DQ214MEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ185MEGA": {
+   "file": "DQ185MEGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ214MWGA": {
+   "file": "DQ214MWGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ154MWGA": {
+   "file": "DQ154MWGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ185MWGA": {
+   "file": "DQ185MWGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "DQ134MWEC": {
+   "file": "DQ134MWEC.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "X326GB3": {
+   "file": "X326GB3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "BC1L6GB": {
+   "file": "BC1L6GB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z326GB7": {
+   "file": "Z326GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z326GB3": {
+   "file": "Z326GB3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "BC1K6GB": {
+   "file": "BC1K6GB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y326GB3": {
+   "file": "Y326GB3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y326GB7": {
+   "file": "Y326GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "BC1F6GB": {
+   "file": "BC1F6GB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y326GB9": {
+   "file": "Y326GB9.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "X324GB3": {
+   "file": "X324GB3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Y324GB3": {
+   "file": "Y324GB3.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z324GB7": {
+   "file": "Z324GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "X321GB3S": {
+   "file": "X321GB3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z321MW3CS": {
+   "file": "Z321MW3CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "X321MB3S": {
+   "file": "X321MB3S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z321MB3CS": {
+   "file": "Z321MB3CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "R321S": {
+   "file": "R321S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "Z321SG3CS": {
+   "file": "Z321SG3CS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "BEI3ANHLE": {
+   "file": "BEI3ANHLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEF3ANHLE": {
+   "file": "BEF3ANHLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3ANHLO": {
+   "file": "BEI3ANHLO.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3ANBLOE": {
+   "file": "BEI3ANBLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEF3WBQT": {
+   "file": "BEF3WBQT.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3ANBL": {
+   "file": "BEI3ANBL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEF3ANPL": {
+   "file": "BEF3ANPL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 580.0,
+    "h": 59.4,
+    "d": 520.0
+   }
+  },
+  "BEI3QEBLOE": {
+   "file": "BEI3QEBLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3AMBLOE": {
+   "file": "BEI3AMBLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3AMB4E": {
+   "file": "BEI3AMB4E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASB4E": {
+   "file": "BEI3ASB4E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASB2OE": {
+   "file": "BEI3ASB2OE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3QRBLE": {
+   "file": "BEI3QRBLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3HSBLE": {
+   "file": "BEI3HSBLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3HRBLE": {
+   "file": "BEI3HRBLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3AMB4": {
+   "file": "BEI3AMB4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEF3MQ1": {
+   "file": "BEF3MQ1.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEF3AMB4": {
+   "file": "BEF3AMB4.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASMLE": {
+   "file": "BEI3ASMLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEF3ASMLOE": {
+   "file": "BEF3ASMLOE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3ASML": {
+   "file": "BEI3ASML.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEI3CSQE": {
+   "file": "BEI3CSQE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "BEY3GSU1E": {
+   "file": "BEY3GSU1E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEY3GS2E": {
+   "file": "BEY3GS2E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEY3MSE": {
+   "file": "BEY3MSE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEY3MS": {
+   "file": "BEY3MS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEY3GS2": {
+   "file": "BEY3GS2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEY3SRBL": {
+   "file": "BEY3SRBL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 54.4,
+    "d": 515.0
+   }
+  },
+  "BEF3ABWLE": {
+   "file": "BEF3ABWLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 575.0,
+    "h": 59.4,
+    "d": 515.0
+   }
+  },
+  "MLJ39KR": {
+   "file": "MLJ39KR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ39EWO": {
+   "file": "MLJ39EWO.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ39WW": {
+   "file": "MLJ39WW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ39EW": {
+   "file": "MLJ39EW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ39HW": {
+   "file": "MLJ39HW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "ML39BW": {
+   "file": "ML39BW.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MLJ32EWSO": {
+   "file": "MLJ32EWSO.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 527.0,
+    "h": 394.0,
+    "d": 480.0
+   }
+  },
+  "MWJ23P": {
+   "file": "MWJ23P.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MWJ23E": {
+   "file": "MWJ23E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23FD": {
+   "file": "MW23FD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23GDI": {
+   "file": "MW23GDI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23BDI": {
+   "file": "MW23BDI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23WDI": {
+   "file": "MW23WDI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23BPI": {
+   "file": "MW23BPI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW22CAI": {
+   "file": "MW22CAI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23WD": {
+   "file": "MW23WD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23GD": {
+   "file": "MW23GD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23BD": {
+   "file": "MW23BD.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW23BP": {
+   "file": "MW23BP.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "MW20CDN": {
+   "file": "MW20CDN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 454.0,
+    "h": 261.0,
+    "d": 328.0
+   }
+  },
+  "MWJ20EDN": {
+   "file": "MWJ20EDN.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 454.0,
+    "h": 261.0,
+    "d": 328.0
+   }
+  },
+  "MW25S": {
+   "file": "MW25S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 370.0
+   }
+  },
+  "MWJ25E": {
+   "file": "MWJ25E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 370.0
+   }
+  },
+  "75QNED86BMA": {
+   "file": "75QNED86BMA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1677.0,
+    "h": 1042.0,
+    "d": 370.0
+   }
+  },
+  "100QNED86BK": {
+   "file": "100QNED86BK.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 2230.0,
+    "h": 1372.0,
+    "d": 434.0
+   }
+  },
+  "OLED83C6SNA": {
+   "file": "OLED83C6SNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1842.0,
+    "h": 1096.0,
+    "d": 297.0
+   }
+  },
+  "OLED83C6KNA": {
+   "file": "OLED83C6KNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1842.0,
+    "h": 1096.0,
+    "d": 297.0
+   }
+  },
+  "86QNED86BMA": {
+   "file": "86QNED86BMA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1928.0,
+    "h": 1190.0,
+    "d": 370.0
+   }
   }
  },
  "_note": "build_products.py로 생성. 크기는 카탈로그 값, 모양은 Figma 도면(layout=drawing) 또는 화면용 표현."

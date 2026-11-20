@@ -1,0 +1,15 @@
+{
+ "sku": "FX24ENER",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/fx24ene.akor_2p.jpg — FX24KNTR와 같은 몸체, 색만 다름",
+ "geometry_from": "FX24KNTR",
+ "colors": {
+  "door": {
+   "name": "네이처 베이지",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+  }
+ }
+}
