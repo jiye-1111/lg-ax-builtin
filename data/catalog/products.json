@@ -27706,8 +27706,8 @@
       "install_type": "freestanding",
       "product_dims_mm": {
         "w": 342,
-        "h": 342,
-        "d": 95
+        "h": 95,
+        "d": 342
       },
       "required_space_mm": {
         "w": null,
@@ -27726,7 +27726,7 @@
         "d": null
       },
       "spec_notes": [
-        "크기 (WxHxD) 342 x 342 x 95: 제품 페이지 스펙 표",
+        "크기: 제품 페이지 스펙 표에는 '342 x 342 x 95'로 적혀 있다. 납작한 원형 본체라 지름 342, 높이 95로 넣었다",
         "구분: 로봇청소기"
       ],
       "options": {
@@ -28156,8 +28156,8 @@
       "install_type": "freestanding",
       "product_dims_mm": {
         "w": 280,
-        "h": 280,
-        "d": 89
+        "h": 89,
+        "d": 280
       },
       "required_space_mm": {
         "w": null,
@@ -28176,7 +28176,7 @@
         "d": null
       },
       "spec_notes": [
-        "크기 (WxHxD) 280 x 280 x 89: 제품 페이지 스펙 표",
+        "크기: 제품 페이지 스펙 표에는 '280 x 280 x 89'로 적혀 있다. 납작한 원형 본체라 지름 280, 높이 89로 넣었다",
         "구분: 로봇청소기"
       ],
       "options": {

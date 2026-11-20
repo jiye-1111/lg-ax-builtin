@@ -10,7 +10,7 @@ API_PORT=8011 uv run lgb-api     # http://127.0.0.1:8011  (스캔 올리기: dat
 ```
 
 ## 끝난 것
-- LGE.COM 생활가전 1,150종 카탈로그·도면·3D 모델 (268개 모델로 묶임).
+- LGE.COM 생활가전 1,150종 카탈로그·도면·3D 모델 (267개 모델로 묶임).
 - 설치 방식에 따른 판정 (`recommender/fit.py`, `pose.py`, 규칙 `docs/specs/fit-rules.md`)
   - 빌트인·빌트인 핏(Fit & Max): 장 안에 들어가는지.
   - 일반: 놓을 자리 + 앞쪽 문 열림 공간. `door_swing_mm`이 없고 문 있는 종류면 `FIT_FRONT_DEFAULT_MM`(600)을 가정하고 조건부.

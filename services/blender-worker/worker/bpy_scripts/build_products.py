@@ -233,8 +233,12 @@ def purifier(parts, pal, W, D, H):
 
 
 def from_drawing(parts: list, pal: dict, drawing: dict, dims: dict) -> None:
-    for b in boxes_from_drawing(drawing, dims):
-        mat, bev = pal[ROLE_MAT[b["role"]]], ROLE_BEVEL.get(b["role"], 0.0)
+    boxes = boxes_from_drawing(drawing, dims)
+    # 문·유리가 없는 제품(로봇청소기 등)은 본체가 색을 바꾸는 면이다
+    no_front = not any(ROLE_MAT[b["role"]] == "finish" for b in boxes)
+    for b in boxes:
+        name = "finish" if no_front and b["role"] == "body" else ROLE_MAT[b["role"]]
+        mat, bev = pal[name], ROLE_BEVEL.get(b["role"], 0.0)
         coords = (b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"])
         if b.get("shape", "box") == "box":
             box(parts, mat, *coords, bevel=bev)

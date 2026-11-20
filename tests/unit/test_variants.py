@@ -22,7 +22,7 @@ def by_sku(fams):
 
 def test_lineup_products_group_into_models():
     fams = families(CAT, shapes())
-    assert len(fams) == 268
+    assert len(fams) == 267
     assert sum(len(f["variants"]) for f in fams) == 1150
 
 
