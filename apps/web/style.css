@@ -783,3 +783,14 @@ table.techs td { vertical-align: middle; }
 @media (max-width: 900px) {
   .canvas .hint { display: none; }
 }
+
+/* 상세 창 판정: 들어가는지 한눈에 (근거 숫자는 화면에 내지 않는다) */
+.pd-verdict { display: grid; grid-template-columns: auto 1fr; align-items: baseline; gap: 2px 12px; padding: 14px 16px; border-radius: 14px; background: var(--drafting); }
+.pd-verdict b { font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.pd-verdict span { font-size: var(--t-xs); color: var(--graphite); }
+.pd-verdict em { grid-column: 1 / -1; font-style: normal; font-size: var(--t-sm); }
+.pd-verdict.v-fit { background: var(--fit-bg); color: var(--fit); }
+.pd-verdict.v-conditional { background: var(--cond-bg); color: var(--cond); }
+.pd-verdict.v-no_fit { background: var(--nofit-bg); color: var(--nofit); }
+.pd-verdict.v-none b { font-size: var(--t-md); }
+.pd-verdict:not(.v-none) span { color: inherit; opacity: .75; }

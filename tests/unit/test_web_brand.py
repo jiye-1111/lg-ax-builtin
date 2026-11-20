@@ -88,3 +88,11 @@ def test_remodel_stage_is_uncluttered():
     assert 'style="font-size:12px;margin:6px 0 0">참고용' not in js
     s = css()
     assert re.search(r"\.lib #lib\s*{[^}]*grid-template-columns:\s*1fr", s)
+
+
+def test_product_detail_shows_verdict_not_spec_notes():
+    """지예: 상세 창은 '설치 사양 근거' 같은 말 대신 들어가는지(적합/부적합)만. 근거는 카탈로그 데이터로만 둔다."""
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'id="pdVerdict"' in js
+    assert "설치 사양 근거" not in js and "확인 안 됨" not in js
+    assert '"부적합"' in js

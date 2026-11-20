@@ -286,28 +286,55 @@ export async function customer(pid) {
       li.ondragstart = (e) => e.dataTransfer.setData("text/sku", li.dataset.sku);
     });
   };
-  // ---- 제품 상세 창: 사진·모델명·치수·설치 사양·색상을 한 번에 보고 "넣어 보기" ----
+  // ---- 제품 상세 창: 사진·모델명·크기·색상, 그리고 우리 집에 들어가는지(적합/부적합)만 크게 ----
+  // 카탈로그 spec_notes(근거)·필요 공간 같은 숫자는 판정에만 쓰고 화면에는 내지 않는다
   const pdModal = document.getElementById("pdModal");
   const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
   const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", other: "기타" };
-  const mmOr = (v) => (v == null ? `<span class="muted">확인 안 됨</span>` : `${mm(v)} mm`);
+  const PD_VERDICT = { fit: "적합", conditional: "조건부 적합", no_fit: "부적합" };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
+  // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
+  const verdictHtml = (verdict, where, why) => `<div class="pd-verdict v-${verdict}"><b>${PD_VERDICT[verdict] || "판정 불가"}</b><span>${esc(where)}</span>${why ? `<em>${esc(why)}</em>` : ""}</div>`;
+  const WHY = { scan_based: "스캔 치수 기준이에요. 설치 전에 실측으로 한 번 더 확인해요", clearance_unknown: "옆·뒤 여유 공간은 설치 기사가 확인해요", no_wall_in_zone: "영역에 붙일 벽이 없어요" };
+  const dimWhy = (fit) => {
+    const bad = Object.entries(fit.dims || {}).find(([, d]) => d.verdict && d.verdict !== "fit" && d.verdict !== "unknown");
+    if (!bad) return WHY[(fit.notes || []).find((n) => WHY[n])] || "";
+    const [k, d] = bad;
+    const name = { width: "폭이", height: "높이가", depth: "깊이가" }[k] || `${DIM[k] || k}이`;
+    return d.slack_mm != null && d.slack_mm < 0 ? `${name} ${mm(-d.slack_mm)} mm 모자라요` : `${name} 빠듯해요`;
+  };
+  const fillVerdict = async (sku, p) => {
+    const box = document.getElementById("pdVerdict");
+    const placed = project.scene_state.placements.find((q) => q.sku === sku && q.verdict);
+    if (placed && PD_VERDICT[placed.verdict]) {
+      const r = (placed.reasons || []).find((x) => x.verdict !== "fit");
+      box.innerHTML = verdictHtml(placed.verdict, "놓아 둔 자리 기준", placed.verdict === "fit" ? "" : r?.label);
+      return;
+    }
+    const z = zones?.find((q) => (p.zone_fit || []).includes(q.purpose)) || zones?.[0];
+    if (!z) { box.innerHTML = `<div class="pd-verdict v-none"><b>넣어 보면 알려 드려요</b><span>3D에 놓으면 그 자리에 들어가는지 바로 판정해요</span></div>`; return; }
+    box.innerHTML = `<div class="pd-verdict v-none"><b>확인하는 중…</b></div>`;
+    try {
+      const rec = await api(`/api/projects/${pid}/zones/${z.zone_id}/recommendations?category=${encodeURIComponent(p.category)}`);
+      if (document.getElementById("pdVerdict") !== box) return; // 그 사이 다른 제품을 열었으면 버린다
+      const it = rec.items.find((q) => q.product.sku === sku);
+      box.innerHTML = it && PD_VERDICT[it.fit.verdict] ? verdictHtml(it.fit.verdict, `'${z.name}' 기준`, it.fit.verdict === "fit" ? "" : dimWhy(it.fit))
+        : `<div class="pd-verdict v-none"><b>넣어 보면 알려 드려요</b><span>3D에 놓으면 그 자리에 들어가는지 바로 판정해요</span></div>`;
+    } catch { box.innerHTML = ""; }
+  };
   const openDetail = (sku) => {
     const p = prodOf(sku), f = familyOf(sku);
     if (!p || !f) return;
     pick[f.family_id] = sku;
     const v = f.variants.find((x) => x.sku === sku) || {};
-    const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d, rs = p.required_space_mm || {}, cl = p.clearance_mm || {};
+    const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d;
     const rows = [
-      ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : `<span class="muted">확인 안 됨</span>`],
-      ["설치 필요 공간", [rs.w, rs.h, rs.d].some((x) => x != null) ? `가로 ${mmOr(rs.w)} · 높이 ${mmOr(rs.h)} · 깊이 ${mmOr(rs.d)}` : `<span class="muted">확인 안 됨</span>`],
-      ["여유 공간", [cl.side, cl.top, cl.back].some((x) => x != null) ? `옆 ${mmOr(cl.side)} · 위 ${mmOr(cl.top)} · 뒤 ${mmOr(cl.back)}` : `<span class="muted">확인 안 됨</span>`],
-      ["문 열림", p.door_swing_mm ? `${mm(p.door_swing_mm)} mm` : `<span class="muted">확인 안 됨</span>`],
-      ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "—")],
-      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", ") || "—")],
-      ["색상 · 재질", esc(finishLabel(v)) || "—"],
+      ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : ""],
+      ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "")],
+      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", "))],
+      ["색상 · 재질", esc(finishLabel(v))],
       ["모델명", `<span class="mono">${esc(sku)}</span>`],
-    ];
+    ].filter(([, val]) => val);
     pdModal.innerHTML = `
       <div class="pd-top">
         <div class="pd-photo" style="background-color:${esc(v.hex || "#fff")}"><span>${esc(CATEGORY[p.category] || p.category)}</span></div>
@@ -319,14 +346,14 @@ export async function customer(pid) {
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
+      <div id="pdVerdict" aria-live="polite"></div>
       <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
-      ${(p.spec_notes || []).length ? `<details class="pd-notes"><summary>설치 사양 근거 ${p.spec_notes.length}개</summary><ul>${p.spec_notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul></details>` : ""}
       <div class="pd-actions">
         <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
         ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
-        <span class="pd-src muted">LGE.COM 확인 ${esc(p.source_checked_at || "")}</span>
       </div>`;
     pdModal.hidden = false;
+    fillVerdict(sku, p);
     pdModal.querySelectorAll("[data-pd-variant]").forEach((b) => (b.onclick = () => { openDetail(b.dataset.pdVariant); renderLib(); }));
     document.getElementById("pdClose").onclick = closeDetail;
     const place = document.getElementById("pdPlace");
