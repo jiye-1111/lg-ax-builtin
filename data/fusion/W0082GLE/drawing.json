@@ -1,0 +1,86 @@
+{
+ "sku": "W0082GLE",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/W0082GLE_size_2p.jpg (폭 282, 높이 497, 깊이 534). 라벤더 문 테두리 + 유리창, 크림색 본체, 뒤쪽 돌출 약 24mm. 창 위치는 치수도 비율 근사값",
+ "front": {
+  "w": 282,
+  "h": 497,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 282,
+    "h": 482
+   },
+   {
+    "name": "door/0_frame",
+    "x": 0,
+    "y": 0,
+    "w": 282,
+    "h": 482
+   },
+   {
+    "name": "display/glass",
+    "x": 34,
+    "y": 72,
+    "w": 214,
+    "h": 343
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 16,
+    "y": 482,
+    "w": 30,
+    "h": 15
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 236,
+    "y": 482,
+    "w": 30,
+    "h": 15
+   }
+  ]
+ },
+ "side": {
+  "w": 534,
+  "h": 497,
+  "parts": [
+   {
+    "name": "door/side",
+    "x": 0,
+    "y": 0,
+    "w": 30,
+    "h": 482
+   },
+   {
+    "name": "body",
+    "x": 30,
+    "y": 0,
+    "w": 480,
+    "h": 482
+   },
+   {
+    "name": "trim/rear_vent",
+    "x": 510,
+    "y": 177,
+    "w": 24,
+    "h": 120
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 크림 라벤더",
+   "material": "글라스 (크리스탈)",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#EFE9DF",
+   "from": "치수도 측면 이미지가 크림색"
+  }
+ }
+}

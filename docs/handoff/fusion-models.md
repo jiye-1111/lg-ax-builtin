@@ -5,7 +5,7 @@
 - 브랜치: `claude/project-thread-nqfl5j` (main 51ea54f 위). 커밋은 제품군마다 하나씩.
 - 커밋 작성자: 이 PC에는 git 전역 이름이 없어서 `git -c user.name="jiye-1111" -c user.email=<지예 이메일> commit ...`으로 커밋했다.
 
-## 진행 상황: 23 / 53
+## 진행 상황: 25 / 53
 
 끝남 (`data/fusion/<SKU>/drawing.json` 있음):
 
@@ -17,10 +17,10 @@
 | 인덕션 | BEI3QKBLOE, BEF3AMB4E, BEF3ASMLE |
 | 정수기 (+파우셋) | WU523AWB, WU523ACB |
 | 컨버터블 패키지 | X323MEF, Y323MEF, Z323MEF, X324GB7, Y324GB7 |
+| 와인셀러 | W1213GG, W1212GB, W0492GG, W0082GLE |
 
-남음 (30):
+남음 (28):
 
-- 와인셀러: W0492GG, W0082GLE (W1213GG·W1212GB는 끝. 문 테두리 finish + display 유리창 + wood 선반 방식 그대로 쓰면 된다)
 - 오븐·전자레인지: MLJ32ERS, MLJ39ER, MW23FDI
 - 세탁·건조: WL21WDU, WL21EGZU, FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER
 - 스타일러·슈케어: SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E
