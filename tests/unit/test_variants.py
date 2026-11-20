@@ -20,10 +20,10 @@ def by_sku(fams):
     return {v["sku"]: f for f in fams for v in f["variants"]}
 
 
-def test_sixteen_products_become_nine_models():
+def test_lineup_products_group_into_models():
     fams = families(CAT, shapes())
-    assert len(fams) == 9
-    assert sum(len(f["variants"]) for f in fams) == 16
+    assert len(fams) == 39
+    assert sum(len(f["variants"]) for f in fams) == 53
 
 
 def test_same_body_different_finish_is_one_model():
@@ -33,11 +33,19 @@ def test_same_body_different_finish_is_one_model():
     assert m["DUE6BGE"] is m["DUE6EWL2E"]
     assert m["BEF3AMB4E"] is m["BEF3ASMLE"]
     assert m["WU523AWB"] is m["WU523ACB"]
+    assert m["W1213GG"] is m["W1212GB"]
+    assert m["WL21WDU"] is m["WL21EGZU"]
+    assert m["FX24KNTR"] is m["FX24ENER"]
+    assert m["RD20KNTR"] is m["RD21ESER"]
+    assert m["SC5GMR80S"] is m["SC5MBR80S"] is m["SC5MSR82A"]
+    assert m["SS4RHS60E"] is m["SS4RWS60E"]
 
 
 def test_different_size_or_shape_stays_separate():
     m = by_sku(families(CAT, shapes()))
     assert m["M616GBB0M1"] is not m["G646GBB031"]   # 깊이 698 vs 709
+    assert m["X323MEF"] is not m["Y323MEF"]           # 같은 크기라도 냉장·냉동은 다른 제품
+    assert m["FQ18GV3EK2"] is not m["FQ17GU1ED2"]     # 뷰I · 뷰II는 앞모양이 다르다
     assert m["D646GBB041"] is not m["G646GBB031"]   # 컨버터블: 같은 크기, 다른 문 나눔
     assert m["BEI3QKBLOE"] is not m["BEF3AMB4E"]    # 화구 배치 다름
 

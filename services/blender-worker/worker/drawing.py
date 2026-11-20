@@ -2,6 +2,7 @@
 
 도면 규칙 (1px = 1mm, 위에서 아래로 y)
 - 정면(front): parts 프레임 안 사각형. 이름 = 역할[/번호[/방향]]  예) door/0, handle/2/h, vent, display, body
+  shape가 disc면 정면을 보는 원판(세탁기 문), cylinder면 세로 원기둥(공기청정기 몸통). 없으면 상자.
 - 옆면(side): 왼쪽이 앞. door/side, handle/side, body 가 각 역할의 깊이(앞뒤 범위)를 정한다.
 - 윗면(top, 선택): 위에서 내려다본 모습, 아래쪽이 앞. 화구(shape=circle)는 상판 위 원 무늬,
   사각형은 상판 위 얇은 인쇄(조작부 등)가 된다.
@@ -17,7 +18,9 @@ from pathlib import Path
 
 TOL_MM = 1.0
 # 옆면에 따로 없는 역할의 깊이: 문 앞면 기준 (앞으로 a mm, 뒤로 b mm)
-FLUSH = {"vent": (-20.0, None), "display": (1.5, -2.0)}
+FLUSH = {"vent": (-20.0, None), "display": (1.5, -2.0), "screen": (0.0, -3.0), "window": (0.0, -3.0)}
+# 정면 부품 모양: box(기본) · disc(정면을 보는 원판, 세탁기 문) · cylinder(세로 원기둥, 공기청정기 몸통)
+SHAPES = {"box", "disc", "cylinder"}
 
 
 class DrawingError(ValueError):
@@ -67,8 +70,11 @@ def boxes_from_drawing(drawing: dict, dims: dict) -> list[dict]:
             d0, d1 = max(0.0, min(d0, d1)), max(d0, d1)  # 제품 앞면 밖으로는 안 나간다
         else:
             raise DrawingError(f"모르는 부품 이름: {p['name']}")
+        shape = p.get("shape", "box")
+        if shape not in SHAPES:
+            raise DrawingError(f"{p['name']}: 모르는 모양 {shape}")
         boxes.append({
-            "name": p["name"], "role": role,
+            "name": p["name"], "role": role, "shape": shape,
             "x0": (p["x"] - W / 2) / 1000, "x1": (p["x"] + p["w"] - W / 2) / 1000,
             "y0": (d0 - D / 2) / 1000, "y1": (d1 - D / 2) / 1000,
             "z0": (H - p["y"] - p["h"]) / 1000, "z1": (H - p["y"]) / 1000,
