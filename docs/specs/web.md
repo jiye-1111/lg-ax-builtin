@@ -16,10 +16,15 @@
 - `js/core.js` API 호출·라벨·알림, `js/viewer.js` 3D, `js/plan.js` 평면도 SVG, `js/pages.js` 첫 화면·신청·기사 화면, `js/remodel.js` 리모델링 작업대, `js/install.js` 웹앱 설치.
 - 빌드 도구 없음. ES 모듈 + import map(three.js).
 
-## 디자인 기준
-- 방향: 설계 도면 작업대. 바탕 콘크리트 회색(`--concrete #e9ecea`), 평면은 1 m 격자 위 도면(`--drafting`), 글자 `--ink #1c2024`.
-- 색은 의미에만: 판정(적합 초록·조건부 호박·불가 빨강), 채광 노랑, 와이파이 파랑, 동선 남색. LG 레드(`--lg #a50034`)는 브랜드와 지금 고른 것(선택·놓을 제품)에만.
-- 글꼴 IBM Plex Sans KR 하나, 숫자는 tabular. 크기 12/13/14/16/20, 첫 화면 제목만 크게.
+## 디자인 기준 (2026-11-20 LG 톤으로 바꿈)
+- 방향: LG 쇼룸 느낌. 바탕은 LG 공식 Warm Grey(`--warm-grey #f0ece4`), 그 위에 흰 판(반경 20px, 옅은 따뜻한 그림자), 글자 `--ink #1d1c1a`. 상단 바는 반투명 유리 막대.
+- 색 출처는 lg.com/global/our-identity/color. Heritage Red(`--lg #a50034`)는 주 버튼과 지금 고른 것에만, Active Red(`--lg-active #fd312e`)는 작은 점 하나 정도로만 쓴다. LG 로고는 쓰지 않는다(글자 "LG HouseTwin"만).
+- 판정·시뮬레이션 색은 의미에만: 적합 초록·조건부 호박·불가 빨강, 채광 노랑, 와이파이 파랑, 동선 남색.
+- 글꼴 Pretendard 하나(`vendor/fonts`, SIL OFL). 인터넷 없이도 같은 글꼴이 나온다. 한글은 `word-break: keep-all`로 단어 중간에서 안 끊는다. 숫자는 tabular.
+- 버튼·세그먼트·칩은 알약 모양. 아이콘은 이모지 대신 선 아이콘(SVG).
+- 첫 화면(`#/new`): 전체 화면 렌더 사진 위에 왼쪽 카피, 아래 유리 판(3단계 + 파일 올리기). 사진은 `img/hero-kitchen.webp`(데스크톱), `img/hero-kitchen-m.webp`(휴대폰 세로). 휴대폰은 카피 → 사진 → 단계 순서.
+- 첫 화면 렌더: `services/blender-worker/worker/bpy_scripts/render_hero.py`. 카탈로그 치수로 만든 glb(냉장고 G646GBB031, 김치냉장고 Z386GBB281, 식기세척기 DUE6BGE, 정수기 WU523AWB, 인덕션 BEI3QKBLOE)를 붙박이로 넣고 Cycles로 렌더한다. 실행 `python render_hero.py -- out.png 2400 1350 80`(bpy 필요).
+- 3D 배경은 톤 매핑 뒤 따뜻한 회색으로 보이게 `#ffe6c4`를 넣는다.
 - 평면도 왼쪽 아래에 1 m 축척 막대.
 
 - 고객 화면은 2초마다 `/version`을 확인해 Claude·Codex 대화에서 바뀐 상태(스타일·재질·배치)를 다시 그린다.
