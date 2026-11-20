@@ -28,7 +28,7 @@ def placed(c):
 def test_families_endpoint_groups_real_products(c):
     fams = c.get("/api/catalog/families").json()
     real = [f for f in fams if not f["demo_only"]]
-    assert len(real) == 9
+    assert len(real) == 39  # 53개 제품 → 39개 모델
     fr = next(f for f in real if f["family_id"] == "G646GBB031")
     assert [v["sku"] for v in fr["variants"]] == ["G646GBB031", "G646MEE021", "G646SVV031"]
 

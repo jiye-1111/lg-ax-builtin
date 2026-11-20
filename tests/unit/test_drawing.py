@@ -116,3 +116,53 @@ def test_every_catalog_product_has_a_drawing_that_matches_its_size():
         assert d["sku"] == p["sku"]
         boxes_from_drawing(d, p["product_dims_mm"])
         top_items(d, p["product_dims_mm"])
+
+
+# ---------- 둥근 부품 · 화면 · 유리창 (가전 전체로 넓힐 때 추가) ----------
+WASH = {"w": 700, "h": 990, "d": 830}
+
+
+def washer_drawing() -> dict:
+    return {
+        "sku": "WASH",
+        "front": {"w": 700, "h": 990, "parts": [
+            {"name": "body", "x": 0, "y": 0, "w": 700, "h": 990},
+            {"name": "door/0", "shape": "disc", "x": 110, "y": 300, "w": 480, "h": 480},
+            {"name": "window", "shape": "disc", "x": 180, "y": 370, "w": 340, "h": 340},
+            {"name": "screen", "x": 250, "y": 60, "w": 200, "h": 40},
+        ]},
+        "side": {"w": 830, "h": 990, "parts": [
+            {"name": "door/side", "x": 0, "y": 300, "w": 60, "h": 480},
+            {"name": "body", "x": 60, "y": 0, "w": 770, "h": 990},
+        ]},
+    }
+
+
+def test_round_parts_keep_their_shape():
+    boxes = {b["name"]: b for b in boxes_from_drawing(washer_drawing(), WASH)}
+    assert boxes["door/0"]["shape"] == "disc"          # 정면을 보는 원판 (세탁기 문)
+    assert boxes["window"]["shape"] == "disc"
+    assert boxes["body"].get("shape", "box") == "box"
+
+
+def test_window_and_screen_sit_on_the_door_front():
+    boxes = {b["name"]: b for b in boxes_from_drawing(washer_drawing(), WASH)}
+    front = -0.415
+    for n in ("window", "screen"):
+        assert boxes[n]["y0"] == pytest.approx(front, abs=0.002)
+        assert boxes[n]["y1"] > boxes[n]["y0"]
+
+
+def test_vertical_cylinder_for_round_products():
+    d = {"sku": "AIR", "front": {"w": 376, "h": 1073, "parts": [
+            {"name": "body", "shape": "cylinder", "x": 0, "y": 0, "w": 376, "h": 1073}]},
+         "side": {"w": 376, "h": 1073, "parts": [{"name": "body", "x": 0, "y": 0, "w": 376, "h": 1073}]}}
+    b = boxes_from_drawing(d, {"w": 376, "h": 1073, "d": 376})[0]
+    assert b["shape"] == "cylinder"
+
+
+def test_unknown_shape_is_rejected():
+    d = washer_drawing()
+    d["front"]["parts"][1]["shape"] = "star"
+    with pytest.raises(DrawingError):
+        boxes_from_drawing(d, WASH)
