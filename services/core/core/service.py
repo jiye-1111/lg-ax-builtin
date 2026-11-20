@@ -210,7 +210,7 @@ class Service:
                 raise Invalid("저장본은 집마다 30개까지예요. 안 쓰는 저장본을 지워 주세요")
             sid = self.db.next_id("s")
         body = {"save_id": sid, "project_id": pid, "kind": kind,
-                "label": (label or "").strip()[:60] or ("자동 저장" if kind == "auto" else f"저장 {now()[5:16].replace('T', ' ')}"),
+                "label": (label or "").strip()[:60] or ("자동 저장" if kind == "auto" else f"저장 {self.db.next_id('sv.' + pid).split('_')[-1].lstrip('0')}"),
                 "by": user["user_id"], "by_name": user["name"], "saved_at": now(), "project_version": p["version"],
                 "placements": len(p["scene_state"].get("placements") or []), "zones": len(state["zones"]),
                 "state": state}

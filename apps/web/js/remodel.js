@@ -5,6 +5,7 @@ import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
+import { mountSaveBar } from "./account.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -13,6 +14,7 @@ export async function customer(pid) {
     <div class="studio" data-tab="sel" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
+        <div class="savebar" id="savebar" aria-label="저장"></div>
         <a class="quiet new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
         <div class="seg" role="group" aria-label="보기 전환">
           <button data-view="3d" class="on">3D</button><button data-view="plan">평면</button><button data-view="split">나란히</button></div>
@@ -825,7 +827,10 @@ export async function customer(pid) {
     }
     toast(e.message, true);
   }
-  if (project) rememberHome(pid, token || project.share_token);
+  if (project) {
+    rememberHome(pid, token || project.share_token);
+    mountSaveBar(document.getElementById("savebar"), pid, () => token || project.share_token);
+  }
   if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; showSim(); }
   // 채팅(Claude·Codex) 쪽 변경을 2초마다 확인
   const timer = setInterval(() => refresh().catch(() => {}), 2000);

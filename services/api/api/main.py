@@ -114,8 +114,10 @@ def admin_user(u: dict = Depends(current_user)) -> dict:
 
 ME, ME_OPT, TECH, ADMIN = Depends(current_user), Depends(optional_user), Depends(technician_user), Depends(admin_user)
 
-# 비밀번호 대입 막기: 10분 동안 같은 이메일 또는 같은 IP에서 5번 틀리면 잠깐 막는다
-LOGIN_WINDOW_S, LOGIN_MAX_FAILS = 600, 5
+# 비밀번호 대입 막기: 10분 동안 같은 이메일로 5번, 같은 IP에서 20번 틀리면 잠깐 막는다
+# (강의실처럼 여러 명이 같은 공유기를 쓰면 IP가 같아서 IP 쪽은 넉넉하게)
+LOGIN_WINDOW_S = 600
+LOGIN_MAX_FAILS = {"e": 5, "ip": 20}
 _fails: dict[str, deque] = defaultdict(deque)
 
 
@@ -129,7 +131,7 @@ def _limited(keys: list[str]) -> bool:
         q = _fails[k]
         while q and q[0] < cut:
             q.popleft()
-        if len(q) >= LOGIN_MAX_FAILS:
+        if len(q) >= LOGIN_MAX_FAILS[k.split(":", 1)[0]]:
             return True
     return False
 
