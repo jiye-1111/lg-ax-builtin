@@ -1,0 +1,70 @@
+{
+ "sku": "FX24KNTR",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/fx24knt.akor_2p.jpg (폭 700, 높이 990, 깊이 830). 둥근 문 1개(지름 약 520), 위쪽 조작부. 문 위치·크기는 치수도 비율 근사값",
+ "front": {
+  "w": 700,
+  "h": 990,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 700,
+    "h": 990
+   },
+   {
+    "name": "display/control",
+    "x": 210,
+    "y": 50,
+    "w": 440,
+    "h": 70
+   },
+   {
+    "name": "trim/door_ring",
+    "x": 90,
+    "y": 195,
+    "w": 520,
+    "h": 520,
+    "shape": "circle"
+   },
+   {
+    "name": "display/door_glass",
+    "x": 170,
+    "y": 275,
+    "w": 360,
+    "h": 360,
+    "shape": "circle"
+   }
+  ]
+ },
+ "side": {
+  "w": 830,
+  "h": 990,
+  "parts": [
+   {
+    "name": "trim/door_ring",
+    "x": 0,
+    "y": 195,
+    "w": 50,
+    "h": 520
+   },
+   {
+    "name": "door/shell",
+    "x": 50,
+    "y": 0,
+    "w": 780,
+    "h": 990
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "스페이스 블랙",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+  }
+ }
+}

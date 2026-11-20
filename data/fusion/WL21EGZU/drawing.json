@@ -1,0 +1,16 @@
+{
+ "sku": "WL21EGZU",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/wl21egzu.akor_2p.jpg — WL21WDU와 같은 몸체. 실제 제품은 위·아래 색이 다른 투톤(네이처 베이지/그린)인데 지금 모델은 겉면 한 색만 지원해 첫 번째 색으로 칠함",
+ "geometry_from": "WL21WDU",
+ "todo": "투톤 색 (위/아래 따로) 지원",
+ "colors": {
+  "door": {
+   "name": "네이처 베이지 / 네이처 그린",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+  }
+ }
+}

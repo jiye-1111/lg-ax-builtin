@@ -1,0 +1,68 @@
+{
+ "sku": "MW23FDI",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/mw23fd.akor_2p.jpg (폭 476, 높이 272, 깊이 369, 정면 사진). 베이지 본체, 왼쪽 검정 유리 문(폭의 약 85%), 오른쪽 조작부와 작은 표시창",
+ "front": {
+  "w": 476,
+  "h": 272,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 476,
+    "h": 272
+   },
+   {
+    "name": "display/door_glass",
+    "x": 0,
+    "y": 8,
+    "w": 404,
+    "h": 256
+   },
+   {
+    "name": "door/control_panel",
+    "x": 404,
+    "y": 0,
+    "w": 72,
+    "h": 272
+   },
+   {
+    "name": "display/lcd",
+    "x": 412,
+    "y": 54,
+    "w": 54,
+    "h": 34
+   }
+  ]
+ },
+ "side": {
+  "w": 369,
+  "h": 272,
+  "parts": [
+   {
+    "name": "display/door_glass",
+    "x": 0,
+    "y": 8,
+    "w": 12,
+    "h": 256
+   },
+   {
+    "name": "door/shell",
+    "x": 12,
+    "y": 0,
+    "w": 357,
+    "h": 272
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "크리스탈 베이지",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}
