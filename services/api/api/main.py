@@ -6,9 +6,9 @@ import os
 import time
 from collections import defaultdict, deque
 from functools import lru_cache
-from typing import Optional
+from typing import Literal, Optional
 
-from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Request, UploadFile
+from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 from core import config
 from core.accounts import AuthError, Conflict, Forbidden, is_approved_tech
 from core.service import Invalid, NotFound, Service
+from recommender.finder import Conditions
 
 WEB_DIR = config.ROOT / "apps" / "web"
 # Windows 레지스트리에 따라 .js가 text/plain으로 잡히면 모듈 스크립트가 안 뜬다. 웹앱 매니페스트도 함께 지정.
@@ -665,6 +666,39 @@ def project_file(pid: str, name: str, s: Service = S):
     if not p.exists():
         raise HTTPException(404, "아직 생성되지 않음")
     return FileResponse(p, headers={"Cache-Control": "no-store"})
+
+
+def find_conditions(
+    category: Optional[str] = None,
+    use: Optional[str] = Query(None, description="공간 용도 (kitchen, living, ...)"),
+    install: Optional[Literal["built_in", "freestanding"]] = None,
+    capacity_min: Optional[float] = Query(None, ge=0, description="용량 L 이상"),
+    capacity_max: Optional[float] = Query(None, ge=0, description="용량 L 이하"),
+    color: Optional[Literal["화이트", "베이지", "실버·그레이", "블랙", "그린", "기타"]] = None,
+    price_min: Optional[int] = Query(None, ge=0, description="원"),
+    price_max: Optional[int] = Query(None, ge=0, description="원"),
+    space_w: Optional[float] = Query(None, gt=0, le=20000, description="설치 공간 폭 mm"),
+    space_h: Optional[float] = Query(None, gt=0, le=20000, description="설치 공간 높이 mm"),
+    space_d: Optional[float] = Query(None, gt=0, le=20000, description="설치 공간 깊이 mm"),
+    fits_only: bool = False,
+    sort: Literal["recommended", "size", "price"] = "recommended",
+    limit: Optional[int] = Query(None, ge=1, le=500),
+) -> Conditions:
+    return Conditions(category=category, zone=use, install=install, capacity_min=capacity_min, capacity_max=capacity_max,
+                      color=color, price_min=price_min, price_max=price_max, space_w=space_w, space_h=space_h,
+                      space_d=space_d, fits_only=fits_only, sort=sort, limit=limit)
+
+
+@app.get("/api/catalog/find")
+def catalog_find(cond: Conditions = Depends(find_conditions), s: Service = S):
+    """조건(종류·용량·색상·가격·설치 공간)으로 제품 찾기. 판정과 순서는 서버가 계산한다."""
+    return s.find(cond)
+
+
+@app.get("/api/projects/{pid}/find")
+def project_find(pid: str, zone_id: Optional[str] = None, cond: Conditions = Depends(find_conditions), s: Service = S):
+    """같은 조건 찾기를 우리 집 기준으로: 공간 치수를 안 넣으면 그려 둔 영역에 들어가는지로 판정한다."""
+    return s.find(cond, pid, zone_id)
 
 
 @app.get("/api/catalog/families")

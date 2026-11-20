@@ -1,0 +1,7177 @@
+{
+"100MRGB96BK": {
+"list_price": 16500000,
+"price": 15000000,
+"status": "ACTIVE"
+},
+"100QNED86BK": {
+"list_price": 9790000,
+"price": 8900000,
+"status": "ACTIVE"
+},
+"115QNED90BK": {
+"list_price": 29000000,
+"price": 29000000,
+"status": "ACTIVE"
+},
+"1BGE-QKBOE": {
+"list_price": 2330000,
+"price": 1817000,
+"status": "ACTIVE"
+},
+"27LX6TEGA": {
+"list_price": 1350000,
+"price": 1310000,
+"status": "ACTIVE"
+},
+"27LX6TEGAA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"27LX6TEGAAKXT7SC": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"27LX6TEGAC": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"27LX6TEGACKXT7SC": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"27LX6TEGAKXT7SC": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"27LX6TKGA": {
+"list_price": 1360000,
+"price": 1360000,
+"status": "ACTIVE"
+},
+"27LX6TPGA": {
+"list_price": 1391000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"32LB650BCNA": {
+"list_price": 450000,
+"price": 369000,
+"status": "ACTIVE"
+},
+"32LB650BENA": {
+"list_price": 450000,
+"price": 310000,
+"status": "ACTIVE"
+},
+"32LB650BGNA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"32LB650BKNA": {
+"list_price": 450000,
+"price": 450000,
+"status": "ACTIVE"
+},
+"32LX6BEGA": {
+"list_price": 1500000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"32LX6BEGAA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"32LX6BEGAC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"32LX6BEGBACAKXT7SC": {
+"list_price": 1929000,
+"price": 1839000,
+"status": "ACTIVE"
+},
+"32LX6BKGA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"32LX6BPGA": {
+"list_price": 1600000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"43LB6500KNB": {
+"list_price": 737000,
+"price": 670000,
+"status": "ACTIVE"
+},
+"43NA1C90AKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"43NANO80ANA": {
+"list_price": 1040000,
+"price": 650000,
+"status": "ACTIVE"
+},
+"43NU810BENA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"43NU850BENA": {
+"list_price": 1040000,
+"price": 690000,
+"status": "ACTIVE"
+},
+"43NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"43QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"43QNED70BKA": {
+"list_price": 1309000,
+"price": 1190000,
+"status": "ACTIVE"
+},
+"43UA7500ENA": {
+"list_price": 940000,
+"price": 790000,
+"status": "ACTIVE"
+},
+"43UA7500GNA": {
+"list_price": 980000,
+"price": 980000,
+"status": "NOT_FOR_SALE"
+},
+"43UR931C0NA": {
+"list_price": 1100000,
+"price": 990000,
+"status": "NOT_FOR_SALE"
+},
+"4BGE-QKBOE": {
+"list_price": 2660000,
+"price": 1964000,
+"status": "ACTIVE"
+},
+"50NU810BENA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"50NU850BENA": {
+"list_price": 1190000,
+"price": 952000,
+"status": "SOLD_OUT"
+},
+"50NU850BXNA": {
+"list_price": 1100000,
+"price": 750000,
+"status": "ACTIVE"
+},
+"50NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"50QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"50QNED70BKA": {
+"list_price": 1639000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"50UA7500ENA": {
+"list_price": 1140000,
+"price": 1140000,
+"status": "SOLD_OUT"
+},
+"50UA7500KNA": {
+"list_price": 1090000,
+"price": 750000,
+"status": "ACTIVE"
+},
+"50UT8350KNA": {
+"list_price": 1390000,
+"price": 1390000,
+"status": "NOT_FOR_SALE"
+},
+"50UT93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"55MRGB86BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"55NA1C90AKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"55NANO90ABA": {
+"list_price": 1440000,
+"price": 1090000,
+"status": "NOT_FOR_SALE"
+},
+"55NANO90AKA": {
+"list_price": 1890000,
+"price": 1890000,
+"status": "NOT_FOR_SALE"
+},
+"55NU810BENA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"55NU850BENA": {
+"list_price": 1290000,
+"price": 850000,
+"status": "ACTIVE"
+},
+"55NU850BXNA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"55NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"55QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"55QNED65BEA": {
+"list_price": 1690000,
+"price": 1240000,
+"status": "ACTIVE"
+},
+"55QNED70ABA": {
+"list_price": 1690000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"55QNED70BKA": {
+"list_price": 1804000,
+"price": 1640000,
+"status": "ACTIVE"
+},
+"55QNED80BEA": {
+"list_price": 1490000,
+"price": 1340000,
+"status": "ACTIVE"
+},
+"55UA7500ENA": {
+"list_price": 1240000,
+"price": 1240000,
+"status": "ACTIVE"
+},
+"55UR931C0NA": {
+"list_price": 1850000,
+"price": 1440000,
+"status": "NOT_FOR_SALE"
+},
+"55UR93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"55UT93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"5BG2-ANHLO": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"5BG2-QELO": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"65LX7BKNA": {
+"list_price": 2490000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"65MRGB83BEA": {
+"list_price": 2590000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"65MRGB86BKA": {
+"list_price": 3069000,
+"price": 2790000,
+"status": "ACTIVE"
+},
+"65NANO80AEA": {
+"list_price": 2090000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"65NANO90ABA": {
+"list_price": 2190000,
+"price": 1390000,
+"status": "NOT_FOR_SALE"
+},
+"65NU810BENA": {
+"list_price": 1990000,
+"price": 1140000,
+"status": "ACTIVE"
+},
+"65NU850BENA": {
+"list_price": 2090000,
+"price": 1060000,
+"status": "ACTIVE"
+},
+"65NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"65QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"65QNED65ABA": {
+"list_price": 2390000,
+"price": 1190000,
+"status": "SOLD_OUT"
+},
+"65QNED65BBA": {
+"list_price": 2390000,
+"price": 1300000,
+"status": "ACTIVE"
+},
+"65QNED65BEA": {
+"list_price": 2390000,
+"price": 1240000,
+"status": "SOLD_OUT"
+},
+"65QNED65BNA": {
+"list_price": 2390000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"65QNED70AEA": {
+"list_price": 2490000,
+"price": 1290000,
+"status": "ACTIVE"
+},
+"65QNED70BKA": {
+"list_price": 2409000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"65QNED75AEA": {
+"list_price": 2490000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"65QNED75KRSAS40TW": {
+"list_price": 2729000,
+"price": 2489000,
+"status": "NOT_FOR_SALE"
+},
+"65QNED80BEA": {
+"list_price": 2690000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"65QNED85AKS": {
+"list_price": 2640000,
+"price": 2640000,
+"status": "ACTIVE"
+},
+"65QNED86BKA": {
+"list_price": 2849000,
+"price": 2590000,
+"status": "ACTIVE"
+},
+"65QNED8MBEA": {
+"list_price": 2790000,
+"price": 1740000,
+"status": "ACTIVE"
+},
+"65QNED91BKA": {
+"list_price": 2959000,
+"price": 2690000,
+"status": "ACTIVE"
+},
+"65UA7500GNA": {
+"list_price": 1890000,
+"price": 1890000,
+"status": "NOT_FOR_SALE"
+},
+"65UQ931C0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"65UR93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"65UT93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"6BG2E-AMBOE": {
+"list_price": 3620000,
+"price": 2792000,
+"status": "ACTIVE"
+},
+"6BG3-ANHLOE": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"6BG3-QELOE": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"6EW2E-ANHOE": {
+"list_price": 3670000,
+"price": 2838000,
+"status": "ACTIVE"
+},
+"6EW2E-QKBOE": {
+"list_price": 3270000,
+"price": 2474000,
+"status": "ACTIVE"
+},
+"6EW2E-QKHOE": {
+"list_price": 3270000,
+"price": 2574000,
+"status": "ACTIVE"
+},
+"6EW3E-QKBOE": {
+"list_price": 3210000,
+"price": 2374000,
+"status": "ACTIVE"
+},
+"6PF3E-ASMOE": {
+"list_price": 3460000,
+"price": 2631000,
+"status": "ACTIVE"
+},
+"6PF3E-QEBOE": {
+"list_price": 2910000,
+"price": 2201000,
+"status": "ACTIVE"
+},
+"75MRGB83BEA": {
+"list_price": 3590000,
+"price": 3490000,
+"status": "ACTIVE"
+},
+"75MRGB85BMC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"75MRGB86BKA": {
+"list_price": 4279000,
+"price": 3890000,
+"status": "ACTIVE"
+},
+"75MRGB96BKA": {
+"list_price": 9020000,
+"price": 8200000,
+"status": "ACTIVE"
+},
+"75NA1C90AGA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"75NANO80AEA": {
+"list_price": 2790000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"75NANO80AESAS40T": {
+"list_price": 2790000,
+"price": 1451000,
+"status": "ACTIVE"
+},
+"75NANO80AESAS60TR": {
+"list_price": 2790000,
+"price": 1676000,
+"status": "ACTIVE"
+},
+"75NANO80AESAS70TR": {
+"list_price": 2790000,
+"price": 1811000,
+"status": "ACTIVE"
+},
+"75NANO90AKA": {
+"list_price": 2890000,
+"price": 1390000,
+"status": "SOLD_OUT"
+},
+"75NU810BENA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"75NU850BENA": {
+"list_price": 2790000,
+"price": 1280000,
+"status": "ACTIVE"
+},
+"75NU850BESAS30A": {
+"list_price": 3069000,
+"price": 1403000,
+"status": "ACTIVE"
+},
+"75NU850BESAS60TR": {
+"list_price": 3589000,
+"price": 1646000,
+"status": "ACTIVE"
+},
+"75NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"75QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"75QNED65ABA": {
+"list_price": 2740000,
+"price": 1890000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED65ABSAS40T": {
+"list_price": 2890000,
+"price": 1775000,
+"status": "ACTIVE"
+},
+"75QNED65ABSAS60TR": {
+"list_price": 2890000,
+"price": 2015000,
+"status": "ACTIVE"
+},
+"75QNED65ABSAS70TR": {
+"list_price": 2890000,
+"price": 2150000,
+"status": "ACTIVE"
+},
+"75QNED65BBA": {
+"list_price": 2740000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"75QNED65BBSAS30A": {
+"list_price": 3019000,
+"price": 1848000,
+"status": "ACTIVE"
+},
+"75QNED65BBSAS60TR": {
+"list_price": 3539000,
+"price": 2105000,
+"status": "ACTIVE"
+},
+"75QNED65BEA": {
+"list_price": 2740000,
+"price": 1690000,
+"status": "SOLD_OUT"
+},
+"75QNED65BNA": {
+"list_price": 2740000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"75QNED65TBSAS40T": {
+"list_price": 3189000,
+"price": 2029000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED65TBSAS60TR": {
+"list_price": 3539000,
+"price": 2209000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED70ABA": {
+"list_price": 2840000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"75QNED70BKA": {
+"list_price": 3289000,
+"price": 2990000,
+"status": "ACTIVE"
+},
+"75QNED70ERSAS40TW": {
+"list_price": 3169000,
+"price": 3139000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED70NRSAS40TW": {
+"list_price": 3619000,
+"price": 3289000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED75AEA": {
+"list_price": 2890000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"75QNED7SKQSAS40TW": {
+"list_price": 3619000,
+"price": 3289000,
+"status": "NOT_FOR_SALE"
+},
+"75QNED80BEA": {
+"list_price": 3090000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"75QNED80BESAS30A": {
+"list_price": 3369000,
+"price": 1938000,
+"status": "ACTIVE"
+},
+"75QNED80BESAS60TR": {
+"list_price": 3889000,
+"price": 2195000,
+"status": "ACTIVE"
+},
+"75QNED81BMA": {
+"list_price": 3090000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"75QNED85AKA": {
+"list_price": 3790000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"75QNED85AKS": {
+"list_price": 3740000,
+"price": 3740000,
+"status": "ACTIVE"
+},
+"75QNED86BKA": {
+"list_price": 4059000,
+"price": 3690000,
+"status": "ACTIVE"
+},
+"75QNED86BMA": {
+"list_price": 3890000,
+"price": 3590000,
+"status": "ACTIVE"
+},
+"75QNED8MBEA": {
+"list_price": 3190000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"75QNED8MBESAS30A": {
+"list_price": 3469000,
+"price": 2208000,
+"status": "ACTIVE"
+},
+"75QNED8MBESAS60TR": {
+"list_price": 3989000,
+"price": 2465000,
+"status": "ACTIVE"
+},
+"75QNED90KQA": {
+"list_price": 5439000,
+"price": 4900000,
+"status": "READY_FOR_SALE"
+},
+"75QNED92AGA": {
+"list_price": 3790000,
+"price": 2790000,
+"status": "ACTIVE"
+},
+"75UQ931C0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"75UR8300ESAS40TW": {
+"list_price": 2988000,
+"price": 2689000,
+"status": "NOT_FOR_SALE"
+},
+"75UR931C0NA": {
+"list_price": 3000000,
+"price": 2390000,
+"status": "NOT_FOR_SALE"
+},
+"75UR93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"75UT8300ESAS40T": {
+"list_price": 2939000,
+"price": 1499000,
+"status": "NOT_FOR_SALE"
+},
+"75UT8300ESAS60TR": {
+"list_price": 3289000,
+"price": 1679000,
+"status": "NOT_FOR_SALE"
+},
+"75UT93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"85NU810BENA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"85NU850BENA": {
+"list_price": 3890000,
+"price": 1840000,
+"status": "ACTIVE"
+},
+"85NU850BESAS30A": {
+"list_price": 4169000,
+"price": 1907000,
+"status": "ACTIVE"
+},
+"85NU850BESAS60TR": {
+"list_price": 4689000,
+"price": 2150000,
+"status": "ACTIVE"
+},
+"85NU85CBENA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"85QN1C70BKA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"85QNED65BBA": {
+"list_price": 3790000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"85QNED65BBSAS30A": {
+"list_price": 4069000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"85QNED65BBSAS60TR": {
+"list_price": 4589000,
+"price": 2693000,
+"status": "ACTIVE"
+},
+"85QNED65BNA": {
+"list_price": 3790000,
+"price": 2890000,
+"status": "ACTIVE"
+},
+"85QNED70BKA": {
+"list_price": 4389000,
+"price": 3990000,
+"status": "ACTIVE"
+},
+"85QNED80BEA": {
+"list_price": 4290000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"85QNED80BESAS30A": {
+"list_price": 4569000,
+"price": 2948000,
+"status": "ACTIVE"
+},
+"85QNED80BESAS60TR": {
+"list_price": 5089000,
+"price": 3191000,
+"status": "ACTIVE"
+},
+"85QNED81BMA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"85QNED8MBEA": {
+"list_price": 4390000,
+"price": 2990000,
+"status": "ACTIVE"
+},
+"85QNED8MBESAS30A": {
+"list_price": 4669000,
+"price": 3032000,
+"status": "ACTIVE"
+},
+"85QNED8MBESAS60TR": {
+"list_price": 5189000,
+"price": 3275000,
+"status": "ACTIVE"
+},
+"85QNED91BKA": {
+"list_price": 5489000,
+"price": 4990000,
+"status": "ACTIVE"
+},
+"85QNED92AGA": {
+"list_price": 5590000,
+"price": 3790000,
+"status": "ACTIVE"
+},
+"86MRGB83BEA": {
+"list_price": 4790000,
+"price": 4590000,
+"status": "ACTIVE"
+},
+"86MRGB85BMC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"86MRGB86BKA": {
+"list_price": 5599000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"86MRGB96BKA": {
+"list_price": 10450000,
+"price": 9500000,
+"status": "ACTIVE"
+},
+"86NANO80AESAS40T": {
+"list_price": 3890000,
+"price": 1976000,
+"status": "SOLD_OUT"
+},
+"86NANO80AESAS60TR": {
+"list_price": 3890000,
+"price": 2201000,
+"status": "SOLD_OUT"
+},
+"86NANO80AESAS70TR": {
+"list_price": 3890000,
+"price": 2336000,
+"status": "SOLD_OUT"
+},
+"86NANO80AESAS95TR": {
+"list_price": 3890000,
+"price": 3890000,
+"status": "SOLD_OUT"
+},
+"86QNED65ABA": {
+"list_price": 3890000,
+"price": 2720000,
+"status": "ACTIVE"
+},
+"86QNED65ABSAS40T": {
+"list_price": 3890000,
+"price": 2799000,
+"status": "ACTIVE"
+},
+"86QNED65ABSAS60TR": {
+"list_price": 3890000,
+"price": 3024000,
+"status": "ACTIVE"
+},
+"86QNED65ABSAS70TR": {
+"list_price": 3890000,
+"price": 3159000,
+"status": "ACTIVE"
+},
+"86QNED65TBSAS40T": {
+"list_price": 4639000,
+"price": 3009000,
+"status": "NOT_FOR_SALE"
+},
+"86QNED65TBSAS60TR": {
+"list_price": 4989000,
+"price": 3189000,
+"status": "NOT_FOR_SALE"
+},
+"86QNED70AEA": {
+"list_price": 3790000,
+"price": 2390000,
+"status": "ACTIVE"
+},
+"86QNED75AEA": {
+"list_price": 3990000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"86QNED86BKA": {
+"list_price": 4900000,
+"price": 4890000,
+"status": "ACTIVE"
+},
+"86QNED86BMA": {
+"list_price": 5090000,
+"price": 4690000,
+"status": "ACTIVE"
+},
+"86UQ9300KNA": {
+"list_price": 3985000,
+"price": 3590000,
+"status": "NOT_FOR_SALE"
+},
+"86UR8300ESAS40TW": {
+"list_price": 4169000,
+"price": 3789000,
+"status": "NOT_FOR_SALE"
+},
+"86UR931C0NA": {
+"list_price": 4400000,
+"price": 3490000,
+"status": "NOT_FOR_SALE"
+},
+"86UR93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"86UT9300KNA": {
+"list_price": 3890000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"86UT93RC0NA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"98NU850BENB": {
+"list_price": 5090000,
+"price": 3990000,
+"status": "ACTIVE"
+},
+"98QNED89TKA": {
+"list_price": 7800000,
+"price": 5990000,
+"status": "ACTIVE"
+},
+"A202S": {
+"list_price": 700000,
+"price": 650000,
+"status": "ACTIVE"
+},
+"A320S": {
+"list_price": 1150000,
+"price": 920000,
+"status": "ACTIVE"
+},
+"A520HC": {
+"list_price": 790000,
+"price": 690000,
+"status": "ACTIVE"
+},
+"A520WC": {
+"list_price": 790000,
+"price": 680000,
+"status": "ACTIVE"
+},
+"A527HC": {
+"list_price": 890000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"A527WC": {
+"list_price": 890000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"A720HC": {
+"list_price": 900000,
+"price": 900000,
+"status": "ACTIVE"
+},
+"A720TC": {
+"list_price": 900000,
+"price": 720000,
+"status": "ACTIVE"
+},
+"A720WA": {
+"list_price": 900000,
+"price": 750000,
+"status": "ACTIVE"
+},
+"A720WC": {
+"list_price": 900000,
+"price": 720000,
+"status": "ACTIVE"
+},
+"A727WA": {
+"list_price": 1050000,
+"price": 1050000,
+"status": "SOLD_OUT"
+},
+"A727WC": {
+"list_price": 1050000,
+"price": 850000,
+"status": "ACTIVE"
+},
+"A730WA": {
+"list_price": 1041000,
+"price": 1040000,
+"status": "ACTIVE"
+},
+"A730WC": {
+"list_price": 991000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"AI927BA": {
+"list_price": 1331000,
+"price": 1330000,
+"status": "ACTIVE"
+},
+"AI937WA": {
+"list_price": 1410000,
+"price": 980000,
+"status": "ACTIVE"
+},
+"AI948WA": {
+"list_price": 1610000,
+"price": 1550000,
+"status": "ACTIVE"
+},
+"AI948WB": {
+"list_price": 1710000,
+"price": 1400000,
+"status": "ACTIVE"
+},
+"AI958WA": {
+"list_price": 1691000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"AI958WB": {
+"list_price": 1791000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"AS064PCBAR": {
+"list_price": 665000,
+"price": 599000,
+"status": "SOLD_OUT"
+},
+"AS064PWBAS": {
+"list_price": 580000,
+"price": 579000,
+"status": "NOT_FOR_SALE"
+},
+"AS065CWHA": {
+"list_price": 1220000,
+"price": 999000,
+"status": "ACTIVE"
+},
+"AS065PWHA": {
+"list_price": 720000,
+"price": 499000,
+"status": "ACTIVE"
+},
+"AS076MWHC": {
+"list_price": 332000,
+"price": 259000,
+"status": "SOLD_OUT"
+},
+"AS105GWJC": {
+"list_price": 329000,
+"price": 249000,
+"status": "ACTIVE"
+},
+"AS153HWFS": {
+"list_price": 559000,
+"price": 539000,
+"status": "NOT_FOR_SALE"
+},
+"AS153HWFS1": {
+"list_price": null,
+"price": null,
+"status": "SOLD_OUT"
+},
+"AS155GWDL": {
+"list_price": 942000,
+"price": 669000,
+"status": "ACTIVE"
+},
+"AS156HWWC": {
+"list_price": 565000,
+"price": 305000,
+"status": "ACTIVE"
+},
+"AS156HWWL": {
+"list_price": 587000,
+"price": 338000,
+"status": "ACTIVE"
+},
+"AS183HWFS": {
+"list_price": 709000,
+"price": 689000,
+"status": "NOT_FOR_SALE"
+},
+"AS185DWWD": {
+"list_price": 998000,
+"price": 799000,
+"status": "ACTIVE"
+},
+"AS185LGAA": {
+"list_price": 988000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"AS185LGAAS": {
+"list_price": 1099000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"AS186HWWA": {
+"list_price": 731000,
+"price": 368000,
+"status": "ACTIVE"
+},
+"AS186HWWL": {
+"list_price": 754000,
+"price": 368000,
+"status": "ACTIVE"
+},
+"AS186LSAA": {
+"list_price": 877000,
+"price": 590000,
+"status": "ACTIVE"
+},
+"AS186LSAAS": {
+"list_price": 988000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"AS192DSFAM": {
+"list_price": 1447000,
+"price": 1304000,
+"status": "ACTIVE"
+},
+"AS195DWWA": {
+"list_price": 1109000,
+"price": 999000,
+"status": "ACTIVE"
+},
+"AS195DWWAM": {
+"list_price": 1180000,
+"price": 1063000,
+"status": "ACTIVE"
+},
+"AS206NSHA": {
+"list_price": 1709000,
+"price": 1540000,
+"status": "ACTIVE"
+},
+"AS206NSHAM": {
+"list_price": 1769000,
+"price": 1594000,
+"status": "ACTIVE"
+},
+"AS235DWSA": {
+"list_price": 1442000,
+"price": 999000,
+"status": "ACTIVE"
+},
+"AS285DWWA": {
+"list_price": 1353000,
+"price": 1219000,
+"status": "ACTIVE"
+},
+"AS285DWWAM": {
+"list_price": 1424000,
+"price": 1283000,
+"status": "ACTIVE"
+},
+"AS285DWWC": {
+"list_price": 1353000,
+"price": 899000,
+"status": "ACTIVE"
+},
+"AS285DWWD": {
+"list_price": 1353000,
+"price": 849000,
+"status": "ACTIVE"
+},
+"AS305DWWA": {
+"list_price": 1464000,
+"price": 899000,
+"status": "ACTIVE"
+},
+"AS305DWWAM": {
+"list_price": 1541000,
+"price": 1388000,
+"status": "SOLD_OUT"
+},
+"AS305DWWL": {
+"list_price": 1464000,
+"price": 799000,
+"status": "ACTIVE"
+},
+"AS305DWWLM": {
+"list_price": 1541000,
+"price": 817000,
+"status": "ACTIVE"
+},
+"AS322DSFAM": {
+"list_price": 1730000,
+"price": 1559000,
+"status": "ACTIVE"
+},
+"AS336NSLC": {
+"list_price": 1870000,
+"price": 1690000,
+"status": "NOT_FOR_SALE"
+},
+"AS336NSLCM": {
+"list_price": 1935000,
+"price": 1749000,
+"status": "NOT_FOR_SALE"
+},
+"AS356LSAA": {
+"list_price": 1543000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"AS356NSHHM": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"AS356NSLL": {
+"list_price": 2090000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"AS356NSLLM": {
+"list_price": 2155000,
+"price": 1480000,
+"status": "ACTIVE"
+},
+"AS356NSMA": {
+"list_price": 2320000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"AS356NSMAM": {
+"list_price": 2385000,
+"price": 2149000,
+"status": "ACTIVE"
+},
+"AS405BWRP": {
+"list_price": 2320000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"AS520HA": {
+"list_price": 650000,
+"price": 600000,
+"status": "ACTIVE"
+},
+"AS520WA": {
+"list_price": 650000,
+"price": 399000,
+"status": "ACTIVE"
+},
+"AS527WA": {
+"list_price": 750000,
+"price": 700000,
+"status": "ACTIVE"
+},
+"AS720WA": {
+"list_price": 700000,
+"price": 590000,
+"status": "ACTIVE"
+},
+"AS9000HR": {
+"list_price": 722000,
+"price": 650000,
+"status": "NOT_FOR_SALE"
+},
+"AS9000WR": {
+"list_price": 722000,
+"price": 650000,
+"status": "NOT_FOR_SALE"
+},
+"AX920BWE": {
+"list_price": 1130000,
+"price": 740000,
+"status": "ACTIVE"
+},
+"AX948BHE": {
+"list_price": 1530000,
+"price": 950000,
+"status": "ACTIVE"
+},
+"AX948BWE": {
+"list_price": 1530000,
+"price": 1380000,
+"status": "NOT_FOR_SALE"
+},
+"AX958AWE": {
+"list_price": 1810000,
+"price": 1790000,
+"status": "NOT_FOR_SALE"
+},
+"AX958BWE": {
+"list_price": 1610000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"AX9604WE": {
+"list_price": 1180000,
+"price": 790000,
+"status": "NOT_FOR_SALE"
+},
+"AX9884WE": {
+"list_price": 1540000,
+"price": 900000,
+"status": "NOT_FOR_SALE"
+},
+"B-IPA": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-MIP": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-PAL": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-PIL": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-RAL": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-SIP": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-STO": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B-WHE": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"B053S14": {
+"list_price": 260000,
+"price": 250000,
+"status": "ACTIVE"
+},
+"B103S14": {
+"list_price": 320000,
+"price": 310000,
+"status": "ACTIVE"
+},
+"B124S14": {
+"list_price": 400000,
+"price": 350000,
+"status": "ACTIVE"
+},
+"B182W13": {
+"list_price": 480000,
+"price": 440000,
+"status": "ACTIVE"
+},
+"B245W22": {
+"list_price": 593000,
+"price": 540000,
+"status": "ACTIVE"
+},
+"B312DS31": {
+"list_price": 880000,
+"price": 800000,
+"status": "ACTIVE"
+},
+"B312W31": {
+"list_price": 730000,
+"price": 560000,
+"status": "ACTIVE"
+},
+"B315W11": {
+"list_price": 770000,
+"price": 700000,
+"status": "SOLD_OUT"
+},
+"B332S34": {
+"list_price": 780000,
+"price": 700000,
+"status": "ACTIVE"
+},
+"B502S33": {
+"list_price": 880000,
+"price": 800000,
+"status": "ACTIVE"
+},
+"B502S53": {
+"list_price": 1088000,
+"price": 980000,
+"status": "ACTIVE"
+},
+"B72WW": {
+"list_price": 950000,
+"price": 780000,
+"status": "ACTIVE"
+},
+"B94AHB": {
+"list_price": 1970000,
+"price": 1179000,
+"status": "ACTIVE"
+},
+"B95AWBH": {
+"list_price": 1990000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"B95AWBTH": {
+"list_price": 2191000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"BC1F6GB": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"BC1K6GB": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"BC1L6GB": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"BEF3ABWLE": {
+"list_price": 2090000,
+"price": 1940000,
+"status": "NOT_FOR_SALE"
+},
+"BEF3AMB4": {
+"list_price": 2153000,
+"price": 1940000,
+"status": "SOLD_OUT"
+},
+"BEF3AMB4E": {
+"list_price": 2134000,
+"price": 1940000,
+"status": "ACTIVE"
+},
+"BEF3ANHLE": {
+"list_price": 2098000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"BEF3ANHLOE": {
+"list_price": 1740000,
+"price": 1299000,
+"status": "ACTIVE"
+},
+"BEF3ANPL": {
+"list_price": 2098000,
+"price": 1890000,
+"status": "SOLD_OUT"
+},
+"BEF3ASMLE": {
+"list_price": 2079000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"BEF3ASMLOE": {
+"list_price": 1690000,
+"price": 1299000,
+"status": "ACTIVE"
+},
+"BEF3MQ1": {
+"list_price": 2153000,
+"price": 1940000,
+"status": "SOLD_OUT"
+},
+"BEF3WBQT": {
+"list_price": 2098000,
+"price": 1890000,
+"status": "SOLD_OUT"
+},
+"BEI3ABWLE": {
+"list_price": 1990000,
+"price": 1790000,
+"status": "NOT_FOR_SALE"
+},
+"BEI3AMB4": {
+"list_price": 1987000,
+"price": 1790000,
+"status": "SOLD_OUT"
+},
+"BEI3AMB4E": {
+"list_price": 1987000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"BEI3AMBLOE": {
+"list_price": 1690000,
+"price": 1249000,
+"status": "ACTIVE"
+},
+"BEI3ANBL": {
+"list_price": 1987000,
+"price": 1790000,
+"status": "SOLD_OUT"
+},
+"BEI3ANBLOE": {
+"list_price": 1590000,
+"price": 1109000,
+"status": "ACTIVE"
+},
+"BEI3ANHLE": {
+"list_price": 1931000,
+"price": 1740000,
+"status": "ACTIVE"
+},
+"BEI3ANHLO": {
+"list_price": 1540000,
+"price": 1540000,
+"status": "SOLD_OUT"
+},
+"BEI3ASB2OE": {
+"list_price": 1540000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"BEI3ASB4E": {
+"list_price": 1765000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"BEI3ASML": {
+"list_price": 1914000,
+"price": 1740000,
+"status": "SOLD_OUT"
+},
+"BEI3ASMLE": {
+"list_price": 1914000,
+"price": 1740000,
+"status": "ACTIVE"
+},
+"BEI3ASMLOE": {
+"list_price": 1590000,
+"price": 1154000,
+"status": "ACTIVE"
+},
+"BEI3ASS4E": {
+"list_price": 1765000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"BEI3CSQE": {
+"list_price": 1590000,
+"price": 1113000,
+"status": "ACTIVE"
+},
+"BEI3HKBLE": {
+"list_price": 990000,
+"price": 809000,
+"status": "ACTIVE"
+},
+"BEI3HRBLE": {
+"list_price": 790000,
+"price": 699000,
+"status": "ACTIVE"
+},
+"BEI3HSBLE": {
+"list_price": 890000,
+"price": 699000,
+"status": "ACTIVE"
+},
+"BEI3QEBLOE": {
+"list_price": 1040000,
+"price": 804000,
+"status": "ACTIVE"
+},
+"BEI3QKBLOE": {
+"list_price": 1340000,
+"price": 1022000,
+"status": "ACTIVE"
+},
+"BEI3QMBLOE": {
+"list_price": 1640000,
+"price": 1159000,
+"status": "ACTIVE"
+},
+"BEI3QRBLE": {
+"list_price": 1140000,
+"price": 1040000,
+"status": "ACTIVE"
+},
+"BEY3GS2": {
+"list_price": 1265000,
+"price": 1140000,
+"status": "SOLD_OUT"
+},
+"BEY3GS2E": {
+"list_price": 1265000,
+"price": 1140000,
+"status": "ACTIVE"
+},
+"BEY3GSU1E": {
+"list_price": 1190000,
+"price": 900000,
+"status": "ACTIVE"
+},
+"BEY3MS": {
+"list_price": 1598000,
+"price": 1440000,
+"status": "SOLD_OUT"
+},
+"BEY3MSE": {
+"list_price": 1376000,
+"price": 1240000,
+"status": "ACTIVE"
+},
+"BEY3SRBL": {
+"list_price": 890000,
+"price": 801000,
+"status": "SOLD_OUT"
+},
+"BEY3SRBLE": {
+"list_price": 890000,
+"price": 710000,
+"status": "ACTIVE"
+},
+"C33FNT": {
+"list_price": 219000,
+"price": 170000,
+"status": "ACTIVE"
+},
+"C40SFHT": {
+"list_price": 239000,
+"price": 170000,
+"status": "ACTIVE"
+},
+"C40SGY": {
+"list_price": 249000,
+"price": 200000,
+"status": "ACTIVE"
+},
+"C40WGY": {
+"list_price": 269000,
+"price": 210000,
+"status": "ACTIVE"
+},
+"D215MHH13": {
+"list_price": 550000,
+"price": 430000,
+"status": "SOLD_OUT"
+},
+"D265MEE22": {
+"list_price": 744000,
+"price": 670000,
+"status": "SOLD_OUT"
+},
+"D312MBE31": {
+"list_price": 977000,
+"price": 880000,
+"status": "SOLD_OUT"
+},
+"D315MHH31": {
+"list_price": 880000,
+"price": 700000,
+"status": "ACTIVE"
+},
+"D315MPS31": {
+"list_price": 990000,
+"price": 900000,
+"status": "ACTIVE"
+},
+"D332MBE34": {
+"list_price": 880000,
+"price": 800000,
+"status": "SOLD_OUT"
+},
+"D463MRR33": {
+"list_price": 830000,
+"price": 720000,
+"status": "SOLD_OUT"
+},
+"D502MEE33": {
+"list_price": 980000,
+"price": 890000,
+"status": "SOLD_OUT"
+},
+"D502MEE53": {
+"list_price": 1199000,
+"price": 1080000,
+"status": "SOLD_OUT"
+},
+"D604MPS33": {
+"list_price": 1240000,
+"price": 950000,
+"status": "ACTIVE"
+},
+"D604MPS52": {
+"list_price": 1290000,
+"price": 1174000,
+"status": "ACTIVE"
+},
+"D646GBB021": {
+"list_price": 3951000,
+"price": 3950000,
+"status": "ACTIVE"
+},
+"D646GBB041": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"D646GBB071": {
+"list_price": 4250000,
+"price": 4100000,
+"status": "ACTIVE"
+},
+"D646GBB091": {
+"list_price": 5384000,
+"price": 4850000,
+"status": "ACTIVE"
+},
+"D646MEE021": {
+"list_price": 3750000,
+"price": 3170000,
+"status": "ACTIVE"
+},
+"D646SLL041": {
+"list_price": 5273000,
+"price": 4750000,
+"status": "ACTIVE"
+},
+"D646SLL091": {
+"list_price": 5606000,
+"price": 5050000,
+"status": "ACTIVE"
+},
+"DC356SKAA": {
+"list_price": 776000,
+"price": 699000,
+"status": "ACTIVE"
+},
+"DEE6BGE": {
+"list_price": 2240000,
+"price": 2240000,
+"status": "ACTIVE"
+},
+"DF165ME": {
+"list_price": 495000,
+"price": 355000,
+"status": "SOLD_OUT"
+},
+"DFE5BGE": {
+"list_price": 1780000,
+"price": 1780000,
+"status": "ACTIVE"
+},
+"DFE6BGE": {
+"list_price": 2240000,
+"price": 2240000,
+"status": "ACTIVE"
+},
+"DFE6BGHE": {
+"list_price": 2190000,
+"price": 1600000,
+"status": "ACTIVE"
+},
+"DL195ME": {
+"list_price": 435000,
+"price": 390000,
+"status": "SOLD_OUT"
+},
+"DQ134MWEC": {
+"list_price": 498000,
+"price": 377000,
+"status": "ACTIVE"
+},
+"DQ134MWECS": {
+"list_price": 608000,
+"price": 477000,
+"status": "ACTIVE"
+},
+"DQ154MWGA": {
+"list_price": 675000,
+"price": 461000,
+"status": "ACTIVE"
+},
+"DQ154MWGAS": {
+"list_price": 785000,
+"price": 560000,
+"status": "ACTIVE"
+},
+"DQ185MEGA": {
+"list_price": 787000,
+"price": 709000,
+"status": "NOT_FOR_SALE"
+},
+"DQ185MEGAS": {
+"list_price": 897000,
+"price": 638000,
+"status": "NOT_FOR_SALE"
+},
+"DQ185MWGA": {
+"list_price": 787000,
+"price": 499000,
+"status": "ACTIVE"
+},
+"DQ185MWGAS": {
+"list_price": 897000,
+"price": 638000,
+"status": "ACTIVE"
+},
+"DQ205PEGA": {
+"list_price": 831000,
+"price": 538000,
+"status": "ACTIVE"
+},
+"DQ205PEGAS": {
+"list_price": 941000,
+"price": 638000,
+"status": "ACTIVE"
+},
+"DQ205PSVA": {
+"list_price": 743000,
+"price": 563000,
+"status": "ACTIVE"
+},
+"DQ205PSVAS": {
+"list_price": 853000,
+"price": 662000,
+"status": "ACTIVE"
+},
+"DQ214MEGA": {
+"list_price": 887000,
+"price": 799000,
+"status": "NOT_FOR_SALE"
+},
+"DQ214MEGAS": {
+"list_price": 996000,
+"price": 898000,
+"status": "NOT_FOR_SALE"
+},
+"DQ214MWGA": {
+"list_price": 887000,
+"price": 569000,
+"status": "ACTIVE"
+},
+"DQ214MWGAS": {
+"list_price": 996000,
+"price": 698000,
+"status": "ACTIVE"
+},
+"DQ235MEGA": {
+"list_price": 942000,
+"price": 629000,
+"status": "ACTIVE"
+},
+"DQ235MEGAS": {
+"list_price": 1052000,
+"price": 728000,
+"status": "ACTIVE"
+},
+"DQ235MWGA": {
+"list_price": 942000,
+"price": 849000,
+"status": "ACTIVE"
+},
+"DQ235MWGAS": {
+"list_price": 1052000,
+"price": 728000,
+"status": "ACTIVE"
+},
+"DQ256MEGA": {
+"list_price": 998000,
+"price": 899000,
+"status": "ACTIVE"
+},
+"DQ256MEGAS": {
+"list_price": 1108000,
+"price": 998000,
+"status": "ACTIVE"
+},
+"DQ256MWGA": {
+"list_price": 998000,
+"price": 899000,
+"status": "ACTIVE"
+},
+"DQ256MWGAS": {
+"list_price": 1108000,
+"price": 998000,
+"status": "ACTIVE"
+},
+"DUB61TBE": {
+"list_price": 870000,
+"price": 710000,
+"status": "ACTIVE"
+},
+"DUE1BGL1E": {
+"list_price": 1200000,
+"price": 850000,
+"status": "ACTIVE"
+},
+"DUE1BGLE": {
+"list_price": 1170000,
+"price": 840000,
+"status": "ACTIVE"
+},
+"DUE4BGE": {
+"list_price": 1420000,
+"price": 950000,
+"status": "ACTIVE"
+},
+"DUE4BGL1E": {
+"list_price": 1450000,
+"price": 960000,
+"status": "ACTIVE"
+},
+"DUE5BGE": {
+"list_price": 1780000,
+"price": 1780000,
+"status": "ACTIVE"
+},
+"DUE5BGHE": {
+"list_price": 1860000,
+"price": 1330000,
+"status": "ACTIVE"
+},
+"DUE5BGL1E": {
+"list_price": 1680000,
+"price": 1140000,
+"status": "ACTIVE"
+},
+"DUE5BGL2E": {
+"list_price": 1610000,
+"price": 1120000,
+"status": "ACTIVE"
+},
+"DUE5MBL2E": {
+"list_price": 1610000,
+"price": 1150000,
+"status": "ACTIVE"
+},
+"DUE6BG": {
+"list_price": 2375000,
+"price": 2140000,
+"status": "SOLD_OUT"
+},
+"DUE6BGE": {
+"list_price": 2240000,
+"price": 2240000,
+"status": "ACTIVE"
+},
+"DUE6BGH": {
+"list_price": 2090000,
+"price": 1254000,
+"status": "NOT_FOR_SALE"
+},
+"DUE6BGL1E": {
+"list_price": 2080000,
+"price": 1560000,
+"status": "ACTIVE"
+},
+"DUE6BGL2": {
+"list_price": 2123000,
+"price": 1930000,
+"status": "NOT_FOR_SALE"
+},
+"DUE6BGL2E": {
+"list_price": 2030000,
+"price": 1640000,
+"status": "ACTIVE"
+},
+"DUE6BGL3E": {
+"list_price": 1970000,
+"price": 1380000,
+"status": "ACTIVE"
+},
+"DUE6EWL2E": {
+"list_price": 2030000,
+"price": 1380000,
+"status": "ACTIVE"
+},
+"DUE6GLHE": {
+"list_price": 2190000,
+"price": 1500000,
+"status": "ACTIVE"
+},
+"DUE6PFL3E": {
+"list_price": 1970000,
+"price": 1430000,
+"status": "ACTIVE"
+},
+"F12VVAR": {
+"list_price": 1150000,
+"price": 1010000,
+"status": "ACTIVE"
+},
+"F12WVAR": {
+"list_price": 1050000,
+"price": 1050000,
+"status": "ACTIVE"
+},
+"F17CTPR": {
+"list_price": 1250000,
+"price": 940000,
+"status": "ACTIVE"
+},
+"F17HTPR": {
+"list_price": 1300000,
+"price": 1300000,
+"status": "ACTIVE"
+},
+"F17ITPR": {
+"list_price": 1300000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"F17NTPR": {
+"list_price": 1300000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"F19WDLPR": {
+"list_price": 1450000,
+"price": 1010000,
+"status": "ACTIVE"
+},
+"F19WDWPR": {
+"list_price": 1400000,
+"price": 1050000,
+"status": "ACTIVE"
+},
+"F19WDWPRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"F21VDSKR": {
+"list_price": 1600000,
+"price": 1060000,
+"status": "ACTIVE"
+},
+"F21VDSKR8VL": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"F21WDLPR": {
+"list_price": 1550000,
+"price": 1120000,
+"status": "ACTIVE"
+},
+"F21WDLPRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"F24VDLPR": {
+"list_price": 1750000,
+"price": 1470000,
+"status": "ACTIVE"
+},
+"F24VDSPR": {
+"list_price": 1750000,
+"price": 1220000,
+"status": "ACTIVE"
+},
+"F24VDSPRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"F24WDLPR": {
+"list_price": 1650000,
+"price": 1380000,
+"status": "SOLD_OUT"
+},
+"F24WDWPR": {
+"list_price": 1650000,
+"price": 1210000,
+"status": "ACTIVE"
+},
+"F24WDWPR9WL": {
+"list_price": 3190000,
+"price": 3190000,
+"status": "ACTIVE"
+},
+"F24WDWPRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"F756SI014": {
+"list_price": 2650000,
+"price": 2410000,
+"status": "NOT_FOR_SALE"
+},
+"F756SI04": {
+"list_price": 2455000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"F756SI14": {
+"list_price": 2655000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"F858SI14": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"F8VVR": {
+"list_price": 900000,
+"price": 860000,
+"status": "ACTIVE"
+},
+"F8WVR": {
+"list_price": 850000,
+"price": 660000,
+"status": "ACTIVE"
+},
+"F904ND79E": {
+"list_price": 10500000,
+"price": 10500000,
+"status": "ACTIVE"
+},
+"F9WT": {
+"list_price": 630000,
+"price": 573000,
+"status": "ACTIVE"
+},
+"F9WTB": {
+"list_price": 610000,
+"price": 555000,
+"status": "ACTIVE"
+},
+"F9WTBQ": {
+"list_price": 580000,
+"price": 530000,
+"status": "ACTIVE"
+},
+"F9WTQ": {
+"list_price": 600000,
+"price": 546000,
+"status": "ACTIVE"
+},
+"FC2521IQ6C": {
+"list_price": 4890000,
+"price": 4890000,
+"status": "ACTIVE"
+},
+"FC2521IQ6CX": {
+"list_price": 5640000,
+"price": 5640000,
+"status": "ACTIVE"
+},
+"FC2521KX6C": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"FC2521KX6CX": {
+"list_price": 5840000,
+"price": 5840000,
+"status": "ACTIVE"
+},
+"FC2521SX6C": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"FC2521SX6CX": {
+"list_price": 5990000,
+"price": 5990000,
+"status": "ACTIVE"
+},
+"FC2521TX6C": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"FC2521TX6CX": {
+"list_price": 5840000,
+"price": 5840000,
+"status": "ACTIVE"
+},
+"FC2521UX6C": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"FC2521UX6CX": {
+"list_price": 5990000,
+"price": 5990000,
+"status": "ACTIVE"
+},
+"FC4IC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FC4KC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FG19ENR": {
+"list_price": 1650000,
+"price": 1160000,
+"status": "ACTIVE"
+},
+"FG19VNR": {
+"list_price": 1550000,
+"price": 1550000,
+"status": "ACTIVE"
+},
+"FG19VNRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FG19WNR": {
+"list_price": 1500000,
+"price": 1140000,
+"status": "ACTIVE"
+},
+"FG19WNRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FG21ENR": {
+"list_price": 1750000,
+"price": 1220000,
+"status": "ACTIVE"
+},
+"FG21ENRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FG21GNR": {
+"list_price": 1750000,
+"price": 1360000,
+"status": "ACTIVE"
+},
+"FG21GNRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FG21KNR": {
+"list_price": 1700000,
+"price": 1700000,
+"status": "ACTIVE"
+},
+"FG21VNR": {
+"list_price": 1650000,
+"price": 1370000,
+"status": "ACTIVE"
+},
+"FG21WNR": {
+"list_price": 1600000,
+"price": 1120000,
+"status": "ACTIVE"
+},
+"FG24E-20G": {
+"list_price": 3690000,
+"price": 3640000,
+"status": "ACTIVE"
+},
+"FG24EN": {
+"list_price": 1900000,
+"price": 1900000,
+"status": "ACTIVE"
+},
+"FG24ENX": {
+"list_price": 2750000,
+"price": 2750000,
+"status": "ACTIVE"
+},
+"FG24KN": {
+"list_price": 1850000,
+"price": 1850000,
+"status": "ACTIVE"
+},
+"FH11EA": {
+"list_price": 2590000,
+"price": 2590000,
+"status": "ACTIVE"
+},
+"FH11EAX": {
+"list_price": 3170000,
+"price": 3170000,
+"status": "ACTIVE"
+},
+"FH23KN": {
+"list_price": 4100000,
+"price": 4100000,
+"status": "ACTIVE"
+},
+"FH23KNX": {
+"list_price": 4700000,
+"price": 4700000,
+"status": "ACTIVE"
+},
+"FH24ENE": {
+"list_price": 4090000,
+"price": 4090000,
+"status": "ACTIVE"
+},
+"FH24ENEF": {
+"list_price": 4600000,
+"price": 4290000,
+"status": "ACTIVE"
+},
+"FH24ENEX": {
+"list_price": 4740000,
+"price": 4740000,
+"status": "ACTIVE"
+},
+"FH25EAEF": {
+"list_price": 4790000,
+"price": 4790000,
+"status": "SOLD_OUT"
+},
+"FH25ESE": {
+"list_price": 4540000,
+"price": 4530000,
+"status": "ACTIVE"
+},
+"FH25ESEF": {
+"list_price": 4740000,
+"price": 4740000,
+"status": "ACTIVE"
+},
+"FH25ESEFX": {
+"list_price": 5190000,
+"price": 5170000,
+"status": "ACTIVE"
+},
+"FH25KA": {
+"list_price": 4440000,
+"price": 3330000,
+"status": "ACTIVE"
+},
+"FH25KAX": {
+"list_price": 5040000,
+"price": 3780000,
+"status": "ACTIVE"
+},
+"FH25LMTH": {
+"list_price": 6900000,
+"price": 6900000,
+"status": "ACTIVE"
+},
+"FH25VA": {
+"list_price": 4390000,
+"price": 3670000,
+"status": "ACTIVE"
+},
+"FH25VAX": {
+"list_price": 4940000,
+"price": 4080000,
+"status": "ACTIVE"
+},
+"FH25WA": {
+"list_price": 4340000,
+"price": 3540000,
+"status": "ACTIVE"
+},
+"FH25WAX": {
+"list_price": 4840000,
+"price": 3950000,
+"status": "ACTIVE"
+},
+"FM-Kit1": {
+"list_price": 100000,
+"price": 100000,
+"status": "ACTIVE"
+},
+"FM-Kit2": {
+"list_price": 100000,
+"price": 100000,
+"status": "ACTIVE"
+},
+"FP7G": {
+"list_price": 200000,
+"price": 200000,
+"status": "ACTIVE"
+},
+"FQ16ET4HS2": {
+"list_price": 4218000,
+"price": 3800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ16FV6ED2": {
+"list_price": 4107000,
+"price": 2960000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17ET1BC2": {
+"list_price": 3497000,
+"price": 3150000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17ET1HC2": {
+"list_price": 3497000,
+"price": 3150000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17ET2BC2": {
+"list_price": 3953000,
+"price": 3350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17EU1EX2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FC1ED2": {
+"list_price": 2650000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FC1EX2": {
+"list_price": 2773000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FN5BD2": {
+"list_price": 4829000,
+"price": 4350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FN5BN2": {
+"list_price": 4829000,
+"price": 4350000,
+"status": "READY_FOR_SALE"
+},
+"FQ17FU1BC2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU1ED2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU1EN2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU1EX2": {
+"list_price": 3042000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU2BC2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU2BM2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU2ED2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FU2EN2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV3EM2": {
+"list_price": 3663000,
+"price": 3300000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV3EN2": {
+"list_price": 3663000,
+"price": 3300000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV4ED2": {
+"list_price": 4051000,
+"price": 3650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV4ES2": {
+"list_price": 4218000,
+"price": 3800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV6ED2": {
+"list_price": 4218000,
+"price": 3800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV6EN2M": {
+"list_price": 4218000,
+"price": 3800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV6EP2": {
+"list_price": 4384000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17FV6ES2": {
+"list_price": 4384000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EC2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1ED1": {
+"list_price": 2160000,
+"price": 1946000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1ED2": {
+"list_price": 2720000,
+"price": 2010000,
+"status": "ACTIVE"
+},
+"FQ17GC1EM2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EN1": {
+"list_price": 2160000,
+"price": 1946000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EN2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1ET1M": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ17GC1EX1": {
+"list_price": 2271000,
+"price": 2046000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EX1M": {
+"list_price": 2271000,
+"price": 2046000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EX2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EY1": {
+"list_price": 2271000,
+"price": 2046000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC1EY2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC2EC2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC2EM2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC3EC2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC3ED2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC3EM2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC3EN2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC4ED2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GC4EN2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GK1HC2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ17GK1HM2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1BC2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1BM2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1ED1": {
+"list_price": 2549000,
+"price": 2296000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1ED2": {
+"list_price": 3108000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"FQ17GU1EN1": {
+"list_price": 2549000,
+"price": 2296000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1EN2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU1ET2": {
+"list_price": 3219000,
+"price": 2900000,
+"status": "ACTIVE"
+},
+"FQ17GU1EY2": {
+"list_price": 3219000,
+"price": 2900000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU2ED1": {
+"list_price": 2715000,
+"price": 2446000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GU2ED2": {
+"list_price": 3275000,
+"price": 2350000,
+"status": "ACTIVE"
+},
+"FQ17GU2EN1": {
+"list_price": 2715000,
+"price": 1950000,
+"status": "SOLD_OUT"
+},
+"FQ17GU2EN2": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GV3ED2": {
+"list_price": 3774000,
+"price": 3400000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GV3EN2": {
+"list_price": 3774000,
+"price": 3740000,
+"status": "ACTIVE"
+},
+"FQ17GV4ED2": {
+"list_price": 3996000,
+"price": 3600000,
+"status": "SOLD_OUT"
+},
+"FQ17GV4EN2": {
+"list_price": 3996000,
+"price": 2850000,
+"status": "SOLD_OUT"
+},
+"FQ17GV5ED2": {
+"list_price": 4385000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GV5EN2": {
+"list_price": 4385000,
+"price": 3500000,
+"status": "SOLD_OUT"
+},
+"FQ17GV6ED2": {
+"list_price": 4551000,
+"price": 4100000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GV6EN2": {
+"list_price": 4551000,
+"price": 4100000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17GW1HD2": {
+"list_price": 2720000,
+"price": 1860000,
+"status": "ACTIVE"
+},
+"FQ17GW1HN2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17HDKHC1": {
+"list_price": 2145000,
+"price": 1932000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17HDKHM2": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ17HDWHM2": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "ACTIVE"
+},
+"FQ17HDWHP2": {
+"list_price": 2611000,
+"price": 2350000,
+"status": "SOLD_OUT"
+},
+"FQ18EN9BR2": {
+"list_price": 8159000,
+"price": 7350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18ET4BA1": {
+"list_price": 3710000,
+"price": 3342000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EU1EA2": {
+"list_price": 2997000,
+"price": 2700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EU2EA2": {
+"list_price": 3164000,
+"price": 2850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EV3EA2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EV3EA2M": {
+"list_price": 3608000,
+"price": 3250000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EV4EA1": {
+"list_price": 3364000,
+"price": 3031000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18EV4EE2": {
+"list_price": 4385000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC1EB1": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC1EB1M": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC1EB2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC1EB2M": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC1EU2": {
+"list_price": 2896000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FC2EU2": {
+"list_price": 3020000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5BH2": {
+"list_price": 4773000,
+"price": 4300000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5BK2": {
+"list_price": 4940000,
+"price": 4450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5BR2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5BU2": {
+"list_price": 4773000,
+"price": 3440000,
+"status": "SOLD_OUT"
+},
+"FQ18FN5HA2": {
+"list_price": 4940000,
+"price": 4450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5HH2": {
+"list_price": 4773000,
+"price": 4300000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5HK1": {
+"list_price": 4269000,
+"price": 3846000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5HR2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN5HU2": {
+"list_price": 4773000,
+"price": 4300000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN7BA2": {
+"list_price": 5217000,
+"price": 4700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN7BK2": {
+"list_price": 5217000,
+"price": 4700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN7HA1": {
+"list_price": 4547000,
+"price": 4096000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN7HK1": {
+"list_price": 4547000,
+"price": 4096000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN9BA2": {
+"list_price": 5717000,
+"price": 5150000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN9BE2": {
+"list_price": 6478000,
+"price": 5830000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN9BK1": {
+"list_price": 5046000,
+"price": 4546000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FN9HE1": {
+"list_price": 5601000,
+"price": 5046000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FU1EA2": {
+"list_price": 2997000,
+"price": 2700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FU1EK2": {
+"list_price": 2997000,
+"price": 2700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FU2EA2": {
+"list_price": 3164000,
+"price": 2280000,
+"status": "ACTIVE"
+},
+"FQ18FU2EK2": {
+"list_price": 3164000,
+"price": 2850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV3EK2": {
+"list_price": 3719000,
+"price": 3350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV4EA2": {
+"list_price": 4107000,
+"price": 3700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV4EK2": {
+"list_price": 4107000,
+"price": 3700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV4EP2": {
+"list_price": 4274000,
+"price": 3850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV4ES2": {
+"list_price": 4274000,
+"price": 3850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV6EA2": {
+"list_price": 4274000,
+"price": 3850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV6EF2": {
+"list_price": 4995000,
+"price": 4500000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV6EK2": {
+"list_price": 4274000,
+"price": 3850000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV6EP2": {
+"list_price": 4440000,
+"price": 4000000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18FV6ES2": {
+"list_price": 4440000,
+"price": 4000000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC1EA2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC1EG2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GC1EH2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GC1EK2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"FQ18GC1ER2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "ACTIVE"
+},
+"FQ18GC1EU2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC2EA2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC2EK2": {
+"list_price": 2831000,
+"price": 2550000,
+"status": "ACTIVE"
+},
+"FQ18GC2ER2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "ACTIVE"
+},
+"FQ18GC2EU2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC3EA2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC3EK2": {
+"list_price": 2942000,
+"price": 2650000,
+"status": "ACTIVE"
+},
+"FQ18GC4EA2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GC4EK2": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "ACTIVE"
+},
+"FQ18GK1HA2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GK1HK2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GK1HL2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GK1HS2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GN5BA2": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN5BK2": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"FQ18GN5HA2": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN5HK2": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN7BA2": {
+"list_price": 5550000,
+"price": 5000000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN7BP2": {
+"list_price": 5328000,
+"price": 4800000,
+"status": "ACTIVE"
+},
+"FQ18GN7HA2": {
+"list_price": 5550000,
+"price": 5000000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN9BE2": {
+"list_price": 6627000,
+"price": 5970000,
+"status": "ACTIVE"
+},
+"FQ18GN9HA2": {
+"list_price": 6049000,
+"price": 5450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GN9HE2": {
+"list_price": 6627000,
+"price": 5970000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GU1BG2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GU1BH2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GU1EA2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GU1EK2": {
+"list_price": 3108000,
+"price": 2800000,
+"status": "ACTIVE"
+},
+"FQ18GU1ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GU2EA2": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GU2EK2": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "ACTIVE"
+},
+"FQ18GU2ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV3BA2": {
+"list_price": 3941000,
+"price": 3550000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV3BK2": {
+"list_price": 3941000,
+"price": 3550000,
+"status": "ACTIVE"
+},
+"FQ18GV3BR2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV3EA2": {
+"list_price": 3830000,
+"price": 3450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV3EE2": {
+"list_price": 4407000,
+"price": 3970000,
+"status": "ACTIVE"
+},
+"FQ18GV3EF2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV3EK2": {
+"list_price": 3830000,
+"price": 3450000,
+"status": "ACTIVE"
+},
+"FQ18GV3ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV4EA2": {
+"list_price": 3996000,
+"price": 3600000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV4EK2": {
+"list_price": 3996000,
+"price": 2880000,
+"status": "SOLD_OUT"
+},
+"FQ18GV4ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV5BA2": {
+"list_price": 4496000,
+"price": 4050000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV5BK2": {
+"list_price": 4496000,
+"price": 4050000,
+"status": "ACTIVE"
+},
+"FQ18GV5BR2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV5EA2": {
+"list_price": 4385000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV5EK2": {
+"list_price": 4385000,
+"price": 3950000,
+"status": "ACTIVE"
+},
+"FQ18GV5ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV6BA2": {
+"list_price": 4662000,
+"price": 4200000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV6BR2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV6EA2": {
+"list_price": 4551000,
+"price": 4100000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18GV6EE2": {
+"list_price": 5350000,
+"price": 4820000,
+"status": "ACTIVE"
+},
+"FQ18GV6EF2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GV6ER2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ18GW1HN2": {
+"list_price": 2720000,
+"price": 2250000,
+"status": "ACTIVE"
+},
+"FQ18GW1HR2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18HDWHA1": {
+"list_price": 2145000,
+"price": 1932000,
+"status": "ACTIVE"
+},
+"FQ18HDWHK1": {
+"list_price": 2145000,
+"price": 1932000,
+"status": "READY_FOR_SALE"
+},
+"FQ18HDWHM2": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18HDWHN2": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18HDWHR1": {
+"list_price": 2145000,
+"price": 1932000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18HDWHU2": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"FQ18HDWHY2": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ18HDWHY2M": {
+"list_price": 2609000,
+"price": 2350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ19FU2ED2": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ19FV3ED2": {
+"list_price": 3774000,
+"price": 3400000,
+"status": "NOT_FOR_SALE"
+},
+"FQ19GU1ED2": {
+"list_price": 3241000,
+"price": 2300000,
+"status": "SOLD_OUT"
+},
+"FQ20ET2BC2M": {
+"list_price": 4160000,
+"price": 3750000,
+"status": "NOT_FOR_SALE"
+},
+"FQ20FC2EU2": {
+"list_price": 3513000,
+"price": 2950000,
+"status": "NOT_FOR_SALE"
+},
+"FQ20FV6ED2": {
+"list_price": 4606000,
+"price": 3320000,
+"status": "SOLD_OUT"
+},
+"FQ20GC2EA2": {
+"list_price": 3297000,
+"price": 2250000,
+"status": "ACTIVE"
+},
+"FQ20GC2EU2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ20GW2HA2": {
+"list_price": 3197000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"FQ20VDWHA1": {
+"list_price": 2533000,
+"price": 2282000,
+"status": "NOT_FOR_SALE"
+},
+"FQ20VDWHA1M": {
+"list_price": 2533000,
+"price": 2282000,
+"status": "NOT_FOR_SALE"
+},
+"FQ20VDWHM2": {
+"list_price": 2997000,
+"price": 2160000,
+"status": "NOT_FOR_SALE"
+},
+"FQ20VDWHM2M": {
+"list_price": 2997000,
+"price": 2700000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22ET4BA2": {
+"list_price": 4884000,
+"price": 4400000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22FN9HE2": {
+"list_price": 6827000,
+"price": 6150000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22FV6EA2": {
+"list_price": 4829000,
+"price": 4350000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22FV6ES2": {
+"list_price": 4995000,
+"price": 4500000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22GN9BE2": {
+"list_price": 7182000,
+"price": 6470000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22GN9HE2": {
+"list_price": 7182000,
+"price": 6470000,
+"status": "NOT_FOR_SALE"
+},
+"FQ22GU2EA2": {
+"list_price": 3852000,
+"price": 3470000,
+"status": "ACTIVE"
+},
+"FQ22GU2EU2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ22GV3EA2": {
+"list_price": 4407000,
+"price": 3970000,
+"status": "ACTIVE"
+},
+"FQ22GV3EU2": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FQ22GV6EA2": {
+"list_price": 5350000,
+"price": 4820000,
+"status": "ACTIVE"
+},
+"FQ22GV6EU2": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FQ25EN6BE2": {
+"list_price": 6216000,
+"price": 5600000,
+"status": "NOT_FOR_SALE"
+},
+"FQ25FN5BA2": {
+"list_price": 5627000,
+"price": 5070000,
+"status": "ACTIVE"
+},
+"FQ25FN5HA2": {
+"list_price": 5627000,
+"price": 5070000,
+"status": "NOT_FOR_SALE"
+},
+"FQ25FN9BE2": {
+"list_price": 7215000,
+"price": 6500000,
+"status": "NOT_FOR_SALE"
+},
+"FQ25FN9HE2": {
+"list_price": 7215000,
+"price": 6500000,
+"status": "NOT_FOR_SALE"
+},
+"FQ25GN9BE2": {
+"list_price": 7570000,
+"price": 6820000,
+"status": "ACTIVE"
+},
+"FQ25GN9BK2": {
+"list_price": 7348000,
+"price": 6620000,
+"status": "READY_FOR_SALE"
+},
+"FQ25GN9HE2": {
+"list_price": 7570000,
+"price": 6820000,
+"status": "NOT_FOR_SALE"
+},
+"FQ25LDNBE2": {
+"list_price": 8436000,
+"price": 7600000,
+"status": "NOT_FOR_SALE"
+},
+"FS065PSKA": {
+"list_price": 1265000,
+"price": 929000,
+"status": "ACTIVE"
+},
+"FS22GB": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"FS676HBAA": {
+"list_price": 250000,
+"price": 249000,
+"status": "ACTIVE"
+},
+"FW16FC1EA2": {
+"list_price": 3830000,
+"price": 3450000,
+"status": "ACTIVE"
+},
+"FW16FC1EU2": {
+"list_price": 3941000,
+"price": 3550000,
+"status": "ACTIVE"
+},
+"FW16HDWWA1": {
+"list_price": 2886000,
+"price": 2600000,
+"status": "NOT_FOR_SALE"
+},
+"FW18EV3EA1": {
+"list_price": 3830000,
+"price": 3450000,
+"status": "ACTIVE"
+},
+"FW19SETBA2": {
+"list_price": 4884000,
+"price": 4400000,
+"status": "NOT_FOR_SALE"
+},
+"FW20HDNBM2": {
+"list_price": 4995000,
+"price": 4500000,
+"status": "ACTIVE"
+},
+"FW20PENHA2": {
+"list_price": 5994000,
+"price": 5400000,
+"status": "NOT_FOR_SALE"
+},
+"FW20SDNBM2": {
+"list_price": 5439000,
+"price": 4900000,
+"status": "NOT_FOR_SALE"
+},
+"FX23ENER": {
+"list_price": 1850000,
+"price": 1530000,
+"status": "ACTIVE"
+},
+"FX23ENERF": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX23ENERX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX23GNGR": {
+"list_price": 1850000,
+"price": 1480000,
+"status": "ACTIVE"
+},
+"FX23VNR": {
+"list_price": 1800000,
+"price": 1260000,
+"status": "SOLD_OUT"
+},
+"FX23VNRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX23WNAR": {
+"list_price": 1700000,
+"price": 1360000,
+"status": "ACTIVE"
+},
+"FX24ENER": {
+"list_price": 1850000,
+"price": 1360000,
+"status": "ACTIVE"
+},
+"FX24GNGRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX24KN20KRR": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX24KNTR": {
+"list_price": 1850000,
+"price": 1290000,
+"status": "ACTIVE"
+},
+"FX24WNR": {
+"list_price": 1750000,
+"price": 1350000,
+"status": "ACTIVE"
+},
+"FX24WNRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX24WSRX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX25AF": {
+"list_price": 2200000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"FX25EAR": {
+"list_price": 2100000,
+"price": 2100000,
+"status": "ACTIVE"
+},
+"FX25EFE": {
+"list_price": 2200000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"FX25ENR": {
+"list_price": 2050000,
+"price": 2050000,
+"status": "ACTIVE"
+},
+"FX25GAR": {
+"list_price": 2100000,
+"price": 2100000,
+"status": "ACTIVE"
+},
+"FX25GFG": {
+"list_price": 2200000,
+"price": 2100000,
+"status": "ACTIVE"
+},
+"FX25GNR": {
+"list_price": 2050000,
+"price": 2020000,
+"status": "ACTIVE"
+},
+"FX25IF": {
+"list_price": 2200000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"FX25KF": {
+"list_price": 2200000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"FX25VF": {
+"list_price": 2200000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"FX25WSQR": {
+"list_price": 2000000,
+"price": 1450000,
+"status": "ACTIVE"
+},
+"FX2EC": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"FX4GC": {
+"list_price": 850000,
+"price": 850000,
+"status": "ACTIVE"
+},
+"FX4WC": {
+"list_price": 700000,
+"price": 680000,
+"status": "ACTIVE"
+},
+"FY9WT": {
+"list_price": 770000,
+"price": 700000,
+"status": "ACTIVE"
+},
+"FY9WTB": {
+"list_price": 750000,
+"price": 680000,
+"status": "ACTIVE"
+},
+"G646GBB021": {
+"list_price": 3800000,
+"price": 3250000,
+"status": "ACTIVE"
+},
+"G646GBB031": {
+"list_price": 4607000,
+"price": 4150000,
+"status": "ACTIVE"
+},
+"G646GBB032": {
+"list_price": 4290000,
+"price": 3900000,
+"status": "ACTIVE"
+},
+"G646GBB071": {
+"list_price": 4100000,
+"price": 3900000,
+"status": "ACTIVE"
+},
+"G646GBB081": {
+"list_price": 4890000,
+"price": 4450000,
+"status": "ACTIVE"
+},
+"G646GBB091": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"G646GBB341": {
+"list_price": 5106000,
+"price": 4600000,
+"status": "ACTIVE"
+},
+"G646MEE021": {
+"list_price": 3600000,
+"price": 3030000,
+"status": "ACTIVE"
+},
+"G646MEE032": {
+"list_price": 4120000,
+"price": 3750000,
+"status": "ACTIVE"
+},
+"G646SLL031": {
+"list_price": 4829000,
+"price": 4350000,
+"status": "ACTIVE"
+},
+"G646SLL091": {
+"list_price": 5217000,
+"price": 4700000,
+"status": "ACTIVE"
+},
+"G646SVV031": {
+"list_price": 4351000,
+"price": 4350000,
+"status": "ACTIVE"
+},
+"G646SVV091": {
+"list_price": 5165000,
+"price": 4700000,
+"status": "ACTIVE"
+},
+"H875GBB141": {
+"list_price": 3960000,
+"price": 3600000,
+"status": "ACTIVE"
+},
+"H875GBB141__": {
+"list_price": 3941000,
+"price": 3550000,
+"status": "NOT_FOR_SALE"
+},
+"H875GBB442": {
+"list_price": 4070000,
+"price": 3700000,
+"status": "ACTIVE"
+},
+"H875GBB442__": {
+"list_price": 4052000,
+"price": 3650000,
+"status": "NOT_FOR_SALE"
+},
+"H876GBB011": {
+"list_price": 3200000,
+"price": 3200000,
+"status": "ACTIVE"
+},
+"H876GBB031": {
+"list_price": 3670000,
+"price": 3300000,
+"status": "ACTIVE"
+},
+"H876GBB111": {
+"list_price": 3774000,
+"price": 3400000,
+"status": "ACTIVE"
+},
+"H876GBB141": {
+"list_price": 4107000,
+"price": 3700000,
+"status": "ACTIVE"
+},
+"H876GBB442": {
+"list_price": 4120000,
+"price": 3750000,
+"status": "ACTIVE"
+},
+"HEI1V9E": {
+"list_price": 176000,
+"price": 159000,
+"status": "ACTIVE"
+},
+"HW300BBB": {
+"list_price": 343000,
+"price": 259000,
+"status": "ACTIVE"
+},
+"HW300DBL": {
+"list_price": 376000,
+"price": 299000,
+"status": "ACTIVE"
+},
+"HW500DAS": {
+"list_price": 443000,
+"price": 305000,
+"status": "ACTIVE"
+},
+"HY505RWLAH": {
+"list_price": 1099000,
+"price": 748000,
+"status": "ACTIVE"
+},
+"HY505RWLAHM": {
+"list_price": 1164000,
+"price": 858000,
+"status": "ACTIVE"
+},
+"HY706RSUABM": {
+"list_price": 1750000,
+"price": 1340000,
+"status": "ACTIVE"
+},
+"HY706RWUAB": {
+"list_price": 1686000,
+"price": 1519000,
+"status": "ACTIVE"
+},
+"HY856RNAAP": {
+"list_price": 2715000,
+"price": 2446000,
+"status": "ACTIVE"
+},
+"HY856RSAAP": {
+"list_price": 2715000,
+"price": 2446000,
+"status": "ACTIVE"
+},
+"IY15CT80": {
+"list_price": 2991000,
+"price": 2990000,
+"status": "ACTIVE"
+},
+"J816MEE062__": {
+"list_price": 2500000,
+"price": 2280000,
+"status": "NOT_FOR_SALE"
+},
+"J816MEE172": {
+"list_price": 3164000,
+"price": 2850000,
+"status": "NOT_FOR_SALE"
+},
+"J816MEE172__": {
+"list_price": 3020000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"J825GBB142__": {
+"list_price": 3885000,
+"price": 3500000,
+"status": "NOT_FOR_SALE"
+},
+"J825GBB442__": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"J825MEE042__": {
+"list_price": 3450000,
+"price": 2700000,
+"status": "NOT_FOR_SALE"
+},
+"J825MEE142__": {
+"list_price": null,
+"price": null,
+"status": null
+},
+"J842ND79": {
+"list_price": 14500000,
+"price": 14500000,
+"status": "NOT_FOR_SALE"
+},
+"K135LW123": {
+"list_price": 740000,
+"price": 660000,
+"status": "ACTIVE"
+},
+"K220S111": {
+"list_price": 1130000,
+"price": 920000,
+"status": "ACTIVE"
+},
+"K225LW121": {
+"list_price": 1180000,
+"price": 1180000,
+"status": "ACTIVE"
+},
+"K225MB131": {
+"list_price": 1454000,
+"price": 1310000,
+"status": "ACTIVE"
+},
+"K225S121": {
+"list_price": 1180000,
+"price": 1130000,
+"status": "ACTIVE"
+},
+"K322SC": {
+"list_price": 1400000,
+"price": 1020000,
+"status": "ACTIVE"
+},
+"K83IGY": {
+"list_price": 349000,
+"price": 240000,
+"status": "ACTIVE"
+},
+"K83IGYQ": {
+"list_price": 359000,
+"price": 250000,
+"status": "ACTIVE"
+},
+"K83WGY": {
+"list_price": 370000,
+"price": 369000,
+"status": "ACTIVE"
+},
+"KG24E-20G": {
+"list_price": 3740000,
+"price": 3640000,
+"status": "ACTIVE"
+},
+"KX23GNRENER": {
+"list_price": 3780000,
+"price": 3780000,
+"status": "ACTIVE"
+},
+"KX23WNR2WQR": {
+"list_price": 3680000,
+"price": 2950000,
+"status": "ACTIVE"
+},
+"KX24ENRGNGR": {
+"list_price": 3780000,
+"price": 3780000,
+"status": "ACTIVE"
+},
+"KX24KN20KRR": {
+"list_price": 3730000,
+"price": 2860000,
+"status": "ACTIVE"
+},
+"KX25EA20ENR": {
+"list_price": 4030000,
+"price": 3590000,
+"status": "READY_FOR_SALE"
+},
+"KX25EFE5EER": {
+"list_price": 5039000,
+"price": 4540000,
+"status": "ACTIVE"
+},
+"KX25GA20ENR": {
+"list_price": 4030000,
+"price": 3590000,
+"status": "READY_FOR_SALE"
+},
+"KX25TF5TSR": {
+"list_price": 5030000,
+"price": 4540000,
+"status": "SOLD_OUT"
+},
+"KX25VF-5VSR": {
+"list_price": 4680000,
+"price": 4540000,
+"status": "ACTIVE"
+},
+"KX4EN-1ESRR": {
+"list_price": 4030000,
+"price": 3380000,
+"status": "ACTIVE"
+},
+"L023E1P42": {
+"list_price": 218000,
+"price": 199000,
+"status": "ACTIVE"
+},
+"L023L1P42": {
+"list_price": 218000,
+"price": 199000,
+"status": "ACTIVE"
+},
+"L023M1P42": {
+"list_price": 218000,
+"price": 199000,
+"status": "ACTIVE"
+},
+"LHE02": {
+"list_price": 6000,
+"price": 5000,
+"status": "ACTIVE"
+},
+"LPE03": {
+"list_price": 13000,
+"price": 12000,
+"status": "ACTIVE"
+},
+"LPM41": {
+"list_price": 10000,
+"price": 9000,
+"status": "ACTIVE"
+},
+"LPM42": {
+"list_price": 10000,
+"price": 9000,
+"status": "ACTIVE"
+},
+"LPM43": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM44": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM45": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM46": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM47": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM48": {
+"list_price": 11000,
+"price": 10000,
+"status": "ACTIVE"
+},
+"LPM49": {
+"list_price": 11000,
+"price": 10000,
+"status": "ACTIVE"
+},
+"LPM50": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"LPM51": {
+"list_price": 18000,
+"price": 16000,
+"status": "ACTIVE"
+},
+"LPM52": {
+"list_price": 13000,
+"price": 12000,
+"status": "ACTIVE"
+},
+"LPM53": {
+"list_price": 13000,
+"price": 12000,
+"status": "ACTIVE"
+},
+"LPM54": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LPM55": {
+"list_price": 13000,
+"price": 12000,
+"status": "ACTIVE"
+},
+"LPM56": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LPM57": {
+"list_price": 19000,
+"price": 17000,
+"status": "ACTIVE"
+},
+"LPM58": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LPM59": {
+"list_price": 13000,
+"price": 12000,
+"status": "ACTIVE"
+},
+"LPM60": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LPM61": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LPM62": {
+"list_price": 16000,
+"price": 14000,
+"status": "ACTIVE"
+},
+"LVM03": {
+"list_price": 11000,
+"price": 10000,
+"status": "ACTIVE"
+},
+"LVT03": {
+"list_price": 12000,
+"price": 11000,
+"status": "ACTIVE"
+},
+"M301S31": {
+"list_price": 980000,
+"price": 720000,
+"status": "ACTIVE"
+},
+"M336DS123": {
+"list_price": 1100000,
+"price": 780000,
+"status": "ACTIVE"
+},
+"M336MB122": {
+"list_price": 1250000,
+"price": 1130000,
+"status": "ACTIVE"
+},
+"M344MB14": {
+"list_price": 980000,
+"price": 720000,
+"status": "ACTIVE"
+},
+"M402ND": {
+"list_price": 8900000,
+"price": 8000000,
+"status": "ACTIVE"
+},
+"M451PS53": {
+"list_price": 1300000,
+"price": 920000,
+"status": "ACTIVE"
+},
+"M516AAA012": {
+"list_price": 3053000,
+"price": 2750000,
+"status": "NOT_FOR_SALE"
+},
+"M516AAA032": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "NOT_FOR_SALE"
+},
+"M516GBB012S": {
+"list_price": 3450000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"M516MQQ012S": {
+"list_price": 3100000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"M516SGS012S": {
+"list_price": 3850000,
+"price": 3400000,
+"status": "SOLD_OUT"
+},
+"M516SVV012S": {
+"list_price": 3850000,
+"price": 3400000,
+"status": "ACTIVE"
+},
+"M616AAA0J1": {
+"list_price": 3719000,
+"price": 3350000,
+"status": "NOT_FOR_SALE"
+},
+"M616GBB0M1": {
+"list_price": 3800000,
+"price": 2680000,
+"status": "ACTIVE"
+},
+"M616MQQ0M1": {
+"list_price": 3400000,
+"price": 2830000,
+"status": "NOT_FOR_SALE"
+},
+"M622GCB352S": {
+"list_price": 3996000,
+"price": 3600000,
+"status": "NOT_FOR_SALE"
+},
+"M622MGB352S": {
+"list_price": 3305000,
+"price": 3300000,
+"status": "NOT_FOR_SALE"
+},
+"M874SGS1C1S": {
+"list_price": 4750000,
+"price": 4750000,
+"status": "NOT_FOR_SALE"
+},
+"M875AAA061": {
+"list_price": 3500000,
+"price": 3190000,
+"status": "NOT_FOR_SALE"
+},
+"M875MHH282S__": {
+"list_price": 4570000,
+"price": 4150000,
+"status": "NOT_FOR_SALE"
+},
+"M875SKV282S__": {
+"list_price": 5450000,
+"price": 4950000,
+"status": "NOT_FOR_SALE"
+},
+"M876AAA161": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"M876AAA231": {
+"list_price": 4385000,
+"price": 3950000,
+"status": "NOT_FOR_SALE"
+},
+"M876AAA582": {
+"list_price": 5273000,
+"price": 4750000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBB131": {
+"list_price": 4730000,
+"price": 4300000,
+"status": "ACTIVE"
+},
+"M876GBB161": {
+"list_price": 4601000,
+"price": 4600000,
+"status": "ACTIVE"
+},
+"M876GBB161__": {
+"list_price": 4450000,
+"price": 4000000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBB181": {
+"list_price": 5384000,
+"price": 4850000,
+"status": "ACTIVE"
+},
+"M876GBB181__": {
+"list_price": 5217000,
+"price": 4700000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBB231": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"M876GBB282": {
+"list_price": 5384000,
+"price": 4850000,
+"status": "ACTIVE"
+},
+"M876GBB282__": {
+"list_price": 5160000,
+"price": 4700000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBB431": {
+"list_price": 5217000,
+"price": 4700000,
+"status": "ACTIVE"
+},
+"M876GBB472": {
+"list_price": 5220000,
+"price": 4750000,
+"status": "ACTIVE"
+},
+"M876GBB472__": {
+"list_price": 4755000,
+"price": 4750000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBB582": {
+"list_price": 5772000,
+"price": 5200000,
+"status": "ACTIVE"
+},
+"M876GBB582__": {
+"list_price": 5606000,
+"price": 5050000,
+"status": "NOT_FOR_SALE"
+},
+"M876GBC232": {
+"list_price": 4350000,
+"price": 3960000,
+"status": "ACTIVE"
+},
+"M876GGA161": {
+"list_price": 5050000,
+"price": 4600000,
+"status": "ACTIVE"
+},
+"M876GGA161__": {
+"list_price": 4450000,
+"price": 4000000,
+"status": "NOT_FOR_SALE"
+},
+"M876GGA231": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"M876GNN3A1": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"M876GQQ231": {
+"list_price": 5051000,
+"price": 4550000,
+"status": "ACTIVE"
+},
+"M876MQQ582S": {
+"list_price": 5273000,
+"price": 4750000,
+"status": "ACTIVE"
+},
+"M876MQQ582S__": {
+"list_price": 5273000,
+"price": 4750000,
+"status": "NOT_FOR_SALE"
+},
+"M876SVV582S": {
+"list_price": 5880000,
+"price": 5350000,
+"status": "ACTIVE"
+},
+"M876SVV582S__": {
+"list_price": 5880000,
+"price": 5350000,
+"status": "NOT_FOR_SALE"
+},
+"MH20BR": {
+"list_price": 2690000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"MH21BBY": {
+"list_price": 3291000,
+"price": 3290000,
+"status": "ACTIVE"
+},
+"MH21RRY": {
+"list_price": 3291000,
+"price": 3290000,
+"status": "ACTIVE"
+},
+"MH65CC": {
+"list_price": 3200000,
+"price": 2900000,
+"status": "ACTIVE"
+},
+"MH66CB": {
+"list_price": 2900000,
+"price": 1990000,
+"status": "NOT_FOR_SALE"
+},
+"MH67BR": {
+"list_price": 2200000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"MH81CC": {
+"list_price": 3500000,
+"price": 3150000,
+"status": "ACTIVE"
+},
+"MH81RR": {
+"list_price": 3500000,
+"price": 3150000,
+"status": "ACTIVE"
+},
+"ML32WW1": {
+"list_price": 749000,
+"price": 581000,
+"status": "NOT_FOR_SALE"
+},
+"ML39BW": {
+"list_price": 409000,
+"price": 360000,
+"status": "ACTIVE"
+},
+"MLJ28ERN": {
+"list_price": 390000,
+"price": 350000,
+"status": "ACTIVE"
+},
+"MLJ32ERS": {
+"list_price": 1095000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"MLJ32EWSO": {
+"list_price": 940000,
+"price": 719000,
+"status": "ACTIVE"
+},
+"MLJ32HWS": {
+"list_price": 990000,
+"price": 874000,
+"status": "ACTIVE"
+},
+"MLJ39ER": {
+"list_price": 790000,
+"price": 489000,
+"status": "ACTIVE"
+},
+"MLJ39EW": {
+"list_price": 540000,
+"price": 399000,
+"status": "ACTIVE"
+},
+"MLJ39EWO": {
+"list_price": 490000,
+"price": 399000,
+"status": "ACTIVE"
+},
+"MLJ39HW": {
+"list_price": 790000,
+"price": 489000,
+"status": "ACTIVE"
+},
+"MLJ39KR": {
+"list_price": 790000,
+"price": 489000,
+"status": "ACTIVE"
+},
+"MLJ39PR": {
+"list_price": 790000,
+"price": 489000,
+"status": "ACTIVE"
+},
+"MLJ39WW": {
+"list_price": 540000,
+"price": 399000,
+"status": "ACTIVE"
+},
+"MO972WA": {
+"list_price": 770000,
+"price": 590000,
+"status": "ACTIVE"
+},
+"MW20CDN": {
+"list_price": 169000,
+"price": 145000,
+"status": "ACTIVE"
+},
+"MW20GDN": {
+"list_price": 179000,
+"price": 134000,
+"status": "ACTIVE"
+},
+"MW22CA": {
+"list_price": 179000,
+"price": 179000,
+"status": "SOLD_OUT"
+},
+"MW22CAI": {
+"list_price": 189000,
+"price": 179000,
+"status": "ACTIVE"
+},
+"MW23BD": {
+"list_price": 209000,
+"price": 174000,
+"status": "SOLD_OUT"
+},
+"MW23BDI": {
+"list_price": 209000,
+"price": 169000,
+"status": "ACTIVE"
+},
+"MW23BP": {
+"list_price": 209000,
+"price": 174000,
+"status": "SOLD_OUT"
+},
+"MW23BPI": {
+"list_price": 209000,
+"price": 169000,
+"status": "ACTIVE"
+},
+"MW23FD": {
+"list_price": 209000,
+"price": 164000,
+"status": "SOLD_OUT"
+},
+"MW23FDI": {
+"list_price": 209000,
+"price": 164000,
+"status": "ACTIVE"
+},
+"MW23GD": {
+"list_price": 199000,
+"price": 182000,
+"status": "SOLD_OUT"
+},
+"MW23GDI": {
+"list_price": 199000,
+"price": 172000,
+"status": "ACTIVE"
+},
+"MW23WD": {
+"list_price": 209000,
+"price": 171000,
+"status": "SOLD_OUT"
+},
+"MW23WDI": {
+"list_price": 209000,
+"price": 166000,
+"status": "ACTIVE"
+},
+"MW25B": {
+"list_price": 229000,
+"price": 201000,
+"status": "ACTIVE"
+},
+"MW25S": {
+"list_price": 249000,
+"price": 185000,
+"status": "ACTIVE"
+},
+"MW30EDN": {
+"list_price": 209000,
+"price": 151000,
+"status": "ACTIVE"
+},
+"MWE25HD": {
+"list_price": 339000,
+"price": 270000,
+"status": "ACTIVE"
+},
+"MWJ20EDN": {
+"list_price": 179000,
+"price": 152000,
+"status": "ACTIVE"
+},
+"MWJ23E": {
+"list_price": 230000,
+"price": 180000,
+"status": "SOLD_OUT"
+},
+"MWJ23P": {
+"list_price": 230000,
+"price": 164000,
+"status": "SOLD_OUT"
+},
+"MWJ23PI": {
+"list_price": 240000,
+"price": 169000,
+"status": "ACTIVE"
+},
+"MWJ25E": {
+"list_price": 280000,
+"price": 260000,
+"status": "ACTIVE"
+},
+"MX91WR": {
+"list_price": 5290000,
+"price": 4890000,
+"status": "SOLD_OUT"
+},
+"N95THO": {
+"list_price": 2190000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"N95TWU": {
+"list_price": 2190000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"OC-KIT82EA": {
+"list_price": 200000,
+"price": 180000,
+"status": "ACTIVE"
+},
+"OC-Kit6": {
+"list_price": 100000,
+"price": 100000,
+"status": "ACTIVE"
+},
+"OC-Kit7": {
+"list_price": 100000,
+"price": 100000,
+"status": "ACTIVE"
+},
+"OC-Kit8": {
+"list_price": 100000,
+"price": 100000,
+"status": "ACTIVE"
+},
+"OLED42C5ENA": {
+"list_price": 2090000,
+"price": 1300000,
+"status": "ACTIVE"
+},
+"OLED42C6ENA": {
+"list_price": 1890000,
+"price": 1440000,
+"status": "ACTIVE"
+},
+"OLED42C6KNA": {
+"list_price": 1990000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"OLED48B4NSAS20A": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"OLED48B4NSP": {
+"list_price": 2780000,
+"price": 2420000,
+"status": "NOT_FOR_SALE"
+},
+"OLED48B5NNA": {
+"list_price": 1490000,
+"price": 1290000,
+"status": "ACTIVE"
+},
+"OLED48C5ENA": {
+"list_price": 2190000,
+"price": 1540000,
+"status": "ACTIVE"
+},
+"OLED48C6ENA": {
+"list_price": 1990000,
+"price": 1590000,
+"status": "SOLD_OUT"
+},
+"OLED48C6KNA": {
+"list_price": 2389000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"OLED55B5ENA": {
+"list_price": 2290000,
+"price": 1440000,
+"status": "ACTIVE"
+},
+"OLED55B5NNA": {
+"list_price": 1890000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"OLED55B5NSP": {
+"list_price": 3180000,
+"price": 2730000,
+"status": "ACTIVE"
+},
+"OLED55B6BNA": {
+"list_price": 1890000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"OLED55B6ENA": {
+"list_price": 1990000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"OLED55B6KNA": {
+"list_price": 2090000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"OLED55B6NNA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"OLED55C5ENA": {
+"list_price": 2690000,
+"price": 1590000,
+"status": "SOLD_OUT"
+},
+"OLED55C6ENA": {
+"list_price": 2190000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"OLED55C6KNA": {
+"list_price": 2989000,
+"price": 2790000,
+"status": "ACTIVE"
+},
+"OLED55G6KNA": {
+"list_price": 3689000,
+"price": 3490000,
+"status": "ACTIVE"
+},
+"OLED65A3ESAS40TW": {
+"list_price": 3619000,
+"price": 3289000,
+"status": "NOT_FOR_SALE"
+},
+"OLED65B2QNA": {
+"list_price": 3090000,
+"price": 2440000,
+"status": "NOT_FOR_SALE"
+},
+"OLED65B4NNA": {
+"list_price": 2890000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"OLED65B4NSAS20A": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"OLED65B4NWP": {
+"list_price": 4180000,
+"price": 3540000,
+"status": "ACTIVE"
+},
+"OLED65B4SNA": {
+"list_price": 3452000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"OLED65B5HNA": {
+"list_price": 2650000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"OLED65B5NNA": {
+"list_price": 2890000,
+"price": 2290000,
+"status": "ACTIVE"
+},
+"OLED65B6BNA": {
+"list_price": 3090000,
+"price": 2790000,
+"status": "ACTIVE"
+},
+"OLED65B6ENA": {
+"list_price": 2990000,
+"price": 2290000,
+"status": "ACTIVE"
+},
+"OLED65B6SNA": {
+"list_price": 3290000,
+"price": 3290000,
+"status": "ACTIVE"
+},
+"OLED65C5ENA": {
+"list_price": 2890000,
+"price": 2550000,
+"status": "ACTIVE"
+},
+"OLED65C6ENA": {
+"list_price": 3090000,
+"price": 2790000,
+"status": "NOT_FOR_SALE"
+},
+"OLED65C6SNA": {
+"list_price": 4688000,
+"price": 3790000,
+"status": "ACTIVE"
+},
+"OLED65G6KNA": {
+"list_price": 5188000,
+"price": 4290000,
+"status": "ACTIVE"
+},
+"OLED65M4KNA": {
+"list_price": 5500000,
+"price": 5390000,
+"status": "NOT_FOR_SALE"
+},
+"OLED77B4SNA": {
+"list_price": 5794000,
+"price": 3690000,
+"status": "ACTIVE"
+},
+"OLED77B5SNA": {
+"list_price": 5490000,
+"price": 3790000,
+"status": "ACTIVE"
+},
+"OLED77B5XNA": {
+"list_price": 4990000,
+"price": 3790000,
+"status": "ACTIVE"
+},
+"OLED77B6BNA": {
+"list_price": 5090000,
+"price": 4090000,
+"status": "ACTIVE"
+},
+"OLED77B6NNA": {
+"list_price": 5090000,
+"price": 4290000,
+"status": "ACTIVE"
+},
+"OLED77B6SNA": {
+"list_price": 5790000,
+"price": 5790000,
+"status": "ACTIVE"
+},
+"OLED77C6QNA": {
+"list_price": 6590000,
+"price": 5990000,
+"status": "ACTIVE"
+},
+"OLED77C6SNA": {
+"list_price": 7288000,
+"price": 6190000,
+"status": "ACTIVE"
+},
+"OLED77G6KNA": {
+"list_price": 11388000,
+"price": 9000000,
+"status": "ACTIVE"
+},
+"OLED77T6KNA": {
+"list_price": 100000000,
+"price": 100000000,
+"status": "SOLD_OUT"
+},
+"OLED77W6KNA": {
+"list_price": 10500000,
+"price": 10500000,
+"status": "ACTIVE"
+},
+"OLED83C6KNA": {
+"list_price": 10000000,
+"price": 9000000,
+"status": "SOLD_OUT"
+},
+"OLED83C6QNA": {
+"list_price": 8900000,
+"price": 8500000,
+"status": "ACTIVE"
+},
+"OLED83C6SNA": {
+"list_price": 10000000,
+"price": 9000000,
+"status": "ACTIVE"
+},
+"OLED83G6KNA": {
+"list_price": 15000000,
+"price": 14000000,
+"status": "ACTIVE"
+},
+"OLED83W6KNA": {
+"list_price": 16000000,
+"price": 16000000,
+"status": "ACTIVE"
+},
+"OLED97G2KNA": {
+"list_price": 44289000,
+"price": 39900000,
+"status": "NOT_FOR_SALE"
+},
+"OLED97G6KNA": {
+"list_price": 50384000,
+"price": 42900000,
+"status": "ACTIVE"
+},
+"PQ08FDBAS": {
+"list_price": 1277000,
+"price": 1150000,
+"status": "NOT_FOR_SALE"
+},
+"PQ08FDWAS": {
+"list_price": 1221000,
+"price": 1130000,
+"status": "NOT_FOR_SALE"
+},
+"Q336MEE133": {
+"list_price": 1200000,
+"price": 890000,
+"status": "ACTIVE"
+},
+"Q336MEE151": {
+"list_price": 1550000,
+"price": 1350000,
+"status": "ACTIVE"
+},
+"Q336MEE153": {
+"list_price": 1350000,
+"price": 1150000,
+"status": "ACTIVE"
+},
+"Q336MQQ171": {
+"list_price": 1600000,
+"price": 1250000,
+"status": "ACTIVE"
+},
+"Q342GBB133": {
+"list_price": 1550000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"Q342GBB133S": {
+"list_price": 1550000,
+"price": 1000000,
+"status": "ACTIVE"
+},
+"Q342GBB153": {
+"list_price": 1832000,
+"price": 1650000,
+"status": "ACTIVE"
+},
+"Q343GIC183S": {
+"list_price": 2276000,
+"price": 2050000,
+"status": "ACTIVE"
+},
+"Q405MEE131": {
+"list_price": 1550000,
+"price": 1190000,
+"status": "ACTIVE"
+},
+"Q405MEE133": {
+"list_price": 1350000,
+"price": 980000,
+"status": "ACTIVE"
+},
+"Q405MEE151": {
+"list_price": 1650000,
+"price": 1550000,
+"status": "ACTIVE"
+},
+"Q405MEE171": {
+"list_price": 1700000,
+"price": 1650000,
+"status": "ACTIVE"
+},
+"Q405MQQ153": {
+"list_price": 1450000,
+"price": 1050000,
+"status": "ACTIVE"
+},
+"R321S": {
+"list_price": 1050000,
+"price": 880000,
+"status": "ACTIVE"
+},
+"R585WKA1": {
+"list_price": 900000,
+"price": 590000,
+"status": "ACTIVE"
+},
+"R984GBB012": {
+"list_price": 7180000,
+"price": 6530000,
+"status": "NOT_FOR_SALE"
+},
+"R984GGA012": {
+"list_price": 7180000,
+"price": 6530000,
+"status": "NOT_FOR_SALE"
+},
+"RD20ENE-KER": {
+"list_price": 1930000,
+"price": 1560000,
+"status": "READY_FOR_SALE"
+},
+"RD20ENEFR": {
+"list_price": 2090000,
+"price": 1750000,
+"status": "READY_FOR_SALE"
+},
+"RD20ENER": {
+"list_price": 1890000,
+"price": 1550000,
+"status": "ACTIVE"
+},
+"RD20ENEXR": {
+"list_price": 2740000,
+"price": 2000000,
+"status": "READY_FOR_SALE"
+},
+"RD20GNGR": {
+"list_price": 1890000,
+"price": 1660000,
+"status": "ACTIVE"
+},
+"RD20KNR": {
+"list_price": 1840000,
+"price": 1450000,
+"status": "ACTIVE"
+},
+"RD20KNTR": {
+"list_price": 1840000,
+"price": 1370000,
+"status": "ACTIVE"
+},
+"RD20VN-KVR": {
+"list_price": 1830000,
+"price": 1370000,
+"status": "READY_FOR_SALE"
+},
+"RD20VNR": {
+"list_price": 1790000,
+"price": 1370000,
+"status": "ACTIVE"
+},
+"RD20VNXR": {
+"list_price": 2540000,
+"price": 1890000,
+"status": "READY_FOR_SALE"
+},
+"RD20WNR": {
+"list_price": 1690000,
+"price": 1380000,
+"status": "ACTIVE"
+},
+"RD20WSQR": {
+"list_price": 1940000,
+"price": 1520000,
+"status": "ACTIVE"
+},
+"RD21ESE-KER": {
+"list_price": 2180000,
+"price": 1710000,
+"status": "ACTIVE"
+},
+"RD21ESER": {
+"list_price": 2140000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"RD21GSGR": {
+"list_price": 2140000,
+"price": 2140000,
+"status": "ACTIVE"
+},
+"RD21GSGR-KG": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25AS": {
+"list_price": 2440000,
+"price": 2440000,
+"status": "SOLD_OUT"
+},
+"RD25ASR": {
+"list_price": 2440000,
+"price": 2360000,
+"status": "ACTIVE"
+},
+"RD25ASR-KA": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25ESER": {
+"list_price": 2440000,
+"price": 2360000,
+"status": "ACTIVE"
+},
+"RD25ESER-KE": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25GSGR": {
+"list_price": 2440000,
+"price": 2360000,
+"status": "ACTIVE"
+},
+"RD25GSGR-KG": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25IS": {
+"list_price": 2440000,
+"price": 2440000,
+"status": "ACTIVE"
+},
+"RD25ISR": {
+"list_price": 2440000,
+"price": 2440000,
+"status": "ACTIVE"
+},
+"RD25ISR-KI": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25KS": {
+"list_price": 2440000,
+"price": 2440000,
+"status": "SOLD_OUT"
+},
+"RD25KSR-KK": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25TSR": {
+"list_price": 2440000,
+"price": 2360000,
+"status": "ACTIVE"
+},
+"RD25TSR-KT": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RD25VSR": {
+"list_price": 2440000,
+"price": 2440000,
+"status": "ACTIVE"
+},
+"RD25VSR-KV": {
+"list_price": 2480000,
+"price": 2480000,
+"status": "ACTIVE"
+},
+"RG18EN": {
+"list_price": 1690000,
+"price": 1350000,
+"status": "ACTIVE"
+},
+"RG18WNST": {
+"list_price": 1450000,
+"price": 1260000,
+"status": "ACTIVE"
+},
+"RG18WNT": {
+"list_price": 1450000,
+"price": 1450000,
+"status": "ACTIVE"
+},
+"RG18WNWTX": {
+"list_price": 2150000,
+"price": 1930000,
+"status": "NOT_FOR_SALE"
+},
+"RG19ENX": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RG19GN": {
+"list_price": 1740000,
+"price": 1410000,
+"status": "ACTIVE"
+},
+"RG19GNX": {
+"list_price": 2590000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"RG19KN": {
+"list_price": 1690000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"RG19VNX": {
+"list_price": 2390000,
+"price": 1780000,
+"status": "ACTIVE"
+},
+"RG19WNX": {
+"list_price": 2290000,
+"price": 1680000,
+"status": "ACTIVE"
+},
+"RG20GNX": {
+"list_price": 2640000,
+"price": 2290000,
+"status": "NOT_FOR_SALE"
+},
+"RG20KN": {
+"list_price": 1740000,
+"price": 1305000,
+"status": "ACTIVE"
+},
+"RG20VN": {
+"list_price": 1690000,
+"price": 1280000,
+"status": "ACTIVE"
+},
+"RG20VNF": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"RG20VNX": {
+"list_price": 2440000,
+"price": 2180000,
+"status": "ACTIVE"
+},
+"RG20WN": {
+"list_price": 1640000,
+"price": 1320000,
+"status": "ACTIVE"
+},
+"RG9WN-T7WX3": {
+"list_price": 2190000,
+"price": 1720000,
+"status": "ACTIVE"
+},
+"RH10VTA": {
+"list_price": 1240000,
+"price": 1116000,
+"status": "ACTIVE"
+},
+"RH10WTA": {
+"list_price": 1190000,
+"price": 1190000,
+"status": "ACTIVE"
+},
+"RH10WTW": {
+"list_price": 1090000,
+"price": 1090000,
+"status": "ACTIVE"
+},
+"RH18VTLN": {
+"list_price": 1540000,
+"price": 1250000,
+"status": "ACTIVE"
+},
+"RH18WTSN": {
+"list_price": 1490000,
+"price": 1160000,
+"status": "ACTIVE"
+},
+"RO585HGH": {
+"list_price": 900000,
+"price": 630000,
+"status": "ACTIVE"
+},
+"S3BOF": {
+"list_price": 1690000,
+"price": 1260000,
+"status": "SOLD_OUT"
+},
+"S3WGM": {
+"list_price": 1091000,
+"price": 1090000,
+"status": "SOLD_OUT"
+},
+"S656GBB143": {
+"list_price": 2750000,
+"price": 2500000,
+"status": "ACTIVE"
+},
+"S656MQQ143": {
+"list_price": 2250000,
+"price": 1970000,
+"status": "ACTIVE"
+},
+"S656P003": {
+"list_price": 1700000,
+"price": 1370000,
+"status": "ACTIVE"
+},
+"S656P033": {
+"list_price": 1900000,
+"price": 1470000,
+"status": "ACTIVE"
+},
+"S834MEE111": {
+"list_price": 2350000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"S834MEE141": {
+"list_price": 2720000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"S834MTE011": {
+"list_price": 2150000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"S836GBB122": {
+"list_price": 2350000,
+"price": 2100000,
+"status": "ACTIVE"
+},
+"S836GBB132": {
+"list_price": 2350000,
+"price": 2140000,
+"status": "ACTIVE"
+},
+"S836GBB142": {
+"list_price": 2775000,
+"price": 2500000,
+"status": "ACTIVE"
+},
+"S836GBB162": {
+"list_price": 2560000,
+"price": 2280000,
+"status": "ACTIVE"
+},
+"S836GBB172": {
+"list_price": 2760000,
+"price": 2510000,
+"status": "ACTIVE"
+},
+"S836MDS002": {
+"list_price": 1650000,
+"price": 1310000,
+"status": "ACTIVE"
+},
+"S836MEE022": {
+"list_price": 1850000,
+"price": 1440000,
+"status": "ACTIVE"
+},
+"S836MEE122": {
+"list_price": 2050000,
+"price": 1820000,
+"status": "ACTIVE"
+},
+"S836MQQ022": {
+"list_price": 1850000,
+"price": 1590000,
+"status": "NOT_FOR_SALE"
+},
+"S836MQQ142": {
+"list_price": 2442000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"S836MQQ152": {
+"list_price": 2160000,
+"price": 1920000,
+"status": "ACTIVE"
+},
+"S836MRQ112": {
+"list_price": 2000000,
+"price": 1700000,
+"status": "ACTIVE"
+},
+"S836MTE032": {
+"list_price": 1950000,
+"price": 1560000,
+"status": "ACTIVE"
+},
+"S836P012": {
+"list_price": 1850000,
+"price": 1450000,
+"status": "ACTIVE"
+},
+"S836P022": {
+"list_price": 1850000,
+"price": 1500000,
+"status": "ACTIVE"
+},
+"SC3GBE50": {
+"list_price": 1691000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"SC3GBE52": {
+"list_price": 1490000,
+"price": 1190000,
+"status": "ACTIVE"
+},
+"SC3GME50": {
+"list_price": 1791000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"SC3GME51": {
+"list_price": 1691000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"SC3GNE50": {
+"list_price": 1840000,
+"price": 1380000,
+"status": "ACTIVE"
+},
+"SC3GNE52": {
+"list_price": 1740000,
+"price": 1290000,
+"status": "ACTIVE"
+},
+"SC3GTE52": {
+"list_price": 1491000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"SC3GTE5E": {
+"list_price": 1691000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"SC3GUE": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SC3GVE": {
+"list_price": 1190000,
+"price": 1090000,
+"status": "ACTIVE"
+},
+"SC3RBE52": {
+"list_price": 1490000,
+"price": 1115000,
+"status": "SOLD_OUT"
+},
+"SC5GMR4E": {
+"list_price": 1690000,
+"price": 1260000,
+"status": "SOLD_OUT"
+},
+"SC5GMR4ES": {
+"list_price": 1791000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"SC5GMR52CS": {
+"list_price": 1990000,
+"price": 1750000,
+"status": "ACTIVE"
+},
+"SC5GMR5E": {
+"list_price": 1890000,
+"price": 1410000,
+"status": "SOLD_OUT"
+},
+"SC5GMR5ES": {
+"list_price": 2090000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"SC5GMR60S": {
+"list_price": 2341000,
+"price": 2340000,
+"status": "ACTIVE"
+},
+"SC5GMR70": {
+"list_price": 2340000,
+"price": 1750000,
+"status": "SOLD_OUT"
+},
+"SC5GMR70S": {
+"list_price": 2491000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"SC5GMR80A": {
+"list_price": 2590000,
+"price": 2340000,
+"status": "ACTIVE"
+},
+"SC5GMR80H": {
+"list_price": 2490000,
+"price": 2060000,
+"status": "SOLD_OUT"
+},
+"SC5GMR80S": {
+"list_price": 2691000,
+"price": 2690000,
+"status": "ACTIVE"
+},
+"SC5MBR42": {
+"list_price": 1540000,
+"price": 1150000,
+"status": "SOLD_OUT"
+},
+"SC5MBR42CS": {
+"list_price": 1890000,
+"price": 1690000,
+"status": "ACTIVE"
+},
+"SC5MBR42S": {
+"list_price": 1641000,
+"price": 1640000,
+"status": "ACTIVE"
+},
+"SC5MBR4E": {
+"list_price": 1540000,
+"price": 1380000,
+"status": "SOLD_OUT"
+},
+"SC5MBR4ES": {
+"list_price": 1641000,
+"price": 1640000,
+"status": "ACTIVE"
+},
+"SC5MBR52S": {
+"list_price": 1891000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"SC5MBR5ES": {
+"list_price": 1891000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"SC5MBR60S": {
+"list_price": 2241000,
+"price": 2240000,
+"status": "ACTIVE"
+},
+"SC5MBR62B": {
+"list_price": 1990000,
+"price": 1750000,
+"status": "ACTIVE"
+},
+"SC5MBR71": {
+"list_price": 2240000,
+"price": 1680000,
+"status": "SOLD_OUT"
+},
+"SC5MBR80S": {
+"list_price": 2591000,
+"price": 2590000,
+"status": "ACTIVE"
+},
+"SC5MBR82S": {
+"list_price": 2440000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"SC5MER42S": {
+"list_price": 1590000,
+"price": 1590000,
+"status": "SOLD_OUT"
+},
+"SC5MFR60S": {
+"list_price": 2241000,
+"price": 2240000,
+"status": "ACTIVE"
+},
+"SC5MHR60": {
+"list_price": 2320000,
+"price": 2090000,
+"status": "SOLD_OUT"
+},
+"SC5MHR60S": {
+"list_price": 2191000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"SC5MRR42S": {
+"list_price": 1590000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"SC5MRR62S": {
+"list_price": 2040000,
+"price": 1630000,
+"status": "ACTIVE"
+},
+"SC5MSR40S": {
+"list_price": 1941000,
+"price": 1940000,
+"status": "ACTIVE"
+},
+"SC5MSR42CS": {
+"list_price": 1750000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"SC5MSR42S": {
+"list_price": 1590000,
+"price": 1350000,
+"status": "ACTIVE"
+},
+"SC5MSR72S": {
+"list_price": 2291000,
+"price": 2290000,
+"status": "ACTIVE"
+},
+"SC5MSR82A": {
+"list_price": 2340000,
+"price": 1890000,
+"status": "ACTIVE"
+},
+"SC5MSR82S": {
+"list_price": 2440000,
+"price": 2320000,
+"status": "ACTIVE"
+},
+"SQ06ACJCAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06ACJCBJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06ADACAJ": {
+"list_price": 630000,
+"price": 568000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06ADJCAJ": {
+"list_price": 741000,
+"price": 668000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BCAWAJ": {
+"list_price": 386000,
+"price": 348000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BCJWBJ": {
+"list_price": 408000,
+"price": 368000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BCPWAJ": {
+"list_price": 375000,
+"price": 338000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BCPWBJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BDAWAJ": {
+"list_price": 386000,
+"price": 348000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06BDJWAJ": {
+"list_price": 408000,
+"price": 368000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06EA1WCS": {
+"list_price": 813000,
+"price": 679000,
+"status": "ACTIVE"
+},
+"SQ06EA3WAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06EA7HAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06EJ1WAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06EJ7HAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06EZ1WBS": {
+"list_price": 677000,
+"price": 587000,
+"status": "ACTIVE"
+},
+"SQ06FA1WAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06FA1WDS": {
+"list_price": 813000,
+"price": 599000,
+"status": "ACTIVE"
+},
+"SQ06FJ1WAJ": {
+"list_price": 450000,
+"price": 405000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06FJ1WFS": {
+"list_price": 1190000,
+"price": 1070000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06FS3EAJ": {
+"list_price": 583000,
+"price": 525000,
+"status": "NOT_FOR_SALE"
+},
+"SQ06GA1WAJ": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"SQ06GJ1WAJ": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"SQ06GJ1WES": {
+"list_price": 1254000,
+"price": 1050000,
+"status": "ACTIVE"
+},
+"SQ06GJ1WFS": {
+"list_price": 1188000,
+"price": 1070000,
+"status": "ACTIVE"
+},
+"SQ06GS3EAJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06GS3EBJ": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"SQ06GZ1WCS": {
+"list_price": 744000,
+"price": 620000,
+"status": "SOLD_OUT"
+},
+"SQ07B9JWAJ": {
+"list_price": 433000,
+"price": 390000,
+"status": "NOT_FOR_SALE"
+},
+"SQ07BBJWAJ": {
+"list_price": 400000,
+"price": 360000,
+"status": "NOT_FOR_SALE"
+},
+"SQ07EA3WBS": {
+"list_price": 869000,
+"price": 790000,
+"status": "NOT_FOR_SALE"
+},
+"SQ07GJ1WES": {
+"list_price": 1321000,
+"price": 899000,
+"status": "ACTIVE"
+},
+"SQ07GJ3WES": {
+"list_price": 1388000,
+"price": 1250000,
+"status": "NOT_FOR_SALE"
+},
+"SQ07GS7EAS": {
+"list_price": 1277000,
+"price": 950000,
+"status": "ACTIVE"
+},
+"SQ07GS8EAS": {
+"list_price": 1454000,
+"price": 1310000,
+"status": "NOT_FOR_SALE"
+},
+"SQ07GS9EES": {
+"list_price": 1787000,
+"price": 1610000,
+"status": "ACTIVE"
+},
+"SQ09EJ1WAS": {
+"list_price": 1188000,
+"price": 1090000,
+"status": "NOT_FOR_SALE"
+},
+"SQ09GJ1WAS": {
+"list_price": 1288000,
+"price": 1160000,
+"status": "ACTIVE"
+},
+"SQ09GK1WES": {
+"list_price": 1554000,
+"price": 1300000,
+"status": "ACTIVE"
+},
+"SQ10GJ1WAS": {
+"list_price": 1288000,
+"price": 940000,
+"status": "ACTIVE"
+},
+"SQ11EK1WES": {
+"list_price": 1610000,
+"price": 1450000,
+"status": "NOT_FOR_SALE"
+},
+"SQ11GK1WES": {
+"list_price": 1676000,
+"price": 1410000,
+"status": "ACTIVE"
+},
+"SQ13GK1WAS": {
+"list_price": 1754000,
+"price": 1480000,
+"status": "ACTIVE"
+},
+"SQ16GK1WAS": {
+"list_price": 1976000,
+"price": 1680000,
+"status": "ACTIVE"
+},
+"SS4RHS60E": {
+"list_price": 1490000,
+"price": 1270000,
+"status": "ACTIVE"
+},
+"SS4RWS60E": {
+"list_price": 1490000,
+"price": 1270000,
+"status": "ACTIVE"
+},
+"SW06ADACAJ": {
+"list_price": 656000,
+"price": 591000,
+"status": "NOT_FOR_SALE"
+},
+"SW06FA1WAJ": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"SW07FK1WBS": {
+"list_price": 1676000,
+"price": 1510000,
+"status": "ACTIVE"
+},
+"SW07GJ1WAS": {
+"list_price": 1620000,
+"price": 1460000,
+"status": "ACTIVE"
+},
+"SW07GK1WES": {
+"list_price": 2120000,
+"price": 1910000,
+"status": "SOLD_OUT"
+},
+"SW09EJ1WAS": {
+"list_price": 1554000,
+"price": 1400000,
+"status": "NOT_FOR_SALE"
+},
+"SW09FK1WAS": {
+"list_price": 1665000,
+"price": 1500000,
+"status": "NOT_FOR_SALE"
+},
+"SW09FS1EES": {
+"list_price": 2176000,
+"price": 1960000,
+"status": "NOT_FOR_SALE"
+},
+"SW09GK1WAS": {
+"list_price": 1787000,
+"price": 1610000,
+"status": "ACTIVE"
+},
+"SW09GS1EES": {
+"list_price": 2287000,
+"price": 2060000,
+"status": "ACTIVE"
+},
+"SW11GK1WAS": {
+"list_price": 1943000,
+"price": 1750000,
+"status": "ACTIVE"
+},
+"SW13GK1WAS": {
+"list_price": 2065000,
+"price": 1860000,
+"status": "ACTIVE"
+},
+"SW16FK1WBS": {
+"list_price": 2453000,
+"price": 2210000,
+"status": "ACTIVE"
+},
+"T17DX3A": {
+"list_price": 610000,
+"price": 610000,
+"status": "ACTIVE"
+},
+"T17WX3": {
+"list_price": 600000,
+"price": 580000,
+"status": "ACTIVE"
+},
+"T18DX7": {
+"list_price": 700000,
+"price": 680000,
+"status": "ACTIVE"
+},
+"T18MX7": {
+"list_price": 750000,
+"price": 750000,
+"status": "ACTIVE"
+},
+"T18MX7A": {
+"list_price": 750000,
+"price": 690000,
+"status": "ACTIVE"
+},
+"T18PZ7": {
+"list_price": 990000,
+"price": 940000,
+"status": "ACTIVE"
+},
+"T19DX7": {
+"list_price": 750000,
+"price": 700000,
+"status": "ACTIVE"
+},
+"T19DX8": {
+"list_price": 900000,
+"price": 800000,
+"status": "ACTIVE"
+},
+"T19MX7": {
+"list_price": 800000,
+"price": 730000,
+"status": "ACTIVE"
+},
+"T19MX7A": {
+"list_price": 800000,
+"price": 760000,
+"status": "ACTIVE"
+},
+"T19MX8A": {
+"list_price": 950000,
+"price": 810000,
+"status": "ACTIVE"
+},
+"T19OZ0": {
+"list_price": 1090000,
+"price": 990000,
+"status": "ACTIVE"
+},
+"T21GZ9": {
+"list_price": 1240000,
+"price": 1240000,
+"status": "ACTIVE"
+},
+"T21MX9A": {
+"list_price": 1100000,
+"price": 830000,
+"status": "ACTIVE"
+},
+"T23PX9": {
+"list_price": 1260000,
+"price": 940000,
+"status": "ACTIVE"
+},
+"T23PX9A": {
+"list_price": 1260000,
+"price": 930000,
+"status": "ACTIVE"
+},
+"T25OZ0": {
+"list_price": 1390000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"T25PX9A": {
+"list_price": 1340000,
+"price": 1120000,
+"status": "ACTIVE"
+},
+"T873MEE111": {
+"list_price": 2800000,
+"price": 2290000,
+"status": "ACTIVE"
+},
+"T875MHH141": {
+"list_price": 3497000,
+"price": 3150000,
+"status": "ACTIVE"
+},
+"T875MHH141__": {
+"list_price": 3150000,
+"price": 2860000,
+"status": "NOT_FOR_SALE"
+},
+"T876MEE011": {
+"list_price": 2800000,
+"price": 2300000,
+"status": "ACTIVE"
+},
+"T876MEE012": {
+"list_price": 2600000,
+"price": 2020000,
+"status": "ACTIVE"
+},
+"T876MEE041": {
+"list_price": 3100000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"T876MEE111": {
+"list_price": 3000000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"T876MEE141": {
+"list_price": 3300000,
+"price": 2800000,
+"status": "ACTIVE"
+},
+"T876MEE1H1": {
+"list_price": 3100000,
+"price": 2490000,
+"status": "ACTIVE"
+},
+"T876MEE312": {
+"list_price": 2900000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"T876MEE412": {
+"list_price": 3100000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"T876MQQ011": {
+"list_price": 2800000,
+"price": 2300000,
+"status": "ACTIVE"
+},
+"TA25GZ9": {
+"list_price": 1490000,
+"price": 1440000,
+"status": "ACTIVE"
+},
+"TR10MV4": {
+"list_price": 479000,
+"price": 479000,
+"status": "ACTIVE"
+},
+"TR10WV4": {
+"list_price": 469000,
+"price": 469000,
+"status": "ACTIVE"
+},
+"TR13MV4": {
+"list_price": 529000,
+"price": 529000,
+"status": "ACTIVE"
+},
+"TR13WV4": {
+"list_price": 519000,
+"price": 519000,
+"status": "ACTIVE"
+},
+"TR15DV5": {
+"list_price": 550000,
+"price": 520000,
+"status": "ACTIVE"
+},
+"TR15MV5": {
+"list_price": 550000,
+"price": 520000,
+"status": "ACTIVE"
+},
+"TR15WV5": {
+"list_price": 550000,
+"price": 450000,
+"status": "ACTIVE"
+},
+"TR16DV6": {
+"list_price": 600000,
+"price": 500000,
+"status": "ACTIVE"
+},
+"TR16MV6": {
+"list_price": 600000,
+"price": 520000,
+"status": "ACTIVE"
+},
+"TR16WV6": {
+"list_price": 600000,
+"price": 561000,
+"status": "ACTIVE"
+},
+"VC23GA": {
+"list_price": 142000,
+"price": 129000,
+"status": "ACTIVE"
+},
+"VFA-WD01N": {
+"list_price": 222000,
+"price": 200000,
+"status": "ACTIVE"
+},
+"VP8000S": {
+"list_price": 269000,
+"price": 220000,
+"status": "ACTIVE"
+},
+"W0082GLE": {
+"list_price": 530000,
+"price": 450000,
+"status": "ACTIVE"
+},
+"W0492GG": {
+"list_price": 1832000,
+"price": 1650000,
+"status": "ACTIVE"
+},
+"W0772GB": {
+"list_price": 2450000,
+"price": 2230000,
+"status": "ACTIVE"
+},
+"W0812GG": {
+"list_price": 2886000,
+"price": 2600000,
+"status": "ACTIVE"
+},
+"W087B": {
+"list_price": 419000,
+"price": 380000,
+"status": "ACTIVE"
+},
+"W10BN": {
+"list_price": 2890000,
+"price": 1870000,
+"status": "SOLD_OUT"
+},
+"W1212GB": {
+"list_price": 2300000,
+"price": 2200000,
+"status": "ACTIVE"
+},
+"W1213GG": {
+"list_price": 2300000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"W1310BN": {
+"list_price": 2990000,
+"price": 2250000,
+"status": "NOT_FOR_SALE"
+},
+"W1310EGN": {
+"list_price": 2990000,
+"price": 2090000,
+"status": "ACTIVE"
+},
+"W1310WAN": {
+"list_price": 2890000,
+"price": 2180000,
+"status": "ACTIVE"
+},
+"W2320EGANR": {
+"list_price": 4140000,
+"price": 3310000,
+"status": "ACTIVE"
+},
+"W2320GEANR": {
+"list_price": 4140000,
+"price": 4140000,
+"status": "ACTIVE"
+},
+"W2320VANQR": {
+"list_price": 4140000,
+"price": 2700000,
+"status": "ACTIVE"
+},
+"W2320WANQR": {
+"list_price": 4040000,
+"price": 4040000,
+"status": "ACTIVE"
+},
+"W2320WANR": {
+"list_price": 4040000,
+"price": 2500000,
+"status": "ACTIVE"
+},
+"W2321EEAM": {
+"list_price": 4290000,
+"price": 3130000,
+"status": "ACTIVE"
+},
+"W2321GEAMR": {
+"list_price": 4290000,
+"price": 3420000,
+"status": "ACTIVE"
+},
+"W2420EGZR": {
+"list_price": 4290000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"W2420GEZR": {
+"list_price": null,
+"price": null,
+"status": "READY_FOR_SALE"
+},
+"W2420WDR": {
+"list_price": 4190000,
+"price": 3550000,
+"status": "ACTIVE"
+},
+"W2420WHNR": {
+"list_price": 4090000,
+"price": 2850000,
+"status": "ACTIVE"
+},
+"W2421EEAMR": {
+"list_price": 4340000,
+"price": 3470000,
+"status": "ACTIVE"
+},
+"W2421EGAMR": {
+"list_price": 4340000,
+"price": 3470000,
+"status": "ACTIVE"
+},
+"W2421GEAMR": {
+"list_price": 4340000,
+"price": 3470000,
+"status": "ACTIVE"
+},
+"W2421GGAMR": {
+"list_price": 4340000,
+"price": 3470000,
+"status": "ACTIVE"
+},
+"W2421KKAM": {
+"list_price": 4340000,
+"price": 3040000,
+"status": "ACTIVE"
+},
+"W2421WAMR": {
+"list_price": 4240000,
+"price": 3390000,
+"status": "ACTIVE"
+},
+"W2520WZM": {
+"list_price": 4140000,
+"price": 3790000,
+"status": "ACTIVE"
+},
+"W2520WZNM": {
+"list_price": 4040000,
+"price": 2950000,
+"status": "ACTIVE"
+},
+"W400ND": {
+"list_price": 9835000,
+"price": 8860000,
+"status": "ACTIVE"
+},
+"W825AAA492": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"W825GBB182__": {
+"list_price": 5828000,
+"price": 5250000,
+"status": "NOT_FOR_SALE"
+},
+"W825SVV182S__": {
+"list_price": 6272000,
+"price": 5650000,
+"status": "NOT_FOR_SALE"
+},
+"W826AAA182": {
+"list_price": 5495000,
+"price": 4950000,
+"status": "NOT_FOR_SALE"
+},
+"W826AAA482": {
+"list_price": 6050000,
+"price": 5450000,
+"status": "NOT_FOR_SALE"
+},
+"W826AAA492": {
+"list_price": 6272000,
+"price": 5650000,
+"status": "NOT_FOR_SALE"
+},
+"W826GBB182__": {
+"list_price": 6161000,
+"price": 5550000,
+"status": "ACTIVE"
+},
+"W826GBB482__": {
+"list_price": 6549000,
+"price": 5900000,
+"status": "ACTIVE"
+},
+"W826GBB492__": {
+"list_price": 6540000,
+"price": 5950000,
+"status": "NOT_FOR_SALE"
+},
+"W826GQQ492S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"W826MQQ482S__": {
+"list_price": 5400000,
+"price": 5395000,
+"status": "ACTIVE"
+},
+"W826MQQ492S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"W826MQQ492S__": {
+"list_price": 6210000,
+"price": 5650000,
+"status": "NOT_FOR_SALE"
+},
+"W826SVV482S__": {
+"list_price": 5800000,
+"price": 5795000,
+"status": "NOT_FOR_SALE"
+},
+"W826SVV492S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"W826SVV492S__": {
+"list_price": 6870000,
+"price": 6250000,
+"status": "NOT_FOR_SALE"
+},
+"WA2323EGZNR": {
+"list_price": 4540000,
+"price": 4540000,
+"status": "ACTIVE"
+},
+"WA2525EGP6R": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525EGP6Z": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525IIHFR": {
+"list_price": 4990000,
+"price": 4990000,
+"status": "SOLD_OUT"
+},
+"WA2525KDF": {
+"list_price": 4990000,
+"price": 4990000,
+"status": "ACTIVE"
+},
+"WA2525KDFR": {
+"list_price": 4990000,
+"price": 4990000,
+"status": "ACTIVE"
+},
+"WA2525SSP6G": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"WA2525SSP6R": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"WA2525TAP6R": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525TAP6Z": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525TTP6R": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525TTP6Z": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "SOLD_OUT"
+},
+"WA2525UUP6G": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"WA2525UUP6R": {
+"list_price": 5190000,
+"price": 5190000,
+"status": "ACTIVE"
+},
+"WA2525YMP6G": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WA2525YMP6R": {
+"list_price": 5090000,
+"price": 5090000,
+"status": "ACTIVE"
+},
+"WD121MCB": {
+"list_price": 1340000,
+"price": 976000,
+"status": "ACTIVE"
+},
+"WD221MCB": {
+"list_price": 1540000,
+"price": 1195000,
+"status": "ACTIVE"
+},
+"WD323ACB": {
+"list_price": 1940000,
+"price": 1598000,
+"status": "ACTIVE"
+},
+"WD325AHB": {
+"list_price": 1800000,
+"price": 1337000,
+"status": "ACTIVE"
+},
+"WD325AS": {
+"list_price": 1800000,
+"price": 1451000,
+"status": "ACTIVE"
+},
+"WD520AWB": {
+"list_price": 1770000,
+"price": 1410000,
+"status": "ACTIVE"
+},
+"WD520MH": {
+"list_price": 2001000,
+"price": 1716000,
+"status": "ACTIVE"
+},
+"WD520VCT": {
+"list_price": 1940000,
+"price": 1598000,
+"status": "ACTIVE"
+},
+"WD520VHT": {
+"list_price": 1940000,
+"price": 1484000,
+"status": "ACTIVE"
+},
+"WD522MH": {
+"list_price": 2171000,
+"price": 1956000,
+"status": "ACTIVE"
+},
+"WD523ACB": {
+"list_price": 1614000,
+"price": 1454000,
+"status": "SOLD_OUT"
+},
+"WD523AWB": {
+"list_price": 2140000,
+"price": 1839000,
+"status": "ACTIVE"
+},
+"WD523VCT": {
+"list_price": 2210000,
+"price": 1891000,
+"status": "ACTIVE"
+},
+"WD524ACB": {
+"list_price": 1679000,
+"price": 1513000,
+"status": "NOT_FOR_SALE"
+},
+"WD524VCT": {
+"list_price": 2340000,
+"price": 2038000,
+"status": "ACTIVE"
+},
+"WD524VHMT": {
+"list_price": 2340000,
+"price": 1776000,
+"status": "ACTIVE"
+},
+"WD525ACB": {
+"list_price": 1484000,
+"price": 1337000,
+"status": "ACTIVE"
+},
+"WD525AHB": {
+"list_price": 1470000,
+"price": 1246000,
+"status": "ACTIVE"
+},
+"WD721RE": {
+"list_price": 3213000,
+"price": 2853000,
+"status": "ACTIVE"
+},
+"WD722RE": {
+"list_price": 3286000,
+"price": 2926000,
+"status": "ACTIVE"
+},
+"WD723RH": {
+"list_price": 2996000,
+"price": 2754000,
+"status": "ACTIVE"
+},
+"WD724RE": {
+"list_price": 3403000,
+"price": 3043000,
+"status": "ACTIVE"
+},
+"WL21EEN": {
+"list_price": 4290000,
+"price": 2780000,
+"status": "SOLD_OUT"
+},
+"WL21EGZU": {
+"list_price": 4579000,
+"price": 4579000,
+"status": "ACTIVE"
+},
+"WL21WDU": {
+"list_price": 4479000,
+"price": 4479000,
+"status": "ACTIVE"
+},
+"WL22KDU": {
+"list_price": 4490000,
+"price": 2920000,
+"status": "SOLD_OUT"
+},
+"WL22MYHU": {
+"list_price": 4590000,
+"price": 2984000,
+"status": "SOLD_OUT"
+},
+"WL22WDU": {
+"list_price": 4590000,
+"price": 3660000,
+"status": "ACTIVE"
+},
+"WL2521EGNR": {
+"list_price": 4290000,
+"price": 3000000,
+"status": "ACTIVE"
+},
+"WL2522EGZUR": {
+"list_price": 4590000,
+"price": 4310000,
+"status": "ACTIVE"
+},
+"WQ05FCWXS1": {
+"list_price": 1554000,
+"price": 1400000,
+"status": "NOT_FOR_SALE"
+},
+"WQ05FEWWS1": {
+"list_price": 1499000,
+"price": 1350000,
+"status": "NOT_FOR_SALE"
+},
+"WQ06FCWUS1": {
+"list_price": 1554000,
+"price": 1400000,
+"status": "NOT_FOR_SALE"
+},
+"WS511SH": {
+"list_price": 1820000,
+"price": 1365000,
+"status": "ACTIVE"
+},
+"WS513SH": {
+"list_price": 2690000,
+"price": 2316000,
+"status": "ACTIVE"
+},
+"WU523ACB": {
+"list_price": 2160000,
+"price": 1839000,
+"status": "ACTIVE"
+},
+"WU523AWB": {
+"list_price": 2160000,
+"price": 1839000,
+"status": "ACTIVE"
+},
+"WU823AS": {
+"list_price": 2140000,
+"price": 1803000,
+"status": "ACTIVE"
+},
+"WU923ACB": {
+"list_price": 2340000,
+"price": 2021000,
+"status": "ACTIVE"
+},
+"WU923AS": {
+"list_price": 2260000,
+"price": 1934000,
+"status": "ACTIVE"
+},
+"X24GNGRENER": {
+"list_price": 3780000,
+"price": 3780000,
+"status": "ACTIVE"
+},
+"X321AA3": {
+"list_price": 1050000,
+"price": 966000,
+"status": "NOT_FOR_SALE"
+},
+"X321GB3S": {
+"list_price": 1450000,
+"price": 1320000,
+"status": "ACTIVE"
+},
+"X321MB3S": {
+"list_price": 1300000,
+"price": 1183000,
+"status": "ACTIVE"
+},
+"X321SG3S": {
+"list_price": 1600000,
+"price": 1456000,
+"status": "ACTIVE"
+},
+"X323MEF": {
+"list_price": 1100000,
+"price": 910000,
+"status": "ACTIVE"
+},
+"X324GB3": {
+"list_price": 1700000,
+"price": 1490000,
+"status": "ACTIVE"
+},
+"X324GB7": {
+"list_price": 1998000,
+"price": 1800000,
+"status": "ACTIVE"
+},
+"X326GB3": {
+"list_price": 1850000,
+"price": 1680000,
+"status": "ACTIVE"
+},
+"X326GB7": {
+"list_price": 2165000,
+"price": 1950000,
+"status": "ACTIVE"
+},
+"XY326GB3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XY326GG3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XY326GQ3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XYZ321GBB3S": {
+"list_price": 4450000,
+"price": 4050000,
+"status": "NOT_FOR_SALE"
+},
+"XYZ321MG3S": {
+"list_price": 4000000,
+"price": 3640000,
+"status": "NOT_FOR_SALE"
+},
+"XYZ323MEF": {
+"list_price": 3800000,
+"price": 3470000,
+"status": "NOT_FOR_SALE"
+},
+"XYZ326GB3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XYZ326GG3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XYZ326GQ3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"XYZ386GB3S": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"Y321GB3S": {
+"list_price": 1550000,
+"price": 1411000,
+"status": "ACTIVE"
+},
+"Y321MB3S": {
+"list_price": 1400000,
+"price": 1274000,
+"status": "ACTIVE"
+},
+"Y321MW3S": {
+"list_price": 1400000,
+"price": 1274000,
+"status": "ACTIVE"
+},
+"Y321SS3S": {
+"list_price": 1700000,
+"price": 1547000,
+"status": "ACTIVE"
+},
+"Y323MEF": {
+"list_price": 1200000,
+"price": 1020000,
+"status": "ACTIVE"
+},
+"Y324GB3": {
+"list_price": 1800000,
+"price": 1590000,
+"status": "ACTIVE"
+},
+"Y324GB7": {
+"list_price": 2054000,
+"price": 1900000,
+"status": "ACTIVE"
+},
+"Y326GB3": {
+"list_price": 1950000,
+"price": 1770000,
+"status": "ACTIVE"
+},
+"Y326GB7": {
+"list_price": 2276000,
+"price": 2050000,
+"status": "ACTIVE"
+},
+"Y326GB9": {
+"list_price": 2442000,
+"price": 2200000,
+"status": "NOT_FOR_SALE"
+},
+"Z135MEE123": {
+"list_price": 790000,
+"price": 760000,
+"status": "ACTIVE"
+},
+"Z225MEE151": {
+"list_price": 1430000,
+"price": 1360000,
+"status": "ACTIVE"
+},
+"Z225MEE152": {
+"list_price": 1380000,
+"price": 1270000,
+"status": "ACTIVE"
+},
+"Z321AA3C": {
+"list_price": 1320000,
+"price": 1090000,
+"status": "NOT_FOR_SALE"
+},
+"Z321GC3CS": {
+"list_price": 1630000,
+"price": 1390000,
+"status": "ACTIVE"
+},
+"Z321MB3CS": {
+"list_price": 1480000,
+"price": 1340000,
+"status": "SOLD_OUT"
+},
+"Z321MG3CS": {
+"list_price": 1480000,
+"price": 1340000,
+"status": "SOLD_OUT"
+},
+"Z321MW3CS": {
+"list_price": 1480000,
+"price": 1340000,
+"status": "SOLD_OUT"
+},
+"Z321SG3CS": {
+"list_price": 1780000,
+"price": 1620000,
+"status": "ACTIVE"
+},
+"Z323MEF": {
+"list_price": 1530000,
+"price": 1220000,
+"status": "ACTIVE"
+},
+"Z324GB7": {
+"list_price": 2220000,
+"price": 2050000,
+"status": "ACTIVE"
+},
+"Z326GB3": {
+"list_price": 2050000,
+"price": 1860000,
+"status": "ACTIVE"
+},
+"Z326GB7": {
+"list_price": 2387000,
+"price": 2150000,
+"status": "ACTIVE"
+},
+"Z330MEEF11": {
+"list_price": 2080000,
+"price": 1500000,
+"status": "ACTIVE"
+},
+"Z330MQQF21": {
+"list_price": 2050000,
+"price": 1860000,
+"status": "ACTIVE"
+},
+"Z330MRRF21": {
+"list_price": 2130000,
+"price": 1790000,
+"status": "ACTIVE"
+},
+"Z334GBB122": {
+"list_price": 2530000,
+"price": 2150000,
+"status": "NOT_FOR_SALE"
+},
+"Z334SGS171": {
+"list_price": 3208000,
+"price": 2890000,
+"status": "ACTIVE"
+},
+"Z386GBB221": {
+"list_price": 2700000,
+"price": 2190000,
+"status": "ACTIVE"
+},
+"Z386GBB241": {
+"list_price": 3070000,
+"price": 2800000,
+"status": "NOT_FOR_SALE"
+},
+"Z386GBB281": {
+"list_price": 3275000,
+"price": 2950000,
+"status": "ACTIVE"
+},
+"Z386GQQ241": {
+"list_price": 2800000,
+"price": 2550000,
+"status": "NOT_FOR_SALE"
+},
+"Z386GQQ261": {
+"list_price": 2900000,
+"price": 2530000,
+"status": "ACTIVE"
+},
+"Z386MEE241": {
+"list_price": 2650000,
+"price": 2350000,
+"status": "ACTIVE"
+},
+"Z386MQQ221": {
+"list_price": 2550000,
+"price": 2320000,
+"status": "ACTIVE"
+},
+"Z386SLL261": {
+"list_price": 3100000,
+"price": 2600000,
+"status": "ACTIVE"
+},
+"Z386SLL281": {
+"list_price": 3497000,
+"price": 3150000,
+"status": "ACTIVE"
+},
+"Z386SVV261": {
+"list_price": 3100000,
+"price": 2450000,
+"status": "ACTIVE"
+},
+"Z386SVV281": {
+"list_price": 3100000,
+"price": 2850000,
+"status": "ACTIVE"
+},
+"Z403MEEF53": {
+"list_price": 2730000,
+"price": 2030000,
+"status": "ACTIVE"
+},
+"Z408MEEF23": {
+"list_price": 2580000,
+"price": 2260000,
+"status": "ACTIVE"
+},
+"Z408MPSF13": {
+"list_price": 2530000,
+"price": 2150000,
+"status": "ACTIVE"
+},
+"Z484AAA123": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"Z484AAA153": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"Z484AAA172": {
+"list_price": 3086000,
+"price": 2780000,
+"status": "NOT_FOR_SALE"
+},
+"Z484AAA173": {
+"list_price": null,
+"price": null,
+"status": "NOT_FOR_SALE"
+},
+"Z484GBB123": {
+"list_price": 2930000,
+"price": 2430000,
+"status": "ACTIVE"
+},
+"Z484GBB152": {
+"list_price": 3150000,
+"price": 2950000,
+"status": "ACTIVE"
+},
+"Z484GBB172": {
+"list_price": 3696000,
+"price": 3330000,
+"status": "ACTIVE"
+},
+"Z484GBB173": {
+"list_price": 3080000,
+"price": 2320000,
+"status": "ACTIVE"
+},
+"Z484GQQ123S": {
+"list_price": 2930000,
+"price": 2430000,
+"status": "ACTIVE"
+},
+"Z484MQQ123S": {
+"list_price": 2680000,
+"price": 2220000,
+"status": "SOLD_OUT"
+},
+"Z484SGS123S": {
+"list_price": 3180000,
+"price": 2750000,
+"status": "SOLD_OUT"
+},
+"Z484SVV123S": {
+"list_price": 3180000,
+"price": 2750000,
+"status": "ACTIVE"
+},
+"Z490MEEF12": {
+"list_price": 2730000,
+"price": 2350000,
+"status": "ACTIVE"
+},
+"Z490MPSF11": {
+"list_price": 2750000,
+"price": 1990000,
+"status": "ACTIVE"
+},
+"Z495GBB212": {
+"list_price": 3380000,
+"price": 3050000,
+"status": "ACTIVE"
+},
+"Z495GBB261": {
+"list_price": 3680000,
+"price": 3260000,
+"status": "ACTIVE"
+},
+"Z495GBB271": {
+"list_price": 4251000,
+"price": 3830000,
+"status": "ACTIVE"
+},
+"Z495GQQ251": {
+"list_price": 3730000,
+"price": 2600000,
+"status": "ACTIVE"
+},
+"Z495MQQ212": {
+"list_price": 3130000,
+"price": 2800000,
+"status": "ACTIVE"
+},
+"Z495MQQ251": {
+"list_price": 3480000,
+"price": 2350000,
+"status": "SOLD_OUT"
+},
+"Z495MQQ261": {
+"list_price": 3430000,
+"price": 2830000,
+"status": "ACTIVE"
+},
+"Z495MQQ271": {
+"list_price": 3500000,
+"price": 2900000,
+"status": "NOT_FOR_SALE"
+},
+"Z495SVV271": {
+"list_price": 4584000,
+"price": 4130000,
+"status": "ACTIVE"
+},
+"Z509MEEF33": {
+"list_price": 2753000,
+"price": 2480000,
+"status": "ACTIVE"
+},
+"Z509MHHF23": {
+"list_price": 2330000,
+"price": 2330000,
+"status": "ACTIVE"
+},
+"Z509MPSF13": {
+"list_price": 2230000,
+"price": 1890000,
+"status": "ACTIVE"
+}
+}

@@ -42,3 +42,12 @@ def test_fit_and_max_can_be_fit_with_measured_cabinet():
     # 가구장 폭이 925면 여유 3mm < 5mm → 조건부
     room.walls[0].measured.length_m = 0.925
     assert check_fit(room, z, p, FitConfig()).verdict == Verdict.CONDITIONAL
+
+
+def test_products_on_sale_have_lgecom_price():
+    """파는 제품은 LGE.COM 판매가와 확인한 날이 있다. 가격을 모르면 null이고, 0이나 지어낸 값은 없다."""
+    real = [Product.model_validate(p) for p in REAL]
+    on_sale = [p for p in real if p.sale_status in ("ACTIVE", "SOLD_OUT")]
+    assert on_sale and all(p.price_krw and p.price_checked_at for p in on_sale)
+    assert all(p.price_krw is None or p.price_krw >= 1000 for p in real)
+    assert all((p.price_krw is None) == (p.price_checked_at is None) for p in real)
