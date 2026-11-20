@@ -101,3 +101,9 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
   - `doors` '도어 개수', `door_material` '도어스타일/재질', `door_type` '도어형태'(전자레인지·오븐)
   - `capacity_l` '전체 용량 (L)'(전자레인지·오븐은 '용량 (가용용량)(L)'의 앞 숫자), `wash_kg` '세탁 용량 (kg)', `dry_kg` '건조 용량 (kg)', `capacity` '용량'(식기세척기 인용, 스타일러 벌 수), `screen_cm` '화면 사이즈 (베젤 미포함)'
 - `door_swing_mm`: 스펙 표 '도어 열림 시 크기 (WxHxD)'의 깊이에서 제품 깊이를 뺀 값. 세탁기·건조기·워시타워·워시콤보·스타일러·슈케어 183종에 넣었고 근거를 `spec_notes`에 적었다. 표에 없는 제품은 null.
+
+## 2026-11-20 추가: 판매 상태
+
+- `sale_status`: LGE.COM 제품 페이지에 들어 있는 판매 상태(modelStatus) 값. `ACTIVE` 판매중 746종, `SOLD_OUT` 일시품절 84종, `NOT_FOR_SALE` 비매품 278종(지난 연식 에어컨·TV가 대부분), 페이지에서 값을 못 읽은 42종은 null. 확인한 날은 `sale_checked_at`.
+- 판매 상태는 자주 바뀐다. 다시 확인하면 `tools/catalog/lgecom_sale.json`을 바꾸고 `python3 tools/catalog/add_sale_status.py . tools/catalog/lgecom_sale.json <날짜>`.
+- 웹은 비매품을 기본으로 숨기고(체크하면 보임), 영역 추천에서도 뺀다. 일시품절은 배지만 붙인다.

@@ -779,3 +779,6 @@ table.techs td { vertical-align: middle; }
 .lib .step .chips { flex-basis: 100%; }
 .lib .step .chip { padding: 3px 9px; white-space: nowrap; }
 .lib .step .chip i { font-style: normal; font-size: 10px; opacity: .6; margin-left: 2px; }
+.lib .sale-toggle { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 11px; color: var(--graphite); cursor: pointer; }
+.lib .sale-toggle input { margin: 0; width: auto; }
+.badge.sale { background: var(--drafting); color: var(--graphite); border: 1px solid var(--line); }

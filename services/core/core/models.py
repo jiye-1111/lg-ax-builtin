@@ -129,5 +129,8 @@ class Product(_Strict):
     cmf_options: list[CmfOption] = Field(default_factory=list)
     source_url: Optional[str]
     source_checked_at: Optional[str]
+    # LGE.COM 제품 페이지의 판매 상태: ACTIVE(판매중) · SOLD_OUT(일시품절) · NOT_FOR_SALE(비매품). 확인 못 했으면 null
+    sale_status: Optional[Literal["ACTIVE", "SOLD_OUT", "NOT_FOR_SALE"]] = None
+    sale_checked_at: Optional[str] = None
     model_3d: Optional[str] = None
     demo_only: bool = False  # True면 LGE.COM 값이 아닌 시연·테스트용 가상 데이터

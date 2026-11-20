@@ -78,3 +78,5 @@ def test_product_detail_and_filters():
     # 먼저 공간 용도를 묻고, 그 용도에 맞는 가전 종류를 보여 준다
     assert 'id="ask"' in js and "이 공간을 어떤 용도로 쓰실 건가요?" in js
     assert "놓는 곳" not in js and "빌트인 느낌" not in js
+    # 팔지 않는 제품은 기본으로 숨기고, 체크하면 보인다
+    assert 'id="fSale"' in js and 'sale_status !== "NOT_FOR_SALE"' in js

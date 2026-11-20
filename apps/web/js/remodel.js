@@ -29,6 +29,7 @@ export async function customer(pid) {
           <div class="ask" id="ask" aria-label="공간 용도"></div>
           <div class="chips" id="cats" aria-label="가전 종류"></div>
           <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
+          <label class="sale-toggle"><input type="checkbox" id="fSale"> LGE.COM에서 팔지 않는 제품도 보기</label>
           <div class="filters" aria-label="제품 필터">
             <label>폭<select id="fW"><option value="">전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select></label>
             <label>높이<select id="fH"><option value="">전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select></label>
@@ -269,7 +270,10 @@ export async function customer(pid) {
   const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
   // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
-  ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  ["fW", "fH", "fSale"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  // 실제로 살 수 있는 제품만 기본으로 보여 준다 (LGE.COM 판매 상태. 일시품절은 남기고 비매품은 숨긴다)
+  const SALE = { ACTIVE: "판매 중", SOLD_OUT: "일시품절", NOT_FOR_SALE: "LGE.COM 판매 안 함" };
+  const sellable = (v) => document.getElementById("fSale").checked || v.sale_status !== "NOT_FOR_SALE";
   const renderSteps = (steps) => {
     const box = document.getElementById("steps");
     box.innerHTML = steps.map((st, i) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-n">${i + 1}</span><span class="step-l">${esc(st.label)}</span>
@@ -285,7 +289,7 @@ export async function customer(pid) {
     const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value;
     const scope = families.filter((f) => inScope(f.category));
     // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
-    const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
+    const narrowed = optionSteps(scope.flatMap((f) => f.variants).filter(sellable), sel, cat ? null : ["install"]);
     sel = narrowed.sel;
     renderSteps(narrowed.steps);
     const left = new Set(narrowed.remaining.map((v) => v.sku));
@@ -307,6 +311,7 @@ export async function customer(pid) {
           <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
             <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
+          ${v.sale_status && v.sale_status !== "ACTIVE" ? `<span class="badge sale">${esc(SALE[v.sale_status])}</span>` : ""}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
     document.querySelectorAll("#lib [data-pick]").forEach((b) => {
@@ -347,6 +352,7 @@ export async function customer(pid) {
       ["문 열림", p.door_swing_mm ? `${mm(p.door_swing_mm)} mm` : `<span class="muted">확인 안 됨</span>`],
       ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "—")],
       ...Object.entries(p.options || {}).filter(([k]) => OPT[k]).map(([k, val]) => [OPT[k], esc(`${val}${OPT_UNIT[k] || ""}`)]),
+      ["판매 상태", p.sale_status ? `${esc(SALE[p.sale_status])} <span class="muted">(LGE.COM ${esc(p.sale_checked_at || "")} 확인)</span>` : `<span class="muted">확인 안 됨</span>`],
       ["색상 · 재질", esc(finishLabel(v)) || "—"],
       ["모델명", `<span class="mono">${esc(sku)}</span>`],
     ];

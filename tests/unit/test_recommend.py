@@ -19,3 +19,11 @@ def test_filters_by_zone_purpose_and_sorts_by_verdict():
     assert [r["product"]["sku"] for r in res] == ["ok", "big"]
     assert res[0]["fit"]["verdict"] == "fit" and res[1]["fit"]["verdict"] == "no_fit"
     assert res[0]["cmf"][0]["score"] > 0.9
+
+
+def test_products_not_for_sale_are_not_recommended():
+    room = make_room(measured=MeasuredDims(length_m=4.0, height_m=2.4, depth_m=1.5))
+    gone = _p("gone", 900).model_copy(update={"sale_status": "NOT_FOR_SALE"})
+    out = _p("out", 900).model_copy(update={"sale_status": "SOLD_OUT"})
+    res = recommend_zone(room, KITCHEN, [gone, out, _p("unknown", 900)], FitConfig())
+    assert [r["product"]["sku"] for r in res] == ["out", "unknown"]  # 일시품절·확인 안 된 제품은 남긴다
