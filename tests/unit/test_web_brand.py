@@ -62,5 +62,7 @@ def test_remodel_is_simple():
     # 기호 대신 말로: 네모 영역 / 자유 영역
     assert "영역 □" not in js and "영역 ⬠" not in js
     assert "네모 영역" in js and "자유 영역" in js
-    # 제품 목록은 오른쪽 탭이 아니라 아래 서랍 하나
+    # 제품 목록은 오른쪽 탭이 아니라 왼쪽 세로 목록 하나 (지예: 가로보다 세로)
     assert 'data-tab="lib"' not in js
+    css = (WEB / "style.css").read_text(encoding="utf-8")
+    assert '"lib stage side"' in css
