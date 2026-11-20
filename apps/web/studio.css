@@ -542,3 +542,85 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .decor-set dd.bad { color: var(--nofit); font-size: 12px; }
 .decor-set select { width: auto; padding: 4px 8px; }
 .decor-set .tool-row { margin-top: 10px; }
+/* 꾸미기 탭: 목록이 길어도 화면이 같이 내려가지 않고 왼쪽 패널 안에서만 스크롤 */
+.studio:not(.app) .lib { min-height: 0; overflow: hidden; }
+.studio:not(.app) .lib:not([data-tab="lg"]) .lib-side { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; border-bottom: 0; padding-bottom: 4px; margin-right: -6px; padding-right: 6px; }
+.studio:not(.app) .lib:not([data-tab="lg"]) .lib-tabs { position: sticky; top: 0; z-index: 1; background: var(--sheet); padding-bottom: 8px; margin-bottom: 2px; }
+/* 지예: 오른쪽은 설치 가능 여부 · 가격 · 구매 및 설치 신청만 (도면·추천·놓은 목록은 뺀다) */
+.studio .side #mapSlot, .studio .side #suggSlot, .studio .side #plBox { display: none; }
+.lib .dims { display: none; }
+/* 가격 범위: 손잡이 두 개 (지금 보는 종류의 최저가 ~ 최고가) */
+.budget { margin-top: 8px; }
+.budget[hidden] { display: none; }
+.budget-head { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-xs); color: var(--graphite); }
+.budget-head b { color: var(--ink); font-size: 12.5px; }
+.budget-rail { position: relative; height: 26px; }
+.budget-rail::before { content: ""; position: absolute; left: 0; right: 0; top: 12px; height: 3px; border-radius: 2px; background: var(--line, #d9d4cb); }
+.budget-rail input[type=range] { position: absolute; inset: 0; width: 100%; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; height: 26px; }
+.budget-rail input[type=range]::-webkit-slider-runnable-track { background: none; height: 26px; }
+.budget-rail input[type=range]::-moz-range-track { background: none; }
+.budget-rail input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 18px; height: 18px; margin-top: 4px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 3px rgba(0,0,0,.2); cursor: pointer; }
+.budget-rail input[type=range]::-moz-range-thumb { pointer-events: auto; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); cursor: pointer; }
+/* 가구 크기 조절: 3D 메뉴 안에서 바로 */
+.act-bar .act-size { display: flex; align-items: center; gap: 8px; padding: 0 6px; font-size: 12.5px; font-weight: 600; }
+.act-bar .act-size input { width: 160px; margin: 0; }
+.act-bar .act-size output { min-width: 64px; text-align: right; font-variant-numeric: tabular-nums; }
+.canvas .minimap.big { width: min(380px, calc(100% - 24px)); height: 280px; }
+
+/* ===== 색 규칙 (지예, 2026-11-20): 글자를 뺀 면 색은 베이지 60 · 흰색 30 · 레드 10 =====
+   베이지 = 바탕·칸·비활성 칩, 흰색 = 카드·패널·기본 버튼, 레드 = 누른 것·고른 것·주요 버튼·판정 표시.
+   검정 면(버튼·칩·말풍선)은 쓰지 않는다. 적합/부적합도 이 세 색 안에서: 적합은 베이지 + 레드 표시, 부적합은 레드 면 */
+:root {
+  --fit: var(--lg); --fit-bg: var(--warm-grey);
+  --cond: var(--lg); --cond-bg: var(--warm-grey);
+  --nofit: var(--lg-deep); --nofit-bg: var(--lg-soft);
+  --unk: var(--graphite);
+}
+button, .btn { background: var(--sheet); color: var(--ink); border-color: var(--line); }
+button:hover, .btn:hover { background: var(--warm-grey); border-color: var(--line); }
+button.primary, .btn.primary { background: var(--lg); color: #fff; border-color: var(--lg); }
+button.primary:hover, .btn.primary:hover { background: var(--lg-deep); border-color: var(--lg-deep); }
+button.ghost:hover, .btn.ghost:hover { background: var(--warm-grey); border-color: var(--line); }
+/* 눌린 상태·고른 칩은 모두 레드 */
+.chip.on, .icon-btn.on, .furn-btn.on, .toolbar .furn-btn.on, #walk.on, #keysBtn.on, #beforeBtn[aria-pressed="true"],
+.live-bar .sims .furn-btn.on, .lib-tabs [data-tab].on, .opt-steps .on, .main-steps .on,
+body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj .go {
+  background: var(--lg); color: #fff; border-color: var(--lg);
+}
+.chip.on .muted, .chip.on small, .opt-steps .on small, .opt-steps .on .n { color: rgba(255, 255, 255, .8); }
+/* 알림·말풍선: 흰 면 + 그림자 (검정 면 대신) */
+.toast, .bot-tip { background: var(--sheet); color: var(--ink); border: 1px solid var(--line-soft); }
+.toast.err { border-color: var(--lg); color: var(--lg-deep); }
+/* 3D 위 작은 지도·도면 표시: 공유기 기호 등 검정 면 없이 */
+.fit-card .mark { background: var(--lg); }
+.fit-card.v-fit header { background: var(--warm-grey); }
+.fit-card.v-no_fit header { background: var(--lg-soft); }
+.sugg { background: var(--warm-grey); }
+
+/* 지예: 오른쪽 화면은 없앤다. 놓으면 3D에서 초록(적합)/빨강(부적합)으로 바로 보이니까.
+   남는 건 합계 + 구매 및 설치 신청 하나: 3D 화면 오른쪽 아래에 작은 카드로 띄운다 */
+.studio:not(.app) { grid-template-columns: 320px minmax(0, 1fr); grid-template-areas: "head head" "lib stage"; }
+.studio:not(.app) .side { grid-area: stage; align-self: end; justify-self: end; z-index: 6; width: 300px; margin: 0 96px 12px 0;
+  background: none; box-shadow: none; border: 0; overflow: visible; pointer-events: none; }
+.studio:not(.app) .side .side-body { display: none; }
+.studio:not(.app) .side .order-bar { pointer-events: auto; border: 0; border-radius: 16px; background: var(--sheet); box-shadow: var(--shadow-float); padding: 10px 12px 12px; }
+.studio:not(.app) .side .order-bar .order-total { margin: 0 0 6px; }
+.studio:not(.app) .side .order-bar .primary { padding: 11px 14px; font-size: 14px; }
+
+/* 지예: 3D 위 메뉴 단순하게. 살아 보기는 오른쪽 위 밀어서 켜는 스위치 3개(채광·와이파이·동선), 도면·실측은 뺀다 */
+#liveBtn, #liveBar, .studio #extraBtn { display: none !important; }
+.sim-switches { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--warm-grey); }
+.sim-switches .sw { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border: 0; border-radius: 999px; background: none; color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: none; }
+.sim-switches .sw:hover { background: var(--sheet); }
+.sw-track { position: relative; width: 30px; height: 18px; border-radius: 999px; background: var(--line); transition: background-color .18s var(--ease); flex: none; }
+.sw-track i { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--sheet); box-shadow: 0 1px 2px rgba(0, 0, 0, .2); transition: transform .18s var(--ease); }
+.sim-switches .sw.on { background: var(--sheet); }
+.sim-switches .sw.on .sw-track { background: var(--lg); }
+.sim-switches .sw.on .sw-track i { transform: translateX(12px); }
+.toolbar #walk { margin-left: 4px; }
+/* LG 가전 탭: 상세 필터를 펼쳐도 패널 밖으로 안 나가게 패널 전체가 한 번에 스크롤 (탭은 위에 고정) */
+.studio:not(.app) .lib[data-tab="lg"] { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.studio:not(.app) .lib[data-tab="lg"] .lib-side { flex: none; }
+.studio:not(.app) .lib[data-tab="lg"] #lib { flex: none; overflow: visible; }
+.studio:not(.app) .lib[data-tab="lg"] .lib-tabs { position: sticky; top: -16px; z-index: 3; background: var(--sheet); padding: 16px 0 8px; margin-top: -16px; }
+.studio:not(.app) .lib .opt-steps { max-height: none; overflow: visible; }

@@ -28,7 +28,7 @@ def test_fit_rows_cover_every_reason_code():
 
 
 def test_no_fake_checks_and_clear_cta():
-    assert "전원" in GUIDE and "기사" in GUIDE  # 전원·배관은 검사한 척하지 않고 기사 확인으로
+    assert "전원" in GUIDE and "기사" in GUIDE and "INSTALL_NOTE" in REMODEL  # 전원·배관은 검사한 척하지 않고 신청할 때 기사 확인으로 안내
     assert 'id="orderBtn"' in REMODEL and "구매 및 설치 신청" in REMODEL
     assert 'id="orderSheet"' in REMODEL and "installRequestBox(irBox" in REMODEL  # 놓은 제품 그대로 방문 설치 신청으로 이어진다
     assert "./js/guide.js" in (WEB / "sw.js").read_text(encoding="utf-8")
@@ -51,8 +51,8 @@ def test_simple_layout_from_corrected_mockup():
     for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
                'id="finBtn"', 'id="extraBtn"', 'id="homeMenu"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
         assert el in REMODEL, el
-    # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품, 제품 자리 채광·와이파이
-    for path in ("/auto-align", "/auto-place", "/suggest", "/life-check"):
+    # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품
+    for path in ("/auto-align", "/auto-place", "/suggest"):
         assert path in REMODEL, path
     # 지예: 들어가는 건 굳이 표시하지 않고, 안 되는 것만 알린다 ('확인 필요'·'들어가요' 표시 없음)
     assert 'badge rec' not in REMODEL and "확인 필요" not in REMODEL and "확인 필요" not in GUIDE
@@ -89,14 +89,17 @@ def test_three_areas_layout_and_feedback():
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     account = (WEB / "js" / "account.js").read_text(encoding="utf-8")
     guide = (WEB / "js" / "guide.js").read_text(encoding="utf-8")
-    # 왼쪽: 기본 필터는 종류·설치 유형·크기만, 카드에 폭·높이·깊이와 '공간에 배치하기'
-    assert 'id="mainSteps"' in REMODEL and 'class="dims"' in REMODEL and "공간에 배치하기" in REMODEL
+    # 왼쪽: 기본 필터는 종류·설치 유형·크기·가격 범위, 카드는 사진·이름·가격·색과 '공간에 배치하기'
+    # (지예: 폭·높이·깊이는 카드에서 빼고 상세에만)
+    assert 'id="mainSteps"' in REMODEL and 'class="dims"' not in REMODEL and "공간에 배치하기" in REMODEL
+    assert 'id="pLo"' in REMODEL and 'id="pHi"' in REMODEL and "setupBudget(pre)" in REMODEL
     # 가운데: 놓으면 그 자리로 시점 이동, 조작 메뉴는 고른 제품 위에 (상세 포함), 안 되면 이유와 고칠 방법
     assert "viewer.lookAt(r.placement.center_xz)" in REMODEL and 'actBtn("actInfo"' in REMODEL
     assert "const FIX = {" in REMODEL and ".act-bar.near" in css
     # 위: STEP n / 3
     assert "STEP ${i + 1} / ${n}" in guide
-    # 오른쪽: 설치 체크(누르면 그 제품으로) · 도면(보는 방향) · 추천(빈 화면은 다음 행동) · 합계와 신청
+    # 오른쪽: 설치 체크(누르면 그 제품으로) · 합계와 신청 (지예: 이것만). 도면은 3D 구석 작은 지도로
+    assert '.studio .side #mapSlot, .studio .side #suggSlot, .studio .side #plBox { display: none; }' in css
     for frag in ('id="chkBox"', 'id="mapSlot"', 'id="suggSlot"', 'id="orderTotal"', "focusPlacement", 'id="camMark"', "data-scat", "data-splace"):
         assert frag in REMODEL, frag
     # 저장 상태 다섯 가지
@@ -113,11 +116,22 @@ def test_space_library_tabs_decor_and_wall_edit():
     assert "/walls/${wid}/hidden" in js and "setWallPick" in js
     # 벽 추가는 바닥에서 시작점 → 끝점, 철거·가벽은 가상 체험이라고 알린다
     assert "setWallDraw" in js and "시작점" in js and "가상 체험" in js
-    # 3D 메뉴: 크기 조절·복사, 오른쪽 배치 설정
-    assert '"actCopy"' in js and '"actSize"' in js and "배치 설정" in js and "/copy`" in js
+    # 3D 메뉴: 크기 조절(메뉴 안 슬라이더)·복사. 가구를 골라도 오른쪽은 그대로 (지예)
+    assert '"actCopy"' in js and '"actSize"' in js and "sizeBar(x)" in js and "/copy`" in js
     # 신청·합계는 LG 가전만
     assert "lgOnly(project.scene_state.placements)" in js
     viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
     assert 'startsWith("decor:")' in viewer and "fitFurniture" in viewer and "setWallPick" in viewer
-    for k in ("sofa", "table", "chair", "desk", "shelf", "storage", "rug", "lamp", "plant", "wall", "partition", "wall-remove"):
+    for k in ("sofa", "table", "chair", "desk", "shelf", "storage", "rug", "lamp", "plant", "wall", "partition", "wall-remove", "dresser", "basecab"):
         assert (WEB / "img" / "decor" / f"{k}.webp").exists(), k
+
+
+def test_toolbar_switches_and_one_button_toggles():
+    """지예: 살아 보기는 오른쪽 위 밀어서 켜는 스위치(채광·와이파이·동선), 처음과 비교·가구 모두 지우기는 버튼 하나, 도면·실측은 뺀다."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    for k in ("daylight", "wifi", "flow"):
+        assert f'class="sw" data-sim="{k}" role="switch"' in REMODEL, k
+    assert "가구 모두 지우기" in REMODEL and 'id="beforeBtn" aria-pressed' in REMODEL
+    assert "#liveBtn, #liveBar, .studio #extraBtn { display: none !important; }" in css
+    # 손에 든 물건은 마우스를 따라오고 누르면 놓인다 (가구·가전·가벽·공유기 모두)
+    assert "const follow = (p) =>" in REMODEL and "arm(b.dataset.decor)" in REMODEL and "viewer.routerFollow(p)" in REMODEL

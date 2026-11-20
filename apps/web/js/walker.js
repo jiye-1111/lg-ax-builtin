@@ -30,12 +30,40 @@ export function poseAt(pts, s) {
   return { xz: [...pts[pts.length - 1]], heading };
 }
 
-/** 경로 길이 length를 speed로 걷고 pause초 쉬었다가 처음부터 다시. 시각 t(초) → {s, moving} */
-export function routeClock(length, { speed = WALK_SPEED, pause = 1.2 } = {}) {
-  const walkT = length / speed, loop = walkT + pause;
+/** 경로 길이 length를 speed로 걷고 pause초 쉬었다가 처음부터 다시. 시각 t(초) → {s, moving, v}
+ *  ease(초): 출발할 때 그만큼 걸려 보통 빠르기가 되고, 도착 전에도 그만큼 감속한다 (0이면 바로 출발·정지) */
+export function routeClock(length, { speed = WALK_SPEED, pause = 1.2, ease = 0 } = {}) {
+  const e = Math.min(ease, length / speed), walkT = length / speed + e, loop = walkT + pause;
   return (t) => {
-    if (!(length > 0)) return { s: 0, moving: false };
+    if (!(length > 0)) return { s: 0, moving: false, v: 0 };
     const u = ((t % loop) + loop) % loop;
-    return u < walkT ? { s: u * speed, moving: true } : { s: length, moving: false };
+    if (u >= walkT) return { s: length, moving: false, v: 0 };
+    if (e > 0 && u < e) return { s: 0.5 * speed * u * u / e, moving: true, v: speed * u / e };
+    if (e > 0 && u > walkT - e) { const r = walkT - u; return { s: length - 0.5 * speed * r * r / e, moving: true, v: speed * r / e }; }
+    return { s: speed * (u - e / 2), moving: true, v: speed };
   };
+}
+
+const STEP_M = 0.1, SMOOTH_M = 0.4; // 다시 고르는 간격, 앞뒤로 평균 내는 거리
+
+/** 길찾기 격자 경로(5~10 cm 계단)를 사람이 걷는 선처럼 편다: 고르게 다시 찍고 앞뒤 평균. 양 끝은 그대로 */
+export function smoothPath(pts) {
+  if (!pts || pts.length < 3) return pts ? pts.map((p) => [...p]) : [];
+  const len = pathLength(pts), n = Math.max(2, Math.round(len / STEP_M));
+  const even = [];
+  for (let i = 0; i <= n; i++) even.push(poseAt(pts, (len * i) / n).xz);
+  const k = Math.max(1, Math.round(SMOOTH_M / (len / n)));
+  let cur = even;
+  for (let pass = 0; pass < 2; pass++) {
+    cur = cur.map((p, i) => {
+      if (i === 0 || i === cur.length - 1) return p;
+      const r = Math.min(k, i, cur.length - 1 - i); // 끝에 가까우면 창을 줄여 끝점이 끌려가지 않게
+      let x = 0, y = 0;
+      for (let j = i - r; j <= i + r; j++) { x += cur[j][0]; y += cur[j][1]; }
+      return [x / (2 * r + 1), y / (2 * r + 1)];
+    });
+  }
+  cur[0] = [...pts[0]];
+  cur[cur.length - 1] = [...pts[pts.length - 1]];
+  return cur;
 }

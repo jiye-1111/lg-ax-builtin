@@ -7,7 +7,7 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
-import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL } from "./guide.js";
+import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
 import { optionSteps } from "./options.js";
 import { startTour, tourSeen } from "./tour.js";
 
@@ -48,6 +48,10 @@ export async function customer(pid) {
               <select id="fW" aria-label="폭"><option value="">폭 전체</option><option value="0-650">폭 650 mm 이하</option><option value="650-850">폭 650~850 mm</option><option value="850-99999">폭 850 mm 이상</option></select>
               <select id="fH" aria-label="높이"><option value="">높이 전체</option><option value="0-900">높이 900 mm 이하</option><option value="900-1800">높이 900~1,800 mm</option><option value="1800-99999">높이 1,800 mm 이상</option></select>
             </div>
+            <div class="budget" id="budget" hidden aria-label="가격 범위">
+              <div class="budget-head"><span>가격</span><b id="budgetOut"></b></div>
+              <div class="budget-rail"><input type="range" id="pLo" aria-label="최저 가격"><input type="range" id="pHi" aria-label="최고 가격"></div>
+            </div>
           </div>
           <details class="more-filter lg-part" id="moreFilter"><summary>상세 필터 <span class="muted" id="filterOn"></span></summary>
             <div class="ask" id="ask" aria-label="공간 용도"></div>
@@ -66,9 +70,11 @@ export async function customer(pid) {
           <button class="furn-btn" id="beforeBtn" aria-pressed="false" title="스캔했을 때 모습과 견줘 봐요">처음과 비교</button>
           <button class="furn-btn live-btn" id="liveBtn" aria-pressed="false" title="실제로 살아 보듯 둘러보고, 볕·와이파이·동선을 봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg>살아 보기</button>
           <button class="furn-btn" id="finBtn" aria-expanded="false" aria-controls="finishPop" title="벽지·바닥재를 바꿔 봐요">벽지·바닥</button>
-          <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 치우기</button>
+          <button class="furn-btn" id="furn" aria-pressed="false" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 지우기</button>
           <button class="furn-btn" id="extraBtn" aria-expanded="false" aria-controls="extraPop" title="도면을 올리거나 줄자로 잰 벽 길이를 넣어요">도면·실측</button>
           <span class="spacer"></span>
+          <div class="sim-switches" role="group" aria-label="살아 보기"><button class="sw" data-sim="daylight" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>채광</button><button class="sw" data-sim="wifi" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>와이파이</button><button class="sw" data-sim="flow" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>동선</button></div>
+          <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)">둘러보기</button>
           <div class="icon-row" role="group" aria-label="되돌리기">
             <button class="icon-btn" id="undo" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
             <button class="icon-btn" id="redo" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
@@ -80,7 +86,7 @@ export async function customer(pid) {
         <div class="live-bar" id="liveBar" role="group" aria-label="살아 보기" hidden>
           <span class="live-tag">살아 보기</span>
           <div class="seg sims">
-            <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)">둘러보기</button><button data-sim="daylight"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>채광</button><button data-sim="wifi"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0M2 9a15 15 0 0 1 20 0"/><circle cx="12" cy="19.5" r="1"/></svg>와이파이</button><button data-sim="flow"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="13" cy="4" r="2"/><path d="m9 21 2.5-6.5L14 17v4M7 11l3-3.5h4l2.5 4.5M10.5 7.5 9 14"/></svg>동선</button></div>
+</div>
           <button class="ghost small" id="liveEnd">끝내기</button>
         </div>
         <div class="canvas">
@@ -97,7 +103,7 @@ export async function customer(pid) {
             <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
               <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> 다시 실행</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
-            <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
+            <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
             <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>Esc</kbd> 마우스 풀기</li></ul>
             <h4>저장 (로그인하면)</h4>
@@ -159,7 +165,7 @@ export async function customer(pid) {
     const app = studio.classList.contains("app");
     const sugg = document.getElementById("sugg"), mini = document.getElementById("minimap");
     if (app) { studio.querySelector(".lib-side").append(sugg); studio.querySelector(".canvas").append(mini); }
-    else { document.getElementById("suggSlot").append(sugg); document.getElementById("mapSlot").append(mini); }
+    else { document.getElementById("suggSlot").append(sugg); studio.querySelector(".canvas").append(mini); } // 지예: 평면도는 3D 화면 구석에 작은 지도처럼
   }
   appMq.addEventListener("change", syncApp);
   cleanup.push(() => appMq.removeEventListener("change", syncApp));
@@ -277,13 +283,14 @@ export async function customer(pid) {
   studio.querySelectorAll(".toolbar [data-view]").forEach((b) => (b.onclick = () => setView(b.dataset.view)));
   studio.querySelectorAll("[data-swap]").forEach((b) => (b.onclick = () => setView(b.dataset.swap)));
   // 3D 안에서 바로 놓기·옮기기·고르기 (plans/virtual-remodel.md S10)
-  let drag3d = null;
+  let drag3d = null, hovering = false; // hovering: 마우스가 3D 위에 있는지 (버튼 위로 나가면 늦게 온 미리 보기를 버린다)
   let wallPicking = false, removeWall = () => {}; // 벽 철거: 3D에서 벽을 눌러 고르는 중 (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     canDrag: () => mode === "move" && !armed && !armedRouter && !armedMark,
-    onHover: (p) => { if (armed && mode === "move" && !wallPicking) preview({ sku: armed, center_xz: p, yaw_rad: Math.PI / 2 }); },
-    onLeave: () => { if (armed) ghost(null); },
+    onSurface: () => armedRouter, // 공유기는 책상·선반 윗면에도 놓인다
+    onHover: (p) => { hovering = true; follow(p); },
+    onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); },
     onClick: ({ hit, point }) => {
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (point && floorAction(point)) return;
@@ -370,13 +377,12 @@ export async function customer(pid) {
       return `<section class="dsec"><h3>${esc(title)}</h3><div class="dgrid">${tiles}</div></section>`;
     }).join("") + (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "");
     box.querySelectorAll("[data-decor]").forEach((b) => {
-      b.classList.toggle("on", b.dataset.decor === "decor:wall" && !!wallDraw);
+      b.classList.toggle("on", b.dataset.decor === "decor:wall" ? !!wallDraw : b.dataset.decor === armed);
       b.onclick = () => {
         if (wallPicking) setWallPick(false);
         openLib(false);
         if (b.dataset.decor === "decor:wall") { setWallDraw(!wallDraw); return; } // 벽은 바닥에 직접 그린다
-        if (wallDraw) setWallDraw(false);
-        autoPlace(b.dataset.decor);
+        arm(b.dataset.decor); // 누르면 손에 들고, 바닥을 누르면 놓는다
       };
       b.ondragstart = (e) => e.dataTransfer.setData("text/sku", b.dataset.decor);
     });
@@ -394,48 +400,6 @@ export async function customer(pid) {
   document.querySelectorAll("#libTabs [data-tab]").forEach((b) => (b.onclick = () => setLibTab(b.dataset.tab)));
   // 고른 꾸미기 가구: 위치·회전·크기 조절·주변 간격만 (가격·출처 같은 제품 정보는 없다)
   const LONG = new Set(["decor:wall", "decor:partition"]); // 길이만 바꾸는 것
-  const decorInspector = (x) => {
-    const d = decorOf(x.sku) || { label: x.sku, size_mm: { w: 1000, h: 1000, d: 1000 }, model: "" };
-    const [w, h, dp] = x.size_m, long = LONG.has(x.sku);
-    const pct = Math.round((w * 1000 / d.size_mm.w) * 100);
-    const deg = Math.round(((((x.yaw_rad - Math.PI / 2) * 180) / Math.PI) % 360 + 360) % 360);
-    const bad = x.verdict === "no_fit" ? badReasons(x)[0] : null;
-    return `<div class="insp-photo decor-photo"><img src="img/decor/${esc(d.model)}.webp" alt="" onerror="this.remove()">
-        <button class="ghost small insp-close" id="inspClose" aria-label="선택 풀기">닫기</button></div>
-      <h2 class="insp-name">${esc(d.name || d.label)}</h2>
-      <p class="insp-meta">W ${mm(w * 1000)} × D ${mm(dp * 1000)} × H ${mm(h * 1000)} mm</p>
-      <div class="decor-set" aria-label="배치 설정"><h3>배치 설정</h3>
-        <dl>
-          <div><dt>위치</dt><dd>X ${mm(x.center_xz[0] * 1000)} mm · Y ${mm(x.center_xz[1] * 1000)} mm</dd></div>
-          <div><dt>회전</dt><dd><select id="szRot" aria-label="회전">${[0, 45, 90, 135, 180, 225, 270, 315].map((v) => `<option value="${v}" ${v === deg ? "selected" : ""}>${v}°</option>`).join("")}${[0, 45, 90, 135, 180, 225, 270, 315].includes(deg) ? "" : `<option selected>${deg}°</option>`}</select></dd></div>
-          <div><dt>${long ? "길이" : "크기 조절"}</dt><dd class="sz">${long
-            ? `<input type="range" id="szRange" min="300" max="6000" step="50" value="${Math.round(w * 1000)}" aria-label="길이 (mm)"><output id="szOut">${mm(w * 1000)} mm</output>`
-            : `<input type="range" id="szRange" min="50" max="200" step="5" value="${pct}" aria-label="크기 (%)"><output id="szOut">${pct}%</output>`}</dd></div>
-          <div><dt>주변 간격</dt><dd class="${bad ? "bad" : "ok"}">${bad ? `${esc(bad.label)} · ${esc(FIX[bad.code] || "다른 자리로 옮겨 보세요")}` : "적정해요!"}</dd></div>
-        </dl>
-        <div class="tool-row"><button class="small ghost" id="szCopy">복사</button><button class="small ghost" id="szAlign">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="szDel">삭제</button></div>
-      </div>
-      <p class="hint-sm">${LONG.has(x.sku) ? "가상 체험용 벽이에요. 실제 시공 가능 여부는 현장에서 확인해요." : "공간을 꾸며 보는 가구예요. 구매·설치 신청에는 LG 가전만 들어가요."}</p>`;
-  };
-  const wireDecorInspector = (box, x) => {
-    const d = decorOf(x.sku), long = LONG.has(x.sku), range = box.querySelector("#szRange"), out = box.querySelector("#szOut");
-    const tall = ["decor:shelf", "decor:storage", "decor:plant", "decor:lamp"].includes(x.sku); // 키도 같이 바뀌는 것
-    const sizeFor = (v) => {
-      if (long) return [v / 1000, x.size_m[1], x.size_m[2]];
-      const b = d.size_mm, k = v / 100;
-      return [(b.w * k) / 1000, (tall ? b.h * k : b.h) / 1000, (b.d * k) / 1000];
-    };
-    range.oninput = () => { out.textContent = long ? `${mm(+range.value)} mm` : `${range.value}%`; };
-    range.onchange = () => resizePlacement(x.placement_id, sizeFor(+range.value));
-    box.querySelector("#szRot").onchange = (e) => {
-      const v = parseFloat(e.target.value);
-      if (Number.isFinite(v)) patch(x.placement_id, { yaw_rad: Math.PI / 2 + (v * Math.PI) / 180, snap: false });
-    };
-    box.querySelector("#szCopy").onclick = () => copyPlacement(x.placement_id);
-    box.querySelector("#szAlign").onclick = () => autoAlign(x.placement_id);
-    box.querySelector("#szDel").onclick = () => removeSelected();
-    box.querySelector("#inspClose").onclick = () => { selPl = null; draw(); renderInspector(); renderPlacements(); };
-  };
   // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
   const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
   const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
@@ -471,7 +435,8 @@ export async function customer(pid) {
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
   // 같은 모델 안에 색 이름이 같은 SKU가 여럿이면 (기능·연식만 다름) 모델명을 붙여 구분한다
   const optLabel = (f, x) => {
-    const l = finishLabel(x) || "색상 표기 없음";
+    const l = finishLabel(x);
+    if (!l) return x.sku; // LGE.COM에 색 정보가 없는 모델(TV 등): 색 대신 모델명만
     return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
   };
   // 목록 카드의 색 동그라미는 색마다 하나만
@@ -499,7 +464,8 @@ export async function customer(pid) {
   // 이 집에 들어가는 제품: 지금 목록 앞쪽 후보를 서버가 벽을 따라 놓아 보고(find_spot) 들어가는 것만 3개
   let recSkus = new Set(), suggItems = [], suggKey = "", suggTimer = 0, suggPool = [], suggReady = false;
   const isRec = (f) => f.variants.some((v) => recSkus.has(v.sku));
-  const SUGG_POOL = 30;
+  const BUDGET_STEP = 50000; // 가격 손잡이 간격 5만 원
+  const SUGG_POOL = 30, SUGG_WAIT_MS = 1200; // 연달아 놓는 동안에는 기다렸다가 한 번만
   const renderSugg = () => {
     const box = document.getElementById("sugg");
     box.hidden = !suggReady;
@@ -524,7 +490,8 @@ export async function customer(pid) {
   };
   const scheduleSuggest = () => {
     if (!project) return;
-    const key = JSON.stringify([suggPool, project.scene_state.placements.map((x) => x.placement_id), project.scene_state.hidden_objects]);
+    // 추천은 LG 가전 자리만 본다. 가구·가벽을 놓거나 옮길 때마다 다시 계산하면 서버가 몇 초씩 막혀 버벅인다
+    const key = JSON.stringify([suggPool, lgOnly(project.scene_state.placements).map((x) => x.placement_id), project.scene_state.hidden_objects]);
     if (key === suggKey) return;
     suggKey = key;
     clearTimeout(suggTimer);
@@ -538,14 +505,40 @@ export async function customer(pid) {
       recSkus = next;
       renderSugg();
       if (changed) renderLib();
-    }, 400);
+    }, SUGG_WAIT_MS);
   };
-  const filterCount = () => Object.keys(sel).length + (document.getElementById("fW").value ? 1 : 0) + (document.getElementById("fH").value ? 1 : 0);
+  const filterCount = () => Object.keys(sel).length + (budget ? 1 : 0) + (document.getElementById("fW").value ? 1 : 0) + (document.getElementById("fH").value ? 1 : 0);
   document.getElementById("resetFilter").onclick = () => {
-    sel = {}; document.getElementById("fW").value = ""; document.getElementById("fH").value = ""; document.getElementById("q").value = "";
+    sel = {}; document.getElementById("fW").value = ""; document.getElementById("fH").value = ""; document.getElementById("q").value = ""; budget = null;
     saveUiState(pid, { sel });
     renderLib();
   };
+  // ---- 가격 범위: 지금 보이는 종류(예: 냉장고)의 최저가~최고가 사이에서 두 손잡이로 예산을 맞춘다 ----
+  let budget = null, budgetScope = ""; // budget: {lo, hi} (원), 범위 전체면 null
+  const pLo = document.getElementById("pLo"), pHi = document.getElementById("pHi"), budgetOut = document.getElementById("budgetOut");
+  const won = (v) => v >= 1e8 ? `${+(v / 1e8).toFixed(1)}억` : `${Math.round(v / 1e4).toLocaleString("ko-KR")}만`;
+  const pricesOf = (f) => f.variants.filter((v) => typeof v.price_krw === "number" && (f.demo_only || sellable(v))).map((v) => v.price_krw);
+  const setupBudget = (list) => {
+    const ps = list.flatMap(pricesOf), box = document.getElementById("budget");
+    box.hidden = ps.length < 2;
+    if (box.hidden) { budget = null; return; }
+    const lo = Math.floor(Math.min(...ps) / BUDGET_STEP) * BUDGET_STEP, hi = Math.ceil(Math.max(...ps) / BUDGET_STEP) * BUDGET_STEP;
+    const key = `${cat}|${use}`;
+    if (key !== budgetScope) { budgetScope = key; budget = null; } // 종류가 바뀌면 그 종류의 전체 범위로
+    for (const r of [pLo, pHi]) Object.assign(r, { min: lo, max: hi, step: BUDGET_STEP });
+    pLo.value = budget ? Math.max(lo, budget.lo) : lo; pHi.value = budget ? Math.min(hi, budget.hi) : hi;
+    budgetOut.textContent = `${won(+pLo.value)} ~ ${won(+pHi.value)}원`;
+  };
+  const inBudget = (f) => !budget || pricesOf(f).some((v) => v >= budget.lo && v <= budget.hi);
+  const onBudget = (e) => {
+    let lo = +pLo.value, hi = +pHi.value;
+    if (lo > hi) { if (e.target === pLo) lo = hi; else hi = lo; pLo.value = lo; pHi.value = hi; }
+    budget = lo <= +pLo.min && hi >= +pHi.max ? null : { lo, hi };
+    budgetOut.textContent = `${won(lo)} ~ ${won(hi)}원`;
+    clearTimeout(budgetTimer); budgetTimer = setTimeout(renderLib, 120); // 끄는 동안은 숫자만, 손을 멈추면 목록
+  };
+  let budgetTimer = 0;
+  pLo.oninput = onBudget; pHi.oninput = onBudget;
   const renderLib = () => {
     renderProgress();
     const q = document.getElementById("q").value.trim().toLowerCase();
@@ -559,9 +552,11 @@ export async function customer(pid) {
     scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
       if (!left.has(pick[f.family_id] || f.variants[0].sku)) { const v = f.variants.find((x) => left.has(x.sku)); if (v) pick[f.family_id] = v.sku; }
     });
-    const items = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
+    const pre = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
       && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH));
+    setupBudget(pre);
+    const items = pre.filter(inBudget);
     suggPool = items.filter((f) => !f.demo_only && f.product_dims_mm?.w && f.product_dims_mm?.h && f.product_dims_mm?.d)
       .slice(0, SUGG_POOL).map((f) => pick[f.family_id] || f.variants[0].sku);
     scheduleSuggest();
@@ -576,14 +571,13 @@ export async function customer(pid) {
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
-      const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
+      const dots = colorDots(f), many = dots.length > 1;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}</div>
-          ${sized ? `<dl class="dims" aria-label="크기 (mm)"><div><dt>폭</dt><dd>${mm(d.w)}</dd></div><div><dt>높이</dt><dd>${mm(d.h)}</dd></div><div><dt>깊이</dt><dd>${mm(d.d)}</dd></div></dl>` : `<div class="cat">치수 정보 없음</div>`}
+          ${sized ? "" : `<div class="cat">치수 정보 없음</div>`}
           ${typeof v.price_krw === "number" ? `<div class="price">${v.price_krw.toLocaleString("ko-KR")}원</div>` : ""}
-          <div class="color-row"><span class="vk">색상</span>${many ? `<span class="variants" role="radiogroup" aria-label="색상 고르기">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}</span>` : ""}
-            <span class="vlabel">${esc(finishLabel(v) || "색상 표기 없음")}${models > Math.max(1, dots.length) ? ` · 모델 ${models}개` : ""}</span></div>
+          ${v.color ? `<div class="color-row"><span class="vk">색상</span>${many ? `<span class="variants" role="radiogroup" aria-label="색상 고르기">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}</span>` : ""}</div>` : ""}
           ${sized && !f.demo_only ? `<button class="primary small place-btn" data-place="${esc(sku)}">공간에 배치하기</button>` : ""}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
@@ -606,55 +600,21 @@ export async function customer(pid) {
       li.ondragstart = (e) => e.dataTransfer.setData("text/sku", li.dataset.sku);
     });
   };
-  // ---- 제품 상세 창: 사진·모델명·크기·색상, 그리고 우리 집에 들어가는지(적합/부적합)만 크게 ----
+  // ---- 제품 상세 창: 사진·모델명·크기·색상 ----
   // 카탈로그 spec_notes(근거)·필요 공간 같은 숫자는 판정에만 쓰고 화면에는 내지 않는다
   const pdModal = document.getElementById("pdModal");
-  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 핏 (Fit & Max)", freestanding: "일반 (프리스탠딩)", countertop: "조리대 위", undercounter: "하부장 안" };
-  const OPT = { kind: "종류", doors: "도어 수", capacity_l: "용량", wash_kg: "세탁 용량", dry_kg: "건조 용량", capacity: "용량", screen_cm: "화면 크기", door_type: "문 여는 방향" };
-  const OPT_UNIT = { capacity_l: " L", wash_kg: " kg", dry_kg: " kg", screen_cm: " cm" };
-  const PD_VERDICT = { fit: "적합", conditional: "적합", no_fit: "부적합" };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
-  // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
-  const verdictHtml = (verdict, where, why) => `<div class="pd-verdict v-${verdict}"><b>${PD_VERDICT[verdict] || "판정 불가"}</b><span>${esc(where)}</span>${why ? `<em>${esc(why)}</em>` : ""}</div>`;
-  const WHY = { scan_based: "스캔 치수 기준이에요. 설치 전에 실측으로 한 번 더 확인해요", clearance_unknown: "옆·뒤 여유 공간은 설치 기사가 확인해요", no_wall_in_zone: "영역에 붙일 벽이 없어요" };
-  const dimWhy = (fit) => {
-    const bad = Object.entries(fit.dims || {}).find(([, d]) => d.verdict && d.verdict !== "fit" && d.verdict !== "unknown");
-    if (!bad) return WHY[(fit.notes || []).find((n) => WHY[n])] || "";
-    const [k, d] = bad;
-    const name = { width: "폭이", height: "높이가", depth: "깊이가" }[k] || `${DIM[k] || k}이`;
-    return d.slack_mm != null && d.slack_mm < 0 ? `${name} ${mm(-d.slack_mm)} mm 모자라요` : `${name} 빠듯해요`;
-  };
-  const fillVerdict = async (sku, p) => {
-    const box = document.getElementById("pdVerdict");
-    const placed = project.scene_state.placements.find((q) => q.sku === sku && q.verdict);
-    if (placed && PD_VERDICT[placed.verdict]) {
-      const r = (placed.reasons || []).find((x) => x.verdict !== "fit");
-      box.innerHTML = verdictHtml(placed.verdict, "놓아 둔 자리 기준", placed.verdict === "fit" ? "" : r?.label);
-      return;
-    }
-    const z = zones?.find((q) => (p.zone_fit || []).includes(q.purpose)) || zones?.[0];
-    if (!z) { box.innerHTML = `<div class="pd-verdict v-none"><b>넣어 보면 알려 드려요</b><span>3D에 놓으면 그 자리에 들어가는지 바로 판정해요</span></div>`; return; }
-    box.innerHTML = `<div class="pd-verdict v-none"><b>확인하는 중…</b></div>`;
-    try {
-      const rec = await api(`/api/projects/${pid}/zones/${z.zone_id}/recommendations?category=${encodeURIComponent(p.category)}`);
-      if (document.getElementById("pdVerdict") !== box) return; // 그 사이 다른 제품을 열었으면 버린다
-      const it = rec.items.find((q) => q.product.sku === sku);
-      box.innerHTML = it && PD_VERDICT[it.fit.verdict] ? verdictHtml(it.fit.verdict, `'${z.name}' 기준`, it.fit.verdict === "fit" ? "" : dimWhy(it.fit))
-        : `<div class="pd-verdict v-none"><b>넣어 보면 알려 드려요</b><span>3D에 놓으면 그 자리에 들어가는지 바로 판정해요</span></div>`;
-    } catch { box.innerHTML = ""; }
-  };
+  // 지예: 들어가는지는 넣고 나서 3D에서 판단한다 (초록/빨강). 상세 창에는 판정 줄을 두지 않는다
   const openDetail = (sku) => {
     const p = prodOf(sku), f = familyOf(sku);
     if (!p || !f) return;
     pick[f.family_id] = sku;
     const v = f.variants.find((x) => x.sku === sku) || {};
     const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d;
+    // 지예: 상세 창이 조잡하다 → 크기·색만 짧게 (설치 방식·옵션·모델명 표는 뺀다, 모델명은 제목 아래에)
     const rows = [
-      ["제품 크기", sized ? `가로 ${mm(d.w)} × 높이 ${mm(d.h)} × 깊이 ${mm(d.d)} mm` : ""],
-      ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "")],
-      ...Object.entries(p.options || {}).filter(([k]) => OPT[k]).map(([k, val]) => [OPT[k], esc(`${val}${OPT_UNIT[k] || ""}`)]),
-      ["색상 · 재질", esc(finishLabel(v))],
-      ["모델명", `<span class="mono">${esc(sku)}</span>`],
+      ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
+      ["색상", esc(finishLabel(v))],
     ].filter(([, val]) => val);
     pdModal.innerHTML = `
       <div class="pd-top">
@@ -663,25 +623,23 @@ export async function customer(pid) {
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
-          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku).map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(optLabel(f, x))}</button>`).join("")}</div>
+          <div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${f.variants.filter((x) => f.demo_only || sellable(x) || x.sku === sku).map((x) => `<button class="swatch ${x.sku === sku ? "on" : ""}" data-pd-variant="${esc(x.sku)}" role="radio" aria-checked="${x.sku === sku}">${x.color ? `<i style="background:${esc(x.hex || "#fff")}"></i>` : ""}${esc(optLabel(f, x))}</button>`).join("")}</div>
         </div>
         <button class="ghost small pd-close" id="pdClose" aria-label="상세 창 닫기">닫기</button>
       </div>
-      <div id="pdVerdict" aria-live="polite"></div>
       <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
       <div class="pd-actions">
         <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
         ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
       </div>`;
     pdModal.hidden = false;
-    fillVerdict(sku, p);
     pdModal.querySelectorAll("[data-pd-variant]").forEach((b) => (b.onclick = () => { openDetail(b.dataset.pdVariant); renderLib(); }));
     document.getElementById("pdClose").onclick = closeDetail;
     const place = document.getElementById("pdPlace");
     if (sized) place.onclick = () => {
       closeDetail();
       if (walking) setWalking(false);
-      armed = sku; mode = "move"; syncMode(); setHint(); renderLib();
+      arm(sku);
       openLib(false); // 앱에서는 서랍을 내려 3D 바닥이 보이게
     };
     place.focus({ preventScroll: true });
@@ -698,6 +656,47 @@ export async function customer(pid) {
     g.innerHTML = res ? placedSvg({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict }, pv.sw, false, true) : "";
     viewer.setGhost(res && { ...res, sku: armed, hex: prodOf(armed)?.cmf_options[0]?.hex_approx });
   };
+  // ---- 손에 든 물건이 마우스를 따라온다 (심즈 건축 모드처럼) ----
+  // 자리는 서버를 기다리지 않고 바로 옮기고, 들어가는지 색만 서버 판정이 오면 바꾼다. 누르면 그 자리에 놓인다
+  let armedYaw = Math.PI / 2, armedVerdict = "unknown", lastHover = null;
+  const armedSize = (sku) => {
+    const d = isDecor(sku) ? decorOf(sku)?.size_mm : prodOf(sku)?.product_dims_mm;
+    return d?.w && d?.h && d?.d ? [d.w / 1000, d.h / 1000, d.d / 1000] : null;
+  };
+  const showFollow = (center_xz, yaw_rad, size_m, verdict, sku) => {
+    const res = { pose: { center_xz, yaw_rad }, size_m, verdict };
+    const g = document.getElementById("ghost");
+    if (g && pv) g.innerHTML = placedSvg({ center_xz, yaw_rad, size_m, verdict }, pv.sw, false, true);
+    viewer.setGhost({ ...res, sku, hex: prodOf(sku)?.cmf_options[0]?.hex_approx });
+  };
+  const follow = (p) => {
+    lastHover = p;
+    if (armedRouter) { viewer.routerFollow(p); return; }
+    if (mode !== "move" || wallPicking) return;
+    if (wallDraw) { // 가벽: 시작점 전에는 기둥 하나, 시작점을 찍은 뒤에는 시작점부터 마우스까지 벽
+      const a = wallDraw.start;
+      if (!a) { showFollow(p, Math.PI / 2, [WALL_T, WALL_H, WALL_T], "fit", "decor:wall"); return; }
+      const len = Math.hypot(p[0] - a[0], p[1] - a[1]), ang = Math.atan2(p[1] - a[1], p[0] - a[0]);
+      showFollow([(a[0] + p[0]) / 2, (a[1] + p[1]) / 2], ang + Math.PI / 2, [Math.max(len, WALL_T), WALL_H, WALL_T], len < WALL_MIN ? "no_fit" : "fit", "decor:wall");
+      return;
+    }
+    if (!armed) return;
+    const size = armedSize(armed);
+    if (size) showFollow(p, armedYaw, size, armedVerdict, armed);
+    preview({ sku: armed, center_xz: p, yaw_rad: armedYaw }, (r) => { // 판정 색만 (자리는 마우스 그대로)
+      if (!armed || !hovering) return;
+      armedVerdict = r.verdict;
+      if (lastHover) showFollow(lastHover, armedYaw, size || r.size_m, armedVerdict, armed);
+    });
+  };
+  const arm = (sku) => {
+    if (wallPicking) setWallPick(false);
+    if (wallDraw) setWallDraw(false);
+    armed = sku; armedYaw = Math.PI / 2; armedVerdict = "unknown"; mode = "move";
+    selPl = null; selObj = null;
+    syncMode(); setHint(); renderLib(); renderDecorLib(); renderInspector();
+    if (lastHover && hovering) follow(lastHover);
+  };
   let busy = false, queued = null, lastPreview = null;
   const preview = async (args, onRes) => {
     if (busy) { queued = [args, onRes]; return; }
@@ -705,7 +704,7 @@ export async function customer(pid) {
     try {
       lastPreview = await post(`/api/projects/${pid}/pose-check`, args);
       if (onRes) onRes(lastPreview);
-      else if (lastPreview.size_m && (armed || drag)) ghost(lastPreview);
+      else if (lastPreview.size_m && ((armed && hovering) || drag)) ghost(lastPreview);
     } catch { /* 미리 보기 실패는 무시 */ }
     busy = false;
     if (queued) { const [a, cb] = queued; queued = null; preview(a, cb); }
@@ -779,7 +778,7 @@ export async function customer(pid) {
   redoBtn.onclick = redo;
 
   const placeAt = guard(async (sku, p) => {
-    const r = await post(`/api/projects/${pid}/placements`, { sku, center_xz: p, yaw_rad: Math.PI / 2 });
+    const r = await post(`/api/projects/${pid}/placements`, { sku, center_xz: p, yaw_rad: armed === sku ? armedYaw : Math.PI / 2 });
     remember({ kind: "remove", id: r.placement.placement_id });
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${nameOf(sku)}: ${LABEL[r.placement.verdict]}`);
@@ -824,6 +823,7 @@ export async function customer(pid) {
     }
     if (armedRouter) {
       armedRouter = false;
+      viewer.routerFollow(null); // 서버가 높이까지 정해 돌려주면 그 자리로 (실패하면 원래 자리)
       guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
       return true;
     }
@@ -871,7 +871,7 @@ export async function customer(pid) {
       }
       return;
     }
-    if (armed && mode === "move") { preview({ sku: armed, center_xz: p, yaw_rad: Math.PI / 2 }); return; }
+    if (armed && mode === "move") { hovering = true; preview({ sku: armed, center_xz: p, yaw_rad: Math.PI / 2 }); return; }
     if (dragging) { dragging[1] = p; drawDraft(); }
   };
   svg.onpointerup = (e) => {
@@ -889,7 +889,7 @@ export async function customer(pid) {
     const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
     createZone([[x0, y0], [x1, y0], [x1, y1], [x0, y1]]);
   };
-  svg.onpointerleave = () => { if (armed) ghost(null); };
+  svg.onpointerleave = () => { hovering = false; if (armed) ghost(null); };
   svg.ondblclick = () => { if (mode === "poly" && draft.length >= 3) createZone(draft); };
   svg.ondragover = (e) => e.preventDefault();
   svg.ondrop = (e) => { e.preventDefault(); const sku = e.dataTransfer.getData("text/sku"); if (sku && pv) placeAt(sku, pv.toWorld(e)); };
@@ -968,7 +968,7 @@ export async function customer(pid) {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (k === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (k === "y" && e.ctrlKey) { e.preventDefault(); redo(); return; }
-    if (k === "Escape") { viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
+    if (k === "Escape") { if (armedRouter) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
     const PAN = 0.3;
@@ -976,6 +976,11 @@ export async function customer(pid) {
       const cam = { w: [0, PAN], s: [0, -PAN], a: [-PAN, 0], d: [PAN, 0] }[k];
       if (cam) { viewer.panCamera(...cam); e.preventDefault(); return; }
       if (k === "q" || k === "e") { viewer.orbitCamera(k === "q" ? -15 : 15); e.preventDefault(); return; }
+    }
+    if (armed && (k === "r" || k === "." || k === ",")) { // 들고 있는 물건 돌리기
+      armedYaw += (k === "," || e.shiftKey ? -1 : 1) * (e.altKey ? ROT_FINE : ROT_STEP);
+      if (lastHover && hovering) follow(lastHover);
+      e.preventDefault(); return;
     }
     const held = viewer.held();
     if (!held && !selPl && !selObj) return;
@@ -1112,6 +1117,20 @@ export async function customer(pid) {
   actRaf = requestAnimationFrame(trackAct);
   cleanup.push(() => cancelAnimationFrame(actRaf));
   const actBtn = (id, icon, label, cls = "") => `<button class="act ${cls}" id="${id}"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON[icon]}</svg><span>${label}</span></button>`;
+  // 크기 조절: 3D 메뉴가 슬라이더로 바뀐다. 가벽·파티션은 길이(mm), 나머지는 기본 크기의 %
+  let sizing = null;
+  const TALL = new Set(["decor:shelf", "decor:storage", "decor:plant", "decor:lamp"]); // 키도 같이 바뀌는 것
+  const sizeBar = (x) => {
+    const d = decorOf(x.sku), long = LONG.has(x.sku), b = d?.size_mm || { w: 1000, h: 1000, d: 1000 };
+    const val = long ? Math.round(x.size_m[0] * 1000) : Math.round((x.size_m[0] * 1000 / b.w) * 100);
+    const show = (v) => (long ? `${mm(v)} mm` : `${v}%`);
+    actBar.innerHTML = `<label class="act-size">${long ? "길이" : "크기"}<input type="range" id="szRange" ${long ? 'min="300" max="6000" step="50"' : 'min="50" max="200" step="5"'} value="${val}" aria-label="${long ? "길이 (mm)" : "크기 (%)"}"><output id="szOut">${show(val)}</output></label><button class="ghost small" id="szDone">완료</button>`;
+    const range = document.getElementById("szRange"), out = document.getElementById("szOut");
+    const sizeFor = (v) => (long ? [v / 1000, x.size_m[1], x.size_m[2]] : [(b.w * v) / 1e5, (TALL.has(x.sku) ? b.h * v : b.h * 100) / 1e5, (b.d * v) / 1e5]);
+    range.oninput = () => { out.textContent = show(+range.value); };
+    range.onchange = () => resizePlacement(x.placement_id, sizeFor(+range.value));
+    document.getElementById("szDone").onclick = () => { sizing = null; renderAct(); };
+  };
   renderAct = () => {
     if (!project) return;
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
@@ -1133,14 +1152,15 @@ export async function customer(pid) {
     }
     const target = x ? { type: "placement", id: x.placement_id } : selObj ? { type: "object", id: selObj } : null;
     actBar.hidden = !target;
-    if (!target) return;
+    if (!target) { sizing = null; return; }
+    if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku);
     actBar.innerHTML = actBtn("actMove", "move", "이동") + actBtn("actRot", "rotate", "회전")
       + (deco ? actBtn("actSize", "size", "크기 조절") : x ? actBtn("actAlign", "align", "벽에 붙이기") : "")
       + (x ? actBtn("actCopy", "copy", "복사") : "") + (x && !deco ? actBtn("actInfo", "info", "상세") : "") + actBtn("actDel", "del", "삭제", "danger");
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
-    document.getElementById("actSize")?.addEventListener("click", () => { const r = document.getElementById("szRange"); r?.focus(); r?.closest(".decor-set")?.classList.add("flash"); });
+    document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); document.getElementById("szRange")?.focus(); });
     document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint("옮길 자리를 누르세요 · Esc 취소"); };
     document.getElementById("actRot").onclick = () => rotate(ROT_STEP);
     document.getElementById("actAlign")?.addEventListener("click", () => autoAlign(x.placement_id));
@@ -1153,29 +1173,26 @@ export async function customer(pid) {
   const renderInspector = () => {
     renderAct();
     const box = document.getElementById("insp");
-    const x = selPl && project.scene_state.placements.find((q) => q.placement_id === selPl);
+    const sel0 = selPl && project.scene_state.placements.find((q) => q.placement_id === selPl);
+    // 지예: 가구·가벽을 골라도 오른쪽은 그대로. 조절은 3D 위 메뉴에서만 (이동·회전·크기·복사·삭제)
+    const x = sel0 && !isDecor(sel0.sku) ? sel0 : null;
     document.getElementById("plBox").hidden = !!(x || selObj);
     document.getElementById("chkBox").hidden = !!(x || selObj);
     studio.classList.toggle("has-sel", !!(x || selObj));
-    if (x && isDecor(x.sku)) { box.innerHTML = decorInspector(x); wireDecorInspector(box, x); return; }
+    if (sel0 && !x) { box.innerHTML = ""; return; }
     if (x) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
       const fv = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku);
-      const f = familyOf(x.sku);
       box.innerHTML = `
         <div class="insp-photo" style="background-color:${esc(x.hex || fv?.hex || "#fff")}">${fv?.thumb ? `<img src="${esc(fv.thumb)}" alt="${esc(p.name)}">` : ""}
           <button class="ghost small insp-close" id="inspClose" aria-label="선택 풀기">닫기</button></div>
         <h2 class="insp-name">${esc(p.name)}</h2>
-        <p class="insp-meta">${esc([OPT_SHORT(p), x.color].filter(Boolean).join(" · "))}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
+        ${p.demo_only ? `<p class="insp-meta"><span class="badge demo">가상 데이터 · 실제 제품 아님</span></p>` : ""}
         ${typeof fv?.price_krw === "number" ? `<p class="insp-price">${fv.price_krw.toLocaleString("ko-KR")}원 <span class="muted">LGE.COM 판매가</span></p>` : ""}
-        ${fitCardHtml(x, life[x.placement_id])}
-        ${f && f.variants.length > 1 ? `<div class="swatches" aria-label="색상">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(optLabel(f, v))}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(optLabel(f, v))}</button>`).join("")}</div>` : ""}
+        ${fitCardHtml(x)}
         <p class="insp-links"><button class="linklike" id="inspDetail">제품 상세</button>${p.source_url && !p.demo_only ? `<a href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기 ↗</a>` : ""}</p>`;
       box.querySelector("#inspDetail").onclick = () => openDetail(x.sku);
-      // 공유기 자리를 아직 안 정했으면 살아 보기 와이파이로 바로
-      box.querySelectorAll("[data-life]").forEach((b) => (b.onclick = () => { setLive(true); sim = b.dataset.life; saveUiState(pid, { sim }); showSim(); }));
       box.querySelector("#inspClose").onclick = () => { selPl = null; draw(); renderInspector(); renderPlacements(); };
-      box.querySelectorAll("[data-variant]").forEach((b) => (b.onclick = () => { if (b.dataset.variant !== x.sku) patch(x.placement_id, { sku: b.dataset.variant }); }));
       return;
     }
     const o = selObj && room.objects.find((q) => q.object_id === selObj);
@@ -1266,6 +1283,7 @@ export async function customer(pid) {
     orderSheet.innerHTML = `
       <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
       ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
+      <p class="hint-sm">${INSTALL_NOTE}</p>
       <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li>
         <i class="dot" style="background:${esc(x.hex || "#fff")}"></i>
         <span class="nm">${esc(p.name)}<small>${esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}</small></span>
@@ -1285,20 +1303,6 @@ export async function customer(pid) {
   document.getElementById("orderBtn").onclick = openOrder;
   document.getElementById("orderMini").onclick = openOrder;
 
-  // ---- 놓은 제품 자리의 살아 보기 결과(채광·와이파이): 서버가 계산한 값을 문장으로 ----
-  let life = {}, lifeKey = "", lifeBusy = false;
-  const syncLife = async () => {
-    const pls = project.scene_state.placements;
-    const key = JSON.stringify([pls.map((x) => [x.placement_id, x.center_xz]), project.site?.north_deg, project.site?.lat, project.scene_state.router]);
-    if (key === lifeKey || lifeBusy) return;
-    lifeKey = key;
-    if (!pls.length) { life = {}; return; }
-    lifeBusy = true;
-    try { life = (await api(`/api/projects/${pid}/life-check`)).items || {}; }
-    catch { life = {}; } // 옛 API 서버면 채광·와이파이 줄만 빠진다
-    lifeBusy = false;
-    if (selPl) renderInspector();
-  };
   // 놓은 제품 하나를 골라 3D 시점을 그 자리로 (목록·체크리스트·도면에서 누를 때)
   const focusPlacement = (id) => {
     const x = project.scene_state.placements.find((q) => q.placement_id === id);
@@ -1359,8 +1363,8 @@ export async function customer(pid) {
     const fb = document.getElementById("furn");
     const all = room.objects.length, allGone = all > 0 && gone.length >= all;
     fb.hidden = all === 0;
-    fb.textContent = allGone ? `가구 ${all}개 되돌리기` : "가구 치우기";
-    fb.classList.toggle("on", allGone);
+    // 지예: 버튼 하나로 켜고 끈다. 이름은 그대로, 켜져 있으면 레드
+    fb.classList.toggle("on", allGone); fb.setAttribute("aria-pressed", allGone);
     fb.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: !allGone }); toast(allGone ? "스캔 가구를 되돌렸어요" : "스캔 가구를 모두 치웠어요"); await refresh(true); });
   };
   const SWATCH = { wall: ["#F2EFEA", "#E8E4DC", "#D9D4CB", "#C9CFD3", "#3E4247"], floor: ["#C8A27A", "#A67C52", "#E3D5C1", "#8D8D8A", "#5B4636"] };
@@ -1501,7 +1505,7 @@ export async function customer(pid) {
         if (!prodOf(sku)) return;
         openBot(false);
         if (walking) setWalking(false);
-        armed = sku; ghost(null); setHint(); renderLib();
+        arm(sku);
       }));
     } catch (err) {
       wait.innerHTML = `<p>앗, 지금은 해석이 안 됐어요. 잠시 뒤 다시 말해 주세요.</p>`;
@@ -1718,11 +1722,11 @@ export async function customer(pid) {
     document.getElementById("simctl").innerHTML = `
       <div class="row" style="margin-top:8px">
         <div class="tabs" style="margin:0"><button data-band="5" class="${band === "5" ? "on" : ""}">5 GHz</button><button data-band="2.4" class="${band === "2.4" ? "on" : ""}">2.4 GHz</button></div>
-        <button class="small ghost" id="putRouter">${armedRouter ? "놓을 자리를 누르세요…" : "공유기 놓기"}</button>
+        <button class="small ghost" id="putRouter">${armedRouter ? "놓을 자리를 누르세요 · 책상·선반 위도 돼요" : "공유기 놓기"}</button>
         <button class="small ghost" id="bestRouter">추천 자리 찾기</button></div>
       <div id="simres" style="margin-top:8px"></div>`;
     document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = () => { band = b.dataset.band; wifiCtl(); }));
-    document.getElementById("putRouter").onclick = () => { armedRouter = !armedRouter; armed = null; mode = "move"; syncMode(); wifiCtl(); };
+    document.getElementById("putRouter").onclick = () => { armedRouter = !armedRouter; if (!armedRouter) viewer.routerFollow(null); armed = null; mode = "move"; syncMode(); wifiCtl(); };
     document.getElementById("bestRouter").onclick = guard(async (e) => {
       e.target.disabled = true; e.target.textContent = "찾는 중…";
       const b = await api(`/api/projects/${pid}/sim/wifi/best?band=${band}`);
@@ -1781,7 +1785,7 @@ export async function customer(pid) {
   };
   const SIMS = { daylight: daylightCtl, wifi: wifiCtl, flow: flowCtl };
   const showSim = guard(async () => {
-    document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
+    document.querySelectorAll("[data-sim]").forEach((x) => { x.classList.toggle("on", x.dataset.sim === sim); x.setAttribute("aria-checked", x.dataset.sim === sim); });
     if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
     if (sim !== "wifi") viewer.setRouter(null);
     if (sim !== "flow") viewer.setWalkers([]);
@@ -1820,14 +1824,13 @@ export async function customer(pid) {
     renderStyle();
     renderMats();
     renderFinishes();
-    syncLife();
     scheduleSuggest();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
     const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
     if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
-    document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
+    document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 휠 누르고 끌기 이동 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
   setLibTab(libTab);

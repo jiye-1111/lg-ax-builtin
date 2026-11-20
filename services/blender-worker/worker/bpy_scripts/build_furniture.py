@@ -268,6 +268,32 @@ def wall(w, h, d):
     part("skirt", "white", -w / 2 - 0.004, w / 2 + 0.004, -d / 2 - 0.004, d / 2 + 0.004, 0, 0.08, "ses", 0.002)
 
 
+def dresser(w, h, d):
+    """서랍장: 서랍 4단, 가운데 손잡이 (정면 +Z, 거실장과 같은 방향)"""
+    base, gap, n = 0.06, 0.004, 4
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.03, 0, base, "ses", 0.003)
+    part("body", "oak", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    step = (h - base) / n
+    for i in range(n):
+        y0 = base + i * step + gap
+        part(f"drawer{i}", "oak", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, y0, y0 + step - 2 * gap, "sse", 0.003)
+        yc = y0 + step / 2
+        part(f"pull{i}", "metal", -0.08, 0.08, d / 2, d / 2 + 0.015, yc - 0.008, yc + 0.008, "ppe", 0.004)
+
+
+def basecab(w, h, d):
+    """주방 하부장: 걸레받이 + 문 2짝 + 위 상판(앞으로 살짝 나옴)"""
+    base, top, gap = 0.1, 0.03, 0.003
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
+    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.04, base, h - top, "sss", 0.004)
+    for i in range(2):
+        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
+        part(f"door{i}", "white", x0, x1, d / 2 - 0.04, d / 2 - 0.02, base + gap, h - top - gap, "sse", 0.003)
+        hx = x1 - 0.05 if i == 0 else x0 + 0.05
+        part(f"handle{i}", "metal", hx - 0.006, hx + 0.006, d / 2 - 0.02, d / 2 - 0.005, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
+    part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.006)
+
+
 TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "chair": ((0.5, 0.85, 0.52), chair),
     "table": ((1.6, 0.74, 0.8), table),
@@ -285,6 +311,8 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "coffee": ((1.0, 0.4, 0.6), coffee),
     "partition": ((1.2, 2.1, 0.05), partition),
     "wall": ((2.0, 2.4, 0.1), wall),
+    "dresser": ((0.8, 0.9, 0.45), dresser),
+    "basecab": ((1.2, 0.85, 0.6), basecab),
 }
 
 

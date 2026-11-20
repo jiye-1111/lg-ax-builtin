@@ -2,7 +2,7 @@
 // 좌표: 평면 (x, y) = 3D (x, z). heading = 3D y축 회전(rad), 0이면 +z를 본다 (사람 모델 정면 +Z).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { WALK_SPEED, pathLength, poseAt, routeClock } from "../../apps/web/js/walker.js";
+import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "../../apps/web/js/walker.js";
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps;
 const L = [[0, 0], [3, 0], [3, 4]]; // 3 m 동쪽, 4 m 남쪽(+y) → 길이 7
@@ -45,4 +45,35 @@ test("시간이 지나면 끝까지 걷고 잠깐 선 뒤 다시 처음부터", 
   assert.equal(end.s, 7);
   assert.equal(end.moving, false);
   assert.ok(near(clk(8.5).s, 0.5)); // 한 바퀴 = 7 + 1초
+});
+
+// 지예: 동선에서 사람이 부자연스럽게 걷는다 → 격자 경로의 5 cm 지그재그를 펴고, 출발·도착은 천천히
+test("격자 지그재그를 펴서 방향이 갑자기 꺾이지 않는다", () => {
+  const zig = [];
+  for (let i = 0; i <= 40; i++) zig.push([i * 0.1, i % 2 ? 0.05 : 0]); // 4 m 직진, 5 cm 지그재그
+  const sm = smoothPath(zig);
+  assert.deepEqual(sm[0], zig[0]);
+  assert.deepEqual(sm[sm.length - 1], zig[zig.length - 1]);
+  let worst = 0;
+  for (let s = 0.3; s < pathLength(sm) - 0.3; s += 0.05) {
+    worst = Math.max(worst, Math.abs(Math.atan2(Math.sin(poseAt(sm, s).heading - Math.PI / 2), Math.cos(poseAt(sm, s).heading - Math.PI / 2))));
+  }
+  assert.ok(worst < 0.2, `heading wobble ${worst}`);
+});
+
+test("직각 모퉁이는 둥글게 돈다 (길이는 거의 그대로)", () => {
+  const sq = [[0, 0], [2, 0], [2, 2]];
+  const sm = smoothPath(sq);
+  assert.ok(pathLength(sm) < 4 && pathLength(sm) > 3.6);
+  const mid = poseAt(sm, pathLength(sm) / 2).heading; // 모퉁이 한가운데는 대각선 쪽을 본다
+  assert.ok(mid > 0.3 && mid < Math.PI / 2 - 0.3);
+});
+
+test("출발할 때 천천히 가속하고 도착 전에 감속한다", () => {
+  const clk = routeClock(7, { speed: 1, pause: 1, ease: 0.5 });
+  assert.ok(clk(0.1).s < 0.1 * 0.5);              // 처음엔 느리게
+  assert.ok(near(clk(4).s - clk(3).s, 1, 1e-6));  // 가운데는 보통 빠르기
+  const walkT = 7 + 0.5;                            // 가감속만큼 조금 더 걸린다
+  assert.equal(clk(walkT + 0.2).s, 7);
+  assert.ok(clk(walkT - 0.05).s > 6.99);
 });
