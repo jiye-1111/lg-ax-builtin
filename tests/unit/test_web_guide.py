@@ -74,3 +74,10 @@ def test_app_layout_for_phone_and_small_window():
     assert ".studio.app" in css and ".studio.app.has-sel .side" in css and ".studio.app.lib-open .lib" in css
     assert "NARROW_W" in tour  # 좁은 화면은 말풍선을 화면 폭에 맞춰 밝힌 곳 위·아래에
     assert '{ sel: "#libMore"' in REMODEL  # 앱 안내는 앱 화면에 있는 메뉴를 짚는다
+
+
+def test_start_view_is_never_stuck_on_the_floor():
+    """지예: 시작 화면이 바닥에 붙은 시점, 반쪽만 그려짐 → 저장된 시점이 이상하면 방 전체 보기, 화면 배율이 바뀌면 다시 맞춤."""
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert "sensibleCam(" in viewer and "ctl.minDistance" in viewer
+    assert "renderer.getPixelRatio() !== Math.min(devicePixelRatio" in viewer  # 브라우저 확대·축소(화면 배율)가 바뀌면 다시 잡는다

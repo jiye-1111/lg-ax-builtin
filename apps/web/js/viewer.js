@@ -118,6 +118,7 @@ export function makeViewer(el, handlers = {}) {
   const ctl = new OrbitControls(cam, renderer.domElement);
   ctl.enableDamping = true;
   ctl.maxPolarAngle = Math.PI * 0.49; // 바닥 아래로는 못 내려가게
+  ctl.minDistance = 1.2;                // 가구 속으로 파고들지 않게
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
   let model = null, framed = false, keepCam = false, alive = true, walls = [], center = new THREE.Vector3();
@@ -164,6 +165,8 @@ export function makeViewer(el, handlers = {}) {
   const resize = () => {
     const w = el.clientWidth, h = el.clientHeight;
     if (!w || !h) return;
+    const pr = Math.min(devicePixelRatio, 1.5);
+    if (renderer.getPixelRatio() !== pr) { renderer.setPixelRatio(pr); composer.setPixelRatio(pr); }
     renderer.setSize(w, h);
     composer.setSize(w, h);
     cam.aspect = w / h;
@@ -238,6 +241,8 @@ export function makeViewer(el, handlers = {}) {
       ctl.update();
       cutaway();
     }
+    // 브라우저 확대·축소나 모니터 이동으로 화면 배율만 바뀌면 크기 변화가 안 잡혀 일부만 그려진다 → 매 프레임 배율을 확인
+    if (renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.5)) resize();
     animateHeld();
     stepWalkers(dt);
     stepSunFn?.(dt);
@@ -315,12 +320,17 @@ export function makeViewer(el, handlers = {}) {
 
   // 방 전체가 보이게 카메라를 잡는다 (화면 비율이 세로로 길면 더 멀리)
   // keep = true면 카메라는 그대로 두고 그림자 범위·격자만 방에 맞춘다 (저장해 둔 시점으로 돌아왔을 때)
+  // 저장해 둔 시점이 쓸 만한지: 바닥에 붙었거나, 너무 가깝거나, 방 밖을 보고 있으면 방 전체 보기로 시작한다
+  const sensibleCam = (box) => {
+    const near = box.clone().expandByScalar(1);
+    return cam.position.y >= 1.4 && cam.position.distanceTo(ctl.target) >= 2 && near.containsPoint(ctl.target);
+  };
   const frame = (keep = false) => {
     if (!model) return;
     const box = new THREE.Box3().setFromObject(model);
     const c = box.getCenter(new THREE.Vector3());
     const s = box.getSize(new THREE.Vector3()).length() * Math.max(1, 1.2 / cam.aspect);
-    if (!keep) {
+    if (!keep || !sensibleCam(box)) {
       cam.position.set(c.x - s * 0.35, c.y + s * 1.05, c.z + s * 0.55);
       ctl.target.copy(c);
     }
