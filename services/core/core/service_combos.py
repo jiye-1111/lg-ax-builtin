@@ -12,8 +12,10 @@ from typing import Optional
 from recommender.cmf import rank_cmf
 from recommender.finishes import rank_finishes
 from recommender.layout import Item, arrange
+from recommender.lifestyle import Life, in_range, needs
 from recommender.pose import Pose
 
+from .ai_life import is_life_story
 from .ai_products import CATEGORY_KO
 from .combos import (PLAN_FACTOR, PLAN_KO, PURPOSE_CATS, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
                      rule_ideas, slot_sku)
@@ -54,6 +56,12 @@ class ComboMixin:
         return out
 
     @staticmethod
+    def _keep(pool: list[Product], keep, category: str) -> list[Product]:
+        if not keep or category not in keep:
+            return pool
+        return [p for p in pool if keep[category](p.options)] or pool  # 범위 안이 하나도 없으면 원래대로
+
+    @staticmethod
     def _color_score(p: Product, tags: StyleTags):
         if not p.cmf_options or p.cmf_options[0].color is None:
             return 0.5, None  # LGE.COM에 색 정보가 없는 모델(TV 등): 색으로 고르지도, 색을 말하지도 않는다
@@ -73,7 +81,8 @@ class ComboMixin:
 
     # ---- 만들기 ----
     def make_combos(self, pid: str, categories: list[str] | None = None, budget: int | None = None, prompt: str = "",
-                    zone_id: str | None = None, image: tuple[str, str] | None = None, said=None) -> dict:
+                    zone_id: str | None = None, image: tuple[str, str] | None = None, said=None, keep=None) -> dict:
+        """keep: {종류: (제품 options) -> bool}. 생활 이야기로 정한 용량 범위를 조합에서도 지키게 한다."""
         from .service import Invalid
 
         prompt = (prompt or "").strip()
@@ -95,7 +104,7 @@ class ComboMixin:
         p = self.get_project(pid)
         room = self._standing(self.get_room(pid), p)
         zones = self.list_zones(pid)
-        pools = {c: self._combo_pool(room, c) for c in cats}
+        pools = {c: self._keep(self._combo_pool(room, c), keep, c) for c in cats}
         stock = {c: (len(v), min((x.price_krw for x in v), default=None), max((x.price_krw for x in v), default=None))
                  for c, v in pools.items()}
         purpose = detect_purpose(prompt, cats, zones)
@@ -109,7 +118,7 @@ class ComboMixin:
         auto = not cats  # 가전을 안 골랐으면 그 공간에 흔히 두는 LG 가전을 넣는다 (가구만 주지 않게)
         if auto:
             cats = list(PURPOSE_CATS.get(ideas.purpose, []))
-            pools = {c: self._combo_pool(room, c) for c in cats}
+            pools = {c: self._keep(self._combo_pool(room, c), keep, c) for c in cats}
         others = [x for x in p["scene_state"]["placements"] if not x.get("combo") and x.get("size_m")]
         meds = {c: median(x.price_krw for x in v) for c, v in pools.items() if v}
         combos = [self._one_combo(room, p, others, idea, pools, meds, budget, i) for i, idea in enumerate(ideas.ideas[:3])]
@@ -193,7 +202,8 @@ class ComboMixin:
     DECOR_WORDS = ("꾸미", "꾸며", "분위기", "느낌", "무드", "인테리어", "침대", "소파", "책상", "식탁", "호텔", "리조트",
                    "컨셉", "콘셉")
 
-    def assist(self, pid: str, prompt: str, image: str | None = None) -> dict:
+    def assist(self, pid: str, prompt: str, image: str | None = None, categories: list[str] | None = None,
+               life: dict | None = None) -> dict:
         """하우니 한 번. 꾸미기·분위기를 말하거나 사진을 붙이면 조합 2~3개, 제품만 물으면 이 집에 맞는 하나 + 대안 둘.
         사진은 AI에 한 번 보내고 버린다 (저장하지 않음)."""
         from .service import Invalid
@@ -207,6 +217,16 @@ class ComboMixin:
                 raise Invalid(str(e)) from None
         if not prompt and not photo:
             raise Invalid("원하는 것을 적거나 사진을 붙여 주세요")
+        if categories:  # 생활 이야기로 고른 가전 그대로 배치 추천까지
+            got = {n.category: n for n in needs(Life(**life))} if life else {}
+            keep = {c: (lambda o, n=n: in_range(n, o)) for c, n in got.items()}
+            out = self.make_combos(pid, list(categories)[:MAX_CATEGORIES], None, prompt, keep=keep)
+            n = len(out["combos"])
+            msg = (f"고른 가전으로 {n}가지 배치를 만들어 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요." if n
+                   else "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요.")
+            return {"type": "combos", "message": msg, **out}
+        if not photo and is_life_story(prompt):  # "맞벌이 4인 가족, 장은 몰아서" → 가전마다 맞는 용량으로 하나씩
+            return self.life_pick(pid, prompt)
         want = self.product_reader(prompt) if prompt else None
         decor = photo is not None or any(w in prompt for w in self.DECOR_WORDS)
         if want and want.wants_products and want.category and not decor:
