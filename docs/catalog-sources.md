@@ -104,6 +104,12 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
 
 ## 2026-11-20 추가: 판매 상태
 
-- `sale_status`: LGE.COM 제품 페이지에 들어 있는 판매 상태(modelStatus) 값. `ACTIVE` 판매중 746종, `SOLD_OUT` 일시품절 84종, `NOT_FOR_SALE` 비매품 278종(지난 연식 에어컨·TV가 대부분), 페이지에서 값을 못 읽은 42종은 null. 확인한 날은 `sale_checked_at`.
+- `sale_status`: LGE.COM 제품 페이지에 들어 있는 판매 상태(modelStatus) 값. `ACTIVE` 판매중 748종, `SOLD_OUT` 일시품절 83종, `NOT_FOR_SALE` 비매품 278종(지난 연식 에어컨·TV가 대부분), 나머지 41종은 null(40종은 출시 예정 `READY_FOR_SALE`이라 아직 살 수 없고, 1종은 페이지에서 값을 못 읽음). 확인한 날은 `sale_checked_at`.
 - 판매 상태는 자주 바뀐다. 다시 확인하면 `tools/catalog/lgecom_sale.json`을 바꾸고 `python3 tools/catalog/add_sale_status.py . tools/catalog/lgecom_sale.json <날짜>`.
 - 웹 목록과 영역 추천에는 지금 파는 제품(판매중·일시품절)만 나온다. 비매품과 판매 여부를 확인 못 한 제품은 카탈로그에는 남기되 고를 수 없다. 판매 상태를 화면에 따로 적지는 않는다.
+
+## 2026-11-20 추가: 가격
+
+- `price_krw`: LGE.COM 제품 페이지에 보이는 판매가(원). 페이지 데이터의 `obsSellingPrice` 값이고, 검색엔진용 정보(JSON-LD `price`)와 같은 값이다. 쿠폰·카드·구독 할인은 넣지 않았다. 확인한 날은 `price_checked_at`.
+- 파는 제품 831종은 모두 값이 있다(전체 1,150종 중 1,061종). 페이지에 값이 없거나 0원으로 나오는 제품(출시 예정·비매품 일부)은 null. 지어낸 값은 없다.
+- 가격은 자주 바뀐다(행사 기간에 특히). 화면에 보여 줄 때는 확인한 날을 같이 적거나 "LGE.COM 기준"이라고 적는다. 다시 받으면 `tools/catalog/lgecom_prices.json`을 바꾸고 `python3 tools/catalog/add_prices.py . tools/catalog/lgecom_prices.json <날짜>`. 이 파일에는 정가(`list_price`, `obsOriginalPrice`)도 같이 적어 두었는데 카탈로그에는 판매가만 넣는다.

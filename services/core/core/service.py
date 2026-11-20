@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 import re
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -16,6 +17,7 @@ from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.pose import Pose, check_pose, snap_to_wall
 from sim.regions import REGIONS
+from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
 
@@ -999,6 +1001,36 @@ class Service:
         prods = self.catalog.search(category=category)
         items = recommend_zone(self.get_room(pid), zone, prods, self.fit_cfg, include_no_fit=include_no_fit)
         return {"zone": self.get_zone(pid, zone_id), "items": items,
+                "margins_mm": {"scanned": self.fit_cfg.margin_scanned_mm, "measured": self.fit_cfg.margin_measured_mm}}
+
+    def find(self, cond: Conditions, pid: str | None = None, zone_id: str | None = None) -> dict:
+        """조건으로 제품 찾기. 같은 모델의 색만 다른 제품은 가장 앞선 것 하나로 묶는다.
+
+        공간 판정은 직접 넣은 치수가 있으면 그 값, 없으면 그려 둔 영역(zone_id, 안 주면 제품 용도에 맞는 첫 영역) 기준."""
+        zone_fit, used_zone = None, None
+        typed = cond.space_w or cond.space_h or cond.space_d
+        if pid and not typed:
+            room = self.get_room(pid)
+            zones = [self._zone_model(pid, zone_id)] if zone_id else \
+                [self._zone_model(pid, z["zone_id"]) for z in self.list_zones(pid)]
+            if zones:
+                used_zone = zones[0].zone_id if zone_id or len(zones) == 1 else None
+
+                def zone_fit(p: Product):
+                    z = next((z for z in zones if z.purpose in p.zone_fit), None)
+                    return check_fit(room, z, p, self.fit_cfg).to_dict() if z else None
+        res = find_products(self.catalog.products, replace(cond, limit=None), self.fit_cfg, zone_fit)
+        fam_of = {v["sku"]: (f, v) for f in self.catalog.families() for v in f["variants"]}
+        seen, items = set(), []
+        for it in res["items"]:
+            f, v = fam_of[it["product"]["sku"]]
+            if f["family_id"] in seen:
+                continue
+            seen.add(f["family_id"])
+            items.append({**it, "family_id": f["family_id"], "family_name": f["name"], "variants": len(f["variants"]),
+                          "thumb": v.get("thumb")})
+        return {"items": items[:cond.limit] if cond.limit else items, "total": len(items), "facets": res["facets"],
+                "zone_id": used_zone,
                 "margins_mm": {"scanned": self.fit_cfg.margin_scanned_mm, "measured": self.fit_cfg.margin_measured_mm}}
 
     def install_check(self, pid: str) -> dict:

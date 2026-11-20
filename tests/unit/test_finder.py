@@ -85,6 +85,7 @@ def test_facets_count_within_category_and_hide_price_when_unknown():
                              {"label": "600L 이상", "min": 600, "count": 2}]
     assert {"label": "베이지", "count": 3} in f["color"] and {"label": "화이트", "count": 1} in f["color"]
     assert f["price"]["min"] == 3000000 and f["price"]["known"] == 3
+    assert f["price"]["buckets"] == [{"label": "300~500만 원", "min": 3000000, "max": 5000000, "count": 3}]
     none = find_products([_p("a", price=None)], Conditions())["facets"]
     assert none["price"] is None and none["capacity"][2]["count"] == 1
 
