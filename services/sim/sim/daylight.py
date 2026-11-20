@@ -65,10 +65,22 @@ def sun_light(site: Site, when: datetime) -> dict:
     w = w * w * (3 - 2 * w)  # 부드럽게
     kelvin = 2000 + (6500 - 2000) * w
     r, g, b = _kelvin_rgb(kelvin)
-    intensity = 0.0 if not up else round(min(1.0, math.sin(a) ** 0.5) * min(1.0, alt / 4), 3)
+    # 고도가 낮을수록 대기에서 줄어든다. 지평선 근처(0~8°)는 부드럽게 0으로 (시간에 따라 뚝 꺼지지 않게)
+    h = min(1.0, max(0.0, alt / 8))
+    intensity = 0.0 if not up else round(min(1.0, math.sin(a) ** 0.5) * h * h * (3 - 2 * h), 3)
+    # 하늘빛(0~1): 해가 져도 시민 박명(-6°)까지는 남는다. -6°~10° 사이를 부드럽게 잇는다
+    k = min(1.0, max(0.0, (alt + 6) / 16))
+    sky = round(k * k * (3 - 2 * k), 3)
     return {"altitude_deg": round(alt, 2), "azimuth_deg": round(az, 2), "up": up,
             "direction": [round(c / n, 7) for c in d], "color": f"#{r:02X}{g:02X}{b:02X}",
-            "kelvin": round(kelvin), "intensity": intensity}
+            "kelvin": round(kelvin), "intensity": intensity, "sky": sky}
+
+
+def sun_path(site: Site, day: date, step_min: int = 5, start_min: int = 240, end_min: int = 1320) -> list[dict]:
+    """하루 해 경로 (기본 04:00~22:00, 5분 간격). 화면은 이 사이를 이어 그려 시간에 따라 끊김 없이 바뀐다."""
+    base = datetime(day.year, day.month, day.day, tzinfo=site.tz)
+    return [{"minute": m, **sun_light(site, base + timedelta(minutes=m))}
+            for m in range(start_min, end_min + 1, step_min)]
 
 
 def sun_patches(room: Room, site: Site, when: datetime) -> list[dict]:

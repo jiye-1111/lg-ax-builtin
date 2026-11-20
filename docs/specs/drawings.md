@@ -32,3 +32,14 @@ python services/blender-worker/worker/bpy_scripts/render_thumbs.py \
 ```
 
 ![생활가전 모델 사진](../images/lineup-photos.png)
+
+## 모델 파일 바꿔 끼우기 (Fusion 등 다른 도구로 만든 모델)
+
+웹은 `apps/web/models/products/index.json`에 적힌 파일을 SKU로 찾는다. 다른 도구로 더 정교하게 만든 모델은 아래만 지키면 파일만 바꿔 끼우면 된다.
+
+- 파일: `apps/web/models/products/<SKU>.glb` (SKU는 카탈로그 그대로, 대문자). 같은 이름으로 덮어쓰면 `index.json`은 손대지 않아도 된다
+- 단위 m, Y-up, 바닥 가운데가 원점(바닥 y=0), 정면이 +Z
+- 크기 = 카탈로그 폭×높이×깊이 (±3mm). 회전·배율은 메시에 적용해서 노드에 남기지 않는다
+- 색을 바꿀 겉판 재질 이름은 `finish` (색 동그라미를 누르면 이 재질 색만 바뀐다). 하나 이상 있어야 한다
+- 확인: `uv run pytest tests/integration/test_product_models.py`
+- 사진도 새 모델로: `render_thumbs.py --sku <SKU>`로 다시 렌더 (`apps/web/img/products/<SKU>.webp`)

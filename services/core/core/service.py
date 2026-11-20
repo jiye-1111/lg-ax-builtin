@@ -755,9 +755,10 @@ class Service:
         th = math.radians(site["north_deg"])
         return Site(lat=site["lat"], lon=site["lon"], north_rad=math.atan2(-math.cos(th), math.sin(th))), d, when
 
-    def daylight(self, pid: str, day: str, time: str | None = None, heatmap: bool = True) -> dict:
-        """그 시각 해(3D 빛 방향·색·세기)와 볕 드는 자리. heatmap=False면 하루 직사광 격자를 건너뛴다(시간 슬라이더용)."""
-        from sim.daylight import daily_sun_hours, sun_light, sun_patches
+    def daylight(self, pid: str, day: str, time: str | None = None, heatmap: bool = True, path: bool = False) -> dict:
+        """그 시각 해(3D 빛 방향·색·세기)와 볕 드는 자리. heatmap=False면 하루 직사광 격자를 건너뛴다(시간 슬라이더용).
+        path=True면 하루 해 경로(5분 간격)도 준다: 화면이 시각 사이를 이어 그려 채광이 부드럽게 바뀐다."""
+        from sim.daylight import daily_sun_hours, sun_light, sun_patches, sun_path
 
         p = self.get_project(pid)
         s, d, when = self._sun_site(p, day, time)
@@ -769,6 +770,7 @@ class Service:
         return {"site": site, "date": d.isoformat(), "time": when.strftime("%H:%M"),
                 "sun": sun_light(s, when),
                 "patches": [{**x, "polygon": [[round(a, 3), round(b, 3)] for a, b in x["polygon"]]} for x in sun_patches(room, s, when)],
+                "path": sun_path(s, d) if path else None,
                 "daily": daily, "assumptions": notes + [f"위치: {site['region']} (위도 {site['lat']}, 경도 {site['lon']})"]}
 
     # ---- 살아 보기: 와이파이 (S7) ----
