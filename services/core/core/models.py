@@ -132,5 +132,8 @@ class Product(_Strict):
     # LGE.COM 제품 페이지의 판매 상태: ACTIVE(판매중) · SOLD_OUT(일시품절) · NOT_FOR_SALE(비매품). 확인 못 했으면 null
     sale_status: Optional[Literal["ACTIVE", "SOLD_OUT", "NOT_FOR_SALE"]] = None
     sale_checked_at: Optional[str] = None
+    # LGE.COM 제품 페이지의 판매가(원, 회원 로그인 전 화면에 보이는 값). 못 읽었으면 null. 자주 바뀌니 확인한 날을 같이 적는다
+    price_krw: Optional[int] = None
+    price_checked_at: Optional[str] = None
     model_3d: Optional[str] = None
     demo_only: bool = False  # True면 LGE.COM 값이 아닌 시연·테스트용 가상 데이터
