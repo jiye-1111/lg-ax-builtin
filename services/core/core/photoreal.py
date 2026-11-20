@@ -71,8 +71,8 @@ def product_alpha(mask: Image.Image) -> Image.Image:
     return a.filter(ImageFilter.MaxFilter(5))
 
 
-SPECK = 0.002  # 화면의 0.2%보다 작은 제품 조각은 버린다 (멀리 걸친 모서리가 AI 사진 위에 흰 점으로 남음)
-SHADE_GAIN = (0.85, 1.1)  # 제품에 AI 사진의 빛을 입히는 범위. 색(채널 비율)은 그대로 두고 밝기만
+SPECK = 0.0002  # 화면의 0.02%보다 작은 조각(몇 픽셀 자투리)만 버린다. 멀리 있는 정수기처럼 작은 제품은 남겨야 한다
+SHADE_GAIN = (0.93, 1.07)  # 넓히면 흰 냉장고가 회색·푸르스름하게 보인다  # 제품에 AI 사진의 빛을 입히는 범위. 색(채널 비율)은 그대로 두고 밝기만
 SHADE_BLUR = 6  # 빛만 가져오고 AI가 그린 모양·글자는 안 가져오게 흐리는 정도
 
 

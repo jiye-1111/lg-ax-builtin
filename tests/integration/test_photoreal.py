@@ -72,7 +72,7 @@ def test_photoreal_keeps_lg_product_pixels_and_changes_the_rest(c, svc, pid):
     got = Image.open(io.BytesIO(c.get(r.json()["url"].replace("/api", "/api", 1)).content)).convert("RGB")
     assert got.size == (W, H)
     r_, g_, b_ = got.getpixel((700, 550))                   # 제품은 3D 그대로 (실제 치수·색), 밝기만 주변 빛에 맞춤
-    assert abs(r_ * 2 - g_) <= 2 and abs(r_ * 3 - b_) <= 3 and 6 <= r_ <= 12
+    assert abs(r_ * 2 - g_) <= 2 and abs(r_ * 3 - b_) <= 3 and 9 <= r_ <= 11
     assert got.getpixel((100, 100)) == (250, 100, 50)      # 나머지는 AI가 바꾼 것
     sent = svc.image_client.sent
     assert "Do not add, remove or move" in sent["prompt"]
@@ -128,9 +128,10 @@ def test_photoreal_tries_the_next_model_when_the_key_cannot_use_one(c, svc, pid,
 def test_tiny_product_specks_are_dropped_and_products_get_a_floor_shadow():
     from core import photoreal
     _, mask = view_and_mask()
-    mask.paste((255, 255, 255), (100, 900, 120, 915))  # 멀리 걸친 모서리 조각
+    mask.paste((255, 255, 255), (100, 900, 106, 906))  # 몇 픽셀 자투리
+    mask.paste((255, 255, 255), (300, 900, 330, 940))  # 멀리 있는 작은 정수기는 남아야 한다
     alpha = photoreal.drop_specks(photoreal.product_alpha(mask))
-    assert alpha.getpixel((110, 905)) == 0 and alpha.getpixel((700, 550)) == 255
+    assert alpha.getpixel((103, 903)) == 0 and alpha.getpixel((315, 920)) == 255 and alpha.getpixel((700, 550)) == 255
     out = photoreal.contact_shadow(Image.new("RGB", (W, H), (200, 200, 200)), alpha)
     assert out.getpixel((700, 706))[0] < 190     # 제품 바로 아래 바닥은 어두워지고
     assert out.getpixel((100, 100))[0] == 200    # 먼 곳은 그대로
