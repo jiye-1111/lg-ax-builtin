@@ -71,9 +71,11 @@ export function makeViewer(el, handlers = {}) {
   const composer = new EffectComposer(renderer, new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 }));
   composer.addPass(new RenderPass(scene, cam));
   const gtao = new GTAOPass(scene, cam, 1, 1);
-  gtao.blendIntensity = 1.0;
-  gtao.updateGtaoMaterial({ radius: 1.0, distanceExponent: 1.0, thickness: 3.0, scale: 2.5, samples: 12 });
-  gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
+  // 반경을 크게 잡으면 샘플이 모자라 바닥·벽에 점 노이즈가 생긴다. 반경은 접촉 그림자 정도(0.35 m)로 좁히고
+  // 샘플·디노이즈를 넉넉히 줘서 매끈하게 만든다
+  gtao.blendIntensity = 0.85;
+  gtao.updateGtaoMaterial({ radius: 0.35, distanceExponent: 1.0, thickness: 1.0, distanceFallOff: 1.0, scale: 1.2, samples: 16 });
+  gtao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 10, rings: 3, samples: 16 });
   // 고르기용 투명 상자, 반투명(컷어웨이 벽·유리·미리 보기), 바닥 오버레이는 AO에서 뺀다
   const baseHide = gtao.overrideVisibility.bind(gtao);
   gtao.overrideVisibility = () => {
