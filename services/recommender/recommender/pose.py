@@ -17,7 +17,7 @@ from typing import Iterable, Optional, Sequence
 from core.models import Product, Room, Wall
 
 from . import geometry as g
-from .fit import FitConfig, Verdict, worst
+from .fit import FitConfig, Verdict, front_space, worst
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -37,6 +37,8 @@ LABELS = {
     "covers_window": "창을 가림",
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
+    "front_blocked": "앞쪽 문 열림 공간 부족",
+    "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
 }
 
 
@@ -176,8 +178,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     reasons: list[dict] = []
     verdicts: list[Verdict] = []
 
-    def add(code: str, v: Verdict, ref: str | None = None):
-        reasons.append({"code": code, "label": LABELS[code], "ref": ref, "verdict": v.value})
+    def add(code: str, v: Verdict, ref: str | None = None, label: str | None = None):
+        reasons.append({"code": code, "label": label or LABELS[code], "ref": ref, "verdict": v.value})
         verdicts.append(v)
 
     if size is None:
@@ -190,6 +192,9 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
     M = rect(c, yaw, w_m, d_m, left=side + margin, right=side + margin, back=back + margin, front=margin)
+    front_mm, front_assumed = front_space(product, cfg)
+    # 문 열림 공간: 본체 앞면부터 문 열림 깊이만큼 (본체 폭)
+    D = None if front_mm is None else rect(c, yaw, w_m, d_m, back=-d_m, front=front_mm / 1000)
 
     if not inside_room(room, c):
         add("outside_room", Verdict.NO_FIT)
@@ -209,6 +214,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             add(hit_code[kind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
             add("clearance_blocked", Verdict.NO_FIT, ref)
+        elif D is not None and overlaps(D, poly):
+            add("front_blocked", Verdict.NO_FIT, ref)
         elif overlaps(M, poly):
             add("tight", Verdict.CONDITIONAL, ref)
 
@@ -245,6 +252,9 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             if overlaps(R, band):
                 add("covers_window", Verdict.CONDITIONAL, op.opening_id)
 
+    if front_assumed:
+        add("front_space_assumed", Verdict.CONDITIONAL,
+            label=f"문 열림 공간 정보 없음 (앞 {cfg.front_default_mm:.0f} mm로 가정)")
     if clear_unknown:
         add("clearance_unknown", Verdict.CONDITIONAL)
     if cfg.scanned_max_conditional:

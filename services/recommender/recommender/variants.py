@@ -59,6 +59,8 @@ def families(products: list[dict], shapes: dict[str, str | None]) -> list[dict]:
                 "color": (p.get("cmf_options") or [{}])[0].get("color"),
                 "material": (p.get("cmf_options") or [{}])[0].get("material"),
                 "hex": (p.get("cmf_options") or [{}])[0].get("hex_approx"),
+                "install_type": p.get("install_type"),
+                "options": p.get("options") or {},
             } for p in ps],
         })
     return out

@@ -1,7 +1,7 @@
 """내부 표준 데이터 모델 (기획 §8). 모든 길이는 room.json에서 m, 카탈로그에서 mm."""
 from __future__ import annotations
 
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -124,6 +124,8 @@ class Product(_Strict):
     door_swing_mm: Optional[float] = None
     cutout_mm: Dims = Field(default_factory=Dims)  # 상판 타공 치수 (쿡탑 등)
     spec_notes: list[str] = Field(default_factory=list)  # 출처 문구 요약 (어떤 값을 어디서 가져왔는지)
+    # LGE.COM 스펙 표의 옵션 값 (종류·도어 수·용량·화면 크기 등). 단계별 필터에 쓴다. 표에 없으면 키를 넣지 않는다.
+    options: dict[str, Union[str, float]] = Field(default_factory=dict)
     cmf_options: list[CmfOption] = Field(default_factory=list)
     source_url: Optional[str]
     source_checked_at: Optional[str]

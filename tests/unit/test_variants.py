@@ -76,3 +76,17 @@ def test_no_drawing_falls_back_to_size():
     a = {**CAT[0], "sku": "A1"}
     b = {**CAT[0], "sku": "B1", "cmf_options": [{"color": "블랙", "hex_approx": "#000000"}]}
     assert len(families([a, b], {})) == 1
+
+
+def test_variants_carry_install_type_and_lgecom_options():
+    m = by_sku(families(CAT, shapes()))
+    v = next(x for x in m["S834MEE111"]["variants"] if x["sku"] == "S834MEE111")
+    assert v["install_type"] == "freestanding"
+    assert v["options"] == {"kind": "양문형", "doors": "2도어", "door_material": "메탈", "capacity_l": 832}
+    v = next(x for x in m["FX24KNTR"]["variants"] if x["sku"] == "FX24KNTR")
+    assert v["options"]["kind"] == "드럼세탁기" and v["options"]["wash_kg"] == 24
+
+
+def test_washer_door_space_comes_from_lgecom_open_size():
+    p = next(x for x in CAT if x["sku"] == "FX24KNTR")  # 도어 열림 시 700 x 990 x 1,410, 제품 깊이 830
+    assert p["door_swing_mm"] == 1410 - p["product_dims_mm"]["d"]

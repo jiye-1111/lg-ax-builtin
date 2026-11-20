@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
+import { $app, cleanup, LABEL, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -7,6 +7,7 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
+import { optionSteps } from "./options.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -25,11 +26,12 @@ export async function customer(pid) {
         <div class="lib-side">
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
-          <div class="chips" id="cats"></div>
+          <div class="ask" id="ask" aria-label="공간 용도"></div>
+          <div class="chips" id="cats" aria-label="가전 종류"></div>
+          <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
           <div class="filters" aria-label="제품 필터">
             <label>폭<select id="fW"><option value="">전체</option><option value="0-650">650 mm 이하</option><option value="650-850">650~850 mm</option><option value="850-99999">850 mm 이상</option></select></label>
             <label>높이<select id="fH"><option value="">전체</option><option value="0-900">900 mm 이하</option><option value="900-1800">900~1,800 mm</option><option value="1800-99999">1,800 mm 이상</option></select></label>
-            <label>색상<select id="fColor"><option value="">전체</option></select></label>
           </div>
         </div>
         <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
@@ -225,17 +227,33 @@ export async function customer(pid) {
 
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
-  // 분류: 주방 · 세탁·의류 · TV·거실 · 공기·청소 (카탈로그에 있는 것만), 그 밖의 종류는 '기타'
-  const have = new Set(catalog.map((p) => p.category));
-  const known = new Set(CATEGORY_GROUP.flatMap(([, , cs]) => cs));
-  const groups = [...CATEGORY_GROUP.filter(([, , cs]) => cs.some((c) => have.has(c))),
-    ...([...have].some((c) => !known.has(c)) ? [["etc", "기타", [...have].filter((c) => !known.has(c))]] : [])];
-  const inGroup = (c) => !cat || (groups.find(([k]) => k === cat)?.[2] || []).includes(c);
-  if (!groups.some(([k]) => k === cat)) cat = "";
+  // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
+  const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
+  const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
+  const catsFor = (pu) => [...new Set(catalog.filter((p) => !pu || (p.zone_fit || []).includes(pu)).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
+  const USES = Object.keys(USE).filter((k) => catsFor(k).length);
+  let use = USES.includes(saved.use) ? saved.use : null; // null: 아직 안 고름, "": 전체 보기
+  if (saved.use === "") use = "";
+  let sel = saved.sel && typeof saved.sel === "object" ? saved.sel : {};
+  if (!catsFor(use).includes(cat)) cat = "";
+  const inScope = (c) => (cat ? c === cat : !use || catsFor(use).includes(c));
+  const setScope = (patch) => {
+    if ("use" in patch) { use = patch.use; cat = ""; sel = {}; }
+    if ("cat" in patch) { cat = patch.cat; sel = sel.install ? { install: sel.install } : {}; }
+    saveUiState(pid, { use, cat, sel });
+    renderCats(); renderLib();
+  };
   const renderCats = () => {
-    document.getElementById("cats").innerHTML = [["", "전체"], ...groups.map(([k, v]) => [k, v])]
+    const ask = document.getElementById("ask");
+    ask.innerHTML = use == null
+      ? `<p class="ask-q">이 공간을 어떤 용도로 쓰실 건가요?</p><div class="chips">${USES.map((k) => `<button class="chip" data-use="${esc(k)}">${esc(USE[k])}</button>`).join("")}<button class="chip" data-use="">전체 보기</button></div>`
+      : `<p class="ask-a"><b>${esc(use ? USE[use] : "전체")}</b>${use ? "에 어울리는 가전" : " 가전"}<button class="linklike" id="useChange">용도 바꾸기</button></p>`;
+    ask.querySelectorAll("[data-use]").forEach((b) => (b.onclick = () => setScope({ use: b.dataset.use })));
+    const ch = document.getElementById("useChange");
+    if (ch) ch.onclick = () => setScope({ use: null });
+    document.getElementById("cats").innerHTML = use == null ? "" : [["", "전체"], ...catsFor(use).map((c) => [c, CATEGORY[c] || c])]
       .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
-    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; saveUiState(pid, { cat }); renderCats(); renderLib(); }));
+    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => setScope({ cat: b.dataset.cat })));
   };
   // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
   const families = await api("/api/catalog/families");
@@ -249,21 +267,34 @@ export async function customer(pid) {
   };
   // 목록 카드의 색 동그라미는 색마다 하나만
   const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
-  // 다나와식 필터: 종류(칩) + 폭·높이·색상
-  const colors = [...new Set(families.flatMap((f) => f.variants.map((v) => v.color)).filter(Boolean))].sort();
-  document.getElementById("fColor").innerHTML += colors.map((c) => `<option>${esc(c)}</option>`).join("");
+  // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
-  ["fW", "fH", "fColor"].forEach((id) => (document.getElementById(id).onchange = () => {
-    const c = document.getElementById("fColor").value;
-    if (c) families.forEach((f) => { const v = f.variants.find((x) => x.color === c); if (v) pick[f.family_id] = v.sku; });
-    renderLib();
-  }));
+  ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  const renderSteps = (steps) => {
+    const box = document.getElementById("steps");
+    box.innerHTML = steps.map((st, i) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-n">${i + 1}</span><span class="step-l">${esc(st.label)}</span>
+      <div class="chips">${st.values.map((v) => `<button class="chip ${st.picked === v.label ? "on" : ""}" data-step="${esc(st.key)}" data-val="${esc(v.label)}" aria-pressed="${st.picked === v.label}">${esc(v.label)} <i>${v.count}</i></button>`).join("")}</div></li>`).join("");
+    box.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
+      if (sel[b.dataset.step] === b.dataset.val) delete sel[b.dataset.step]; else sel[b.dataset.step] = b.dataset.val;
+      saveUiState(pid, { sel });
+      renderLib();
+    }));
+  };
   const renderLib = () => {
     const q = document.getElementById("q").value.trim().toLowerCase();
-    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value, fC = document.getElementById("fColor").value;
-    const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
+    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value;
+    const scope = families.filter((f) => inScope(f.category));
+    // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
+    const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
+    sel = narrowed.sel;
+    renderSteps(narrowed.steps);
+    const left = new Set(narrowed.remaining.map((v) => v.sku));
+    scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
+      if (!left.has(pick[f.family_id] || f.variants[0].sku)) { const v = f.variants.find((x) => left.has(x.sku)); if (v) pick[f.family_id] = v.sku; }
+    });
+    const items = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
-      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH) && (!fC || f.variants.some((v) => v.color === fC)))
+      && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH))
       .sort((a, b) => a.demo_only - b.demo_only);
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
@@ -298,8 +329,9 @@ export async function customer(pid) {
   };
   // ---- 제품 상세 창: 사진·모델명·치수·설치 사양·색상을 한 번에 보고 "넣어 보기" ----
   const pdModal = document.getElementById("pdModal");
-  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
-  const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", utility: "다용도실", bedroom: "침실", entrance: "현관", other: "기타" };
+  const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 핏 (Fit & Max)", freestanding: "일반 (프리스탠딩)", countertop: "조리대 위", undercounter: "하부장 안" };
+  const OPT = { kind: "종류", doors: "도어 수", capacity_l: "용량", wash_kg: "세탁 용량", dry_kg: "건조 용량", capacity: "용량", screen_cm: "화면 크기", door_type: "문 여는 방향" };
+  const OPT_UNIT = { capacity_l: " L", wash_kg: " kg", dry_kg: " kg", screen_cm: " cm" };
   const mmOr = (v) => (v == null ? `<span class="muted">확인 안 됨</span>` : `${mm(v)} mm`);
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   const openDetail = (sku) => {
@@ -314,7 +346,7 @@ export async function customer(pid) {
       ["여유 공간", [cl.side, cl.top, cl.back].some((x) => x != null) ? `옆 ${mmOr(cl.side)} · 위 ${mmOr(cl.top)} · 뒤 ${mmOr(cl.back)}` : `<span class="muted">확인 안 됨</span>`],
       ["문 열림", p.door_swing_mm ? `${mm(p.door_swing_mm)} mm` : `<span class="muted">확인 안 됨</span>`],
       ["설치 방식", esc(INSTALL[p.install_type] || p.install_type || "—")],
-      ["놓는 곳", esc((p.zone_fit || []).map((z) => ZONE[z] || z).join(", ") || "—")],
+      ...Object.entries(p.options || {}).filter(([k]) => OPT[k]).map(([k, val]) => [OPT[k], esc(`${val}${OPT_UNIT[k] || ""}`)]),
       ["색상 · 재질", esc(finishLabel(v)) || "—"],
       ["모델명", `<span class="mono">${esc(sku)}</span>`],
     ];

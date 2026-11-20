@@ -160,3 +160,47 @@ def test_picks_best_wall():
     z = Zone(zone_id="z", purpose="kitchen", polygon_m=[(0, 0), (4, 0), (4, 3), (0, 3)], wall_ids=["w1", "w4"])
     r = check_fit(make_room(openings=[door]), z, product(), CFG)
     assert r.wall_id == "w4"
+
+
+# ---- 일반(프리스탠딩) 가전: 놓을 자리 + 앞쪽 문 열림 공간 ----
+def freestanding(door=580, category="washer", install="freestanding"):
+    return Product(
+        sku="T-WM", name="테스트 세탁기", category=category, zone_fit=["laundry"], install_type=install,
+        product_dims_mm=Dims(w=700, h=990, d=830), clearance_mm=Clearance(side=5, top=10, back=50),
+        door_swing_mm=door, source_url=None, source_checked_at=None, demo_only=True,
+    )
+
+
+def test_freestanding_checks_front_door_space():
+    r = check_fit(make_room(), KITCHEN, freestanding(), CFG)
+    f = r.dims["front"]
+    assert f.required_mm == 580 and f.available_mm == pytest.approx(3000 - 880)
+    assert r.verdict == Verdict.FIT
+
+
+def test_freestanding_front_blocked_by_object_is_no_fit():
+    table = RoomObject(object_id="t1", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.5), position=(2.0, 0.375, 1.2))
+    r = check_fit(make_room(objects=[table]), KITCHEN, freestanding(), CFG)
+    assert r.dims["front"].verdict == Verdict.NO_FIT and r.verdict == Verdict.NO_FIT
+
+
+def test_built_in_has_no_front_check():
+    r = check_fit(make_room(), KITCHEN, freestanding(install="built_in"), CFG)
+    assert "front" not in r.dims
+
+
+def test_unknown_door_space_uses_default_and_caps_conditional():
+    cfg = FitConfig(margin_scanned_mm=30, margin_measured_mm=5, front_default_mm=600)
+    r = check_fit(make_room(), KITCHEN, freestanding(door=None, category="refrigerator"), cfg)
+    assert r.dims["front"].required_mm == 600 and "front_space_assumed" in r.notes
+    assert r.verdict == Verdict.CONDITIONAL
+
+
+def test_doorless_product_has_no_front_check():
+    r = check_fit(make_room(), KITCHEN, freestanding(door=None, category="tv"), CFG)
+    assert "front" not in r.dims
+
+
+def test_fit_and_max_is_judged_like_built_in():
+    r = check_fit(make_room(), KITCHEN, freestanding(door=None, category="refrigerator", install="built_in_look"), CFG)
+    assert "front" not in r.dims

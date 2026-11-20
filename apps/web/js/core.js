@@ -11,17 +11,19 @@ export const CATEGORY = {
   dehumidifier: "제습기", vacuum: "청소기", massage_chair: "안마의자", plant_grower: "식물재배기",
 };
 // 제품 서랍 위 큰 분류 (LGE.COM 메뉴 묶음과 같은 순서)
+// 가전을 고를 때 먼저 묻는 공간 용도 (카탈로그 zone_fit 값)
+export const USE = { kitchen: "주방", living: "거실", bedroom: "침실", utility: "세탁실·다용도실", entrance: "현관" };
 export const CATEGORY_GROUP = [
   ["kitchen", "주방", ["refrigerator", "freezer", "kimchi_refrigerator", "wine_cellar", "dishwasher", "oven", "microwave", "cooktop", "water_purifier"]],
   ["laundry", "세탁·의류", ["washer", "dryer", "wash_tower", "washer_dryer", "styler", "shoe_care"]],
   ["living", "TV·거실", ["tv", "portable_tv", "air_conditioner", "massage_chair", "plant_grower"]],
   ["air", "공기·청소", ["air_purifier", "humidifier", "dehumidifier", "vacuum"]],
 ];
-export const DIM = { width: "폭", height: "높이", depth: "깊이" };
+export const DIM = { width: "폭", height: "높이", depth: "깊이", front: "앞 공간 (문 열림)" };
 export const OBJ = { chair: "의자", table: "테이블", storage: "수납장", sofa: "소파", bed: "침대", refrigerator: "냉장고", stove: "레인지",
   sink: "싱크", washer_dryer: "세탁기", oven: "오븐", dishwasher: "식기세척기", television: "TV", toilet: "변기", bathtub: "욕조", fireplace: "벽난로", stairs: "계단" };
 export const VCOLOR = { fit: "var(--fit)", conditional: "var(--cond)", no_fit: "var(--nofit)", unknown: "var(--unk)" };
-export const NOTE = { clearance_unknown: "이격 정보 없음", scan_based: "스캔값 사용(실측 필요)", no_wall_in_zone: "영역에 벽 없음" };
+export const NOTE = { clearance_unknown: "이격 정보 없음", scan_based: "스캔값 사용(실측 필요)", no_wall_in_zone: "영역에 벽 없음", front_space_assumed: "문 열림 공간 정보 없음(기본값으로 가정)" };
 
 // ---------- 공통 ----------
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
