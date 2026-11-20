@@ -209,8 +209,23 @@ export function makeViewer(el, handlers = {}) {
   // 해는 목표(goal)로 바로 바뀌지 않고 매 프레임 조금씩 다가간다(약 0.2초 시정수).
   // 시간 슬라이더를 움직이거나 하루를 재생해도 방향·색·세기·하늘빛이 끊김 없이 이어진다.
   const DEFAULT_DIR = new THREE.Vector3(-0.6, 1.6, 0.8).normalize();
-  const goal = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
-  const cur = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
+  const goal = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi, env: 1 };
+  const cur = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi, env: 1 };
+  // 주변광(환경 반사) 세기. 실제 해일 때는 낮춘다: 가구·제품이 어디서나 똑같이 밝으면 볕이 닿은 면과 그늘이 구분되지 않는다.
+  // 재질마다 처음 값(baseEnv)을 기억해 두고 곱한다. 새로 들어온 물체도 다음 프레임에 맞춰진다.
+  let envApplied = -1, envCount = -1;
+  const applyEnv = (k) => {
+    let n = 0;
+    scene.traverse((o) => {
+      const m = o.isMesh && o.material;
+      if (!m || m.envMapIntensity === undefined) return;
+      n++;
+      if (m.userData.baseEnv === undefined) m.userData.baseEnv = m.envMapIntensity;
+      m.envMapIntensity = m.userData.baseEnv * k;
+    });
+    envApplied = k; envCount = n;
+  };
+  let envTick = 0;
   let snapSun = true;
   const placeSun = () => {
     sun.position.copy(roomC).addScaledVector(cur.dir, roomR * 2);
@@ -229,6 +244,10 @@ export function makeViewer(el, handlers = {}) {
     hemi.intensity = cur.hemi;
     sun.castShadow = cur.sun > 0.01;
     placeSun();
+    cur.env += (goal.env - cur.env) * k;
+    // 값이 바뀌었거나, 가끔(0.5초마다) 새로 들어온 물체가 있는지 보고 다시 맞춘다
+    envTick += dt;
+    if (Math.abs(cur.env - envApplied) > 0.01 || envTick > 0.5) { envTick = 0; applyEnv(cur.env); }
   };
   stepSunFn = stepSun;
   const applySun = (instant = false) => {
@@ -238,6 +257,7 @@ export function makeViewer(el, handlers = {}) {
       goal.color.set(STUDIO.color);
       goal.sun = STUDIO.intensity;
       goal.hemi = STUDIO.hemi;
+      goal.env = 1;
     } else {
       goal.dir.set(...realSun.direction).normalize();
       goal.color.set(realSun.color);
@@ -245,7 +265,8 @@ export function makeViewer(el, handlers = {}) {
       goal.sun = realSun.up ? 6.0 * realSun.intensity : 0;
       // 하늘빛: 해가 진 뒤에도 박명(sky)만큼 남았다가 서서히 어두워진다
       const sky = realSun.sky ?? (realSun.up ? 1 : 0);
-      goal.hemi = 0.1 + 0.12 * sky + 0.2 * Math.min(1, realSun.intensity * 1.4);
+      goal.hemi = 0.1 + 0.22 * sky + 0.24 * Math.min(1, realSun.intensity * 1.4);
+      goal.env = 0.08 + 0.3 * sky;
     }
     if (instant) snapSun = true;
   };
@@ -703,7 +724,7 @@ export function makeViewer(el, handlers = {}) {
     setSun(s, { instant = false } = {}) { realSun = s && s.direction ? s : null; applySun(instant); },
     /** 지금 해 (E2E 확인용) */
     sunInfo() {
-      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, hemi: hemi.intensity, shell: !!shell?.visible,
+      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, hemi: hemi.intensity, env: +cur.env.toFixed(3), shell: !!shell?.visible,
         position: sun.position.toArray().map((v) => +v.toFixed(3)), target: sun.target.position.toArray().map((v) => +v.toFixed(3)) };
     },
     /** 접촉 그림자(GTAO) 켜고 끄기. 느린 PC용. mode: true | false | "debug"(AO 버퍼만 보기) */
