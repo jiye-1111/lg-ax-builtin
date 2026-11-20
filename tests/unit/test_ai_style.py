@@ -66,3 +66,47 @@ def test_without_api_key_uses_rules(monkeypatch):
     monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
     got = interpret_style("화이트 미니멀")
     assert got.engine == "rules"
+
+
+# ---- OpenAI 키로도 (서버 .env에 둘 중 하나만 있어도 된다) ----
+class _FakeCompletions:
+    def __init__(self, out, refusal=None):
+        self.out, self.refusal, self.kwargs = out, refusal, None
+
+    def parse(self, **kw):
+        self.kwargs = kw
+        msg = SimpleNamespace(parsed=self.out, refusal=self.refusal)
+        return SimpleNamespace(choices=[SimpleNamespace(message=msg, finish_reason="stop")])
+
+
+def test_openai_path_uses_structured_output():
+    from core.ai_style import OPENAI_MODEL, interpret_with_openai
+    want = StyleIntent(palette=["#E6E3DE"], materials=["stone"], summary="대리석", floor_texture="stone")
+    comp = _FakeCompletions(want)
+    got = interpret_with_openai("대리석 바닥", catalog_brief="- 에디톤 스톤", client=SimpleNamespace(chat=SimpleNamespace(completions=comp)))
+    assert got.engine == "openai" and got.floor_texture == "stone"
+    assert comp.kwargs["model"] == OPENAI_MODEL
+    assert comp.kwargs["response_format"] is StyleIntent
+    assert "에디톤 스톤" in comp.kwargs["messages"][0]["content"]
+    assert comp.kwargs["messages"][1] == {"role": "user", "content": "대리석 바닥"}
+
+
+def test_openai_refusal_falls_back_to_rules():
+    from core.ai_style import interpret_with_openai
+    comp = _FakeCompletions(None, refusal="no")
+    got = interpret_with_openai("화이트", client=SimpleNamespace(chat=SimpleNamespace(completions=comp)))
+    assert got.engine == "rules"
+
+
+def test_provider_follows_whichever_key_is_set(monkeypatch):
+    from core.ai_style import pick_provider
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("STYLE_AI_PROVIDER", raising=False)
+    assert pick_provider() is None
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    assert pick_provider() == "openai"
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    assert pick_provider() == "claude"
+    monkeypatch.setenv("STYLE_AI_PROVIDER", "openai")  # 둘 다 있으면 고를 수 있다
+    assert pick_provider() == "openai"
