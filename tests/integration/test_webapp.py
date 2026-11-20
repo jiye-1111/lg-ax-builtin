@@ -48,9 +48,9 @@ def test_remodel_has_undo_and_install_check():
     pages = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
     # 되돌리기: 버튼과 Ctrl+Z 둘 다
     assert 'id="undo"' in remodel and "e.ctrlKey || e.metaKey" in remodel and "undo()" in remodel
-    # 설치 전 확인: 고객 화면(놓은 제품 탭)과 기사 화면 둘 다 같은 목록을 쓴다
+    # 설치 전 확인: 기사 화면은 전체 목록, 고객 화면은 안 되는 제품만 이유·고칠 방법과 함께 (누르면 그 제품으로)
     assert "export async function installCheck" in pages and "/install-check" in pages
-    assert 'id="icBox"' in remodel and 'id="icBox"' in pages
+    assert 'id="icBox"' in pages and 'id="chkBox"' in remodel and "focusPlacement" in remodel
 
 
 def test_remodel_has_install_request_and_before_view():

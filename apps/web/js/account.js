@@ -8,6 +8,11 @@ const timeKo = (iso) => {
   const today = new Date().toDateString() === d.toDateString();
   return d.toLocaleString("ko-KR", today ? { hour: "numeric", minute: "2-digit" } : { month: "numeric", day: "numeric", hour: "numeric", minute: "2-digit" });
 };
+// 마지막 저장 시각을 "방금 전 / 3분 전 / 오후 4:10"처럼
+const agoKo = (iso) => {
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  return s < 60 ? "방금 전" : s < 3600 ? `${Math.floor(s / 60)}분 전` : timeKo(iso);
+};
 const isTech = (u) => u && (u.role === "admin" || (u.role === "technician" && u.status === "approved"));
 
 // ---------- 로그인 창 ----------
@@ -213,24 +218,30 @@ const AUTO_EVERY_MS = 10000;
  * - 수동 저장: 저장 버튼이나 Ctrl+S(맥은 ⌘S). 이름 붙인 저장본이 쌓이고, 저장 기록에서 되돌릴 수 있다
  */
 export function mountSaveBar(el, pid, shareToken) {
-  let can = false, lastAuto = null, busy = false, lastAt = null, why = "";
+  let can = false, lastAuto = null, busy = false, lastAt = null, why = "", failed = false, dirty = false;
+  // 머리의 '저장' 메뉴 글자도 같은 상태로 (저장됨·저장 중·저장 안 된 변경·로그인 필요·저장 실패)
+  const tell = (kind, text) => el.dispatchEvent(new CustomEvent("savestate", { bubbles: true, detail: { kind, text } }));
   const mac = /Mac|iPhone|iPad/.test(navigator.platform);
   let shown = "";
   const paint = (html, wire) => { if (html !== shown) { shown = html; el.innerHTML = html; wire?.(); } };
   const draw = () => {
     const u = currentUser();
     if (!u) {
+      tell("off", "로그인 필요");
       return paint(`<span class="save-state off"><i></i>저장 안 됨</span><button class="small primary" id="svLogin">로그인하고 저장</button>`, () => {
         el.querySelector("#svLogin").onclick = () => openLogin({ reason: "로그인하면 지금 꾸민 집이 서버에 저장되고, 다른 기기에서도 이어서 꾸밀 수 있어요." });
       });
     }
-    if (!can) return paint(`<span class="save-state off" title="${esc(why)}"><i></i>${esc(why || "확인 중…")}</span>`);
+    if (!can) { tell("off", why ? "보기만 돼요" : "확인 중…"); return paint(`<span class="save-state off" title="${esc(why)}"><i></i>${esc(why || "확인 중…")}</span>`); }
     // 상태 글자만 바뀔 때는 버튼을 그대로 두고 글자만 고친다
-    const state = `<i></i>${busy ? "저장 중…" : lastAt ? `자동 저장됨 ${timeKo(lastAt)}` : "서버에 저장돼요"}`;
+    const [kind, text] = busy ? ["busy", "저장 중…"] : failed ? ["fail", "저장 실패 · 다시 시도할게요"] : dirty ? ["dirty", "저장 안 된 변경 있음"]
+      : lastAt ? ["ok", `자동 저장됨 · ${agoKo(lastAt)}`] : ["ok", "서버에 저장돼요"];
+    tell(kind, kind === "ok" && lastAt ? `저장됨 · ${agoKo(lastAt)}` : text);
+    const state = `<i></i>${text}`;
     const st = el.querySelector(".save-state.live");
-    if (st && el.querySelector("#svNow")) { st.className = `save-state live ${busy ? "busy" : "ok"}`; if (st.innerHTML !== state) st.innerHTML = state; return; }
+    if (st && el.querySelector("#svNow")) { st.className = `save-state live ${kind}`; if (st.innerHTML !== state) st.innerHTML = state; return; }
     paint(`
-      <span class="save-state live ${busy ? "busy" : "ok"}" aria-live="polite">${state}</span>
+      <span class="save-state live ${kind}" aria-live="polite">${state}</span>
       <button class="small" id="svNow" title="지금 상태를 저장본으로 남겨요 (${mac ? "⌘S" : "Ctrl+S"})">저장 <kbd>${mac ? "⌘S" : "Ctrl+S"}</kbd></button>
       <button class="small ghost" id="svList">저장 기록</button>`, () => {
       el.querySelector("#svNow").onclick = () => manual();
@@ -262,11 +273,11 @@ export function mountSaveBar(el, pid, shareToken) {
     if (!can || busy || !currentUser() || currentUser().role === "admin") return;
     try {
       const v = await version();
-      if (v === lastAuto) return;
+      if (v === lastAuto) { dirty = false; draw(); return; }
       busy = !keepalive; draw();
       const s = await api(`/api/projects/${pid}/saves`, { method: "POST", body: JSON.stringify({ kind: "auto" }), keepalive });
-      lastAuto = s.project_version; lastAt = s.saved_at;
-    } catch { /* 다음 차례에 다시 */ }
+      lastAuto = s.project_version; lastAt = s.saved_at; failed = false; dirty = false;
+    } catch { failed = true; /* 다음 차례에 다시 */ }
     finally { busy = false; draw(); }
   };
   const manual = guard(async (label) => {
@@ -336,8 +347,10 @@ export function mountSaveBar(el, pid, shareToken) {
     if ((e.ctrlKey || e.metaKey) && !e.altKey && e.key.toLowerCase() === "s") { e.preventDefault(); manual(); }
   };
   const onHide = () => { if (document.visibilityState === "hidden") autoSave(true); };
+  const onChange = () => { if (can && !busy) { dirty = true; draw(); } }; // 화면에서 무언가 바꾸면 다음 자동 저장 전까지 '저장 안 된 변경'
   document.addEventListener("keydown", onKey);
   document.addEventListener("visibilitychange", onHide);
+  document.addEventListener("lgb:changed", onChange);
   const timer = setInterval(() => autoSave(), AUTO_EVERY_MS);
   const off = onAuth(() => setup());
   let gone = false;
@@ -345,7 +358,7 @@ export function mountSaveBar(el, pid, shareToken) {
   function dispose() {
     if (gone) return;
     gone = true;
-    clearInterval(timer); off(); document.removeEventListener("keydown", onKey); document.removeEventListener("visibilitychange", onHide);
+    clearInterval(timer); off(); document.removeEventListener("keydown", onKey); document.removeEventListener("lgb:changed", onChange); document.removeEventListener("visibilitychange", onHide);
   }
   cleanup.push(() => { autoSave(true); dispose(); });
   setup();

@@ -135,8 +135,6 @@ export function makeViewer(el, handlers = {}) {
   scene.add(products);
   const ghost = new THREE.Group();
   scene.add(ghost);
-  let dimRef = null; // 고른 제품의 치수선 묶음
-  const DIM_NEAR_M = 5; // 이보다 멀면 치수 라벨을 한 줄로 합친다
   const need = new THREE.Group(); // 고른 제품이 차지하는 공간 표시
   scene.add(need);
   // 와이파이: 실제 크기 공유기 (집어 들어 옮기고 돌릴 수 있다)
@@ -179,6 +177,7 @@ export function makeViewer(el, handlers = {}) {
   // 눈높이 1.6 m에서 WASD로 걷고, 화면을 누르면 마우스로 둘러본다(Esc로 풀림). 벽·가구·제품은 못 지나간다.
   const plc = new PointerLockControls(cam, renderer.domElement);
   plc.pointerSpeed = 0.8;
+  let camGlide = null; // 새로 놓은 제품 쪽으로 시점을 부드럽게 옮길 때
   let walk = null, lastT = performance.now(), stepSunFn = null; // 해 보간 함수는 아래 '해'에서 채운다
   const euler = new THREE.Euler(0, 0, 0, "YXZ");
   const KEYS = { KeyW: "f", ArrowUp: "f", KeyS: "b", ArrowDown: "b", KeyA: "l", ArrowLeft: "l", KeyD: "r", ArrowRight: "r" };
@@ -238,6 +237,11 @@ export function makeViewer(el, handlers = {}) {
     lastT = now;
     if (walk) walkTick(dt);
     else {
+      if (camGlide) {
+        const k = Math.min(1, dt * 4);
+        ctl.target.lerp(camGlide.target, k); cam.position.lerp(camGlide.pos, k);
+        if (ctl.target.distanceTo(camGlide.target) < 0.01) camGlide = null;
+      }
       ctl.update();
       cutaway();
     }
@@ -378,61 +382,12 @@ export function makeViewer(el, handlers = {}) {
   };
   function animateHeld() {
     need.visible = !held; // 들고 옮기는 동안에는 옛 자리 표시를 숨긴다
-    if (dimRef?.parent) {
-      const near = cam.position.distanceTo(dimRef.parent.position) < DIM_NEAR_M;
-      for (const c of dimRef.children) if (c.isSprite) c.visible = c.userData.near === near;
-    }
     if (!held) return;
     const target = held.dropping ? 0 : LIFT;
     held.lift += (target - held.lift) * 0.3;
     placeHeld();
   }
 
-  // 치수 라벨: 화면에서 늘 같은 크기로 보이는 알약 모양 글자표
-  const dimLabel = (text, W = 256) => {
-    const cv = document.createElement("canvas");
-    cv.width = W; cv.height = 72;
-    const c = cv.getContext("2d");
-    c.fillStyle = "#ffffff";
-    c.beginPath(); c.roundRect(2, 2, W - 4, 68, 34); c.fill();
-    c.strokeStyle = "#a50034"; c.lineWidth = 3; c.stroke();
-    c.fillStyle = "#1c2024"; c.font = "700 36px Pretendard, system-ui, sans-serif";
-    c.textAlign = "center"; c.textBaseline = "middle";
-    c.fillText(text, W / 2, 38);
-    const tex = new THREE.CanvasTexture(cv);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, sizeAttenuation: false, depthTest: false, transparent: true }));
-    sp.scale.set(0.032 * W / 72, 0.032, 1);
-    sp.renderOrder = 20;
-    sp.userData.ownTexture = true;
-    return sp;
-  };
-  // 고른 제품의 폭·높이·깊이 치수선 (상자 바깥으로 살짝 띄운다)
-  const dimLines = (w, h, d) => {
-    const g = new THREE.Group();
-    const o = 0.07, t = 0.04;
-    const seg = [];
-    const line = (a, b, tick) => { seg.push(...a, ...b); for (const q of [a, b]) seg.push(q[0] - tick[0], q[1] - tick[1], q[2] - tick[2], q[0] + tick[0], q[1] + tick[1], q[2] + tick[2]); };
-    line([-w / 2, h + o, d / 2], [w / 2, h + o, d / 2], [0, t, 0]);            // 폭: 앞면 위
-    line([-w / 2 - o, 0, d / 2], [-w / 2 - o, h, d / 2], [t, 0, 0]);          // 높이: 앞면 왼쪽
-    line([w / 2 + o, h, -d / 2], [w / 2 + o, h, d / 2], [0, t, 0]);            // 깊이: 윗면 오른쪽
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(seg, 3));
-    const ls = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ color: SELECT_HEX, depthTest: false, transparent: true }));
-    ls.renderOrder = 19;
-    ls.userData.dim = true;
-    g.add(ls);
-    const put = (sp, x, y, z, near) => { sp.position.set(x, y, z); sp.userData.near = near; g.add(sp); };
-    const n = (v) => Math.round(v * 1000).toLocaleString();
-    // 가까이서는 선마다 하나씩, 멀리서는 겹치지 않게 한 줄로
-    put(dimLabel(`${n(w)} mm`), 0, h + o + 0.12, d / 2, true);
-    put(dimLabel(`${n(h)} mm`), -w / 2 - o - 0.05, h / 2, d / 2, true);
-    put(dimLabel(`${n(d)} mm`), w / 2 + o + 0.05, h + 0.12, 0, true);
-    put(dimLabel(`폭 ${n(w)} × 높이 ${n(h)} × 깊이 ${n(d)} mm`, 700), 0, h + 0.45, 0, false);
-    g.userData.dimGroup = true;
-    dimRef = g;
-    return g;
-  };
 
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
@@ -486,7 +441,7 @@ export function makeViewer(el, handlers = {}) {
     plate.position.y = 0.006;
     plate.userData.verdictPlate = true;
     g.add(plate);
-    if (selected && !preview) g.add(dimLines(w, h, d));
+    // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
     g.position.set(p.center_xz[0], 0, p.center_xz[1]);
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
     g.userData = { placementId: p.placement_id };
@@ -850,6 +805,12 @@ export function makeViewer(el, handlers = {}) {
       let furniture = 0;
       model?.traverse((o) => { if (o.isMesh && o.userData.shared && o.userData.kind === "object") furniture++; });
       return { furniture, products: products.children.length };
+    },
+    /** 평면 좌표 [x, z] 쪽으로 시점을 부드럽게 옮긴다 (보는 각도·거리는 그대로) */
+    lookAt([x, z]) {
+      if (walk || !Number.isFinite(x) || !Number.isFinite(z)) return;
+      const target = new THREE.Vector3(x, 0.8, z);
+      camGlide = { target, pos: target.clone().add(cam.position.clone().sub(ctl.target)) };
     },
     reframe(keep = false) { if (!keep) keepCam = false; setTimeout(() => { resize(); if (!walk) frame(keep && keepCam); }, 280); },
     /** 지금 카메라 자리 (다시 왔을 때 같은 눈높이로 보이게 저장용) */
