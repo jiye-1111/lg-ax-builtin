@@ -274,7 +274,7 @@ export async function customer(pid) {
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
   ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
   // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
-  // (API 서버가 아직 판매 상태를 안 주는 옛 버전이면 전부 보여 준다)
+  // (API 서버가 아직 판매 여부를 안 주는 옛 버전이면 전부 보여 준다)
   const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
   const sellable = (v) => !saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
   const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
