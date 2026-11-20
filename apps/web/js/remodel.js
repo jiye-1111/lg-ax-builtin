@@ -4,7 +4,7 @@ import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
-import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
+import { wallTable, WALL_HEAD, floorplanBox, installCheck } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 
@@ -41,6 +41,7 @@ export async function customer(pid) {
           <div class="seg" role="group" aria-label="평면 도구">
             <button data-mode="move" class="on" title="제품을 놓고 끌어서 옮겨요">배치</button><button data-mode="rect" title="평면에서 끌어서 네모난 영역(예: 주방 자리)을 그려요. 그 안에 맞는 제품을 추천해요">네모 영역</button><button data-mode="poly" title="평면에서 꼭짓점을 차례로 눌러 모양대로 영역을 그려요. 처음 점을 누르면 닫혀요">자유 영역</button></div>
           <button class="furn-btn" id="furn" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 치우기</button>
+          <button class="furn-btn" id="undo" disabled aria-label="되돌리기" title="방금 놓거나 옮기거나 뺀 것을 되돌려요 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg><span class="sr-only">되돌리기</span></button>
           <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>둘러보기</button>
           <button class="furn-btn" id="keysBtn" aria-expanded="false" aria-controls="keysPop" title="마우스·키보드 조작 방법"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg>조작키</button>
           <span class="spacer"></span>
@@ -58,7 +59,7 @@ export async function customer(pid) {
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
             <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
-              <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Esc</kbd> 취소</li></ul>
+              <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
@@ -82,7 +83,8 @@ export async function customer(pid) {
         </nav>
         <div class="side-body">
           <section data-panel="sel" id="insp"></section>
-          <section data-panel="list"><ul class="list" id="pls"></ul></section>
+          <section data-panel="list"><ul class="list" id="pls"></ul>
+            <details class="gap ic-fold" id="icFold"><summary>설치 전에 확인할 것</summary><div id="icBox"></div></details></section>
           <section data-panel="finish">
             ${aiBoxHtml("finish")}
             <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
@@ -395,14 +397,48 @@ export async function customer(pid) {
     if (queued) { const [a, cb] = queued; queued = null; preview(a, cb); }
   };
 
+  // ---- 되돌리기: 놓기·옮기기·돌리기·빼기·가구 치우기를 한 단계씩 되돌린다 ----
+  const undoStack = [], undoIds = {}; // 뺐다가 되돌린 제품은 번호가 새로 붙으므로 옛 번호 → 새 번호
+  const undoBtn = document.getElementById("undo");
+  const liveId = (id) => { while (undoIds[id]) id = undoIds[id]; return id; };
+  const remember = (step) => { undoStack.push(step); if (undoStack.length > 30) undoStack.shift(); undoBtn.disabled = false; };
+  const rememberPlacement = (plid) => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === plid);
+    if (x && !x.zone_id) remember({ kind: "pose", id: plid, body: { center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, sku: x.sku, snap: false } });
+  };
+  const rememberRemoval = (plid) => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === plid);
+    if (x && !x.zone_id) remember({ kind: "add", id: plid, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, ...(x.color ? { color: x.color } : {}) } });
+  };
+  const undo = guard(async () => {
+    const step = undoStack.pop();
+    undoBtn.disabled = !undoStack.length;
+    if (!step) return;
+    viewer.cancelHold();
+    const id = liveId(step.id);
+    if (step.kind === "remove") { await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" }); if (selPl === id) selPl = null; }
+    else if (step.kind === "pose") await api(`/api/projects/${pid}/placements/${id}`, { method: "PATCH", body: JSON.stringify(step.body) });
+    else if (step.kind === "add") { const r = await post(`/api/projects/${pid}/placements`, step.body); undoIds[step.id] = r.placement.placement_id; selPl = r.placement.placement_id; selObj = null; }
+    else if (step.kind === "objPose") {
+      if (step.pose) await put(`/api/projects/${pid}/objects/${id}/pose`, step.pose);
+      else await api(`/api/projects/${pid}/objects/${id}/pose`, { method: "DELETE" });
+    } else if (step.kind === "objShow") await put(`/api/projects/${pid}/objects/${id}/hidden`, { hidden: false });
+    toast("되돌렸어요");
+    setHint();
+    await refresh(true);
+  });
+  undoBtn.onclick = undo;
+
   const placeAt = guard(async (sku, p) => {
     const r = await post(`/api/projects/${pid}/placements`, { sku, center_xz: p, yaw_rad: Math.PI / 2 });
+    remember({ kind: "remove", id: r.placement.placement_id });
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${prodOf(sku)?.name || sku}: ${LABEL[r.placement.verdict]}`);
     setHint(); renderLib();
     await refresh(true);
   });
   const patch = guard(async (plid, body) => {
+    rememberPlacement(plid);
     await api(`/api/projects/${pid}/placements/${plid}`, { method: "PATCH", body: JSON.stringify(body) });
     await refresh(true);
   });
@@ -535,6 +571,8 @@ export async function customer(pid) {
     }
   };
   const savePose = guard(async (it) => {
+    if (it.kind === "placement") rememberPlacement(it.id);
+    else { const o = objOf(it.id); if (o) remember({ kind: "objPose", id: it.id, pose: (project.scene_state.object_poses || {})[it.id] ? { center_xz: [o.position[0], o.position[2]], yaw_rad: o.yaw_rad } : null }); }
     applyLocal(it);
     if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false }) });
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
@@ -543,8 +581,8 @@ export async function customer(pid) {
   const putDown = () => { const it = viewer.dropHold(); setHint(); if (it) savePose(it); };
   const removeSelected = guard(async () => {
     viewer.cancelHold();
-    if (selPl) { await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; toast("제품을 뺐어요"); }
-    else if (selObj) { await put(`/api/projects/${pid}/objects/${selObj}/hidden`, { hidden: true }); toast("가구를 치웠어요 (놓은 제품 탭에서 되돌리기)"); selObj = null; }
+    if (selPl) { rememberRemoval(selPl); await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; toast("제품을 뺐어요"); }
+    else if (selObj) { remember({ kind: "objShow", id: selObj }); await put(`/api/projects/${pid}/objects/${selObj}/hidden`, { hidden: true }); toast("가구를 치웠어요 (놓은 제품 탭에서 되돌리기)"); selObj = null; }
     setHint();
     await refresh(true);
   });
@@ -565,6 +603,7 @@ export async function customer(pid) {
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
     if (viewer.walking()) return; // 둘러보기 중에는 걷기 키만 (뷰어가 받는다)
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey) { e.preventDefault(); undo(); return; }
     if (k === "Escape") { viewer.cancelHold(); armed = null; ghost(null); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
@@ -615,7 +654,7 @@ export async function customer(pid) {
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
-      box.querySelector("#del").onclick = guard(async () => { await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
+      box.querySelector("#del").onclick = guard(async () => { rememberRemoval(x.placement_id); await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
       box.querySelectorAll("[data-variant]").forEach((b) => (b.onclick = () => { if (b.dataset.variant !== x.sku) patch(x.placement_id, { sku: b.dataset.variant }); }));
       return;
     }
@@ -651,6 +690,10 @@ export async function customer(pid) {
         <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span><span class="badge ${x.verdict}">${LABEL[x.verdict]}</span></li>`).join("")
       : `<li class="muted">아직 없어요. 제품 목록에서 하나 골라 평면에 놓아 보세요.</li>`;
     document.querySelectorAll("#pls [data-sel]").forEach((li) => (li.onclick = () => { selPl = li.dataset.sel || null; selObj = null; setTab("sel"); draw(); renderInspector(); renderPlacements(); }));
+    const fold = document.getElementById("icFold");
+    fold.hidden = !pls.length;
+    if (pls.length && fold.open) installCheck(document.getElementById("icBox"), pid);
+    fold.ontoggle = () => { if (fold.open) installCheck(document.getElementById("icBox"), pid); };
     const gone = project.scene_state.hidden_objects || [];
     if (gone.length) document.getElementById("pls").insertAdjacentHTML("beforeend", `<li class="muted" style="font-size:12px">치운 기존 가구 ${gone.length}개 <span class="spacer"></span><button class="small ghost" id="restore">모두 되돌리기</button></li>`);
     const rb = document.getElementById("restore");

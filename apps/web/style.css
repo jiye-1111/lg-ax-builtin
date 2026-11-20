@@ -217,6 +217,19 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .palette { display: flex; gap: 4px; }
 .palette i { width: 22px; height: 22px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .1); }
 .dot { width: 14px; height: 14px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .15); flex: none; display: inline-block; }
+/* 설치 전 확인 목록 */
+.ic-sum { font-weight: 600; margin: 0 0 10px; }
+.ic-list, .ic-checks { list-style: none; margin: 0; padding: 0; }
+.ic-item { padding: 12px 0; border-top: 1px solid var(--line, #e5e1da); }
+.ic-item:first-child { border-top: 0; padding-top: 0; }
+.ic-head { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; }
+.ic-dims { font-size: var(--t-xs); margin: 2px 0 8px; }
+.ic-checks li { display: grid; grid-template-columns: 5.2em 1fr; gap: 8px; align-items: baseline; padding: 3px 0; font-size: var(--t-sm); }
+.ic-checks .badge { text-align: center; }
+.ic-checks em { font-style: normal; font-size: var(--t-xs); }
+.ic-fold > summary { cursor: pointer; font-weight: 600; padding: 6px 0; }
+.ic-fold > div { padding-top: 8px; }
+.furn-btn:disabled { opacity: .4; cursor: default; }
 .reasons { list-style: none; margin: 0; padding: 0; font-size: var(--t-sm); }
 .reasons li { padding: 4px 0; display: flex; gap: 8px; align-items: baseline; }
 

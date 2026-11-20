@@ -40,3 +40,14 @@ def test_service_worker_shell_files_exist_and_api_not_cached():
     for path in re.findall(r'"\./([^"]*)"', shell):
         assert client.get("/" + path).status_code == 200, path
     assert 'startsWith("/api/")' in sw
+
+
+def test_remodel_has_undo_and_install_check():
+    WEB = main.config.ROOT / "apps" / "web"
+    remodel = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    pages = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
+    # 되돌리기: 버튼과 Ctrl+Z 둘 다
+    assert 'id="undo"' in remodel and "e.ctrlKey || e.metaKey" in remodel and "undo()" in remodel
+    # 설치 전 확인: 고객 화면(놓은 제품 탭)과 기사 화면 둘 다 같은 목록을 쓴다
+    assert "export async function installCheck" in pages and "/install-check" in pages
+    assert 'id="icBox"' in remodel and 'id="icBox"' in pages

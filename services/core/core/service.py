@@ -13,6 +13,7 @@ from pathlib import Path
 from recommender.cmf import rank_cmf
 from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
+from recommender.install import install_checklist
 from recommender.pose import Pose, check_pose, snap_to_wall
 from sim.regions import REGIONS
 from recommender.recommend import recommend_zone
@@ -942,6 +943,11 @@ class Service:
         items = recommend_zone(self.get_room(pid), zone, prods, self.fit_cfg, include_no_fit=include_no_fit)
         return {"zone": self.get_zone(pid, zone_id), "items": items,
                 "margins_mm": {"scanned": self.fit_cfg.margin_scanned_mm, "measured": self.fit_cfg.margin_measured_mm}}
+
+    def install_check(self, pid: str) -> dict:
+        """설치 전 확인 목록: 놓은 제품마다 자리·앞 공간·잴 벽·들여오는 길·현장 확인 항목."""
+        p, room = self.get_project(pid), self.get_room(pid)
+        return install_checklist(room, p["scene_state"]["placements"], self.catalog.get)
 
     def results(self, pid: str) -> dict:
         """F10 결과 화면 데이터 한 번에."""

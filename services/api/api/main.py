@@ -585,6 +585,11 @@ def results(pid: str, s: Service = S):
     return s.results(pid)
 
 
+@app.get("/api/projects/{pid}/install-check")
+def install_check(pid: str, s: Service = S):
+    return s.install_check(pid)
+
+
 @app.post("/api/projects/{pid}/floorplan", status_code=201)
 async def upload_floorplan(pid: str, file: UploadFile = File(...), s: Service = S):
     data = await file.read()

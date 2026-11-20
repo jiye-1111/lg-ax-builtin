@@ -1,5 +1,5 @@
 // 화면: 내 집 스캔(첫 화면), 방문 스캔 신청, 기사 화면
-import { $app, cleanup, esc, api, apiUrl, post, put, toast, guard, lastHome, homeHref } from "./core.js";
+import { $app, cleanup, esc, mm, api, apiUrl, post, put, toast, guard, lastHome, homeHref } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
 
@@ -117,6 +117,24 @@ export async function home() {
     : `<li class="muted">아직 없습니다. 기사 화면에서 스캔을 등록하세요.</li>`;
 }
 
+// ---------- 공용: 설치 전 확인 목록 ----------
+const IC_STATUS = { ok: ["fit", "확인됨"], check: ["conditional", "확인 필요"], blocked: ["no_fit", "안 들어감"], site: ["src", "현장 확인"] };
+export async function installCheck(el, pid) {
+  let d;
+  try { d = await api(`/api/projects/${pid}/install-check`); }
+  catch (e) { el.innerHTML = `<p class="muted">목록을 못 불러왔어요: ${esc(e.message)}</p>`; return null; }
+  const s = d.summary;
+  if (!s.products) { el.innerHTML = `<p class="muted ic-empty">아직 놓은 제품이 없어요. 제품을 놓으면 설치 전에 볼 것을 여기에 정리해 드려요.</p>`; return d; }
+  const sum = [`제품 ${s.products}개`, s.blocked ? `안 들어감 ${s.blocked}` : "", s.check ? `확인 필요 ${s.check}` : "", !s.blocked && !s.check ? "모두 들어가요" : "",
+    s.walls_to_measure.length ? `줄자로 잴 벽 ${s.walls_to_measure.join(", ")}` : ""].filter(Boolean).join(" · ");
+  el.innerHTML = `<p class="ic-sum">${esc(sum)}</p><ul class="ic-list">${d.items.map((it) => `
+    <li class="ic-item"><div class="ic-head"><b>${esc(it.name)}</b><span class="badge ${IC_STATUS[it.status][0]}">${it.status === "ok" ? "들어가요" : IC_STATUS[it.status][1]}</span></div>
+      <p class="muted ic-dims">${esc(it.sku)} · ${mm(it.dims_mm.w)} × ${mm(it.dims_mm.h)} × ${mm(it.dims_mm.d)} mm${it.wall_id ? ` · 벽 ${esc(it.wall_id)}` : ""}</p>
+      <ul class="ic-checks">${it.checks.map((c) => `<li><span class="badge ${IC_STATUS[c.status][0]}">${IC_STATUS[c.status][1]}</span><span>${esc(c.label)}${c.detail ? ` <em class="muted">${esc(c.detail)}</em>` : ""}</span></li>`).join("")}</ul></li>`).join("")}</ul>
+    <p class="hint-sm">‘현장 확인’은 스캔으로 알 수 없어서 방문했을 때 보는 항목이에요. 앞 공간은 사람이 서는 폭 0.6 m 기준입니다.</p>`;
+  return d;
+}
+
 // ---------- 공용: 벽 실측 표 · 도면 ----------
 export const BY = { technician: "기사", customer: "고객" };
 
@@ -222,6 +240,7 @@ export async function technician(pid) {
         <p class="muted" style="font-size:12px;margin:6px 0 0">초록 벽 = 실측 입력됨. 벽을 누르면 아래 표에서 선택됩니다.</p></div>
       <div class="panel"><h2>3D</h2><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div></div>
     </div>
+    <div class="panel" style="margin-top:16px"><h2>설치 전 확인</h2><div id="icBox"></div></div>
     <div class="panel" style="margin-top:16px">
       <h2>벽 치수 · 실측 보정 <span class="badge src">선택</span></h2>
       <div class="notice">스캔값만으로도 판정합니다 (스캔 오차 여유 30 mm). 줄자로 잰 값이 있으면 넣어 주세요. 여유 5 mm로 더 촘촘하게 판정하고, 원래 스캔값은 보존됩니다.</div>
@@ -241,6 +260,7 @@ export async function technician(pid) {
     svg.onclick = (e) => { const w = e.target.dataset?.wall; if (w) { sel = w; load(); document.querySelector(`[data-row="${w}"] input`)?.focus(); } };
     wallTable(document.getElementById("walls"), pid, room, { by: "technician", sel, onChange: load });
     floorplanBox(document.getElementById("fpBox"), pid, p, load);
+    installCheck(document.getElementById("icBox"), pid);
     viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`));
     document.getElementById("hud").textContent = "드래그 회전 · 휠 확대";
   };

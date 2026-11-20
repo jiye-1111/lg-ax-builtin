@@ -128,3 +128,77 @@ def test_snap_ignores_far_walls():
 def test_result_is_serializable():
     r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG).to_dict()
     assert r["verdict"] == "fit" and len(r["footprint"]) == 4 and r["pose"]["center_xz"] == [2.0, 1.5]
+
+
+# ---------- 앞 사용 공간 · 들여오는 길 ----------
+def chair(x, y, oid="chair1"):
+    return RoomObject(object_id=oid, category="chair", bbox_m=BBox(w=0.4, h=0.8, d=0.4), position=(x, 0.4, y))
+
+
+def tv():
+    return Product(
+        sku="T-TV", name="테스트 TV", category="tv", zone_fit=["living"], install_type="freestanding",
+        product_dims_mm=Dims(w=900, h=600, d=200), clearance_mm=Clearance(side=5, top=10, back=50),
+        source_url=None, source_checked_at=None, demo_only=True,
+    )
+
+
+def test_furniture_in_front_use_space_is_conditional():
+    # 정면이 +x. 본체 앞면 x=2.35, 앞 사용 공간 0.6 m 안(x=2.6)에 의자
+    r = check_pose(room(objects=[chair(2.6, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"front_blocked"}
+    assert [x["ref"] for x in r.reasons] == ["chair1"]
+
+
+def test_furniture_beyond_front_use_space_is_fit():
+    r = check_pose(room(objects=[chair(3.3, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    assert r.verdict == Verdict.FIT
+
+
+def test_front_blocked_is_reported_once():
+    objs = [chair(2.6, 1.3, "c1"), chair(2.6, 1.7, "c2")]
+    r = check_pose(room(objects=objs), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    assert [x["code"] for x in r.reasons] == ["front_blocked"]
+
+
+def test_wall_in_front_use_space_is_conditional():
+    # 정면이 벽 w2(x=4) 쪽, 앞면 x=3.6 → 벽 안쪽 면까지 0.35 m
+    r = check_pose(room(), fridge(), Pose((3.25, 1.5), 0.0), CFG)
+    assert r.verdict == Verdict.CONDITIONAL and "front_blocked" in codes(r)
+
+
+def test_hidden_furniture_does_not_block_front():
+    r = check_pose(room(objects=[chair(2.6, 1.5)]), fridge(), Pose((2.0, 1.5), 0.0), CFG, hidden=["chair1"])
+    assert r.verdict == Verdict.FIT
+
+
+def test_door_swing_widens_front_use_space():
+    p = fridge().model_copy(update={"door_swing_mm": 900})
+    r = check_pose(room(objects=[chair(3.1, 1.5)]), p, Pose((2.0, 1.5), 0.0), CFG)  # 앞면에서 0.55~0.95 m
+    assert "front_blocked" in codes(r)
+
+
+def test_products_without_front_door_skip_front_use_space():
+    r = check_pose(room(objects=[chair(2.4, 1.5)]), tv(), Pose((2.0, 1.5), 0.0), CFG)
+    assert "front_blocked" not in codes(r)
+
+
+def door(width, oid="d1"):
+    return Opening(opening_id=oid, type="door", wall_id="w3", offset_m=0.2, width_m=width, height_m=2.0)
+
+
+def test_product_wider_than_every_door_needs_entry_check():
+    r = check_pose(room(openings=[door(0.65)]), fridge(), Pose((2.0, 1.2), 0.0), CFG)  # 가장 얇은 쪽 0.7 m
+    assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"entry_narrow"}
+    assert r.reasons[0]["ref"] == "d1"
+
+
+def test_widest_door_decides_entry():
+    r = check_pose(room(openings=[door(0.65), door(0.9, "d2").model_copy(update={"offset_m": 2.5})]),
+                   fridge(), Pose((2.0, 1.2), 0.0), CFG)
+    assert "entry_narrow" not in codes(r)
+
+
+def test_no_scanned_door_skips_entry_check():
+    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    assert "entry_narrow" not in codes(r)

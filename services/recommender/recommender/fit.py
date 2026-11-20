@@ -36,6 +36,7 @@ class FitConfig:
     wall_snap_m: float = 0.15  # 영역 경계와 벽이 이 거리 안이면 영역의 벽으로 본다
     min_wall_overlap_m: float = 0.3
     snap_m: float = 0.3  # 자유 배치: 이 거리 안의 벽에 제품 등을 붙인다
+    front_use_m: float = 0.6  # 자유 배치: 제품 앞에서 문을 열고 서서 쓰는 자리 깊이 (0이면 보지 않음)
     scanned_max_conditional: bool = False  # True면 스캔값만으로는 조건부까지만 (기획 초안 규칙)
 
     @classmethod
@@ -44,6 +45,7 @@ class FitConfig:
             margin_scanned_mm=float(os.getenv("FIT_MARGIN_SCANNED_MM", 30)),
             margin_measured_mm=float(os.getenv("FIT_MARGIN_MEASURED_MM", 5)),
             snap_m=float(os.getenv("FIT_SNAP_M", 0.3)),
+            front_use_m=float(os.getenv("FIT_FRONT_USE_M", 0.6)),
             scanned_max_conditional=os.getenv("FIT_SCANNED_MAX_CONDITIONAL", "0") == "1",
         )
 

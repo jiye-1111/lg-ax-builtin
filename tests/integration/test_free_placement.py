@@ -142,3 +142,17 @@ def test_move_unknown_furniture_is_404_and_bad_input_422(c, pid):
     assert c.put(f"/api/projects/{pid}/objects/nope/pose", json={"center_xz": [0, 0], "yaw_rad": 0}).status_code == 404
     t = _table(c, pid)
     assert c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [0], "yaw_rad": 0}).status_code == 422
+
+
+def test_install_check_lists_placed_products(c, pid):
+    assert c.get(f"/api/projects/{pid}/install-check").json() == {
+        "summary": {"products": 0, "ok": 0, "check": 0, "blocked": 0, "walls_to_measure": []}, "items": []}
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": [-2.0, 0.0], "yaw_rad": 0, "snap": False}).json()["placement"]
+    out = c.get(f"/api/projects/{pid}/install-check").json()
+    assert out["summary"]["products"] == 1
+    it = out["items"][0]
+    assert it["placement_id"] == pl["placement_id"] and it["dims_mm"]["w"] == 914
+    codes = [x["code"] for x in it["checks"]]
+    assert codes[0] == "space" and "front" in codes and "power" in codes and "carry" in codes
+    assert it["status"] == {"fit": "ok", "conditional": "check", "no_fit": "blocked"}[pl["verdict"]]
+    assert c.get("/api/projects/none/install-check").status_code == 404
