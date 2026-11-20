@@ -21,11 +21,16 @@
 - **깊이**: 실측 `depth_m` 우선, 없으면 폭 구간 중앙에서 벽 법선 방향으로 영역 경계까지 거리(스캔 기반).
 
 ## 축별 판정
+스캔은 1~3 cm, 길이의 약 1%씩 틀린다 (근거: `docs/research/lidar-error-correction.md`).
+그래서 스캔값의 마진은 길이에 따라 커지고, 스캔 오차 안의 자리는 "확인 필요"(조건부 + `needs_measure`)로 둔다.
 ```
-여유 = 가용 − 필요;  margin = 실측 5mm / 스캔 30mm (.env)
-여유 < 0           → 불가 (no_fit)
-0 ≤ 여유 < margin  → 조건부 (conditional)
-여유 ≥ margin      → 적합 (fit)
+σ(L) = √(FIT_SCAN_SIGMA_ABS_MM² + (FIT_SCAN_SIGMA_REL · L)²)     기본 10 mm, 1%
+스캔 margin m = max(FIT_MARGIN_SCANNED_MM, 2σ(가용 길이))        0.6 m → 30, 3 m → 63 mm
+실측 margin m = FIT_MARGIN_MEASURED_MM (5 mm)
+
+여유 = 가용 − 필요
+실측: 여유 < 0 → 불가,  0 ≤ 여유 < m → 조건부,  여유 ≥ m → 적합
+스캔: 여유 < −m → 불가, −m ≤ 여유 < m → 조건부(확인 필요, notes에 measure_needed), 여유 ≥ m → 적합
                      (FIT_SCANNED_MAX_CONDITIONAL=1이면 스캔값은 조건부까지만)
 가용 또는 필요 null → 판정 불가 (unknown)
 ```
@@ -42,7 +47,7 @@
 |---|---|
 | 본체 F | 제품 폭 × 깊이 |
 | 필요 공간 R | F + 양옆 `clearance.side` + 뒤 `clearance.back` |
-| 여유 M | R을 사방으로 마진(스캔 30 mm)만큼 확장 |
+| 여유 M | R을 사방으로 스캔 마진 max(30 mm, 2σ(제품 폭 + 양옆 이격))만큼 확장 |
 
 | 검사 | 결과 |
 |---|---|
@@ -56,6 +61,8 @@
 | 창턱보다 높은 제품이 창 앞 0.3 m 띠에 걸침 | 조건부 (`covers_window`) |
 | 이격 정보 null | 조건부 이하 (`clearance_unknown`) |
 
+- 천장 검사 마진은 max(30 mm, 2σ(벽 높이)).
+- 넣을 자리 실측(선택, `placement.measured_mm` = {w, h, d} mm): 폭·깊이를 다 재면 벽·스캔 가구 겹침 검사 대신, 높이를 재면 천장 검사 대신 잰 값으로 판정한다. 필요 = 제품 + 이격, 실측 마진 5 mm (`measured_short` 불가, `measured_tight` 조건부). 다른 제품·문·창 검사는 그대로.
 - 치운 가구(`hidden_objects`)는 검사에서 뺀다.
 - 벽 붙이기: 가장 가까운 벽까지 `거리 − 벽두께/2 − 깊이/2 − 뒤 이격`이 `FIT_SNAP_M`(0.3) 이하면, 뒷면을 벽 안쪽 면 + 뒤 이격 + 마진에 맞추고 정면을 방 안으로 돌린다.
 - 한 제품을 옮기거나 가구를 치우면 나머지 자유 배치도 다시 판정한다.

@@ -317,6 +317,14 @@ class MoveIn(BaseModel):
     sku: Optional[str] = Field(None, description="같은 모델의 다른 색·재질 SKU")
 
 
+class MeasuredSpotIn(BaseModel):
+    """넣을 자리를 줄자로 잰 값 (mm, 선택). 모두 null이면 지운다."""
+    model_config = {"extra": "forbid"}
+    w_mm: Optional[float] = Field(None, gt=0, le=30000)
+    h_mm: Optional[float] = Field(None, gt=0, le=30000)
+    d_mm: Optional[float] = Field(None, gt=0, le=30000)
+
+
 class SiteIn(BaseModel):
     model_config = {"extra": "forbid"}
     north_deg: Optional[float] = None
@@ -480,6 +488,11 @@ def pose_check(pid: str, body: PoseIn, s: Service = S):
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
     return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku)
+
+
+@app.put("/api/projects/{pid}/placements/{plid}/measured")
+def set_spot_measured(pid: str, plid: str, body: MeasuredSpotIn, s: Service = S):
+    return s.set_placement_measured(pid, plid, body.w_mm, body.h_mm, body.d_mm)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")

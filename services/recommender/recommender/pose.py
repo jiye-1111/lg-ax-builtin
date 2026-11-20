@@ -17,7 +17,7 @@ from typing import Iterable, Optional, Sequence
 from core.models import Product, Room, Wall
 
 from . import geometry as g
-from .fit import FitConfig, Verdict, worst
+from .fit import FitConfig, Verdict, judge_dimension, scan_margin_mm, worst
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -27,17 +27,21 @@ LABELS = {
     "outside_room": "방 밖",
     "hits_wall": "벽을 뚫고 들어감",
     "clearance_blocked": "설치 이격 공간 부족",
-    "tight": "여유가 마진보다 적음",
+    "tight": "여유가 스캔 오차보다 적음 (확인 필요)",
     "overlaps_object": "기존 가구와 겹침",
     "overlaps_placement": "다른 제품과 겹침",
     "ceiling_low": "천장이 낮음",
-    "ceiling_tight": "천장 여유가 마진보다 적음",
+    "ceiling_tight": "천장 여유가 스캔 오차보다 적음 (확인 필요)",
     "door_blocked": "문이 열리지 않음",
     "door_swing_assumed": "문 열림 범위에 걸침 (반대쪽으로 열린다고 가정)",
     "covers_window": "창을 가림",
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
+    "measured": "잰 치수 기준",
+    "measured_short": "잰 자리가 필요 공간보다 좁음",
+    "measured_tight": "잰 자리 여유가 5 mm 안쪽",
 }
+MEASURED_AXES = {"w": "폭", "h": "높이", "d": "깊이"}
 
 
 @dataclass
@@ -170,8 +174,12 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Po
 
 # ---------- 판정 ----------
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
-               others: Iterable[dict] = (), hidden: Iterable[str] = ()) -> PoseResult:
+               others: Iterable[dict] = (), hidden: Iterable[str] = (),
+               measured: Optional[dict] = None) -> PoseResult:
+    """measured = 넣을 자리를 줄자로 잰 값 {w, h, d} (mm, 선택). 폭·깊이를 다 재면 벽·스캔 가구와의
+    겹침 검사 대신 잰 값으로, 높이를 재면 천장 검사 대신 잰 값으로 판정한다."""
     cfg = cfg or FitConfig()
+    measured = {k: v for k, v in (measured or {}).items() if k in MEASURED_AXES and v is not None}
     size = product_size(product)
     reasons: list[dict] = []
     verdicts: list[Verdict] = []
@@ -185,7 +193,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         return PoseResult(Verdict.UNKNOWN, pose, reasons)
     w_m, h_m, d_m = size
     side, back, top, clear_unknown = _clear(product)
-    margin = cfg.margin_scanned_mm / 1000
+    margin = scan_margin_mm((w_m + 2 * side) * 1000, cfg) / 1000  # 스캔 오차는 길이 따라 커진다
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
@@ -204,7 +212,10 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd)))
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
+    plan_measured = "w" in measured and "d" in measured
     for kind, ref, poly in obstacles:
+        if plan_measured and kind != "placement":
+            continue  # 잰 자리가 스캔 기하보다 우선
         if overlaps(F, poly):
             add(hit_code[kind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
@@ -213,8 +224,9 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             add("tight", Verdict.CONDITIONAL, ref)
 
     # 천장: 가장 가까운 벽 높이
-    if room.walls:
+    if room.walls and "h" not in measured:
         wall, _ = _nearest_wall(room, c)
+        margin = scan_margin_mm(_wall_height(wall) * 1000, cfg) / 1000
         slack = _wall_height(wall) - (h_m + top)
         if slack < -EPS:
             add("ceiling_low", Verdict.NO_FIT, wall.wall_id)
@@ -245,9 +257,19 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             if overlaps(R, band):
                 add("covers_window", Verdict.CONDITIONAL, op.opening_id)
 
+    if measured:
+        need = {"w": (w_m + 2 * side) * 1000, "h": (h_m + top) * 1000, "d": (d_m + back) * 1000}
+        add("measured", Verdict.FIT)
+        for k, v in measured.items():
+            dim = judge_dimension(float(v), need[k], True, cfg)
+            if dim.verdict == Verdict.NO_FIT:
+                add("measured_short", Verdict.NO_FIT, MEASURED_AXES[k])
+            elif dim.verdict == Verdict.CONDITIONAL:
+                add("measured_tight", Verdict.CONDITIONAL, MEASURED_AXES[k])
+
     if clear_unknown:
         add("clearance_unknown", Verdict.CONDITIONAL)
-    if cfg.scanned_max_conditional:
+    if cfg.scanned_max_conditional and not measured:
         add("scan_based", Verdict.CONDITIONAL)
     v = worst(verdicts) if verdicts else Verdict.FIT
     return PoseResult(v, pose, reasons, F, R, (w_m, h_m, d_m))

@@ -128,3 +128,36 @@ def test_snap_ignores_far_walls():
 def test_result_is_serializable():
     r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG).to_dict()
     assert r["verdict"] == "fit" and len(r["footprint"]) == 4 and r["pose"]["center_xz"] == [2.0, 1.5]
+
+
+# ---- 스캔 오차·넣을 자리 실측 (docs/research/lidar-error-correction.md) ----
+def test_long_product_needs_bigger_margin():
+    # 폭 3 m 제품, 옆 벽까지 40 mm: 고정 마진 30이면 적합이지만 2σ(3 m)=63 mm 안이라 실측 필요
+    p = fridge(w=3000, side=0, back=0, d=600)
+    x = 0.05 + 0.04 + 1.5
+    r = check_pose(room(), p, Pose((x, 1.5), UP), CFG)
+    assert r.verdict == Verdict.CONDITIONAL and "tight" in codes(r)
+
+
+def test_measured_opening_overrides_scan_geometry():
+    # 스캔으로는 뒤 벽을 뚫는 자리지만, 실제로 잰 자리가 넉넉하면 적합
+    r = check_pose(room(), fridge(), Pose((2.0, 0.06 + 0.35), UP), CFG,
+                   measured={"w": 1000, "h": 2000, "d": 800})
+    assert r.verdict == Verdict.FIT
+    assert "clearance_blocked" not in codes(r) and "measured" in codes(r)
+
+
+def test_measured_opening_too_small_is_no_fit():
+    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG, measured={"w": 905, "h": None, "d": None})
+    assert r.verdict == Verdict.NO_FIT and "measured_short" in codes(r)  # 900 + 2×5 > 905
+
+
+def test_measured_width_only_keeps_scan_checks():
+    chair = RoomObject(object_id="o1", category="chair", bbox_m=BBox(w=0.5, h=0.8, d=0.5), position=(2.0, 0.4, 1.5))
+    r = check_pose(room(objects=[chair]), fridge(), Pose((2.0, 1.5), 0.0), CFG, measured={"w": 1000})
+    assert "overlaps_object" in codes(r)  # 깊이를 안 쟀으면 스캔 겹침 검사는 남긴다
+
+
+def test_measured_tight_is_conditional():
+    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG, measured={"w": 912, "h": 2000, "d": 800})
+    assert r.verdict == Verdict.CONDITIONAL and "measured_tight" in codes(r)  # 여유 2 < 5

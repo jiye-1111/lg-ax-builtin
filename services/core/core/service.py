@@ -584,9 +584,10 @@ class Service:
         pose = Pose((float(center_xz[0]), float(center_xz[1])), float(yaw_rad))
         return snap_to_wall(room, prod, pose, self.fit_cfg) if snap else pose
 
-    def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
+    def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None,
+               measured: dict | None = None):
         others = [x for x in p["scene_state"]["placements"] if x.get("placement_id") != exclude and x.get("size_m")]
-        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._hidden(p))
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._hidden(p), measured=measured)
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
@@ -597,7 +598,8 @@ class Service:
                 prod = self.catalog.get(x["sku"])
             except KeyError:
                 continue
-            r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"])
+            r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"],
+                            x.get("measured_mm"))
             x["verdict"], x["reasons"] = r.verdict.value, r.reasons
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
@@ -656,6 +658,26 @@ class Service:
         out = self._rebuild(pid)
         out["placement"] = self._find_placement(out_p := self.get_project(pid), placement_id)
         out["scene_state"] = out_p["scene_state"]
+        return out
+
+    def set_placement_measured(self, pid: str, placement_id: str, w_mm: float | None = None,
+                               h_mm: float | None = None, d_mm: float | None = None) -> dict:
+        """넣을 자리를 줄자로 잰 폭·높이·깊이(mm, 선택). 모두 None이면 지우고 스캔 판정으로 돌아간다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        x = self._find_placement(p, placement_id)
+        vals = {"w": w_mm, "h": h_mm, "d": d_mm}
+        if any(v is not None and not (0 < v <= 30000) for v in vals.values()):
+            raise Invalid("잰 값은 0보다 크고 30000 mm 이하")
+        vals = {k: v for k, v in vals.items() if v is not None}
+        if vals:
+            x["measured_mm"] = vals
+        else:
+            x.pop("measured_mm", None)
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        out = self._rebuild(pid)
+        out_p = self.get_project(pid)
+        out["placement"], out["scene_state"] = self._find_placement(out_p, placement_id), out_p["scene_state"]
         return out
 
     def delete_placement(self, pid: str, placement_id: str) -> dict:

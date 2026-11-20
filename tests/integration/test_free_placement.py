@@ -142,3 +142,18 @@ def test_move_unknown_furniture_is_404_and_bad_input_422(c, pid):
     assert c.put(f"/api/projects/{pid}/objects/nope/pose", json={"center_xz": [0, 0], "yaw_rad": 0}).status_code == 404
     t = _table(c, pid)
     assert c.put(f"/api/projects/{pid}/objects/{t['object_id']}/pose", json={"center_xz": [0], "yaw_rad": 0}).status_code == 422
+
+
+def test_measured_spot_overrides_scan(c, pid):
+    """넣을 자리를 줄자로 잰 값(선택)을 넣으면 그 값으로 판정하고, 지우면 스캔 판정으로 돌아간다."""
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": [-9.0, 2.0], "snap": False}).json()["placement"]
+    assert pl["verdict"] == "no_fit"
+    url = f"/api/projects/{pid}/placements/{pl['placement_id']}/measured"
+    r = c.put(url, json={"w_mm": 2000, "h_mm": 2600, "d_mm": 1200})
+    assert r.status_code == 200, r.text
+    got = r.json()["placement"]
+    assert got["measured_mm"] == {"w": 2000, "h": 2600, "d": 1200}
+    assert any(x["code"] == "measured" for x in got["reasons"])
+    assert c.put(url, json={"w_mm": -1}).status_code == 422
+    r = c.put(url, json={"w_mm": None, "h_mm": None, "d_mm": None}).json()["placement"]
+    assert "measured_mm" not in r and r["verdict"] == "no_fit"

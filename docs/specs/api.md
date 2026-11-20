@@ -48,6 +48,7 @@
 | POST | `/api/projects/{pid}/pose-check` | 저장 없이 판정만 (`placement_id`를 주면 그 배치는 장애물에서 뺌) |
 | PATCH | `/api/projects/{pid}/placements/{plid}` | 옮기기·돌리기·색 |
 | DELETE | `/api/projects/{pid}/placements/{plid}` | 빼기 |
+| PUT | `/api/projects/{pid}/placements/{plid}/measured` | 넣을 자리 줄자 실측 (선택) `{w_mm, h_mm, d_mm}`, 모두 null이면 지움 |
 | PUT | `/api/projects/{pid}/objects/{oid}/hidden` | `{hidden}` 기존 가구 치우기 |
 | GET | `/api/samples/{name}` | 샘플 스캔 (`synthetic_room.usdz`, `ugscan_2026-11-18.usdz`) |
 

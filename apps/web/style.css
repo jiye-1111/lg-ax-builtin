@@ -805,3 +805,18 @@ table.techs td { vertical-align: middle; }
 .pd-verdict.v-no_fit { background: var(--nofit-bg); color: var(--nofit); }
 .pd-verdict.v-none b { font-size: var(--t-md); }
 .pd-verdict:not(.v-none) span { color: inherit; opacity: .75; }
+
+/* 넣을 자리 실측 (선택) */
+.spot-measure { margin: 12px 0 4px; border: 1px solid var(--line, #e5e1dc); border-radius: 10px; padding: 8px 12px; }
+.spot-measure summary { cursor: pointer; font-size: var(--t-sm); font-weight: 600; list-style: none; }
+.spot-measure summary::-webkit-details-marker { display: none; }
+.spot-measure[open] summary { margin-bottom: 8px; }
+.spot-inputs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+.spot-inputs label { display: flex; flex-direction: column; gap: 4px; font-size: var(--t-xs); color: var(--graphite); }
+.spot-inputs input { width: 100%; min-width: 0; }
+.scan-tips { margin: 0; padding: 12px 14px; border-radius: 10px; background: var(--unk-bg, #f3f1ee); font-size: var(--t-sm); }
+.scan-tips h3 { margin: 0 0 6px; font-size: var(--t-sm); }
+.scan-tips ul { margin: 0; padding-left: 18px; }
+.scan-tips li { margin: 2px 0; }
+details.scan-tips summary { cursor: pointer; font-weight: 600; }
+details.scan-tips[open] summary { margin-bottom: 8px; }

@@ -37,6 +37,10 @@ class FitConfig:
     min_wall_overlap_m: float = 0.3
     snap_m: float = 0.3  # 자유 배치: 이 거리 안의 벽에 제품 등을 붙인다
     scanned_max_conditional: bool = False  # True면 스캔값만으로는 조건부까지만 (기획 초안 규칙)
+    # 스캔 오차 σ(L) = √(abs² + (rel·L)²). 근거: docs/research/lidar-error-correction.md
+    scan_sigma_abs_mm: float = 10.0
+    scan_sigma_rel: float = 0.01
+    scan_k: float = 2.0
 
     @classmethod
     def from_env(cls) -> "FitConfig":
@@ -45,7 +49,15 @@ class FitConfig:
             margin_measured_mm=float(os.getenv("FIT_MARGIN_MEASURED_MM", 5)),
             snap_m=float(os.getenv("FIT_SNAP_M", 0.3)),
             scanned_max_conditional=os.getenv("FIT_SCANNED_MAX_CONDITIONAL", "0") == "1",
+            scan_sigma_abs_mm=float(os.getenv("FIT_SCAN_SIGMA_ABS_MM", 10)),
+            scan_sigma_rel=float(os.getenv("FIT_SCAN_SIGMA_REL", 0.01)),
         )
+
+
+def scan_margin_mm(length_mm: float, cfg: FitConfig) -> float:
+    """스캔값의 여유 기준: 고정 마진과 k·σ(길이) 중 큰 값. 긴 자리일수록 커진다."""
+    sigma = math.hypot(cfg.scan_sigma_abs_mm, cfg.scan_sigma_rel * max(length_mm, 0.0))
+    return round(max(cfg.margin_scanned_mm, cfg.scan_k * sigma), 1)
 
 
 @dataclass
@@ -56,12 +68,14 @@ class DimResult:
     slack_mm: Optional[float]
     margin_mm: float
     source: str = "scanned"  # scanned | measured
+    needs_measure: bool = False  # 스캔 오차 안이라 줄자로 재 봐야 판단 가능
 
     def to_dict(self) -> dict:
         return {
             "verdict": self.verdict.value, "label": self.verdict.label,
             "available_mm": _r(self.available_mm), "required_mm": _r(self.required_mm),
             "slack_mm": _r(self.slack_mm), "margin_mm": self.margin_mm, "source": self.source,
+            "needs_measure": self.needs_measure,
         }
 
 
@@ -92,18 +106,26 @@ def worst(vs) -> Verdict:
 
 
 def judge_dimension(available_mm, required_mm, measured: bool, cfg: FitConfig) -> DimResult:
-    margin = cfg.margin_measured_mm if measured else cfg.margin_scanned_mm
+    """실측값: 여유 < 0 불가, < 5 mm 조건부.
+    스캔값: 여유 < -m 불가, -m ≤ 여유 < m 은 실측 필요(조건부), m = max(30 mm, 2σ(가용 길이))."""
     src = "measured" if measured else "scanned"
+    if measured:
+        margin = cfg.margin_measured_mm
+    else:
+        margin = scan_margin_mm(available_mm or 0.0, cfg)
     if available_mm is None or required_mm is None:
         return DimResult(Verdict.UNKNOWN, available_mm, required_mm, None, margin, src)
     slack = available_mm - required_mm
-    if slack < 0:
+    lower = 0.0 if measured else -margin
+    needs = False
+    if slack < lower:
         v = Verdict.NO_FIT
     elif slack < margin:
         v = Verdict.CONDITIONAL
+        needs = not measured
     else:
         v = Verdict.CONDITIONAL if (not measured and cfg.scanned_max_conditional) else Verdict.FIT
-    return DimResult(v, available_mm, required_mm, slack, margin, src)
+    return DimResult(v, available_mm, required_mm, slack, margin, src, needs)
 
 
 def required_space(p: Product) -> tuple[dict[str, Optional[float]], bool]:
@@ -211,6 +233,8 @@ def _check_wall(room: Room, zone: Zone, wall: Wall, p: Product, cfg: FitConfig) 
             verdict = Verdict.CONDITIONAL
     if any(d.source == "scanned" for d in dims.values()):
         notes.append("scan_based")
+    if any(d.needs_measure for d in dims.values()):
+        notes.append("measure_needed")
 
     placement = None
     if best is not None and req["width"] is not None:

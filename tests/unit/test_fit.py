@@ -160,3 +160,34 @@ def test_picks_best_wall():
     z = Zone(zone_id="z", purpose="kitchen", polygon_m=[(0, 0), (4, 0), (4, 3), (0, 3)], wall_ids=["w1", "w4"])
     r = check_fit(make_room(openings=[door]), z, product(), CFG)
     assert r.wall_id == "w4"
+
+
+# ---- 스캔 오차를 길이에 따라 반영 (docs/research/lidar-error-correction.md §6) ----
+# σ(L) = √(10² + (1%·L)²) mm, 여유 기준 = max(FIT_MARGIN_SCANNED_MM, 2σ)
+def test_scan_margin_grows_with_length():
+    from recommender.fit import scan_margin_mm
+    assert scan_margin_mm(600, CFG) == 30           # 짧으면 기존 30 mm 그대로 (2σ = 23)
+    assert scan_margin_mm(3000, CFG) == pytest.approx(63.2, abs=0.1)
+
+
+def test_long_scanned_span_needs_bigger_slack():
+    r = judge_dimension(3100, 3050, False, CFG)     # 여유 50 < 2σ(3.1 m) 65
+    assert r.verdict == Verdict.CONDITIONAL and r.needs_measure
+    assert r.margin_mm == pytest.approx(65.1, abs=0.1)
+    assert judge_dimension(3100, 3050, True, CFG).verdict == Verdict.FIT  # 실측이면 5 mm
+
+
+def test_scanned_slightly_short_is_measure_needed_not_no_fit():
+    # 스캔이 1 cm 모자라다고 해도 스캔 오차 안이면 "실측 필요"
+    r = judge_dimension(890, 900, False, CFG)
+    assert r.verdict == Verdict.CONDITIONAL and r.needs_measure
+    assert judge_dimension(860, 900, False, CFG).verdict == Verdict.NO_FIT  # 오차보다 더 모자람
+    assert judge_dimension(899, 900, True, CFG).verdict == Verdict.NO_FIT   # 실측은 그대로
+
+
+def test_measure_needed_note_on_fit_result():
+    # 폭 4 m 벽에 3.98 m 필요 → 스캔 기준으론 애매
+    r = check_fit(make_room(), KITCHEN, product(w=3970, side=5), CFG)
+    assert r.verdict == Verdict.CONDITIONAL
+    assert "measure_needed" in r.notes
+    assert r.to_dict()["dims"]["width"]["needs_measure"] is True

@@ -297,6 +297,9 @@ export async function customer(pid) {
   const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 느낌 (Fit & Max)", freestanding: "프리스탠딩", countertop: "조리대 위", undercounter: "하부장 안" };
   const ZONE = { kitchen: "주방", living: "거실", laundry: "세탁실", utility: "다용도실", bedroom: "침실", entrance: "현관", other: "기타" };
   const PD_VERDICT = { fit: "적합", conditional: "조건부 적합", no_fit: "부적합" };
+  // 스캔 오차(길이 따라 커짐) 안에 들어 애매한 자리는 "확인 필요"로 보여 준다 (docs/research/lidar-error-correction.md)
+  const MEASURE_CODES = new Set(["tight", "ceiling_tight"]);
+  const needsMeasure = (x) => x.verdict === "conditional" && (x.reasons || []).some((r) => MEASURE_CODES.has(r.code));
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
   const verdictHtml = (verdict, where, why) => `<div class="pd-verdict v-${verdict}"><b>${PD_VERDICT[verdict] || "판정 불가"}</b><span>${esc(where)}</span>${why ? `<em>${esc(why)}</em>` : ""}</div>`;
@@ -306,6 +309,7 @@ export async function customer(pid) {
     if (!bad) return WHY[(fit.notes || []).find((n) => WHY[n])] || "";
     const [k, d] = bad;
     const name = { width: "폭이", height: "높이가", depth: "깊이가" }[k] || `${DIM[k] || k}이`;
+    if (d.needs_measure) return `${name} 스캔 오차(±${mm(d.margin_mm)} mm) 안이라 딱 맞는지 확신하기 어려워요`;
     return d.slack_mm != null && d.slack_mm < 0 ? `${name} ${mm(-d.slack_mm)} mm 모자라요` : `${name} 빠듯해요`;
   };
   const fillVerdict = async (sku, p) => {
@@ -313,7 +317,9 @@ export async function customer(pid) {
     const placed = project.scene_state.placements.find((q) => q.sku === sku && q.verdict);
     if (placed && PD_VERDICT[placed.verdict]) {
       const r = (placed.reasons || []).find((x) => x.verdict !== "fit");
-      box.innerHTML = verdictHtml(placed.verdict, "놓아 둔 자리 기준", placed.verdict === "fit" ? "" : r?.label);
+      box.innerHTML = needsMeasure(placed)
+        ? `<div class="pd-verdict v-conditional"><b>확인 필요</b><span>놓아 둔 자리 기준</span><em>스캔 오차(1~3 cm) 안이라 딱 맞는지는 확신하기 어려워요</em></div>`
+        : verdictHtml(placed.verdict, "놓아 둔 자리 기준", placed.verdict === "fit" ? "" : r?.label);
       return;
     }
     const z = zones?.find((q) => (p.zone_fit || []).includes(q.purpose)) || zones?.[0];
@@ -323,7 +329,9 @@ export async function customer(pid) {
       const rec = await api(`/api/projects/${pid}/zones/${z.zone_id}/recommendations?category=${encodeURIComponent(p.category)}`);
       if (document.getElementById("pdVerdict") !== box) return; // 그 사이 다른 제품을 열었으면 버린다
       const it = rec.items.find((q) => q.product.sku === sku);
-      box.innerHTML = it && PD_VERDICT[it.fit.verdict] ? verdictHtml(it.fit.verdict, `'${z.name}' 기준`, it.fit.verdict === "fit" ? "" : dimWhy(it.fit))
+      const measure = it && (it.fit.notes || []).includes("measure_needed") && it.fit.verdict === "conditional";
+      box.innerHTML = measure ? `<div class="pd-verdict v-conditional"><b>확인 필요</b><span>'${esc(z.name)}' 기준</span><em>${esc(dimWhy(it.fit))}</em></div>`
+        : it && PD_VERDICT[it.fit.verdict] ? verdictHtml(it.fit.verdict, `'${z.name}' 기준`, it.fit.verdict === "fit" ? "" : dimWhy(it.fit))
         : `<div class="pd-verdict v-none"><b>넣어 보면 알려 드려요</b><span>3D에 놓으면 그 자리에 들어가는지 바로 판정해요</span></div>`;
     } catch { box.innerHTML = ""; }
   };
@@ -603,18 +611,32 @@ export async function customer(pid) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
       const reasons = (x.reasons || []).map((r) => `<li><span class="badge ${r.verdict}">${LABEL[r.verdict]}</span> ${esc(r.label)}${r.ref ? ` <span class="muted">(${esc(r.ref)})</span>` : ""}</li>`).join("");
       box.innerHTML = `
-        <div class="verdict-strip v-${x.verdict}"><span>${LABEL[x.verdict]}</span>${x.wall_id ? `<em>벽 ${esc(x.wall_id)}에 붙임</em>` : ""}</div>
+        <div class="verdict-strip v-${x.verdict}"><span>${needsMeasure(x) ? "확인 필요" : LABEL[x.verdict]}</span>${x.wall_id ? `<em>벽 ${esc(x.wall_id)}에 붙임</em>` : ""}</div>
         ${(() => { const v = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku); return v?.thumb ? `<div class="insp-photo"><img src="${esc(v.thumb)}" alt="${esc(p.name)}"></div>` : ""; })()}
         <h2 class="insp-name">${esc(p.name)}</h2>
         <p class="insp-meta">${esc(x.sku)}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
         ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
         <div class="tool-row"><button class="small ghost" id="rl" title="왼쪽으로 45° (Shift+R)">⟲ 45°</button><button class="small ghost" id="rr" title="오른쪽으로 45° (R)">⟳ 45°</button>
           <button class="small ghost" id="snap">벽에 붙이기</button><span class="spacer"></span><button class="small danger" id="del" title="Delete">빼기</button></div>
+        <details class="spot-measure"${x.measured_mm ? " open" : ""}>
+          <summary>이 자리 줄자로 재 보기 <span class="badge src">선택</span>${x.measured_mm ? ` <span class="badge fit">잰 값 사용 중</span>` : ""}</summary>
+          <p class="hint-sm">스캔은 1~3 cm쯤 틀릴 수 있어요. 제품을 넣을 빈자리를 재서 넣으면 그 값으로 다시 판정해요. 폭·깊이를 다 넣으면 스캔 벽·가구 대신 잰 값을 써요.</p>
+          <div class="spot-inputs">${[["w", "폭"], ["h", "높이"], ["d", "깊이"]].map(([k, t]) => `<label>${t}<input class="mono" type="number" inputmode="numeric" min="1" max="30000" step="1" data-spot="${k}" value="${x.measured_mm?.[k] ?? ""}" placeholder="mm"></label>`).join("")}</div>
+          <div class="tool-row"><button class="small primary" id="spotSave">잰 값으로 판정</button>${x.measured_mm ? `<button class="small ghost" id="spotClear">지우기</button>` : ""}</div>
+        </details>
         ${(() => { const f = familyOf(x.sku); if (!f) return ""; return `<h3 class="gap">색상 · 재질 <span class="muted">LGE.COM 옵션 ${f.variants.length}개</span></h3><div class="swatches">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(v.sku)}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(finishLabel(v))}</button>`).join("")}</div>`; })()}
         ${p.source_url ? `<a class="src-link" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM 제품 페이지 열기 ↗</a>` : ""}`;
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
+      const spotPut = (body) => put(`/api/projects/${pid}/placements/${x.placement_id}/measured`, body);
+      box.querySelector("#spotSave").onclick = guard(async () => {
+        const v = (k) => { const n = parseFloat(box.querySelector(`[data-spot="${k}"]`).value); return n > 0 ? n : null; };
+        const body = { w_mm: v("w"), h_mm: v("h"), d_mm: v("d") };
+        if (!body.w_mm && !body.h_mm && !body.d_mm) { toast("잰 값을 하나 이상 넣어 주세요"); return; }
+        await spotPut(body); toast("잰 값으로 다시 판정했어요"); await refresh(true);
+      });
+      box.querySelector("#spotClear")?.addEventListener("click", guard(async () => { await spotPut({ w_mm: null, h_mm: null, d_mm: null }); await refresh(true); }));
       box.querySelector("#del").onclick = guard(async () => { await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
       box.querySelectorAll("[data-variant]").forEach((b) => (b.onclick = () => { if (b.dataset.variant !== x.sku) patch(x.placement_id, { sku: b.dataset.variant }); }));
       return;
@@ -648,7 +670,7 @@ export async function customer(pid) {
     document.getElementById("plCount").textContent = pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `
       <li data-sel="${esc(x.placement_id || "")}" class="${x.placement_id === selPl ? "on" : ""}">
-        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span><span class="badge ${x.verdict}">${LABEL[x.verdict]}</span></li>`).join("")
+        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span><span class="badge ${x.verdict}">${needsMeasure(x) ? "확인 필요" : LABEL[x.verdict]}</span></li>`).join("")
       : `<li class="muted">아직 없어요. 제품 목록에서 하나 골라 평면에 놓아 보세요.</li>`;
     document.querySelectorAll("#pls [data-sel]").forEach((li) => (li.onclick = () => { selPl = li.dataset.sel || null; selObj = null; setTab("sel"); draw(); renderInspector(); renderPlacements(); }));
     const gone = project.scene_state.hidden_objects || [];
