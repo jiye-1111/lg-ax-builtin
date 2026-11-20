@@ -219,3 +219,19 @@ def test_server_passes_the_photo_to_the_real_ai_call(c, svc, pid, monkeypatch):
     d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
     assert d["engine"] == "ai" and d["seen"] == "밝은 우드"
     assert sent["messages"][1]["content"][1]["image_url"]["url"].endswith(PNG)
+
+
+def test_photo_only_still_brings_lg_appliances_for_that_room(c, svc, pid):
+    # 가전을 안 골라도 사진이 침실이면 침실에 두는 LG 가전이 조합에 들어간다 (가구만 주면 안 됨)
+    svc.ideator = lambda brief, *, image=None: _photo_idea(seen="짙은 우드")
+    d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
+    assert d["auto_categories"] is True and d["categories"]
+    assert any(i["kind"] == "lg" for cb in d["combos"] for i in cb["items"])
+    assert "느낌’ 느낌" not in d["message"]
+
+
+def test_plan_words_the_ai_adds_to_names_are_removed():
+    idea = Idea(name="따뜻한 미니멀 (target)", why="x", tips=[], palette=["#FFFFFF"], materials=[],
+                furniture=[Slot(kind="bed", role="anchor")], price_plan="target", appliance_point="x")
+    assert idea.name == "따뜻한 미니멀"
+    assert len(Ideas(purpose="living", ideas=[], seen="가" * 120).seen) <= 60
