@@ -169,3 +169,9 @@ def test_photoreal_button_sends_view_and_product_mask():
     vw = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
     assert ">실사로 보기<" in js and "/photoreal" in js and "viewer.snapshot()" in js
     assert "snapshot(W = 1536, H = 1024)" in vw and 'startsWith("decor:")' in vw
+
+
+def test_detail_color_chips_have_no_model_numbers():
+    # 같은 색 모델이 여럿이면 칩에 모델 번호를 붙여 20개 넘게 늘어지던 것: 칩은 색마다 하나, 모델은 작은 목록
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert "optLabel" not in js and 'id="pdModel"' in js and "${esc(g.k)}</button>" in js

@@ -72,8 +72,8 @@ def test_photoreal_keeps_lg_product_pixels_and_changes_the_rest(c, svc, pid):
     assert got.getpixel((100, 100)) == (250, 100, 50)      # 나머지는 AI가 바꾼 것
     sent = svc.image_client.sent
     assert "Do not add, remove or move" in sent["prompt"]
-    m = Image.open(io.BytesIO(sent["mask"][1])).convert("RGBA")
-    assert m.getpixel((700, 550))[3] == 255 and m.getpixel((100, 100))[3] == 0  # 투명 = AI가 바꿔도 되는 곳
+    # 마스크를 주면 작은 모델이 방을 새로 그려 버려서, 화면 전체를 참고 그림으로만 준다 (구도 유지)
+    assert "mask" not in sent and sent["input_fidelity"] == "high"
 
 
 def test_photoreal_needs_a_server_key(c, svc, pid, monkeypatch):
@@ -130,3 +130,19 @@ def test_tiny_product_specks_are_dropped_and_products_get_a_floor_shadow():
     out = photoreal.contact_shadow(Image.new("RGB", (W, H), (200, 200, 200)), alpha)
     assert out.getpixel((700, 706))[0] < 190     # 제품 바로 아래 바닥은 어두워지고
     assert out.getpixel((100, 100))[0] == 200    # 먼 곳은 그대로
+
+
+def test_photoreal_retries_without_input_fidelity_for_models_that_do_not_know_it(c, svc, pid):
+    inner, calls = svc.image_client, []
+
+    class Old:
+        def edit(self, **kw):
+            calls.append("input_fidelity" in kw)
+            if "input_fidelity" in kw:
+                raise RuntimeError("Error code: 400 - Unknown parameter: 'input_fidelity'.")
+            return inner.edit(**kw)
+
+    svc.image_client = Old()
+    view, mask = view_and_mask()
+    r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask)})
+    assert r.status_code == 200 and calls[-2:] == [True, False]
