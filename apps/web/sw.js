@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v28"; // 앱 배치(폰·작은 창), 안내 말풍선 위치
+const VERSION = "lgb-shell-v29"; // 시작 시점이 바닥에 붙지 않게, 화면 배율 바뀌면 다시 맞춤
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/guide.js", "./js/tour.js",
