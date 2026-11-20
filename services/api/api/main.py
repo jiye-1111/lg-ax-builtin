@@ -327,6 +327,7 @@ class RouterIn(BaseModel):
     model_config = {"extra": "forbid"}
     center_xz: list[float] = Field(min_length=2, max_length=2)
     band: str = "5"
+    yaw_rad: float | None = None
 
 
 class HiddenIn(BaseModel):
@@ -499,7 +500,7 @@ def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = Tr
 
 @app.put("/api/projects/{pid}/router")
 def set_router(pid: str, body: RouterIn, s: Service = S):
-    return s.set_router(pid, body.center_xz, body.band)
+    return s.set_router(pid, body.center_xz, body.band, body.yaw_rad)
 
 
 @app.get("/api/projects/{pid}/sim/wifi")
