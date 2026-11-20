@@ -233,7 +233,7 @@ export async function customer(pid) {
   // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
   const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
   const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
-  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
+  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || !catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
   const USES = Object.keys(USE).filter((k) => catsFor(k).length);
   let use = USES.includes(saved.use) ? saved.use : null; // null: 아직 안 고름, "": 전체 보기
   if (saved.use === "") use = "";
@@ -274,7 +274,9 @@ export async function customer(pid) {
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
   ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
   // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
-  const sellable = (v) => v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
+  // (API 서버가 아직 판매 상태를 안 주는 옛 버전이면 전부 보여 준다)
+  const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
+  const sellable = (v) => !saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
   const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
   const renderSteps = (steps) => {
     const box = document.getElementById("steps");
