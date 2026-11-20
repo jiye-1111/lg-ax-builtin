@@ -143,6 +143,339 @@
     "h": 420.0,
     "d": 410.0
    }
+  },
+  "Y323MEF": {
+   "file": "Y323MEF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 707.0
+   }
+  },
+  "Z323MEF": {
+   "file": "Z323MEF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 707.0
+   }
+  },
+  "X323MEF": {
+   "file": "X323MEF.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1860.0,
+    "d": 707.0
+   }
+  },
+  "Y324GB7": {
+   "file": "Y324GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "X324GB7": {
+   "file": "X324GB7.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 598.0,
+    "h": 1860.0,
+    "d": 670.0
+   }
+  },
+  "W1213GG": {
+   "file": "W1213GG.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1488.0,
+    "d": 585.0
+   }
+  },
+  "W1212GB": {
+   "file": "W1212GB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 1488.0,
+    "d": 585.0
+   }
+  },
+  "W0492GG": {
+   "file": "W0492GG.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 595.0,
+    "h": 838.0,
+    "d": 580.0
+   }
+  },
+  "W0082GLE": {
+   "file": "W0082GLE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 282.0,
+    "h": 497.0,
+    "d": 534.0
+   }
+  },
+  "MLJ32ERS": {
+   "file": "MLJ32ERS.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 527.0,
+    "h": 394.0,
+    "d": 480.0
+   }
+  },
+  "MLJ39ER": {
+   "file": "MLJ39ER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 540.0,
+    "h": 325.0,
+    "d": 523.0
+   }
+  },
+  "MW23FDI": {
+   "file": "MW23FDI.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 476.0,
+    "h": 272.0,
+    "d": 369.0
+   }
+  },
+  "WL21WDU": {
+   "file": "WL21WDU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "WL21EGZU": {
+   "file": "WL21EGZU.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 1890.0,
+    "d": 830.0
+   }
+  },
+  "FH25KA": {
+   "file": "FH25KA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX24KNTR": {
+   "file": "FX24KNTR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "FX24ENER": {
+   "file": "FX24ENER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 830.0
+   }
+  },
+  "RD20KNTR": {
+   "file": "RD20KNTR.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "RD21ESER": {
+   "file": "RD21ESER.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 700.0,
+    "h": 990.0,
+    "d": 824.0
+   }
+  },
+  "SC5GMR80S": {
+   "file": "SC5GMR80S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MBR80S": {
+   "file": "SC5MBR80S.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SC5MSR82A": {
+   "file": "SC5MSR82A.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 600.0,
+    "h": 1965.0,
+    "d": 620.0
+   }
+  },
+  "SS4RHS60E": {
+   "file": "SS4RHS60E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1008.0,
+    "d": 390.0
+   }
+  },
+  "SS4RWS60E": {
+   "file": "SS4RWS60E.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 380.0,
+    "h": 1008.0,
+    "d": 390.0
+   }
+  },
+  "OLED65C5ENA": {
+   "file": "OLED65C5ENA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1441.0,
+    "h": 826.0,
+    "d": 45.0
+   }
+  },
+  "65QNED65BBA": {
+   "file": "65QNED65BBA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1447.0,
+    "h": 901.0,
+    "d": 269.0
+   }
+  },
+  "OLED77B6BNA": {
+   "file": "OLED77B6BNA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 1719.0,
+    "h": 1057.0,
+    "d": 268.0
+   }
+  },
+  "27LX6TPGA": {
+   "file": "27LX6TPGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 623.0,
+    "h": 1265.0,
+    "d": 398.0
+   }
+  },
+  "32LX6BPGA": {
+   "file": "32LX6BPGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 724.0,
+    "h": 1308.0,
+    "d": 420.0
+   }
+  },
+  "FQ18GV3EK2": {
+   "file": "FQ18GV3EK2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "FQ17GU1ED2": {
+   "file": "FQ17GU1ED2.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 350.0,
+    "h": 1840.0,
+    "d": 295.0
+   }
+  },
+  "AS305DWWL": {
+   "file": "AS305DWWL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 376.0,
+    "h": 1073.0,
+    "d": 376.0
+   }
+  },
+  "AS356NSMA": {
+   "file": "AS356NSMA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 377.0,
+    "h": 1100.0,
+    "d": 377.0
+   }
+  },
+  "AS186HWWL": {
+   "file": "AS186HWWL.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 315.0,
+    "h": 511.0,
+    "d": 315.0
+   }
+  },
+  "HY706RWUAB": {
+   "file": "HY706RWUAB.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 310.0,
+    "h": 986.0,
+    "d": 310.0
+   }
+  },
+  "DQ235MWGA": {
+   "file": "DQ235MWGA.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 410.0,
+    "h": 640.0,
+    "d": 210.0
+   }
+  },
+  "AX920BWE": {
+   "file": "AX920BWE.glb",
+   "layout": "drawing",
+   "bbox_mm": {
+    "w": 300.0,
+    "h": 1100.0,
+    "d": 245.0
+   }
   }
  },
  "_note": "build_products.py로 생성. 크기는 카탈로그 값, 모양은 Figma 도면(layout=drawing) 또는 화면용 표현."

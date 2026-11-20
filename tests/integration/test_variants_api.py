@@ -31,6 +31,8 @@ def test_families_endpoint_groups_real_products(c):
     assert len(real) == 39  # 53개 제품 → 39개 모델
     fr = next(f for f in real if f["family_id"] == "G646GBB031")
     assert [v["sku"] for v in fr["variants"]] == ["G646GBB031", "G646MEE021", "G646SVV031"]
+    # 색마다 그 색으로 렌더한 제품 사진이 있다 (카드에서 사진을 눌러 고른다)
+    assert all(v["thumb"] == f"img/products/{v['sku']}.webp" for f in real for v in f["variants"])
 
 
 def test_switch_to_sibling_variant_changes_sku_and_color(c, placed):

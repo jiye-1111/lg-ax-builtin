@@ -19,13 +19,15 @@ from pathlib import Path
 
 import bmesh
 import bpy
+from mathutils import Matrix
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))  # worker 패키지 (Blender로 바로 실행할 때)
 from worker.drawing import boxes_from_drawing, load_drawing, top_items
 
 DRAWINGS = Path(__file__).resolve().parents[4] / "data" / "drawings"
 ROLE_MAT = {"body": "body", "door": "finish", "handle": "handle", "vent": "trim", "display": "display",
-            "glass": "finish", "housing": "trim", "spout": "chrome", "tray": "trim"}
+            "glass": "finish", "housing": "trim", "spout": "chrome", "tray": "trim", "screen": "screen",
+            "window": "window"}
 ROLE_BEVEL = {"door": 0.006, "handle": 0.005, "body": 0.004, "display": 0.003, "glass": 0.003,
               "spout": 0.006, "tray": 0.005}
 
@@ -60,21 +62,26 @@ FINISH_FEEL = {
     "메탈": (0.32, 0.55, 0.0),
     "스테인리스": (0.28, 0.85, 0.0),
     "스톤 (스테인리스)": (0.45, 0.6, 0.0),
+    "글라스 (크리스탈)": (0.08, 0.0, 1.0),
+    "미러": (0.04, 0.9, 1.0),
 }
 
 
-def palette(hex_: str, mat_name: str | None) -> dict:
+def palette(hex_: str, mat_name: str | None, body_hex: str | None = None) -> dict:
+    """body_hex: 옆판 색. 빌트인은 가구장에 가려서 금속 회색, 단독 설치 제품은 앞판과 같은 색."""
     rough, metal, coat = FINISH_FEEL.get(mat_name or "", (0.42, 0.0, 0.3))
     dark_top = sum(lin(hex_)[:3]) < 0.15  # 검은 유리 상판이면 무늬를 밝게
     return {
         "finish": material("finish", hex_, rough, metal, coat),
-        "body": material("body", "#C9CACB", 0.45, 0.6),
+        "body": material("body", body_hex, 0.5, 0.0, 0.2) if body_hex else material("body", "#C9CACB", 0.45, 0.6),
         "gap": material("gap", "#141516", 0.7),
         "handle": material("handle", "#8E9194", 0.25, 1.0),
         "trim": material("trim", "#2B2D30", 0.5),
         "print": material("print", "#B9BCC0" if dark_top else "#5A5E63", 0.4),
         "display": material("display", "#0E1012", 0.08, 0.0, 1.0),
         "chrome": material("chrome", "#D5D8DB", 0.12, 1.0),
+        "screen": material("screen", "#050608", 0.05, 0.0, 1.0),       # TV 화면 (꺼진 검은 유리)
+        "window": material("window", "#1B1F24", 0.04, 0.0, 1.0),       # 오븐·와인셀러·세탁기 유리창 (짙은 색유리)
     }
 
 
@@ -98,6 +105,34 @@ def box(parts: list, mat: bpy.types.Material, x0: float, x1: float, y0: float, y
     for p in me.polygons:
         p.use_smooth = True
     ob = bpy.data.objects.new("part", me)
+    bpy.context.scene.collection.objects.link(ob)
+    parts.append(ob)
+
+
+def round_part(parts: list, mat: bpy.types.Material, x0: float, x1: float, y0: float, y1: float, z0: float, z1: float,
+               axis: str, bevel: float = 0.0) -> None:
+    """원기둥 부품. axis="z": 세로 원기둥(지름 = 폭·깊이 중 작은 값), "y": 정면을 보는 원판(지름 = 폭·높이 중 작은 값)."""
+    cx, cy, cz = (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2
+    bm = bmesh.new()
+    if axis == "z":
+        r, depth = min(x1 - x0, y1 - y0) / 2, z1 - z0
+    else:
+        r, depth = min(x1 - x0, z1 - z0) / 2, y1 - y0
+    bmesh.ops.create_cone(bm, cap_ends=True, cap_tris=False, segments=72, radius1=r, radius2=r, depth=depth)
+    if axis == "y":
+        bmesh.ops.rotate(bm, verts=bm.verts, cent=(0, 0, 0), matrix=Matrix.Rotation(math.pi / 2, 3, "X"))
+    bmesh.ops.translate(bm, verts=bm.verts, vec=(cx, cy, cz))
+    if bevel > 0:
+        caps = [e for e in bm.edges if any(len(f.verts) > 4 for f in e.link_faces)]  # 윗면·아랫면 테두리
+        b = min(bevel, r / 3, depth / 3)
+        bmesh.ops.bevel(bm, geom=caps, offset=b, segments=3, profile=0.5, affect="EDGES")
+    me = bpy.data.meshes.new("round")
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat)
+    for p in me.polygons:
+        p.use_smooth = True
+    ob = bpy.data.objects.new("round", me)
     bpy.context.scene.collection.objects.link(ob)
     parts.append(ob)
 
@@ -199,8 +234,12 @@ def purifier(parts, pal, W, D, H):
 
 def from_drawing(parts: list, pal: dict, drawing: dict, dims: dict) -> None:
     for b in boxes_from_drawing(drawing, dims):
-        box(parts, pal[ROLE_MAT[b["role"]]], b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"],
-            bevel=ROLE_BEVEL.get(b["role"], 0.0))
+        mat, bev = pal[ROLE_MAT[b["role"]]], ROLE_BEVEL.get(b["role"], 0.0)
+        coords = (b["x0"], b["x1"], b["y0"], b["y1"], b["z0"], b["z1"])
+        if b.get("shape", "box") == "box":
+            box(parts, mat, *coords, bevel=bev)
+        else:
+            round_part(parts, mat, *coords, axis="z" if b["shape"] == "cylinder" else "y", bevel=bev)
     rings, prints = top_items(drawing, dims)
     for r in rings:
         ring(parts, pal["print"], r["cx"], r["cy"], r["z"], r["r"])
@@ -224,7 +263,8 @@ def build(prod: dict, out: Path, drawings: Path = DRAWINGS) -> dict:
     dims = prod["product_dims_mm"]
     W, H, D = dims["w"] / 1000, dims["h"] / 1000, dims["d"] / 1000
     opt = (prod.get("cmf_options") or [{}])[0]
-    pal = palette(opt.get("hex_approx") or "#F2F2F0", opt.get("material"))
+    hex_ = opt.get("hex_approx") or "#F2F2F0"
+    pal = palette(hex_, opt.get("material"), hex_ if prod.get("install_type") == "freestanding" else None)
     parts: list = []
     cat, lay = prod["category"], layout_of(prod)
     drawing = load_drawing(drawings, prod["sku"])

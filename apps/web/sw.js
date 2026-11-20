@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v10"; // LG 톤 리디자인: Pretendard, 첫 화면 렌더 배경
+const VERSION = "lgb-shell-v11"; // 제품 사진(우리 모델 렌더) 카드
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js",
@@ -29,7 +29,12 @@ const SHELL = [
 
 self.addEventListener("install", (e) => {
   // 브라우저 HTTP 캐시에 남은 옛 파일을 넣지 않게 서버에서 새로 받는다
-  e.waitUntil(caches.open(VERSION).then((c) => Promise.allSettled(SHELL.map((u) => c.add(new Request(u, { cache: "reload" }))))).then(() => self.skipWaiting()));
+  // 제품 사진(img/products/<sku>.webp)은 모델 목록(index.json)에 있는 제품만큼 같이 받아 둔다 (오프라인 시연)
+  const photos = () => fetch("./models/products/index.json", { cache: "reload" }).then((r) => r.json())
+    .then((ix) => Object.keys(ix.models || {}).map((sku) => `./img/products/${sku}.webp`)).catch(() => []);
+  e.waitUntil(Promise.all([caches.open(VERSION), photos()])
+    .then(([c, imgs]) => Promise.allSettled([...SHELL, ...imgs].map((u) => c.add(new Request(u, { cache: "reload" })))))
+    .then(() => self.skipWaiting()));
 });
 
 self.addEventListener("activate", (e) => {

@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, CATEGORY, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
+import { $app, cleanup, LABEL, PURPOSE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -207,10 +207,15 @@ export async function customer(pid) {
 
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
-  const cats = [...new Set(catalog.map((p) => p.category))];
-  if (!cats.includes(cat)) cat = "";
+  // 분류: 주방 · 세탁·의류 · TV·거실 · 공기·청소 (카탈로그에 있는 것만), 그 밖의 종류는 '기타'
+  const have = new Set(catalog.map((p) => p.category));
+  const known = new Set(CATEGORY_GROUP.flatMap(([, , cs]) => cs));
+  const groups = [...CATEGORY_GROUP.filter(([, , cs]) => cs.some((c) => have.has(c))),
+    ...([...have].some((c) => !known.has(c)) ? [["etc", "기타", [...have].filter((c) => !known.has(c))]] : [])];
+  const inGroup = (c) => !cat || (groups.find(([k]) => k === cat)?.[2] || []).includes(c);
+  if (!groups.some(([k]) => k === cat)) cat = "";
   const renderCats = () => {
-    document.getElementById("cats").innerHTML = [["", "전체"], ...cats.map((c) => [c, CATEGORY[c] || c])]
+    document.getElementById("cats").innerHTML = [["", "전체"], ...groups.map(([k, v]) => [k, v])]
       .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
     document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => { cat = b.dataset.cat; saveUiState(pid, { cat }); renderCats(); renderLib(); }));
   };
@@ -221,7 +226,7 @@ export async function customer(pid) {
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
   const renderLib = () => {
     const q = document.getElementById("q").value.trim().toLowerCase();
-    const items = families.filter((f) => (!cat || f.category === cat) && (!q || f.name.toLowerCase().includes(q)
+    const items = families.filter((f) => inGroup(f.category) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q))))
       .sort((a, b) => a.demo_only - b.demo_only);
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
@@ -230,7 +235,7 @@ export async function customer(pid) {
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
       const many = f.variants.length > 1;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
-        <i class="dot tile" style="background:${esc(v.hex || "#fff")}"><span>${esc(CATEGORY[f.category] || f.category)}</span></i>
+        <span class="thumb" style="--tint:${esc(v.hex || "#fff")}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span class="tag">${esc(CATEGORY[f.category] || f.category)}</span></span>
         <div class="body"><div class="name">${esc(f.name)}</div>
           <div class="cat">${esc(CATEGORY[f.category] || f.category)} · ${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${f.variants.map((x) => `<button class="vsw ${x.sku === sku ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${x.sku === sku}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`).join("")}
@@ -487,6 +492,7 @@ export async function customer(pid) {
       const reasons = (x.reasons || []).map((r) => `<li><span class="badge ${r.verdict}">${LABEL[r.verdict]}</span> ${esc(r.label)}${r.ref ? ` <span class="muted">(${esc(r.ref)})</span>` : ""}</li>`).join("");
       box.innerHTML = `
         <div class="verdict-strip v-${x.verdict}"><span>${LABEL[x.verdict]}</span>${x.wall_id ? `<em>벽 ${esc(x.wall_id)}에 붙임</em>` : ""}</div>
+        ${(() => { const v = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku); return v?.thumb ? `<div class="insp-photo"><img src="${esc(v.thumb)}" alt="${esc(p.name)}"></div>` : ""; })()}
         <h2 class="insp-name">${esc(p.name)}</h2>
         <p class="insp-meta">${esc(x.sku)}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
         ${reasons ? `<ul class="reasons">${reasons}</ul>` : `<p class="ok-line">걸리는 것 없이 들어가요.</p>`}
