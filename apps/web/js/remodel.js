@@ -1,5 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
-import { $app, cleanup, LABEL, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
+import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
@@ -116,6 +116,7 @@ export async function customer(pid) {
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
           <section class="minimap" id="minimap" aria-label="작은 화면" hidden></section>
           <p class="hint" id="hint" aria-live="polite"></p>
+          <div class="step-card" id="stepCard" aria-live="polite" hidden></div>
           <p class="fit-badge" id="fitBadge" aria-live="polite" hidden></p>
           <div class="act-bar" id="actBar" role="toolbar" aria-label="고른 제품 조작" hidden></div>
           <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
@@ -292,7 +293,7 @@ export async function customer(pid) {
   const restoredCam = viewer.setCamera(saved.cam);
   if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
-  let renderProgress = () => {}; // 5단계 진행 표시 (아래에서 채운다)
+  let renderProgress = () => {}, setFlow = () => {}; // 3단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
@@ -383,7 +384,7 @@ export async function customer(pid) {
         const f = familyOf(it.sku), v = f?.variants.find((x) => x.sku === it.sku) || {};
         return `<li><button class="sugg-card" data-sugg="${esc(it.sku)}" title="${esc(f?.name || it.sku)}">
           <span class="ph" style="background-color:${esc(v.hex || "#fff")}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="" loading="lazy">` : ""}</span>
-          <span class="nm">${esc(f?.name || it.sku)}</span><span class="vv v-${esc(it.verdict)}">${it.verdict === "fit" ? "들어가요" : "확인 필요"}</span></button></li>`;
+          <span class="nm">${esc(f?.name || it.sku)}</span>${typeof v.price_krw === "number" ? `<span class="vv">${v.price_krw.toLocaleString("ko-KR")}원</span>` : ""}</button></li>`;
       }).join("")}</ul>` : "";
     box.querySelectorAll("[data-sugg]").forEach((b) => (b.onclick = () => openDetail(b.dataset.sugg)));
     box.querySelector("#askBot")?.addEventListener("click", () => openBot(true));
@@ -445,7 +446,7 @@ export async function customer(pid) {
       const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
-        <div class="body"><div class="name">${esc(f.name)}${isRec(f) ? ` <span class="badge rec" title="이 집 벽을 따라 놓아 보니 들어가는 제품이에요">들어가요</span>` : ""}</div>
+        <div class="body"><div class="name">${esc(f.name)}</div>
           <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${typeof v.price_krw === "number" ? `<div class="price">${v.price_krw.toLocaleString("ko-KR")}원</div>` : ""}
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
@@ -476,7 +477,7 @@ export async function customer(pid) {
   const INSTALL = { built_in: "빌트인", built_in_look: "빌트인 핏 (Fit & Max)", freestanding: "일반 (프리스탠딩)", countertop: "조리대 위", undercounter: "하부장 안" };
   const OPT = { kind: "종류", doors: "도어 수", capacity_l: "용량", wash_kg: "세탁 용량", dry_kg: "건조 용량", capacity: "용량", screen_cm: "화면 크기", door_type: "문 여는 방향" };
   const OPT_UNIT = { capacity_l: " L", wash_kg: " kg", dry_kg: " kg", screen_cm: " cm" };
-  const PD_VERDICT = { fit: "적합", conditional: "조건부 적합", no_fit: "부적합" };
+  const PD_VERDICT = { fit: "적합", conditional: "적합", no_fit: "부적합" };
   const closeDetail = () => { pdModal.hidden = true; pdModal.innerHTML = ""; };
   // 판정 한 줄: 놓은 제품이면 그 자리 판정, 그려 둔 영역이 있으면 그 영역 판정(코드가 계산한 값), 없으면 안내
   const verdictHtml = (verdict, where, why) => `<div class="pd-verdict v-${verdict}"><b>${PD_VERDICT[verdict] || "판정 불가"}</b><span>${esc(where)}</span>${why ? `<em>${esc(why)}</em>` : ""}</div>`;
@@ -859,7 +860,7 @@ export async function customer(pid) {
   // ---- 오른쪽 패널 ----
   // 3D 위: 고른 제품의 판정 한 줄, 아래 조작 버튼 (키보드 없이 다 되게)
   const actBar = document.getElementById("actBar"), fitBadge = document.getElementById("fitBadge");
-  const BADGE = { fit: "배치가 가능합니다!", conditional: "놓을 수 있어요 · 확인할 점이 있어요", no_fit: "이 자리에는 안 들어가요", unknown: "판정할 정보가 부족해요" };
+  const BADGE = { fit: "배치가 가능합니다!", conditional: "배치가 가능합니다!", no_fit: "이 자리에는 안 들어가요", unknown: "판정할 정보가 부족해요" };
   const autoPlace = guard(async (sku) => {
     const r = await post(`/api/projects/${pid}/auto-place`, { sku });
     remember({ kind: "remove", id: r.placement.placement_id });
@@ -885,7 +886,7 @@ export async function customer(pid) {
     if (!project) return;
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     fitBadge.hidden = !x || walking;
-    if (x) { fitBadge.className = `fit-badge v-${x.verdict}`; fitBadge.textContent = BADGE[x.verdict] || BADGE.unknown; }
+    if (x) { fitBadge.className = `fit-badge v-${shownVerdict(x.verdict)}`; fitBadge.textContent = BADGE[x.verdict] || BADGE.unknown; }
     if (walking) { actBar.hidden = true; return; }
     if (armed) {
       actBar.hidden = false;
@@ -960,14 +961,56 @@ export async function customer(pid) {
     box.innerHTML = "";
   };
   // ---- 3단계 진행 표시 (공간 확인 → 제품 고르기 → 설치 확인): 지금 상태에서 계산한다 ----
+  // ---- 3단계 진행: 단계마다 직접 해야 하나씩 체크된다 (공간 확인 버튼 → 제품 놓기 → 구매·설치 신청) ----
+  let flow = { ...(saved.flow || {}) }, prevSteps = null, doneTimer = 0;
+  setFlow = (patch) => { flow = { ...flow, ...patch }; saveUiState(pid, { flow }); renderProgress(); };
+  const stepCard = document.getElementById("stepCard");
+  const renderStepCard = (steps) => {
+    const cur = steps.findIndex((s) => s.state !== "done");
+    if (cur < 0) {
+      if (flow.doneSeen) { stepCard.hidden = true; return; }
+      stepCard.hidden = false;
+      stepCard.innerHTML = `<span class="sc-n done" aria-hidden="true">✓</span><p><b>세 단계를 모두 마쳤어요</b><span>구매 및 설치 신청에서 상담을 이어 가요</span></p>`;
+      clearTimeout(doneTimer);
+      doneTimer = setTimeout(() => { flow = { ...flow, doneSeen: true }; saveUiState(pid, { flow }); stepCard.hidden = true; }, 6000);
+      return;
+    }
+    const s = steps[cur];
+    const TEXT = {
+      scan: ["스캔한 우리 집이 맞는지 둘러보세요", `<button class="primary small" data-sc="ok">맞아요, 다음</button>`],
+      pick: ["이 집에 들어가는 제품을 골라 3D에 놓아 보세요", ""],
+      check: s.state === "warn" ? ["놓을 수 없는 제품이 있어요. 옮기거나 다른 제품으로 바꿔 보세요", ""]
+        : ["놓은 제품을 눌러 보고, 마음에 들면 신청해요", `<button class="primary small" data-sc="order">구매 및 설치 신청</button>`],
+    }[s.key];
+    stepCard.hidden = false;
+    stepCard.innerHTML = `<span class="sc-n${s.state === "warn" ? " warn" : ""}" aria-hidden="true">${cur + 1}</span><p><b>${esc(s.label)}</b><span>${esc(TEXT[0])}</span></p>${TEXT[1]}`;
+    stepCard.querySelector('[data-sc="ok"]')?.addEventListener("click", () => setFlow({ space: true }));
+    stepCard.querySelector('[data-sc="order"]')?.addEventListener("click", () => openOrder());
+  };
   renderProgress = () => {
     const el = document.getElementById("progress");
     if (!el || !project) return;
-    el.innerHTML = stepperHtml(stepState(project, armed));
+    const steps = stepState(project, armed, flow);
+    el.innerHTML = stepperHtml(steps);
+    // 방금 끝낸 단계는 체크가 톡 하고 차오르게 (여러 개면 차례로)
+    if (prevSteps) {
+      let n = 0;
+      steps.forEach((st, i) => {
+        if (st.state === "done" && prevSteps[i] !== "done") {
+          const li = el.children[i];
+          li.classList.add("just-done");
+          li.style.setProperty("--d", `${n++ * 350}ms`);
+        }
+      });
+      const last = steps.filter((st, i) => st.state === "done" && prevSteps[i] !== "done").pop();
+      if (last) toast(`${last.label} 완료!`);
+    }
+    prevSteps = steps.map((st) => st.state);
+    renderStepCard(steps);
     el.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
       const k = b.dataset.step, pls = project.scene_state.placements;
-      if (k === "scan") showExtra(true);
-      else if (k === "pick") document.getElementById("q").focus();
+      if (k === "scan") { if (!flow.space) setFlow({ space: true }); else showExtra(true); }
+      else if (k === "pick") { openLib(studio.classList.contains("app")); document.getElementById("q").focus(); }
       else if (!pls.length) toast("제품을 놓으면 그 자리에 들어가는지 바로 확인해요");
       else openOrder();
     }));
@@ -978,13 +1021,14 @@ export async function customer(pid) {
   const openOrder = () => {
     const pls = project.scene_state.placements;
     const bad = pls.filter((x) => x.verdict === "no_fit").length;
+    if (pls.length && !bad && !flow.order) setTimeout(() => setFlow({ order: true }), 0);
     orderSheet.innerHTML = `
       <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
       ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
       <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li>
         <i class="dot" style="background:${esc(x.hex || "#fff")}"></i>
         <span class="nm">${esc(p.name)}<small>${esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}</small></span>
-        <span class="badge ${x.verdict}">${VERDICT_LABEL[x.verdict] || "판정 불가"}</span>
+        ${shownVerdict(x.verdict) === "fit" ? "" : `<span class="badge ${shownVerdict(x.verdict)}">${VERDICT_LABEL[x.verdict] || "판정 불가"}</span>`}
         ${p.source_url && !p.demo_only ? `<a class="btn ghost small" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 구매</a>` : ""}</li>`; }).join("")}</ul>
       <p class="order-note">구매는 LGE.COM 제품 페이지에서 하고, 설치는 방문 신청을 하면 기사가 실측한 뒤 진행해요. 전원·배관 위치도 그때 확인해요.</p>
       <div class="order-actions ir-box" id="irBox"></div>`
@@ -1021,7 +1065,7 @@ export async function customer(pid) {
     document.getElementById("orderMini").hidden = !pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `
       <li data-sel="${esc(x.placement_id || "")}" class="${x.placement_id === selPl ? "on" : ""}">
-        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span><span class="badge ${x.verdict}">${LABEL[x.verdict]}</span></li>`).join("")
+        <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span>${shownVerdict(x.verdict) === "fit" ? "" : `<span class="badge ${shownVerdict(x.verdict)}">${LABEL[x.verdict]}</span>`}</li>`).join("")
       : `<li class="muted">아직 없어요. 왼쪽 목록에서 제품을 골라 3D에 놓아 보세요.</li>`;
     document.querySelectorAll("#pls [data-sel]").forEach((li) => (li.onclick = () => { selPl = li.dataset.sel || null; selObj = null; setTab("sel"); draw(); renderInspector(); renderPlacements(); }));
     const fold = document.getElementById("icFold");
@@ -1523,6 +1567,7 @@ export async function customer(pid) {
     const pool = suggItems.length ? suggItems.map((x) => x.sku) : suggPool;
     const sku = pool[0];
     if (!sku) { toast("왼쪽 목록에서 제품을 하나 골라 3D 바닥을 눌러 보세요"); return; }
+    setFlow({ space: true }); // 안내를 끝까지 봤으면 공간 확인은 한 것
     await autoPlace(sku);
     setHint("놓은 제품 아래 버튼으로 이동·회전·자동 정렬·삭제를 해 보세요. 오른쪽에서 설치 가능한지 바로 보여요");
   });
@@ -1553,7 +1598,7 @@ export async function customer(pid) {
       outro,
     ] : [
       intro,
-      { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인 순서로 진행해요. 지금 어디쯤인지 여기서 보여요." },
+      { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인을 하나씩 해 나가면 차례로 체크돼요." },
       { sel: ".lib-side", title: "제품 찾기", text: "이름으로 찾거나 종류를 눌러 좁혀요. 용량·색상 같은 조건은 '상세 필터'를 열면 나와요." },
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
       { sel: "#lib", title: "제품 목록", text: "제품을 누르면 상세가 열리고, '넣어 보기'를 누르면 3D에 놓을 수 있어요." },

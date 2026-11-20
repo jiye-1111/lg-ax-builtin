@@ -1,7 +1,9 @@
 // 공통: API 호출, 라벨, 알림
 export const $app = document.getElementById("app");
 export const cleanup = [];
-export const LABEL = { fit: "적합", conditional: "조건부", no_fit: "불가", unknown: "판정 불가" };
+// 화면에는 놓을 수 없는 것만 알린다: 조건부(옆·뒤 여유 모름 등)는 적합으로 보인다 (판정 자체는 서버 값 그대로)
+export const shownVerdict = (v) => (v === "conditional" ? "fit" : v);
+export const LABEL = { fit: "적합", conditional: "적합", no_fit: "불가", unknown: "판정 불가" };
 export const PURPOSE = { kitchen: "주방", living: "거실", bedroom: "침실", utility: "다용도실", other: "기타" };
 export const CATEGORY = {
   refrigerator: "냉장고", freezer: "냉동고", kimchi_refrigerator: "김치냉장고", wine_cellar: "와인셀러", dishwasher: "식기세척기",
@@ -22,7 +24,7 @@ export const CATEGORY_GROUP = [
 export const DIM = { width: "폭", height: "높이", depth: "깊이", front: "앞 공간 (문 열림)" };
 export const OBJ = { chair: "의자", table: "테이블", storage: "수납장", sofa: "소파", bed: "침대", refrigerator: "냉장고", stove: "레인지",
   sink: "싱크", washer_dryer: "세탁기", oven: "오븐", dishwasher: "식기세척기", television: "TV", toilet: "변기", bathtub: "욕조", fireplace: "벽난로", stairs: "계단" };
-export const VCOLOR = { fit: "var(--fit)", conditional: "var(--cond)", no_fit: "var(--nofit)", unknown: "var(--unk)" };
+export const VCOLOR = { fit: "var(--fit)", conditional: "var(--fit)", no_fit: "var(--nofit)", unknown: "var(--unk)" };
 export const NOTE = { clearance_unknown: "이격 정보 없음", scan_based: "스캔값 사용(실측 필요)", no_wall_in_zone: "영역에 벽 없음", front_space_assumed: "문 열림 공간 정보 없음(기본값으로 가정)" };
 
 // ---------- 공통 ----------

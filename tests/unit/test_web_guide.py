@@ -53,7 +53,8 @@ def test_simple_layout_from_corrected_mockup():
     # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품, 제품 자리 채광·와이파이
     for path in ("/auto-align", "/auto-place", "/suggest", "/life-check"):
         assert path in REMODEL, path
-    assert 'badge rec' in REMODEL
+    # 지예: 들어가는 건 굳이 표시하지 않고, 안 되는 것만 알린다 ('확인 필요'·'들어가요' 표시 없음)
+    assert 'badge rec' not in REMODEL and "확인 필요" not in REMODEL and "확인 필요" not in GUIDE
     assert "채광" in GUIDE and "와이파이" in GUIDE and "설치 가능합니다!" in GUIDE
 
 
