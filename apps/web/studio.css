@@ -1,0 +1,83 @@
+/* 리모델링 화면 안내 구성: 5단계 진행 표시, 설치 적합성 검사 카드, 구매·설치 신청.
+   style.css의 토큰(--lg, --fit, --cond, --nofit …)을 그대로 쓴다. */
+
+/* ---- 5단계 진행 표시 ---- */
+.steps5 { list-style: none; display: flex; align-items: flex-start; margin: 0 auto; padding: 0; gap: 0; min-width: 0; }
+.steps5 .step { position: relative; flex: 1 1 0; min-width: 84px; max-width: 132px; }
+.steps5 .step + .step::before { content: ""; position: absolute; top: 13px; right: 50%; width: 100%; height: 2px; background: var(--line); transform: translateX(-14px); width: calc(100% - 28px); }
+.steps5 .step.is-done + .step::before { background: var(--lg); }
+.steps5 button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 100%; padding: 0 4px; border: 0; background: none; color: var(--graphite); cursor: pointer; border-radius: 10px; }
+.steps5 .num { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: var(--sheet); color: var(--graphite); box-shadow: inset 0 0 0 1.5px var(--line); transition-property: background-color, color, box-shadow; transition-duration: .2s; }
+.steps5 .txt { display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.steps5 b { font-size: 12.5px; font-weight: 600; white-space: nowrap; }
+.steps5 small { font-size: 11px; white-space: nowrap; opacity: .8; }
+.steps5 .is-done .num { background: var(--lg); color: #fff; box-shadow: none; }
+.steps5 .is-done button { color: var(--ink); }
+.steps5 .is-current .num { background: var(--sheet); color: var(--lg); box-shadow: inset 0 0 0 2px var(--lg), 0 0 0 4px rgba(165, 0, 52, .12); }
+.steps5 .is-current button { color: var(--ink); }
+.steps5 .is-warn .num { background: var(--nofit-bg); color: var(--nofit); box-shadow: inset 0 0 0 1.5px var(--nofit); }
+.steps5 .is-warn small { color: var(--nofit); opacity: 1; }
+.steps5 button:hover b { color: var(--lg); }
+.steps5 button:focus-visible { outline: 2px solid var(--lg); outline-offset: 4px; }
+@media (max-width: 1500px) { .steps5 small { display: none; } .steps5 .step { min-width: 68px; } }
+@media (max-width: 1180px) { .studio-title .sub { display: none; } }
+@media (max-width: 900px) {
+  .steps5 { order: 5; width: 100%; margin: 4px 0 0; overflow-x: auto; scrollbar-width: none; }
+  .steps5 .step { min-width: 64px; }
+}
+
+/* ---- 오른쪽: 제품 정보 + 설치 적합성 검사 ---- */
+.insp-prod { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: center; margin-bottom: 14px; }
+.insp-thumb { aspect-ratio: 1; border-radius: 14px; border: 1px solid rgba(0, 0, 0, .06); overflow: hidden; display: grid; place-items: center; }
+.insp-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 4px; box-sizing: border-box; }
+.insp-prod .insp-name { margin: 0 0 2px; font-size: 16px; line-height: 1.3; text-wrap: balance; }
+.insp-prod .insp-meta { margin: 0 0 8px; font-variant-numeric: tabular-nums; }
+
+.fit-card { border: 1px solid var(--line-soft); border-radius: 16px; overflow: hidden; margin: 0 0 14px; background: var(--sheet); }
+.fit-card header { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px 14px; background: var(--drafting); }
+.fit-card .mark { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 14px; font-weight: 700; color: #fff; background: var(--graphite); }
+.fit-card h3 { margin: 0; font-size: 14px; }
+.fit-card header p { margin: 1px 0 0; font-size: 12px; color: var(--graphite); text-wrap: pretty; }
+.fit-card .pill { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; color: #fff; background: var(--graphite); white-space: nowrap; }
+.fit-card.v-fit header { background: var(--fit-bg); } .fit-card.v-fit .mark, .fit-card.v-fit .pill { background: var(--fit); }
+.fit-card.v-conditional header { background: var(--cond-bg); } .fit-card.v-conditional .mark, .fit-card.v-conditional .pill { background: var(--cond); }
+.fit-card.v-no_fit header { background: var(--nofit-bg); } .fit-card.v-no_fit .mark, .fit-card.v-no_fit .pill { background: var(--nofit); }
+.fit-card ul { list-style: none; margin: 0; padding: 4px 14px; }
+.fit-card li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 9px 0; font-size: 13px; }
+.fit-card li + li { border-top: 1px solid var(--line-soft); }
+.fit-card li .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--fit); }
+.fit-card li small { display: block; font-size: 12px; color: var(--graphite); margin-top: 1px; text-wrap: pretty; }
+.fit-card li b { font-size: 12.5px; color: var(--fit); white-space: nowrap; }
+.fit-card li.v-conditional .dot { background: var(--cond); } .fit-card li.v-conditional b { color: var(--cond); }
+.fit-card li.v-no_fit .dot { background: var(--nofit); } .fit-card li.v-no_fit b { color: var(--nofit); }
+.fit-card li.v-unknown .dot { background: var(--graphite); } .fit-card li.v-unknown b { color: var(--graphite); }
+.fit-note { margin: 0; padding: 10px 14px 12px; font-size: 12px; color: var(--graphite); background: var(--drafting); text-wrap: pretty; }
+
+/* ---- 구매 및 설치 신청 ---- */
+.order-bar { flex: none; padding: 12px 14px 14px; border-top: 1px solid var(--line-soft); background: var(--sheet); }
+.order-bar .primary { width: 100%; padding: 13px 16px; font-size: 15px; font-weight: 700; border-radius: 14px; }
+.order-sheet { position: absolute; top: 12px; right: 12px; bottom: 12px; z-index: 8; width: min(460px, calc(100% - 24px)); overflow-y: auto; padding: 18px;
+  background: rgba(255, 255, 255, .97); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: var(--shadow-float);
+  display: flex; flex-direction: column; gap: 12px; }
+.order-sheet[hidden] { display: none; }
+.order-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.order-head h2 { margin: 0; font-size: 18px; }
+.order-sum { margin: 0; font-size: var(--t-sm); }
+.order-sum .bad { color: var(--nofit); }
+.order-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.order-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 8px 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line-soft); border-radius: 14px; }
+.order-list .dot { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(0, 0, 0, .1); }
+.order-list .nm { font-size: 13.5px; font-weight: 600; line-height: 1.3; }
+.order-list .nm small { display: block; font-weight: 400; font-size: 11.5px; color: var(--graphite); }
+.order-list a { grid-column: 2 / -1; justify-self: start; }
+.order-note { margin: 0; font-size: 12.5px; color: var(--graphite); text-wrap: pretty; }
+.order-actions { margin-top: auto; }
+.order-actions .btn { display: block; text-align: center; padding: 13px 16px; font-size: 15px; font-weight: 700; border-radius: 14px; }
+@media (max-width: 900px) {
+  .order-sheet { position: fixed; inset: 8px; width: auto; }
+  .order-bar { position: sticky; bottom: 0; z-index: 6; }
+}
+/* 신청 버튼은 작은 평면(미니맵) 위에 둔다: 오른쪽 아래 도우미 버튼과 겹치지 않게 */
+.side .order-bar { order: 2; }
+.side .minimap { order: 3; }
