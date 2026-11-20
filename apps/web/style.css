@@ -746,3 +746,8 @@ table.techs td { vertical-align: middle; }
 .bot-form input { flex: 1; min-width: 0; }
 @media (max-width: 720px) { .bot { right: 16px; bottom: 16px; } .bot-btn { width: 56px; height: 56px; } }
 @media (prefers-reduced-motion: reduce) { .bot-body, .bot-eyes, .bot.nudge .bot-btn, .dots i { animation: none; } }
+
+/* 채광 시각: 재생 버튼 + 슬라이더 한 줄 */
+.time-row { display: flex; align-items: center; gap: 8px; }
+.time-row input[type="range"] { flex: 1; min-width: 0; margin: 0; }
+.time-row button { flex: none; white-space: nowrap; }

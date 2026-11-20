@@ -61,3 +61,34 @@ def test_daylight_is_neutral_white_and_only_low_sun_is_warm():
 def test_no_sun_at_night():
     s = sun_light(SITE, datetime(2026, 6, 21, 23, 0, tzinfo=KST))
     assert not s["up"] and s["intensity"] == 0
+
+
+# ---- 시간에 따라 부드럽게: 하루 해 경로를 촘촘히 받아 화면이 사이를 이어서 그린다 ----
+from datetime import date as _date  # noqa: E402
+
+from sim.daylight import sun_path  # noqa: E402
+
+
+def _ang(a, b):
+    return math.degrees(math.acos(max(-1.0, min(1.0, sum(x * y for x, y in zip(a, b))))))
+
+
+def test_sun_path_is_dense_and_continuous():
+    path = sun_path(SITE, _date(2026, 6, 21), step_min=5)
+    mins = [p["minute"] for p in path]
+    assert mins[0] <= 300 and mins[-1] >= 1260  # 슬라이더 05:00~21:00을 덮는다
+    assert all(b - a == 5 for a, b in zip(mins, mins[1:]))
+    for a, b in zip(path, path[1:]):
+        assert _ang(a["direction"], b["direction"]) < 2.0  # 5분에 해는 1.25° 남짓
+        assert abs(a["intensity"] - b["intensity"]) < 0.1
+        assert abs(a["sky"] - b["sky"]) < 0.1  # 해 질 녘에도 하늘빛이 뚝 꺼지지 않는다
+
+
+def test_sky_fades_through_twilight():
+    noon = sun_light(SITE, datetime(2026, 6, 21, 12, 30, tzinfo=KST))
+    assert noon["sky"] == pytest.approx(1.0)
+    path = sun_path(SITE, _date(2026, 6, 21), step_min=5)
+    dusk = [p for p in path if -5 < p["altitude_deg"] < 0]
+    assert dusk and all(0 < p["sky"] < 1 for p in dusk)  # 해가 막 진 뒤(시민 박명)엔 아직 밝다
+    night = [p for p in path if p["altitude_deg"] < -7]
+    assert night and all(p["sky"] == 0 for p in night)

@@ -844,19 +844,50 @@ export async function customer(pid) {
     }));
     return out.join("");
   };
-  let simTimer = null;
+  let simTimer = null, playing = null;
+  const stopPlay = () => {
+    if (!playing) return;
+    cancelAnimationFrame(playing.raf); playing = null;
+    const b = document.getElementById("splay"); if (b) { b.textContent = "하루 재생"; b.setAttribute("aria-pressed", "false"); }
+  };
   // 하루 직사광 격자는 무겁다: 날짜·위치·북쪽·놓은 제품이 같으면 다시 받지 않는다 (시간 슬라이더는 해만 받는다)
   let heatCache = { key: null, daily: null, assumptions: [] };
   const DIRS = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"];
+  // 하루 해 경로(5분 간격)를 한 번 받아 두고 그 사이를 이어서 쓴다: 시간을 움직여도 서버를 기다리지 않고 바로, 끊김 없이
+  let sunPath = { key: null, pts: null };
+  const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+  const hhmm = (v) => `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(Math.floor(v % 60)).padStart(2, "0")}`;
+  let simMin = toMin(simState.time); // 재생 중에는 분 단위 아래까지 이어진다
+  const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  const sunAt = (min) => {
+    const pts = sunPath.pts;
+    if (!pts?.length) return null;
+    const step = pts[1].minute - pts[0].minute;
+    const f = Math.max(0, Math.min(pts.length - 1, (min - pts[0].minute) / step));
+    const i = Math.min(pts.length - 2, Math.floor(f)), t = f - i, a = pts[i], b = pts[i + 1];
+    const mix = (x, y) => x + (y - x) * t;
+    const dir = a.direction.map((v, k) => mix(v, b.direction[k]));
+    const n = Math.hypot(...dir) || 1;
+    const [ra, ga, ba] = hexRgb(a.color), [rb, gb, bb] = hexRgb(b.color);
+    const alt = mix(a.altitude_deg, b.altitude_deg);
+    let daz = b.azimuth_deg - a.azimuth_deg; if (daz > 180) daz -= 360; if (daz < -180) daz += 360;
+    return { direction: dir.map((v) => v / n), up: alt > 0, altitude_deg: alt, azimuth_deg: (a.azimuth_deg + daz * t + 360) % 360,
+      color: "#" + [mix(ra, rb), mix(ga, gb), mix(ba, bb)].map((v) => Math.round(v).toString(16).padStart(2, "0")).join(""),
+      kelvin: Math.round(mix(a.kelvin, b.kelvin)), intensity: mix(a.intensity, b.intensity), sky: mix(a.sky, b.sky) };
+  };
   const runDaylight = async () => {
     const box = document.getElementById("simres");
     if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
     const key = JSON.stringify([simState.date, project.site, project.scene_state.placements.map((x) => [x.placement_id, x.center_xz]), version]);
     const needHeat = simState.heat && heatCache.key !== key;
-    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=${needHeat}`);
+    const pathKey = JSON.stringify([simState.date, project.site]);
+    const needPath = sunPath.key !== pathKey;
+    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=${needHeat}&path=${needPath}`);
     if (sim !== "daylight") return;
     if (needHeat) heatCache = { key, daily: d.daily, assumptions: d.assumptions };
-    viewer.setSun(d.sun); // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다
+    if (needPath && d.path) sunPath = { key: pathKey, pts: d.path };
+    // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다. 재생 중이면 응답이 늦게 와도 지금 시각의 해를 쓴다
+    viewer.setSun(sunAt(simMin) || d.sun);
     const daily = simState.heat ? heatCache.daily : null;
     const maxH = daily ? Math.max(1, ...daily.values.flat().filter((v) => v != null)) : 1;
     setOverlay(daily ? heat(daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join("") : "");
@@ -875,7 +906,7 @@ export async function customer(pid) {
         <label>지역<select id="region">${Object.keys(regions).map((r) => `<option ${r === (site.region || "서울") ? "selected" : ""}>${r}</option>`).join("")}</select></label>
         <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="355" step="5" value="${site.north_deg ?? 0}"></label>
         <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
-        <label>시각 <b id="tv">${simState.time}</b><input type="range" id="stime" min="300" max="1260" step="15" value="${(() => { const [h, m] = simState.time.split(":").map(Number); return h * 60 + m; })()}"></label>
+        <label>시각 <b id="tv">${simState.time}</b><span class="time-row"><button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button><input type="range" id="stime" min="300" max="1260" step="1" value="${Math.round(simMin)}"></span></label>
       </div>
       <div class="chips" style="margin:6px 0 8px">${[["동지", "-12-21"], ["춘분", "-03-20"], ["하지", "-06-21"]].map(([k, v]) => `<button class="chip" data-day="${v}">${k}</button>`).join("")}<button class="chip" data-day="today">오늘</button>
         <label class="chip" style="cursor:pointer;display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="sheat" ${simState.heat ? "checked" : ""} style="margin:0;width:auto">하루 햇빛 시간 겹쳐 보기</label></div>
@@ -889,9 +920,32 @@ export async function customer(pid) {
     document.getElementById("north").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { north_deg: Number(e.target.value) }); draw(); kick(); });
     document.getElementById("sdate").onchange = (e) => { simState.date = e.target.value; kick(); };
     document.getElementById("sheat").onchange = (e) => { simState.heat = e.target.checked; kick(); };
-    document.getElementById("stime").oninput = (e) => {
-      const v = Number(e.target.value); simState.time = `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(v % 60).padStart(2, "0")}`;
-      document.getElementById("tv").textContent = simState.time; kick();
+    // 시각을 옮기면 해는 받아 둔 경로로 바로(부드럽게) 따라오고, 볕 자리·설명은 손을 멈추면 다시 받는다
+    const setMin = (v, fetchNow) => {
+      simMin = v; simState.time = hhmm(v);
+      document.getElementById("tv").textContent = simState.time;
+      const s = sunAt(v); if (s) viewer.setSun(s);
+      if (fetchNow) kick();
+    };
+    document.getElementById("stime").oninput = (e) => { stopPlay(); setMin(Number(e.target.value), true); };
+    // 하루 재생: 1초에 1시간씩 해가 움직인다. 볕 자리는 0.7초마다만 다시 받는다
+    let lastFetch = 0;
+    const tick = (now) => {
+      if (!playing || sim !== "daylight" || !document.getElementById("stime")) { stopPlay(); return; }
+      const dt = Math.min(0.1, (now - (playing.t || now)) / 1000); playing.t = now;
+      let v = simMin + dt * 60;
+      if (v >= 1260) { v = 1260; stopPlay(); }
+      document.getElementById("stime").value = Math.round(v);
+      setMin(v, false);
+      if (now - lastFetch > 700) { lastFetch = now; guard(runDaylight)(); }
+      if (playing) playing.raf = requestAnimationFrame(tick);
+      else kick();
+    };
+    document.getElementById("splay").onclick = () => {
+      if (playing) { stopPlay(); kick(); return; }
+      if (simMin >= 1255) setMin(300, false);
+      playing = { t: 0 }; playing.raf = requestAnimationFrame(tick);
+      const b = document.getElementById("splay"); b.textContent = "멈추기"; b.setAttribute("aria-pressed", "true");
     };
     document.querySelectorAll("[data-day]").forEach((b) => (b.onclick = () => {
       simState.date = b.dataset.day === "today" ? new Date().toISOString().slice(0, 10) : `${simState.date.slice(0, 4)}${b.dataset.day}`;
@@ -979,7 +1033,7 @@ export async function customer(pid) {
   const SIMS = { daylight: daylightCtl, wifi: wifiCtl, flow: flowCtl };
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => x.classList.toggle("on", x.dataset.sim === sim));
-    if (sim !== "daylight") viewer.setSun(null); // 채광이 아니면 보기 좋은 기본 해
+    if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
     draw();
     if (SIMS[sim]) await SIMS[sim]();

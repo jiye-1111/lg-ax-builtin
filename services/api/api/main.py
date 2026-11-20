@@ -493,8 +493,8 @@ def set_site(pid: str, body: SiteIn, s: Service = S):
 
 
 @app.get("/api/projects/{pid}/sim/daylight")
-def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = True, s: Service = S):
-    return s.daylight(pid, date, time, heatmap)
+def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = True, path: bool = False, s: Service = S):
+    return s.daylight(pid, date, time, heatmap, path)
 
 
 @app.put("/api/projects/{pid}/router")
