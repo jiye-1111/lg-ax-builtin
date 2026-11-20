@@ -5,6 +5,7 @@ import { makeViewer } from "./viewer.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
+import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -62,8 +63,19 @@ export async function customer(pid) {
           <section data-panel="sel" id="insp"></section>
           <section data-panel="list"><ul class="list" id="pls"></ul></section>
           <section data-panel="finish">
-            <h3>벽·바닥</h3><div id="mats"></div>
-            <h3 class="gap">스타일</h3><div id="style"></div>
+            <div class="ai-box">
+              <h3>말로 꾸미기 <span class="badge ai">AI 추천</span></h3>
+              <p class="hint-sm">원하는 분위기를 편하게 적어 주세요. 벽지·바닥재를 골라 3D에 입히고, LG 가전 색 추천도 같이 바뀌어요.</p>
+              <textarea id="aiPrompt" rows="3" maxlength="500" placeholder="예) 따뜻한 오크 마루에 회벽 느낌으로, 호텔처럼 차분하게"></textarea>
+              <div class="chips ai-ex" id="aiEx"></div>
+              <button class="primary" id="aiGo">추천 받기</button>
+              <div id="aiRes"></div>
+            </div>
+            <h3 class="gap">벽지 <span class="muted">2026 트렌드 실제 제품</span></h3><div class="fin-grid" id="finWall"></div>
+            <h3 class="gap">바닥재</h3><div class="fin-grid" id="finFloor"></div>
+            <p class="hint-sm fin-note">색은 화면용 근사색이에요. 실제 품번 색은 제조사 샘플북으로 확인해 주세요. 카드의 ‘출처’에서 원문을 볼 수 있어요.</p>
+            <details class="gap"><summary>색만 바꾸기</summary><div id="mats"></div></details>
+            <h3 class="gap">지금 스타일</h3><div id="style"></div>
           </section>
           <section data-panel="zones">
             <p class="hint-sm">평면 도구에서 ‘영역 □’로 주방 자리를 그리면, 그 안에 들어가는 제품을 골라 줍니다.</p>
@@ -555,13 +567,73 @@ export async function customer(pid) {
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
   document.getElementById("zoneSel").onchange = (e) => { zoneSel = e.target.value; renderRecs(); };
 
+  // ---- 실제 벽지·바닥재 (data/finishes, 2026 트렌드 조사) ----
+  let FIN = [];
+  const finById = (id) => FIN.find((f) => f.id === id);
+  const curFinish = (kind) => project?.scene_state.finish_ids?.[kind] || null;
+  const finishSet = () => Object.fromEntries(["wall", "floor"].map((k) => [k, finById(curFinish(k)?.id)]).filter(([, f]) => f));
+  const finCard = (f) => {
+    const cur = curFinish(f.kind), on = cur?.id === f.id, tone = on ? cur.tone : f.tones[0].hex;
+    return `<article class="fin ${on ? "on" : ""}">
+      <button class="fin-pick" data-fin="${esc(f.id)}" data-tone="${esc(tone)}" aria-pressed="${on}" title="${esc(f.name)} 적용">
+        <img src="${swatchUrl(f, tone)}" alt="" width="120" height="120"><span class="tex">${TEXTURE_KO[f.texture]}</span>${on ? `<span class="chk">적용 중</span>` : ""}</button>
+      <div class="fin-body"><b>${esc(f.name)}</b><span class="muted">${esc(f.brand)} · ${esc(f.line)}</span>
+        ${f.tones.length > 1 ? `<div class="fin-tones" role="radiogroup" aria-label="톤">${f.tones.map((t) => `<button class="vsw ${on && t.hex === tone ? "on" : ""}" data-fin="${esc(f.id)}" data-tone="${esc(t.hex)}" title="${esc(t.name)}" aria-label="${esc(t.name)}" role="radio" aria-checked="${on && t.hex === tone}"><i style="background:${esc(t.hex)}"></i></button>`).join("")}</div>` : ""}
+        <span class="fin-trend">${esc(f.trend || "")}</span>
+        <a class="fin-src" href="${esc(f.source_url)}" target="_blank" rel="noopener">출처 · ${esc(f.source_checked_at)}</a></div></article>`;
+  };
+  const renderFinishes = () => {
+    if (!FIN.length) return;
+    document.getElementById("finWall").innerHTML = FIN.filter((f) => f.kind === "wall").map(finCard).join("");
+    document.getElementById("finFloor").innerHTML = FIN.filter((f) => f.kind === "floor").map(finCard).join("");
+    document.querySelectorAll("[data-panel=finish] [data-fin]").forEach((b) => (b.onclick = guard(async () => {
+      const f = finById(b.dataset.fin);
+      await post(`/api/projects/${pid}/finishes`, { finish_id: f.id, tone: b.dataset.tone });
+      toast(`${f.kind === "wall" ? "벽" : "바닥"}에 ${f.name}을 입혔어요`);
+      await refresh(true);
+    })));
+  };
+  const AI_EX = ["따뜻한 오크 마루에 회벽 느낌", "대리석 바닥에 호텔처럼 차분하게", "밝은 화이트 미니멀", "린넨 느낌 벽에 그린 포인트", "어둡고 시크한 모던"];
+  document.getElementById("aiEx").innerHTML = AI_EX.map((t) => `<button class="chip" data-ex="${esc(t)}">${esc(t)}</button>`).join("");
+  document.querySelectorAll("[data-ex]").forEach((b) => (b.onclick = () => { document.getElementById("aiPrompt").value = b.dataset.ex; }));
+  const aiRow = (m, applied) => `<li><img src="${swatchUrl(m.finish, m.tone.hex, 48)}" alt="" width="36" height="36">
+      <div><b>${esc(m.finish.name)}</b> <span class="muted">${esc(m.tone.name)}</span>${applied ? ` <span class="badge fit">적용</span>` : ""}
+        <span class="muted why">${esc(m.reasons.join(" · ") || "기본 순서")}</span></div>
+      ${applied ? "" : `<button class="small ghost" data-fin="${esc(m.finish.id)}" data-tone="${esc(m.tone.hex)}">입히기</button>`}</li>`;
+  const showAi = (d) => {
+    const box = document.getElementById("aiRes");
+    box.innerHTML = `<div class="ai-out">
+      <p class="ai-sum">${esc(d.summary)}</p>
+      <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
+        <span class="badge ${d.engine === "claude" ? "ai" : "src"}">${d.engine === "claude" ? "Claude가 해석" : "키워드로 해석"}</span></div>
+      ${["wall", "floor"].map((k) => `<h4>${k === "wall" ? "벽지" : "바닥재"} 추천</h4><ul class="ai-list">${d.finishes[k].map((m, i) => aiRow(m, i === 0 && d.applied[k])).join("")}</ul>`).join("")}
+      <button class="small ghost" id="aiToRecs">이 스타일로 LG 가전 색 추천 보기</button></div>`;
+    box.querySelectorAll("[data-fin]").forEach((b) => (b.onclick = guard(async () => {
+      await post(`/api/projects/${pid}/finishes`, { finish_id: b.dataset.fin, tone: b.dataset.tone });
+      await refresh(true);
+    })));
+    document.getElementById("aiToRecs").onclick = () => setTab("zones");
+  };
+  document.getElementById("aiGo").onclick = guard(async (e) => {
+    const prompt = document.getElementById("aiPrompt").value.trim();
+    if (!prompt) { toast("원하는 분위기를 적어 주세요", true); return; }
+    const b = e.target; b.disabled = true; b.textContent = "분위기 읽는 중…";
+    try {
+      const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
+      showAi(d);
+      toast(d.engine === "claude" ? "Claude가 고른 스타일을 입혔어요" : "키워드로 고른 스타일을 입혔어요");
+      await refresh(true);
+    } finally { b.disabled = false; b.textContent = "추천 받기"; }
+  });
+  api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
+
   const renderStyle = () => {
     const s = project.style;
     document.getElementById("style").innerHTML = s.prompt || s.palette.length ? `
-      <p style="margin:0 0 8px">“${esc(s.prompt || "")}”</p>
+      <p style="margin:0 0 8px">“${esc(s.prompt || "")}”</p>${s.summary ? `<p class="hint-sm">${esc(s.summary)}</p>` : ""}
       <div class="row"><div class="palette">${s.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
       <span class="muted">${s.materials.map(esc).join(" · ")}</span></div>`
-      : `<p class="muted" style="margin:0;font-size:12px">Claude 또는 Codex에서 <b>“화이트 우드 톤으로 바꿔 줘”</b>처럼 말하면 스타일이 저장되고 추천에 반영됩니다.</p>`;
+      : `<p class="muted" style="margin:0;font-size:12px">위 ‘말로 꾸미기’에 적거나, Claude·Codex에서 <b>“화이트 우드 톤으로 바꿔 줘”</b>처럼 말하면 스타일이 저장되고 추천에 반영됩니다.</p>`;
   };
   const renderZones = () => {
     document.getElementById("zones").innerHTML = zones.length ? zones.map((z) => `
@@ -806,12 +878,13 @@ export async function customer(pid) {
     renderZones();
     renderStyle();
     renderMats();
+    renderFinishes();
     renderRecs();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
-    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();

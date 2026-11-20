@@ -467,6 +467,7 @@ export function makeViewer(el, handlers = {}) {
   });
 
   const loader = new GLTFLoader();
+  let finishSet = {};
   const api = {
     load(url) {
       loader.load(url + (url.includes("?") ? "&" : "?") + "v=" + Date.now(), (g) => {
@@ -487,7 +488,7 @@ export function makeViewer(el, handlers = {}) {
         });
         shell = shadowShell(model); // dressRoom이 창 크기를 바꾸기 전에 구멍 자리를 잡는다
         model.add(shell);
-        walls.push(...dressRoom(model));
+        walls.push(...dressRoom(model, finishSet));
         const mine = model;
         furnish(model, () => alive && model === mine, (id) => objectCats[id]);
         scene.add(model);
@@ -598,6 +599,8 @@ export function makeViewer(el, handlers = {}) {
       return { fwd: [f.x, f.z], right: [-f.z, f.x] };
     },
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
+    /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
+    setFinishes(f) { finishSet = f || {}; },
     setObjects(objects) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); },
     /** 화면에 그린 것 세기 (E2E 확인용) */
     stats() {
