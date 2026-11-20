@@ -26,7 +26,7 @@ export async function customer(pid) {
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="chips" id="cats"></div>
         </div>
-        <ul class="list" id="lib" aria-label="제품을 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
+        <ul class="list" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
       </aside>
 
       <section class="stage" aria-label="우리 집">
@@ -527,7 +527,7 @@ export async function customer(pid) {
       return;
     }
     box.innerHTML = `<div class="insp-empty"><h2>무엇을 놓아 볼까요?</h2>
-      <ol class="how"><li>아래 <b>LG 제품</b>에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
+      <ol class="how"><li><b>LG 제품</b> 목록에서 하나를 고르고</li><li>3D 바닥을 누르면 그 자리에 놓여요</li><li>놓은 제품을 누르면 여기서 들어가는지 판정과 색을 볼 수 있어요</li></ol></div>`;
   };
   const renderPlacements = () => {
     const pls = project.scene_state.placements;
