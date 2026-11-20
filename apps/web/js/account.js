@@ -258,7 +258,8 @@ export function mountSaveBar(el, pid, shareToken) {
   };
   const autoSave = async (keepalive = false) => {
     if (!el.isConnected && !keepalive) return dispose();
-    if (!can || busy || !currentUser()) return;
+    // 관리자는 남의 집을 살펴볼 뿐이라 자동 저장하지 않는다 (수동 저장은 된다)
+    if (!can || busy || !currentUser() || currentUser().role === "admin") return;
     try {
       const v = await version();
       if (v === lastAuto) return;
