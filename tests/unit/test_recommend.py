@@ -23,7 +23,8 @@ def test_filters_by_zone_purpose_and_sorts_by_verdict():
 
 def test_products_not_for_sale_are_not_recommended():
     room = make_room(measured=MeasuredDims(length_m=4.0, height_m=2.4, depth_m=1.5))
-    gone = _p("gone", 900).model_copy(update={"sale_status": "NOT_FOR_SALE"})
-    out = _p("out", 900).model_copy(update={"sale_status": "SOLD_OUT"})
-    res = recommend_zone(room, KITCHEN, [gone, out, _p("unknown", 900)], FitConfig())
-    assert [r["product"]["sku"] for r in res] == ["out", "unknown"]  # 일시품절·확인 안 된 제품은 남긴다
+    real = lambda sku, st: _p(sku, 900).model_copy(update={"demo_only": False, "sale_status": st})  # noqa: E731
+    res = recommend_zone(room, KITCHEN, [real("gone", "NOT_FOR_SALE"), real("out", "SOLD_OUT"), real("unknown", None),
+                                         real("on", "ACTIVE"), _p("demo", 900)], FitConfig())
+    # 파는 제품만: 판매중·일시품절. 비매품과 판매 여부를 확인 못 한 제품은 뺀다 (가상 데이터는 시연용이라 남긴다)
+    assert [r["product"]["sku"] for r in res] == ["out", "on", "demo"]

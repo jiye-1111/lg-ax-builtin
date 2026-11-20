@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v20"; // LGE.COM 전체 1,150종, 사진·모델은 본 것만 캐시
+const VERSION = "lgb-shell-v21"; // LGE.COM 전체 1,150종 + 단계별 옵션 필터, 채광·공유기·동선 3D
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js",
@@ -8,7 +8,8 @@ const SHELL = [
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
-  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js",
+  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js",
+  "./vendor/three/addons/utils/SkeletonUtils.js", "./models/devices/router.glb", "./models/people/walker.glb",
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",
   "./vendor/three/addons/utils/BufferGeometryUtils.js",

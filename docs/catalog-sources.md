@@ -106,4 +106,4 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
 
 - `sale_status`: LGE.COM 제품 페이지에 들어 있는 판매 상태(modelStatus) 값. `ACTIVE` 판매중 746종, `SOLD_OUT` 일시품절 84종, `NOT_FOR_SALE` 비매품 278종(지난 연식 에어컨·TV가 대부분), 페이지에서 값을 못 읽은 42종은 null. 확인한 날은 `sale_checked_at`.
 - 판매 상태는 자주 바뀐다. 다시 확인하면 `tools/catalog/lgecom_sale.json`을 바꾸고 `python3 tools/catalog/add_sale_status.py . tools/catalog/lgecom_sale.json <날짜>`.
-- 웹은 비매품을 기본으로 숨기고(체크하면 보임), 영역 추천에서도 뺀다. 일시품절은 배지만 붙인다.
+- 웹 목록과 영역 추천에는 지금 파는 제품(판매중·일시품절)만 나온다. 비매품과 판매 여부를 확인 못 한 제품은 카탈로그에는 남기되 고를 수 없다. 판매 상태를 화면에 따로 적지는 않는다.
