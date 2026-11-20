@@ -33,3 +33,19 @@ def test_no_fake_checks_and_clear_cta():
     assert 'id="orderSheet"' in REMODEL and "#/r" in REMODEL  # 방문 신청 화면으로 이어진다
     assert "./js/guide.js" in (WEB / "sw.js").read_text(encoding="utf-8")
     assert "studio.css" in (WEB / "index.html").read_text(encoding="utf-8")
+
+
+def test_selected_product_shows_dimensions_and_needed_space():
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    # 고른 제품에는 치수선(mm), 바닥에는 판정과 같은 계산으로 얻은 필요 공간
+    assert "dimLines(w, h, d)" in viewer and "setNeed(pts)" in viewer
+    assert "viewer.setNeed(r.required)" in REMODEL and "pose-check" in REMODEL
+    assert 'id="needTag"' in REMODEL
+
+
+def test_guide_bar_uses_zone_recommendations_and_install_check():
+    # 아래 안내 줄은 새 계산을 만들지 않고 영역 추천과 설치 전 확인 목록 응답을 그대로 쓴다
+    assert 'id="guideBar"' in REMODEL
+    assert "/recommendations" in REMODEL and "/install-check" in REMODEL
+    assert "공간별 추천" in GUIDE and "설치 전 체크리스트" in GUIDE
+    assert 'badge rec' in REMODEL

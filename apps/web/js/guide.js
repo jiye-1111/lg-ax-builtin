@@ -37,6 +37,7 @@ const GROUPS = [
   { label: "제품 본체 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement"] },
   { label: "제품 문 여는 공간", codes: ["front_blocked"] },
   { label: "방문 여닫이", codes: ["door_blocked", "door_swing_assumed"] },
+  { label: "방으로 들여오는 길", codes: ["entry_narrow"], optional: true }, // 걸릴 때만 줄을 보인다
   { label: "창 가림", codes: ["covers_window"] },
   { label: "천장 높이", codes: ["ceiling_low", "ceiling_tight"] },
 ];
@@ -49,8 +50,9 @@ export function fitRows(placement) {
   const reasons = placement?.reasons || [];
   return GROUPS.map((g) => {
     const mine = reasons.filter((r) => g.codes.includes(r.code));
+    if (g.optional && !mine.length) return null;
     return { label: g.label, verdict: worst(mine.map((r) => r.verdict)), why: [...new Set(mine.map((r) => r.label))].join(" · ") };
-  });
+  }).filter(Boolean);
 }
 
 /** 놓은 제품 하나의 설치 적합성 검사 결과 카드 */
@@ -67,3 +69,30 @@ export function fitCardHtml(placement) {
 }
 
 export const VERDICT_LABEL = VERDICT;
+
+/**
+ * 3D 아래 안내 줄: 공간별 추천과 설치 전 체크리스트.
+ * zones: [{ zone_id, name, count, top }] (count: 그 영역에 들어가는 제품 수, top: 첫 번째 제품 이름)
+ * check: 서버의 설치 전 확인 목록(install-check) 응답. 없으면 놓은 제품의 판정만 센다.
+ */
+export function guideBarHtml({ zones, placements, check }) {
+  const rec = zones.length
+    ? `<p>${zones.map((z) => `<button type="button" class="gb-zone" data-zone="${esc(z.zone_id)}"><b>${esc(z.name)}</b> ${z.count ? `들어가는 제품 ${z.count}개${z.top ? ` · ${esc(z.top)}` : ""}` : "들어가는 제품이 없어요"}</button>`).join("")}</p>`
+    : `<p>평면에 영역을 그리면 그 자리에 들어가는 제품을 골라 드려요.</p><button type="button" class="small ghost" data-gb="draw">영역 그리기</button>`;
+  const n = placements.length;
+  const by = (v) => placements.filter((x) => x.verdict === v).length;
+  let sum, site = 0;
+  if (!n) sum = "제품을 놓으면 설치 전에 확인할 것을 정리해 드려요.";
+  else if (check?.summary) {
+    const c = check.summary;
+    site = new Set((check.items || []).flatMap((it) => it.checks.filter((k) => k.status === "site").map((k) => k.label))).size;
+    sum = [`제품 ${c.products}개`, c.blocked ? `안 들어감 ${c.blocked}` : "", c.check ? `확인 필요 ${c.check}` : "", !c.blocked && !c.check ? "모두 들어가요" : "",
+      c.walls_to_measure?.length ? `잴 벽 ${c.walls_to_measure.join(", ")}` : "", site ? `현장 확인 ${site}가지` : ""].filter(Boolean).join(" · ");
+  } else {
+    sum = [`제품 ${n}개`, by("no_fit") ? `부적합 ${by("no_fit")}` : "", by("conditional") + by("unknown") ? `확인 필요 ${by("conditional") + by("unknown")}` : "",
+      by("fit") === n ? "모두 들어가요" : ""].filter(Boolean).join(" · ");
+  }
+  const tone = !n ? "" : (check?.summary?.blocked || by("no_fit")) ? "no_fit" : (check?.summary?.check || by("conditional") + by("unknown")) ? "conditional" : "fit";
+  return `<section class="gb" aria-label="공간별 추천"><h3>공간별 추천</h3>${rec}</section>
+    <section class="gb ${tone ? `v-${tone}` : ""}" aria-label="설치 전 체크리스트"><h3>설치 전 체크리스트</h3><p>${esc(sum)}</p>${n ? `<button type="button" class="small ghost" data-gb="check">자세히</button>` : ""}</section>`;
+}

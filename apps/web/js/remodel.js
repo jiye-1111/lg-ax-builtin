@@ -7,7 +7,7 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
-import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL } from "./guide.js";
+import { stepState, stepperHtml, fitCardHtml, guideBarHtml, VERDICT_LABEL } from "./guide.js";
 import { optionSteps } from "./options.js";
 
 export async function customer(pid) {
@@ -73,8 +73,10 @@ export async function customer(pid) {
           </div>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
           <p class="hint" id="hint" aria-live="polite"></p>
+          <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
           <div class="sheet" id="simctl"></div>
         </div>
+        <div class="guide-bar" id="guideBar"></div>
       </section>
 
       <aside class="side" aria-label="선택한 제품과 설정">
@@ -293,6 +295,8 @@ export async function customer(pid) {
       renderLib();
     }));
   };
+  let recSkus = new Set(); // 그린 영역에 들어가는 제품 (아래 syncGuide가 채운다)
+  const isRec = (f) => f.variants.some((v) => recSkus.has(v.sku));
   const renderLib = () => {
     renderProgress();
     const q = document.getElementById("q").value.trim().toLowerCase();
@@ -309,7 +313,7 @@ export async function customer(pid) {
     const items = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
       || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
       && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH))
-      .sort((a, b) => a.demo_only - b.demo_only);
+      .sort((a, b) => a.demo_only - b.demo_only || isRec(b) - isRec(a)); // 그린 영역에 들어가는 제품을 위로
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
@@ -317,7 +321,7 @@ export async function customer(pid) {
       const dots = colorDots(f), many = dots.length > 1, models = f.variants.length;
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
-        <div class="body"><div class="name">${esc(f.name)}</div>
+        <div class="body"><div class="name">${esc(f.name)}${isRec(f) ? ` <span class="badge rec" title="그린 영역에 들어가는 제품이에요">추천</span>` : ""}</div>
           <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
             <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
@@ -749,6 +753,43 @@ export async function customer(pid) {
   };
   orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
   document.getElementById("orderBtn").onclick = openOrder;
+
+  // ---- 3D 아래 안내 줄: 공간별 추천(영역 추천 결과), 설치 전 체크리스트(install-check) ----
+  const zoneRecs = new Map(); // zone_id → { key, count, top, skus }
+  let checkData = null, checkKey = "", checkMissing = false;
+  const renderGuide = () => {
+    const bar = document.getElementById("guideBar");
+    bar.innerHTML = guideBarHtml({ zones: zones.map((z) => ({ zone_id: z.zone_id, name: z.name || z.purpose, ...(zoneRecs.get(z.zone_id) || { count: 0, top: "" }) })),
+      placements: project.scene_state.placements, check: checkData });
+    bar.querySelectorAll("[data-zone]").forEach((b) => (b.onclick = () => { zoneSel = b.dataset.zone; setTab("zones"); renderZones(); renderRecs(); }));
+    bar.querySelector('[data-gb="draw"]')?.addEventListener("click", () => document.querySelector('[data-mode="rect"]').click());
+    bar.querySelector('[data-gb="check"]')?.addEventListener("click", () => { setTab("list"); const f = document.getElementById("icFold"); if (f) f.open = true; });
+  };
+  const syncGuide = async () => {
+    renderGuide();
+    for (const z of zones) {
+      const key = JSON.stringify(z);
+      if (zoneRecs.get(z.zone_id)?.key === key) continue;
+      try {
+        const r = await api(`/api/projects/${pid}/zones/${z.zone_id}/recommendations`);
+        const ok = r.items.filter((it) => it.fit.verdict === "fit" || it.fit.verdict === "conditional");
+        zoneRecs.set(z.zone_id, { key, count: ok.length, top: ok[0]?.product.name || "", skus: ok.map((it) => it.product.sku) });
+      } catch { /* 추천을 못 받으면 줄만 비워 둔다 */ }
+    }
+    for (const id of [...zoneRecs.keys()]) if (!zones.some((z) => z.zone_id === id)) zoneRecs.delete(id);
+    const next = new Set([...zoneRecs.values()].flatMap((v) => v.skus));
+    const changed = next.size !== recSkus.size || [...next].some((x) => !recSkus.has(x));
+    recSkus = next;
+    const pls = project.scene_state.placements;
+    const ck = JSON.stringify(pls.map((x) => [x.placement_id, x.sku, x.center_xz, x.yaw_rad, x.verdict]));
+    if (!checkMissing && ck !== checkKey) {
+      checkKey = ck;
+      try { checkData = pls.length ? await api(`/api/projects/${pid}/install-check`) : null; }
+      catch { checkData = null; checkMissing = true; } // 서버가 아직 확인 목록을 안 주면 판정만 센다
+    }
+    renderGuide();
+    if (changed) renderLib();
+  };
   const renderPlacements = () => {
     renderProgress();
     const pls = project.scene_state.placements;
@@ -968,6 +1009,22 @@ export async function customer(pid) {
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
     drawDraft();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
+    syncNeed();
+  };
+  // 고른 제품이 차지하는 공간(본체 + 문 여는 공간)을 3D 바닥에 표시. 판정과 같은 계산(pose-check)을 그대로 쓴다
+  let needKey = "";
+  const syncNeed = async () => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === selPl);
+    const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}` : "";
+    if (key === needKey) return;
+    needKey = key;
+    if (!x) { viewer.setNeed(null); document.getElementById("needTag").hidden = true; return; }
+    try {
+      const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id });
+      if (needKey !== key) return;
+      viewer.setNeed(r.required);
+      document.getElementById("needTag").hidden = !r.required?.length;
+    } catch { viewer.setNeed(null); }
   };
   const setOverlay = (html) => {
     overlay = html;
@@ -1247,6 +1304,7 @@ export async function customer(pid) {
     renderMats();
     renderFinishes();
     renderRecs();
+    syncGuide();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
