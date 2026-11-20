@@ -13,7 +13,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock } from "./walker.js";
-import { dressRoom, furnish, shadowShell } from "./room3d.js";
+import { dressRoom, furnish, shadowShell, furnitureTemplate, fitFurniture } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 const SELECT_HEX = 0xa50034;
@@ -42,6 +42,16 @@ const gltf = new GLTFLoader();
 function loadModel(sku) {
   if (templates.has(sku)) return Promise.resolve(true);
   if (pending.has(sku)) return pending.get(sku);
+  if (sku.startsWith("decor:")) {
+    // 공간 꾸미기 가구: 기준 크기 모델을 배치 크기에 맞춰 부품별로 늘린다 (room3d.fitFurniture)
+    const job = furnitureTemplate(sku.slice(6)).then((t) => {
+      if (!t) return false;
+      templates.set(sku, { decor: true, scene: t.scene, ref: t.ref });
+      return true;
+    });
+    pending.set(sku, job);
+    return job;
+  }
   modelIndex ??= fetch(MODEL_DIR + "index.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
   // 본체와 떨어져 같이 놓이는 부품 (정수기 파우셋 등). offset_m = 본체 바닥 가운데 기준 [x, 위, 앞]
   companionIndex ??= fetch(MODEL_DIR + "companions.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
@@ -395,14 +405,15 @@ export function makeViewer(el, handlers = {}) {
     const vhex = selected ? SELECT_HEX : VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
     const tmpl = p.sku && templates.get(p.sku);
     if (tmpl) {
-      // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z)
-      const m = tmpl.clone(true);
+      // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z). 꾸미기 가구는 크기에 맞춰 늘린다
+      const m = tmpl.decor ? fitFurniture(tmpl.scene, tmpl.ref, new THREE.Vector3(w, h, d)) : tmpl.clone(true);
       m.traverse((o) => {
         if (!o.isMesh) return;
         o.userData.shared = true;
         o.castShadow = !preview;
         o.receiveShadow = true;
         o.userData.placementId = p.placement_id;
+        if (tmpl.decor) o.material = o.material.clone(), o.userData.ownMaterial = true;
         const isFinish = o.material.name === "finish";
         if (preview || (isFinish && p.hex)) {
           o.material = o.material.clone();
@@ -434,13 +445,14 @@ export function makeViewer(el, handlers = {}) {
       edges.position.y = h / 2;
       g.add(edges);
     }
-    // 바닥 판: 판정 색
+    // 바닥 판: 판정 색 (꾸미기 가구는 고른 때·안 들어갈 때만, 평소엔 깔끔하게)
+    const decor = p.sku?.startsWith("decor:");
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.08, d + 0.08),
       new THREE.MeshBasicMaterial({ color: vhex, transparent: true, opacity: selected ? 0.55 : 0.35, depthWrite: false }));
     plate.rotation.x = -Math.PI / 2;
     plate.position.y = 0.006;
     plate.userData.verdictPlate = true;
-    g.add(plate);
+    if (!decor || selected || preview || p.verdict === "no_fit") g.add(plate);
     // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
     g.position.set(p.center_xz[0], 0, p.center_xz[1]);
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
@@ -485,6 +497,13 @@ export function makeViewer(el, handlers = {}) {
     const targets = [...products.children];
     if (routerG.visible) targets.push(routerG);
     if (model) model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object" && o.visible) targets.push(o); });
+    if (wallPick && model) {
+      // 벽 철거 고르기: 벽만 맞힌다
+      const walls = [];
+      model.traverse((o) => { if (o.isMesh && o.userData?.kind === "wall" && o.visible) walls.push(o); });
+      const wh = ray.intersectObjects(walls, false)[0];
+      return wh ? { type: "wall", id: wh.object.name } : null;
+    }
     const hit = ray.intersectObjects(targets, true).find((h) => h.object.visible);
     if (!hit) return null;
     let o = hit.object;
@@ -495,6 +514,7 @@ export function makeViewer(el, handlers = {}) {
     return { type: "object", id: o.name };
   };
   let down = null, dragging = null;
+  let wallPick = false; // 벽 철거: 벽을 눌러 고르는 중
   let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
   const onDown = (e) => {
     if (walk) {
@@ -807,6 +827,16 @@ export function makeViewer(el, handlers = {}) {
       return { furniture, products: products.children.length };
     },
     /** 평면 좌표 [x, z] 쪽으로 시점을 부드럽게 옮긴다 (보는 각도·거리는 그대로) */
+    /** 벽 철거 고르기 켜기/끄기. 켜면 클릭이 벽({type:"wall", id})을 맞히고, 벽 위에서 커서가 바뀐다 */
+    setWallPick(on) {
+      wallPick = !!on;
+      dom.style.cursor = on ? "crosshair" : "";
+      model?.traverse((o) => {
+        if (!o.isMesh || o.userData?.kind !== "wall") return;
+        if (on && !o.userData.pickMat) { o.userData.pickMat = o.material; o.material = o.material.clone(); o.material.emissive?.set("#A50034"); o.material.emissiveIntensity = 0.18; }
+        if (!on && o.userData.pickMat) { o.material.dispose(); o.material = o.userData.pickMat; delete o.userData.pickMat; }
+      });
+    },
     lookAt([x, z]) {
       if (walk || !Number.isFinite(x) || !Number.isFinite(z)) return;
       const target = new THREE.Vector3(x, 0.8, z);

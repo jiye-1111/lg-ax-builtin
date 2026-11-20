@@ -13,7 +13,8 @@ const FRAME_W = 0.05;
 const loader = new GLTFLoader();
 let furnIndex = null;
 const furnTemplates = new Map();
-function furnitureTemplate(cat) {
+/** 가구 모델 한 벌 (models/furniture/<cat>.glb + 기준 크기). 없으면 null */
+export function furnitureTemplate(cat) {
   furnIndex ??= fetch(FURN_DIR + "index.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
   if (!furnTemplates.has(cat)) {
     furnTemplates.set(cat, furnIndex.then((idx) => {

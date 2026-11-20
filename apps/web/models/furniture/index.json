@@ -40,6 +40,86 @@
     "h": 0.95,
     "d": 2.1
    }
+  },
+  "desk": {
+   "file": "desk.glb",
+   "ref_m": {
+    "w": 1.2,
+    "h": 0.73,
+    "d": 0.6
+   }
+  },
+  "shelf": {
+   "file": "shelf.glb",
+   "ref_m": {
+    "w": 0.8,
+    "h": 1.8,
+    "d": 0.3
+   }
+  },
+  "tvstand": {
+   "file": "tvstand.glb",
+   "ref_m": {
+    "w": 1.6,
+    "h": 0.45,
+    "d": 0.4
+   }
+  },
+  "island": {
+   "file": "island.glb",
+   "ref_m": {
+    "w": 1.8,
+    "h": 0.9,
+    "d": 0.9
+   }
+  },
+  "rug": {
+   "file": "rug.glb",
+   "ref_m": {
+    "w": 2.0,
+    "h": 0.012,
+    "d": 1.4
+   }
+  },
+  "lamp": {
+   "file": "lamp.glb",
+   "ref_m": {
+    "w": 0.4,
+    "h": 1.6,
+    "d": 0.4
+   }
+  },
+  "plant": {
+   "file": "plant.glb",
+   "ref_m": {
+    "w": 0.5,
+    "h": 1.2,
+    "d": 0.5
+   }
+  },
+  "coffee": {
+   "file": "coffee.glb",
+   "ref_m": {
+    "w": 1.0,
+    "h": 0.4,
+    "d": 0.6
+   }
+  },
+  "partition": {
+   "file": "partition.glb",
+   "ref_m": {
+    "w": 1.2,
+    "h": 2.1,
+    "d": 0.05
+   }
+  },
+  "wall": {
+   "file": "wall.glb",
+   "ref_m": {
+    "w": 2.0,
+    "h": 2.4,
+    "d": 0.1
+   }
   }
  }
 }

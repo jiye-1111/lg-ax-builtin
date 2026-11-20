@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import math
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 import re
@@ -26,6 +27,7 @@ from . import config
 from .ai_products import chat_message, interpret_products
 from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
+from .decor import decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .store import Store
 
@@ -639,15 +641,50 @@ class Service:
     def _hidden(self, p: dict) -> list[str]:
         return p["scene_state"].setdefault("hidden_objects", [])
 
-    def _pose(self, room: Room, prod: Product, center_xz, yaw_rad: float, snap: bool) -> Pose:
+    @staticmethod
+    def _standing(room: Room, p: dict) -> Room:
+        """철거한 벽(과 그 벽의 문·창)을 뺀 방. 동선·와이파이처럼 벽이 막는 계산에 쓴다."""
+        gone = set(p["scene_state"].get("hidden_walls") or [])
+        if not gone:
+            return room
+        return room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone],
+                                       "openings": [o for o in room.openings if o.wall_id not in gone]})
+
+    def _blocked_off(self, p: dict) -> list[str]:
+        """판정에서 빼는 것: 치운 가구 + 철거한 벽."""
+        return self._hidden(p) + list(p["scene_state"].get("hidden_walls") or [])
+
+    def _item(self, sku: str, size_m=None) -> Product:
+        """LG 제품은 카탈로그에서, 공간 꾸미기 가구(decor:)는 배치 크기로 판정용 Product를 만든다."""
+        if is_decor(sku):
+            try:
+                return decor_product(sku, size_m)
+            except KeyError:
+                raise NotFound(f"없는 가구: {sku}") from None
+            except ValueError as e:
+                raise Invalid(str(e)) from None
+        return self.catalog.get(sku)
+
+    def _others(self, p: dict, exclude: str | None = None) -> list[dict]:
+        """겹침을 보는 다른 배치. 러그 같은 바닥 깔개는 위에 놓아도 되니 뺀다."""
+        return [x for x in p["scene_state"]["placements"]
+                if x.get("placement_id") != exclude and x.get("size_m") and not is_flat(x.get("sku"))]
+
+    def _pose(self, room: Room, prod: Product, center_xz, yaw_rad: float, snap: bool, p: dict | None = None) -> Pose:
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
         pose = Pose((float(center_xz[0]), float(center_xz[1])), float(yaw_rad))
-        return snap_to_wall(room, prod, pose, self.fit_cfg) if snap else pose
+        if not snap:
+            return pose
+        gone = set((p or {}).get("scene_state", {}).get("hidden_walls") or [])
+        if gone:  # 철거한 벽에는 붙지 않는다
+            room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
+        return snap_to_wall(room, prod, pose, self.fit_cfg)
 
     def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
-        others = [x for x in p["scene_state"]["placements"] if x.get("placement_id") != exclude and x.get("size_m")]
-        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._hidden(p))
+        if is_flat(prod.sku):  # 러그: 가구·제품과 겹쳐도 된다 (벽과 방 밖만 본다)
+            return check_pose(room, prod, pose, self.fit_cfg, hidden=self._blocked_off(p) + [o.object_id for o in room.objects])
+        return check_pose(room, prod, pose, self.fit_cfg, others=self._others(p, exclude), hidden=self._blocked_off(p))
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
@@ -655,23 +692,23 @@ class Service:
             if x.get("zone_id"):
                 continue
             try:
-                prod = self.catalog.get(x["sku"])
+                prod = self._item(x["sku"], x.get("size_m"))
             except KeyError:
                 continue
             r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"])
             x["verdict"], x["reasons"] = r.verdict.value, r.reasons
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                   placement_id: str | None = None) -> dict:
+                   placement_id: str | None = None, size_m=None) -> dict:
         """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
-        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
-        return self._judge(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap), placement_id).to_dict()
+        prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
+        return self._judge(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id).to_dict()
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                 color: str | None = None, wall_id: str | None = None) -> dict:
-        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
+                 color: str | None = None, wall_id: str | None = None, size_m=None) -> dict:
+        prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         opt = self._color_option(prod, color)
-        pose = self._pose(room, prod, center_xz, yaw_rad, snap)
+        pose = self._pose(room, prod, center_xz, yaw_rad, snap, p)
         if wall_id and not pose.wall_id:
             pose = Pose(pose.center_xz, pose.yaw_rad, wall_id)
         r = self._judge(room, p, prod, pose)
@@ -681,6 +718,8 @@ class Service:
              "center_xz": list(pose.center_xz), "yaw_rad": pose.yaw_rad, "size_m": list(r.size_m),
              "wall_id": pose.wall_id, "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
              "verdict": r.verdict.value, "reasons": r.reasons}
+        if is_decor(sku):
+            x["kind"] = "decor"  # 꾸미기 가구: 주문·설치 신청에 넣지 않는다
         p["scene_state"]["placements"].append(x)
         self._rejudge_all(room, p)
         self._save_project(p)
@@ -688,25 +727,84 @@ class Service:
         out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == x["placement_id"])
         return out
 
-    def auto_place(self, pid: str, sku: str, color: str | None = None) -> dict:
-        """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다. 어디에도 안 들어가면 Invalid."""
-        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
-        others = [x for x in p["scene_state"]["placements"] if x.get("size_m")]
-        r = find_spot(room, prod, self.fit_cfg, others=others, hidden=self._hidden(p))
+    def _spot(self, room: Room, p: dict, prod: Product, exclude: str | None = None, step_m: float = 0.1):
+        if is_flat(prod.sku):
+            return None
+        return find_spot(room, prod, self.fit_cfg, others=self._others(p, exclude), hidden=self._blocked_off(p), step_m=step_m)
+
+    def _middle(self, room: Room, p: dict, prod: Product, exclude: str | None = None):
+        """벽을 따라 자리가 없을 때(러그·큰 가구): 방 가운데 근처 빈자리. 못 찾으면 None."""
+        from recommender.pose import inside_room
+        xs = [c for w in room.walls for c in (w.start[0], w.end[0])]
+        zs = [c for w in room.walls for c in (w.start[1], w.end[1])]
+        cx, cz = (min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2
+        cands = sorted(((cx + i * 0.25, cz + j * 0.25) for i in range(-12, 13) for j in range(-12, 13)),
+                       key=lambda q: (q[0] - cx) ** 2 + (q[1] - cz) ** 2)
+        for c in cands:
+            if not inside_room(room, c):
+                continue
+            r = self._judge(room, p, prod, Pose(c, 0.0), exclude)
+            if r.verdict.value != "no_fit":
+                return r
+        return None
+
+    def auto_place(self, pid: str, sku: str, color: str | None = None, size_m=None) -> dict:
+        """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다 (러그는 방 가운데). 어디에도 안 들어가면 Invalid."""
+        prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
+        r = self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
-        return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color, wall_id=r.pose.wall_id)
+        return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color,
+                             wall_id=r.pose.wall_id, size_m=size_m)
+
+    def copy_placement(self, pid: str, placement_id: str) -> dict:
+        """복사: 같은 것(크기·색 그대로)을 옆 빈자리에 하나 더 놓는다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        x = self._find_placement(p, placement_id)
+        size = x.get("size_m") if is_decor(x["sku"]) else None
+        prod = self._item(x["sku"], size)
+        cx, cz = x["center_xz"]
+        w = x["size_m"][0] if x.get("size_m") else 1.0
+        best = None
+        for k in range(1, 9):  # 옆으로 조금씩 밀면서 처음으로 들어가는 자리
+            for sgn in (1, -1):
+                ux, uz = math.cos(x["yaw_rad"] - math.pi / 2), math.sin(x["yaw_rad"] - math.pi / 2)
+                c = (cx + sgn * ux * (w + 0.05) * k, cz + sgn * uz * (w + 0.05) * k)
+                r = self._judge(room, p, prod, Pose(c, x["yaw_rad"], x.get("wall_id")))
+                if r.verdict.value != "no_fit":
+                    best = r
+                    break
+            if best:
+                break
+        best = best or self._spot(room, p, prod) or self._middle(room, p, prod)
+        if best is None:
+            raise Invalid("복사본을 놓을 빈자리가 없어요")
+        return self.place_at(pid, x["sku"], list(best.pose.center_xz), best.pose.yaw_rad, snap=False, color=x.get("color"),
+                             wall_id=best.pose.wall_id, size_m=size)
+
+    def set_wall_hidden(self, pid: str, wall_id: str, hidden: bool = True) -> dict:
+        """벽 철거(가상): 스캔한 벽을 3D·판정에서 뺀다. 되돌리면 다시 세운다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        if not any(w.wall_id == wall_id for w in room.walls):
+            raise NotFound(f"벽 없음: {wall_id}")
+        hs = p["scene_state"].setdefault("hidden_walls", [])
+        if hidden and wall_id not in hs:
+            hs.append(wall_id)
+        if not hidden and wall_id in hs:
+            hs.remove(wall_id)
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
 
     def auto_align(self, pid: str, placement_id: str) -> dict:
         """자동 정렬: 가까운 벽이 있으면 그 벽에 붙이고, 없거나 붙여도 안 들어가면 가장 잘 들어가는 자리로 옮긴다."""
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
-        prod = self.catalog.get(x["sku"])
-        snapped = self._pose(room, prod, x["center_xz"], x["yaw_rad"], True)
+        prod = self._item(x["sku"], x.get("size_m"))
+        snapped = self._pose(room, prod, x["center_xz"], x["yaw_rad"], True, p)
         if snapped.wall_id and self._judge(room, p, prod, snapped, placement_id).verdict.value != "no_fit":
             return self.move_placement(pid, placement_id, list(snapped.center_xz), snapped.yaw_rad, snap=True)
-        others = [y for y in p["scene_state"]["placements"] if y.get("placement_id") != placement_id and y.get("size_m")]
-        r = find_spot(room, prod, self.fit_cfg, others=others, hidden=self._hidden(p))
+        r = self._spot(room, p, prod, placement_id)
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.move_placement(pid, placement_id, list(r.pose.center_xz), r.pose.yaw_rad, snap=True)
@@ -736,9 +834,18 @@ class Service:
         return x
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
-                       snap: bool = True, color: str | None = None, sku: str | None = None) -> dict:
+                       snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
+        if size_m is not None:
+            # 크기 조절은 꾸미기 가구만 (LG 제품 치수는 LGE.COM 값 그대로)
+            if not is_decor(x["sku"]):
+                raise Invalid("LG 제품은 크기를 바꿀 수 없어요")
+            prod = self._item(x["sku"], size_m)
+            d = prod.product_dims_mm
+            x["size_m"] = [d.w / 1000, d.h / 1000, d.d / 1000]
+        if sku is not None and sku != x["sku"] and is_decor(x["sku"]):
+            raise Invalid("꾸미기 가구는 다른 것으로 바꿀 수 없어요")
         if sku is not None and sku != x["sku"]:
             # 색·재질 바꾸기 = 같은 모델 안의 다른 SKU로 바꾸기 (모양·치수가 같아서 자리는 그대로)
             if self.catalog.family_of(sku) is not self.catalog.family_of(x["sku"]):
@@ -746,13 +853,13 @@ class Service:
             opt = self._color_option(self.catalog.get(sku), None)
             x["sku"] = sku
             x["color"], x["hex"] = (opt.color, opt.hex_approx) if opt else (None, None)
-        prod = self.catalog.get(x["sku"])
+        prod = self._item(x["sku"], x.get("size_m"))
         if color is not None:
             opt = self._color_option(prod, color)
             x["color"], x["hex"] = opt.color, opt.hex_approx
         if center_xz is not None or yaw_rad is not None:
             pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
-                              yaw_rad if yaw_rad is not None else x["yaw_rad"], snap)
+                              yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
             x["zone_id"] = None  # 옮긴 순간부터 자유 배치
         self._rejudge_all(room, p)
@@ -993,7 +1100,7 @@ class Service:
         if not rt:
             raise Invalid("와이파이를 보려면 먼저 평면도에 공유기를 놓으세요 (또는 추천 자리 찾기)")
         cfg = WifiConfig.from_env(band or rt.get("band", "5"))
-        room = self.get_room(pid)
+        room = self._standing(self.get_room(pid), p)
         g = coverage(room, tuple(rt["center_xz"]), cfg, blockers=self._metal_blockers(p))
         from sim.daylight import _inside
         zones = []
@@ -1037,7 +1144,8 @@ class Service:
         from recommender.pose import rect
         from sim.flow import FlowConfig, plan_routes
 
-        p, room = self.get_project(pid), self.get_room(pid)
+        p = self.get_project(pid)
+        room = self._standing(self.get_room(pid), p)
         marks = p["scene_state"].get("marks") or {}
         if "entrance" in marks:  # 고객이 현관을 직접 찍었으면 그 자리 가장 가까운 문을 현관으로
             ex, ey = marks["entrance"]
@@ -1060,7 +1168,7 @@ class Service:
             reach = d / 2 + 0.35  # 제품 정면 앞에 서는 자리
             targets[x["placement_id"]] = (x["center_xz"][0] + _m.cos(yaw) * reach, x["center_xz"][1] + _m.sin(yaw) * reach)
             try:
-                prod = self.catalog.get(x["sku"])
+                prod = self._item(x["sku"], x.get("size_m"))
                 names[x["placement_id"]], cats[x["placement_id"]] = prod.name, prod.category
             except KeyError:
                 names[x["placement_id"]] = x["sku"]
@@ -1106,6 +1214,7 @@ class Service:
         hidden = set(p["scene_state"].get("hidden_objects") or [])
         if hidden:  # 치운 가구는 3D·렌더에서 뺀다
             room = room.model_copy(update={"objects": [o for o in room.objects if o.object_id not in hidden]})
+        room = self._standing(room, p)  # 철거한 벽과 그 벽의 문·창도 뺀다
         usdz = self.root / p["scan"]["usdz"]
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
         if sun:
@@ -1163,7 +1272,9 @@ class Service:
     def install_check(self, pid: str) -> dict:
         """설치 전 확인 목록: 놓은 제품마다 자리·앞 공간·잴 벽·들여오는 길·현장 확인 항목."""
         p, room = self.get_project(pid), self.get_room(pid)
-        return install_checklist(room, p["scene_state"]["placements"], self.catalog.get)
+        # 꾸미기 가구는 사는 물건이 아니라 빼고 LG 제품만 본다
+        pls = [x for x in p["scene_state"]["placements"] if not is_decor(x.get("sku"))]
+        return install_checklist(room, pls, self.catalog.get)
 
     def results(self, pid: str) -> dict:
         """F10 결과 화면 데이터 한 번에."""
