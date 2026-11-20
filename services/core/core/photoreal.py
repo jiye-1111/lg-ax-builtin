@@ -68,7 +68,7 @@ def read_image(data_url: str, what: str) -> Image.Image:
 def product_alpha(mask: Image.Image) -> Image.Image:
     """흰 부분(LG 제품) = 255. 가장자리 1~2픽셀 번짐은 막으려고 살짝 넓힌다."""
     a = mask.convert("L").point(lambda v: 255 if v > 127 else 0)
-    return a.filter(ImageFilter.MaxFilter(5))
+    return a.filter(ImageFilter.MaxFilter(3))
 
 
 SPECK = 0.0002  # 화면의 0.02%보다 작은 조각(몇 픽셀 자투리)만 버린다. 멀리 있는 정수기처럼 작은 제품은 남겨야 한다
@@ -211,7 +211,7 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     if score < ALIGN_MIN:  # AI가 구도를 너무 바꿨다: 제품을 얹으면 엉뚱한 곳에 떠 보인다
         return out
     out = contact_shadow(out, alpha)
-    keep = alpha.filter(ImageFilter.GaussianBlur(2.5))  # 제품 테두리만 살짝 섞는다
+    keep = alpha.filter(ImageFilter.GaussianBlur(1.5))  # 제품 테두리만 살짝 섞는다
     keep = keep.point(lambda v: 255 if v >= 250 else v)
     return Image.composite(match_light(view, out, alpha), out, keep)
 
