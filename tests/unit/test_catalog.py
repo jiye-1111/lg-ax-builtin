@@ -51,3 +51,9 @@ def test_products_on_sale_have_lgecom_price():
     assert on_sale and all(p.price_krw and p.price_checked_at for p in on_sale)
     assert all(p.price_krw is None or p.price_krw >= 1000 for p in real)
     assert all((p.price_krw is None) == (p.price_checked_at is None) for p in real)
+
+
+def test_only_categories_without_lgecom_color_have_null_color():
+    """색상 이름이 비어 있어도 되는 건 LGE.COM 스펙 표에 색상 항목이 없는 종류뿐이다."""
+    no_color = {p["category"] for p in REAL if not p["cmf_options"][0]["color"]}
+    assert no_color <= {"tv", "portable_tv", "massage_chair", "plant_grower"}
