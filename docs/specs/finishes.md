@@ -28,7 +28,7 @@
 |---|---|---|
 | GET | `/api/finishes` | 마감재 목록 |
 | POST | `/api/projects/{pid}/finishes` | `{finish_id, tone?}` 적용. `scene_state.finish_ids[kind] = {id, tone}`, `materials[kind] = tone` |
-| POST | `/api/projects/{pid}/style/ai` | `{prompt, zone_id?, apply_finishes=true}` → `{engine, summary, style, intent, finishes{wall,floor}, applied}` |
+| POST | `/api/projects/{pid}/style/ai` | `{prompt, zone_id?, apply_finishes=true}` → `{engine, summary, style, intent, finishes{wall,floor}, applied, products}`. `products`는 제품 조건을 말했을 때만 (`api.md` "대화로 제품 찾기") |
 
 ## 3D
 `viewer.setFinishes({wall, floor})` → `dressRoom`이 벽·바닥에 질감 텍스처를 입힌다. 무늬는 회색조, 색은 톤(재질 색)이 곱해진다.

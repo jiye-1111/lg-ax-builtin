@@ -27,7 +27,7 @@
 | GET/POST | `/api/projects/{pid}/zones` | 영역 F5 `{purpose, polygon_m, wall_ids?, name?}` |
 | PATCH/DELETE | `/api/projects/{pid}/zones/{zid}` | 영역 수정·삭제 |
 | PUT | `/api/projects/{pid}/style` | 스타일 F6 `{prompt?, palette?, materials?, zone_id?}` |
-| POST | `/api/projects/{pid}/style/ai` | 말로 꾸미기 `{prompt, zone_id?, apply_finishes?}` → 스타일 저장 + 벽지·바닥재 추천·적용 (`finishes.md`) |
+| POST | `/api/projects/{pid}/style/ai` | 말로 꾸미기 `{prompt, zone_id?, apply_finishes?}` → 스타일 저장 + 벽지·바닥재 추천·적용 (`finishes.md`). 제품 조건을 말하면 `products`에 맞는 제품도 (아래 "대화로 제품 찾기") |
 | GET | `/api/finishes` | 2026 트렌드 실제 벽지·바닥재 목록 |
 | POST | `/api/projects/{pid}/finishes` | 벽지·바닥재 적용 `{finish_id, tone?}` |
 | POST | `/api/projects/{pid}/materials` | 재질 F7 `{target, hex_color, finish?, wall_id?}` |
@@ -109,3 +109,27 @@
 | GET | `/api/projects/{pid}/sim/wifi/best?band=` | 가장 약한 곳이 제일 센 공유기 자리 |
 | PUT/DELETE | `/api/projects/{pid}/marks/{sink\|entrance}` | 싱크·현관 위치 |
 | GET | `/api/projects/{pid}/sim/flow` | 현관 → 제품 앞(정면 0.35 m) 경로, 길이, 가장 좁은 폭, 좁은 점, 작업 삼각형 |
+
+## 대화로 제품 찾기
+말로 꾸미기(`POST /api/projects/{pid}/style/ai`)에 제품 조건을 적으면 같은 응답의 `products`에 맞는 제품이 온다. 따로 부르는 추천 API는 없다.
+
+예: "600L 이상 베이지 냉장고, 폭 950 안에 들어가는 걸로, 300만 원 이하"
+
+- AI(또는 키가 없을 때 규칙)는 말을 조건으로 옮기기만 한다 (`core/ai_products.py`). 읽는 조건: 종류, 빌트인/일반형, 용량(L), 색 묶음, 가격(원), 놓을 자리 폭·높이·깊이(mm), 정렬.
+- 고르고 줄 세우는 건 "조건으로 제품 찾기"와 같은 코드다 (`Service.find`). 놓을 자리 치수를 말했으면 거기 들어가는 것만, 말하지 않았으면 그려 둔 영역 기준으로 판정한다.
+- 제품만 물었으면 벽지·바닥재와 저장된 스타일은 그대로 두고 `applied = {}`, `finishes = {wall: [], floor: []}`, `summary = products.message`.
+- 분위기와 제품을 같이 말하면 둘 다 한다. 분위기만 말하면 `products = null`.
+
+```
+products: {
+  engine,            // claude | openai | rules
+  conditions,        // 말에서 읽은 조건만. 예: {category, capacity_min, color, space_w, price_max}
+  sort,              // recommended | size | price
+  items,             // 최대 5개. /find의 items와 같은 모양 (product, fit, reasons, color_group, family_id, thumb …)
+  total,             // 조건에 맞는 전체 수 (같은 모델의 색은 하나로)
+  zone_id,
+  message            // 대화창에 그대로 보여 줄 한 줄. 코드가 만든다
+}
+```
+
+규칙으로 읽을 때: "600L 이상/이하", "800L"(그쯤, ±10%), "300만 원 이하", "150만 원 넘는", "200만원대"(200~300만), 금액만 말하면 상한, "폭 950"·"가로 95cm"·"60cm 폭"·"높이 1.8m"(단위가 없으면 크기로 짐작).

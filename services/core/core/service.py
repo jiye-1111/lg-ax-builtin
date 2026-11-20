@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 import re
 import secrets
@@ -22,6 +23,7 @@ from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
 
 from . import config
+from .ai_products import chat_message, interpret_products
 from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
 from .models import MeasuredDims, Product, Room, Zone
@@ -98,7 +100,7 @@ class Catalog:
 # ---------------- 서비스 ----------------
 class Service:
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
-                 stylist=None):
+                 stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())
         self.root.mkdir(parents=True, exist_ok=True)
         self.db = Store(self.root / "app.sqlite3")
@@ -106,6 +108,7 @@ class Service:
         self.fit_cfg = fit_cfg or FitConfig.from_env()
         self.finishes = load_finishes(config.ROOT / "data" / "finishes" / "finishes.json")
         self.stylist = stylist or interpret_style  # (prompt, catalog_brief) -> StyleIntent
+        self.product_reader = product_reader or interpret_products  # (prompt) -> ProductIntent
         self.accounts = Accounts(self.db)
 
     # ---- 경로 ----
@@ -548,14 +551,26 @@ class Service:
                          for f in self.finishes)
 
     def ai_style(self, pid: str, prompt: str, zone_id: str | None = None, apply_finishes: bool = True) -> dict:
-        """고객의 말 → 스타일 저장 → 코드가 벽지·바닥재 순위 계산 → (선택) 1순위 적용. 가전 색 추천도 이 스타일을 따른다."""
+        """고객의 말 → 스타일 저장 → 코드가 벽지·바닥재 순위 계산 → (선택) 1순위 적용. 가전 색 추천도 이 스타일을 따른다.
+
+        제품 조건(종류·용량·색·가격·놓을 자리)을 말하면 카탈로그에서 맞는 제품도 찾아 products에 담는다.
+        제품만 물었으면 벽지·바닥재와 저장된 스타일은 건드리지 않는다."""
         prompt = (prompt or "").strip()
         if not prompt:
             raise Invalid("원하는 분위기를 적어 주세요")
         if len(prompt) > 500:
             raise Invalid("500자 안으로 적어 주세요")
         self.get_project(pid)
-        intent = self.stylist(prompt, catalog_brief=self.finishes_brief())
+        with ThreadPoolExecutor(max_workers=2) as pool:   # 두 해석을 같이 보내 기다리는 시간을 줄인다
+            want_f = pool.submit(self.product_reader, prompt)
+            style_f = pool.submit(self.stylist, prompt, catalog_brief=self.finishes_brief())
+            want, intent = want_f.result(), style_f.result()
+        products = self._chat_products(pid, zone_id, want) if want.wants_products else None
+        if products and not want.also_style:
+            st = self.get_project(pid)["style"]
+            return {"engine": want.engine, "summary": products["message"], "style": st,
+                    "intent": {"wall_texture": None, "floor_texture": None},
+                    "finishes": {"wall": [], "floor": []}, "applied": {}, "products": products}
         style = self.set_style(pid, prompt, intent.palette, intent.materials, zone_id)
         ranked = {k: rank_finishes(self.finishes, k, intent.palette, intent.materials,
                                    intent.wall_texture if k == "wall" else intent.floor_texture, top_k=3)
@@ -566,14 +581,26 @@ class Service:
                 if r and r[0].score > 0:
                     self.apply_finish(pid, r[0].finish.id, r[0].tone.hex)
                     applied[k] = r[0].to_dict()
+        summary = f"{intent.summary} {products['message']}" if products else intent.summary
         p = self.get_project(pid)
         p["style"]["summary"] = intent.summary
         p["style"]["engine"] = intent.engine
         self._save_project(p)
-        return {"engine": intent.engine, "summary": intent.summary,
+        return {"engine": intent.engine, "summary": summary,
                 "style": {**style["project_style"], "summary": intent.summary, "engine": intent.engine},
                 "intent": {"wall_texture": intent.wall_texture, "floor_texture": intent.floor_texture},
-                "finishes": {k: [m.to_dict() for m in r] for k, r in ranked.items()}, "applied": applied}
+                "finishes": {k: [m.to_dict() for m in r] for k, r in ranked.items()}, "applied": applied,
+                "products": products}
+
+    CHAT_PRODUCTS = 5
+
+    def _chat_products(self, pid: str, zone_id: str | None, want) -> dict:
+        """대화에서 읽은 조건으로 찾기. 놓을 자리 치수를 말했으면 거기 들어가는 것만 고른다."""
+        conds = want.conditions()
+        typed = any(k in conds for k in ("space_w", "space_h", "space_d"))
+        res = self.find(Conditions(**conds, fits_only=typed, sort=want.sort, limit=self.CHAT_PRODUCTS), pid, zone_id)
+        return {"engine": want.engine, "conditions": conds, "sort": want.sort, "items": res["items"], "total": res["total"],
+                "zone_id": res["zone_id"], "message": chat_message(conds, res["total"], len(res["items"]), want.sort)}
 
     def place_product(self, pid: str, zone_id: str, sku: str, color: str | None = None) -> dict:
         prod = self.catalog.get(sku)
