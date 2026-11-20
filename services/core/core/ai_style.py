@@ -20,6 +20,14 @@ log = logging.getLogger(__name__)
 
 MODEL = os.getenv("STYLE_AI_MODEL", "claude-opus-5-5")
 OPENAI_MODEL = os.getenv("STYLE_AI_OPENAI_MODEL", "gpt-5-mini")
+# gpt-5·o 계열은 생각 단계가 길어 기본값으로는 30~60초 걸린다. 짧은 구조화 답이라 minimal이면 충분 (PC 실측 17~20초)
+OPENAI_EFFORT = os.getenv("STYLE_AI_OPENAI_EFFORT", "minimal")
+
+
+def openai_extra(model: str = OPENAI_MODEL) -> dict:
+    return {"reasoning_effort": OPENAI_EFFORT} if OPENAI_EFFORT and re.match(r"^(gpt-5|o\d)", model) else {}
+
+
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 TextureName = Literal["plaster", "fabric", "stone", "wood", "paint"]
 
@@ -119,6 +127,7 @@ def interpret_with_openai(prompt: str, catalog_brief: str = "", client=None) -> 
             messages=[{"role": "system", "content": SYSTEM.format(catalog=catalog_brief or "(없음)")},
                       {"role": "user", "content": prompt}],
             response_format=StyleIntent,
+            **openai_extra(),
         )
         msg = r.choices[0].message
         if getattr(msg, "refusal", None) or msg.parsed is None:
