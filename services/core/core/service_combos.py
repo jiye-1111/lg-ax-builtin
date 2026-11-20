@@ -15,7 +15,8 @@ from recommender.layout import Item, arrange
 from recommender.pose import Pose
 
 from .ai_products import CATEGORY_KO
-from .combos import PLAN_FACTOR, PLAN_KO, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, room_brief, rule_ideas, slot_sku
+from .combos import (PLAN_FACTOR, PLAN_KO, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
+                     rule_ideas, slot_sku)
 from .decor import decor_product, is_decor
 from .models import Product, StyleTags
 
@@ -72,7 +73,7 @@ class ComboMixin:
 
     # ---- 만들기 ----
     def make_combos(self, pid: str, categories: list[str] | None = None, budget: int | None = None, prompt: str = "",
-                    zone_id: str | None = None) -> dict:
+                    zone_id: str | None = None, image: tuple[str, str] | None = None) -> dict:
         from .service import Invalid
 
         prompt = (prompt or "").strip()
@@ -98,8 +99,11 @@ class ComboMixin:
         stock = {c: (len(v), min((x.price_krw for x in v), default=None), max((x.price_krw for x in v), default=None))
                  for c, v in pools.items()}
         purpose = detect_purpose(prompt, cats, zones)
-        ideas = self.ideator(room_brief(room, zones, cats, budget, prompt, stock))
-        engine = "ai"
+        brief = room_brief(room, zones, cats, budget, prompt, stock)
+        ideas = self.ideator(brief, image) if image else self.ideator(brief)
+        if image and ideas and ideas.not_a_room:
+            return {"engine": "ai", "not_a_room": True, "combos": []}
+        engine, seen = "ai", (ideas.seen if image and ideas else None)
         if not ideas or not ideas.ideas:
             ideas, engine = rule_ideas(prompt, purpose), "rules"
         others = [x for x in p["scene_state"]["placements"] if not x.get("combo") and x.get("size_m")]
@@ -108,7 +112,7 @@ class ComboMixin:
         p["scene_state"]["combos"] = combos
         self._save_project(p)
         return {"engine": engine, "purpose": ideas.purpose, "purpose_label": PURPOSE_KO.get(ideas.purpose, ""),
-                "budget": budget, "categories": cats, "combos": combos}
+                "budget": budget, "categories": cats, "combos": combos, "seen": seen}
 
     def _one_combo(self, room, p: dict, others: list[dict], idea: Idea, pools: dict, meds: dict, budget, idx: int) -> dict:
         tags = StyleTags(palette=idea.palette, materials=idea.materials)
@@ -185,16 +189,23 @@ class ComboMixin:
     DECOR_WORDS = ("꾸미", "꾸며", "분위기", "느낌", "무드", "인테리어", "침대", "소파", "책상", "식탁", "호텔", "리조트",
                    "컨셉", "콘셉")
 
-    def assist(self, pid: str, prompt: str) -> dict:
-        """하우니 한 번. 꾸미기·분위기를 말하면 조합 2~3개, 제품만 물으면 이 집에 맞는 하나 + 대안 둘."""
+    def assist(self, pid: str, prompt: str, image: str | None = None) -> dict:
+        """하우니 한 번. 꾸미기·분위기를 말하거나 사진을 붙이면 조합 2~3개, 제품만 물으면 이 집에 맞는 하나 + 대안 둘.
+        사진은 AI에 한 번 보내고 버린다 (저장하지 않음)."""
         from .service import Invalid
 
         prompt = (prompt or "").strip()
-        if not prompt:
-            raise Invalid("원하는 것을 적어 주세요")
-        want = self.product_reader(prompt)
-        decor = any(w in prompt for w in self.DECOR_WORDS)
-        if want.wants_products and want.category and not decor:
+        photo = None
+        if image:
+            try:
+                photo = parse_photo(image)
+            except ValueError as e:
+                raise Invalid(str(e)) from None
+        if not prompt and not photo:
+            raise Invalid("원하는 것을 적거나 사진을 붙여 주세요")
+        want = self.product_reader(prompt) if prompt else None
+        decor = photo is not None or any(w in prompt for w in self.DECOR_WORDS)
+        if want and want.wants_products and want.category and not decor:
             got = self._chat_products(pid, None, want)
             items = got["items"][:3]
             head = CATEGORY_KO.get(want.category, "제품")
@@ -205,10 +216,19 @@ class ComboMixin:
                 if len(items) > 1:
                     msg += f" 비교해 볼 {head} {len(items) - 1}개도 같이 둘게요."
             return {"type": "products", "message": msg, "items": items, "engine": got["engine"]}
-        out = self.make_combos(pid, [want.category] if want.category else [], want.price_max, prompt)
+        out = self.make_combos(pid, [want.category] if want and want.category else [], want.price_max if want else None,
+                               prompt, image=photo)
+        if out.get("not_a_room"):
+            return {"type": "message", "message": "방 사진이 아닌 것 같아요. 이런 느낌으로 살고 싶은 방 사진을 붙여 주세요.", "engine": "ai"}
         n = len(out["combos"])
-        msg = (f"{out['purpose_label'] or '이 공간'}을 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
-               if n else "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요.")
+        if not n:
+            msg = "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요."
+        elif photo and out["seen"]:
+            msg = f"사진은 ‘{out['seen']}’ 느낌이에요. 이 집에 맞춰 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
+        elif photo:
+            msg = f"사진을 읽지 못해서 {'적어 준 말로' if prompt else '기본 분위기로'} {n}가지를 꾸며 봤어요. 마음에 드는 조합을 누르면 한 번에 들어가요."
+        else:
+            msg = f"{out['purpose_label'] or '이 공간'}을 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
         return {"type": "combos", "message": msg, **out}
 
     def clear_combo(self, pid: str) -> dict:

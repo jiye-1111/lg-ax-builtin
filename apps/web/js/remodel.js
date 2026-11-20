@@ -1486,17 +1486,49 @@ export async function customer(pid) {
   bot.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); openBot(false); botBtn.focus(); } });
   document.getElementById("botEx").innerHTML = AI_EX.slice(0, 3).map((t) => `<button class="chip" data-say="${esc(t)}">${esc(t)}</button>`).join("");
   document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => { botIn.value = b.dataset.say; botForm.requestSubmit(); }));
+  // 사진 한 장으로 꾸미기: 긴 변 1024px JPEG로 줄여서 보낸다 (서버는 AI에 한 번 보내고 버린다)
+  const PHOTO_MAX = 1024, PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
+  let botPhoto = null; // data URL
+  const photoPrev = document.getElementById("botPhotoPrev"), photoIn = document.getElementById("botPhoto");
+  const setPhoto = (url) => {
+    botPhoto = url;
+    photoPrev.hidden = !url;
+    photoPrev.innerHTML = url ? `<img src="${url}" alt="붙인 사진"><span>이 사진 느낌으로 꾸며 볼게요</span><button type="button" class="bot-x" id="botPhotoX" aria-label="사진 빼기">×</button>` : "";
+    if (url) document.getElementById("botPhotoX").onclick = () => { setPhoto(null); botIn.focus(); };
+    botIn.placeholder = url ? "더 하고 싶은 말 (없어도 돼요)" : "예) 호텔 같은 침실, 가전은 300만 원 안";
+  };
+  const shrinkPhoto = async (file) => {
+    if (!PHOTO_TYPES.includes(file.type)) throw new Error("jpg, png, webp 사진만 붙일 수 있어요");
+    if (file.size > 20 * 1024 * 1024) throw new Error("사진이 너무 커요 (20MB 안)");
+    const bmp = await createImageBitmap(file);
+    const k = Math.min(1, PHOTO_MAX / Math.max(bmp.width, bmp.height));
+    const cv = document.createElement("canvas");
+    cv.width = Math.round(bmp.width * k); cv.height = Math.round(bmp.height * k);
+    cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+    bmp.close?.();
+    return cv.toDataURL("image/jpeg", 0.85);
+  };
+  const takePhoto = async (file) => {
+    if (!file) return;
+    try { setPhoto(await shrinkPhoto(file)); botIn.focus(); } catch (err) { toast(err.message || "사진을 못 읽었어요", true); }
+  };
+  photoIn.onchange = () => { takePhoto(photoIn.files[0]); photoIn.value = ""; };
+  botIn.addEventListener("paste", (e) => { const f = [...(e.clipboardData?.files || [])].find((x) => x.type.startsWith("image/")); if (f) { e.preventDefault(); takePhoto(f); } });
+  document.getElementById("botPanel").addEventListener("dragover", (e) => e.preventDefault());
+  document.getElementById("botPanel").addEventListener("drop", (e) => { const f = e.dataTransfer?.files?.[0]; if (f) { e.preventDefault(); takePhoto(f); } });
   botForm.onsubmit = async (e) => {
     e.preventDefault();
-    const prompt = botIn.value.trim();
-    if (!prompt || botForm.dataset.busy) return;
-    botIn.value = ""; botForm.dataset.busy = "1"; bot.classList.add("thinking");
-    say("me", esc(prompt));
+    const prompt = botIn.value.trim(), image = botPhoto;
+    if ((!prompt && !image) || botForm.dataset.busy) return;
+    botIn.value = ""; setPhoto(null); botForm.dataset.busy = "1"; bot.classList.add("thinking");
+    say("me", `${image ? `<img class="msg-photo" src="${image}" alt="붙인 사진">` : ""}${prompt ? esc(prompt) : ""}`);
     const wait = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
     try {
-      // 하우니: 꾸미기·분위기를 말하면 조합, 제품만 물으면 이 집에 맞는 하나 + 대안 (서버가 계산)
-      const d = await post(`/api/projects/${pid}/assist`, { prompt });
-      if (d.type === "combos") {
+      // 하우니: 꾸미기·분위기를 말하거나 사진을 붙이면 조합, 제품만 물으면 이 집에 맞는 하나 + 대안 (서버가 계산)
+      const d = await post(`/api/projects/${pid}/assist`, image ? { prompt, image } : { prompt });
+      if (d.type === "message") {
+        wait.innerHTML = `<p>${esc(d.message)}</p>`;
+      } else if (d.type === "combos") {
         wait.innerHTML = `<p>${esc(d.message)}</p>${comboCardsHtml(d)}`;
         bindComboCards(wait, pid, () => refresh(true));
       } else {
@@ -1952,10 +1984,13 @@ function botHtml() {
       <header class="bot-head">${BOT_SVG}<div><b>하우니</b><span>LG 봇 · 말로 꾸미기</span></div>
         <button class="bot-x" id="botClose" aria-label="닫기">×</button></header>
       <div class="bot-log" id="botLog" aria-live="polite">
-        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요.</p></div>
+        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요. 마음에 드는 방 사진을 붙여도 돼요.</p></div>
       </div>
       <div class="chips bot-ex" id="botEx"></div>
-      <form class="bot-form" id="botForm"><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 호텔 같은 침실, 가전은 300만 원 안" aria-label="하우니에게 말하기">
+      <div class="bot-photo-prev" id="botPhotoPrev" hidden></div>
+      <form class="bot-form" id="botForm"><label class="bot-photo" title="사진 붙이기"><input type="file" id="botPhoto" accept="image/jpeg,image/png,image/webp" hidden>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="12" cy="13" r="3.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span class="sr">사진 붙이기</span></label><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 호텔 같은 침실, 가전은 300만 원 안" aria-label="하우니에게 말하기">
         <button class="primary" aria-label="보내기">보내기</button></form>
     </section>
     <button class="bot-btn" id="botBtn" aria-expanded="false" aria-controls="botPanel" title="하우니에게 말로 꾸미기">${BOT_SVG}<span class="bot-tip">말로 꾸며 볼까요?</span></button>

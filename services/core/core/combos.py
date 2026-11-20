@@ -7,9 +7,12 @@
 """
 from __future__ import annotations
 
+import base64
+import binascii
 import logging
 import math
 import os
+import re
 from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -78,6 +81,9 @@ class Ideas(BaseModel):
     model_config = ConfigDict(extra="forbid")
     purpose: Purpose = Field(description="이 공간 용도")
     ideas: list[Idea] = Field(description="성격이 다른 조합 2~3개")
+    seen: Optional[str] = Field(None, description="사진이 있을 때만: 사진에서 읽은 느낌 한 줄, 30자 안. "
+                                                  "예: 짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명. 사진이 없으면 null")
+    not_a_room: bool = Field(False, description="사진이 실내 공간 사진이 아니면 true (그때 ideas는 비워도 됨)")
 
 
 SYSTEM = """너는 LG전자 매장의 인테리어 컨설턴트다. 고객의 실제 집(스캔)과 고른 가전, 목표 가격을 보고
@@ -89,6 +95,35 @@ SYSTEM = """너는 LG전자 매장의 인테리어 컨설턴트다. 고객의 �
 - 제품 이름, 가격, 치수 숫자를 지어내지 않는다. 어떤 제품이 들어가는지와 가격은 프로그램이 계산한다.
 - why와 tips는 고객에게 바로 도움이 되는 말로. 막연한 칭찬 대신 무엇을 어떻게 하면 되는지.
 고를 수 있는 가구: {kinds}"""
+
+
+PHOTO_RULES = """
+고객이 사진을 한 장 붙였다. 사진은 '이런 느낌으로 살고 싶다'는 참고일 뿐이다.
+- 사진에서는 분위기, 주요 색(palette), 재질(materials), 벽·바닥 질감, 보이는 가구 종류, 공간 용도만 읽는다.
+- 사진 속 가구·가전의 브랜드나 제품명을 추측하지 않는다. 사람 얼굴·글자·개인 정보는 무시한다.
+- seen에 사진에서 읽은 느낌을 한 줄로 적는다. 세 조합 모두 사진 느낌을 따르되 price_plan만 다르게.
+- 실내 공간 사진이 아니면 not_a_room을 true로."""
+
+PHOTO_TYPES = {"image/jpeg": b"\xff\xd8\xff", "image/png": b"\x89PNG", "image/webp": b"RIFF"}
+PHOTO_MAX_BYTES = 5 * 1024 * 1024
+_DATA_URL = re.compile(r"^data:(image/[a-z]+);base64,([A-Za-z0-9+/=\s]+)$")
+
+
+def parse_photo(data_url: str) -> tuple[str, str]:
+    """하우니에 붙인 사진(data URL)을 (형식, base64)로. 형식·실제 바이트·크기를 확인한다. 저장하지 않는다."""
+    m = _DATA_URL.match(data_url or "")
+    if not m or m.group(1) not in PHOTO_TYPES:
+        raise ValueError("jpg, png, webp 사진만 붙일 수 있어요")
+    b64 = re.sub(r"\s", "", m.group(2))
+    try:
+        raw = base64.b64decode(b64, validate=True)
+    except (binascii.Error, ValueError):
+        raise ValueError("사진을 읽을 수 없어요") from None
+    if len(raw) > PHOTO_MAX_BYTES:
+        raise ValueError("사진은 5MB 안으로 붙여 주세요")
+    if not raw.startswith(PHOTO_TYPES[m.group(1)]):
+        raise ValueError("사진 파일이 아닌 것 같아요")
+    return m.group(1), b64
 
 
 def room_brief(room, zones: list[dict], categories: list[str], budget: Optional[int], prompt: str, stock: dict) -> str:
@@ -111,18 +146,21 @@ def room_brief(room, zones: list[dict], categories: list[str], budget: Optional[
     return "\n".join(lines)
 
 
-def ask_ideas(brief: str, client=None) -> Optional[Ideas]:
+def ask_ideas(brief: str, client=None, image: Optional[tuple[str, str]] = None) -> Optional[Ideas]:
+    """image = (형식, base64). 있으면 사진을 같이 보내 분위기·색만 읽게 한다."""
     provider = pick_provider() if client is None else "given"
     if provider is None:
         return None
-    system = SYSTEM.format(kinds=", ".join(k for k in DecorKind.__args__))
+    system = SYSTEM.format(kinds=", ".join(k for k in DecorKind.__args__)) + (PHOTO_RULES if image else "")
     try:
         if provider == "openai" or (client is not None and hasattr(client, "chat")):
             if client is None:
                 import openai
                 client = openai.OpenAI(timeout=float(os.getenv("STYLE_AI_TIMEOUT_S", 40)), max_retries=1)
+            user = brief if not image else [{"type": "text", "text": brief},
+                                            {"type": "image_url", "image_url": {"url": f"data:{image[0]};base64,{image[1]}", "detail": "low"}}]
             r = client.chat.completions.parse(model=OPENAI_MODEL, response_format=Ideas,
-                                              messages=[{"role": "system", "content": system}, {"role": "user", "content": brief}])
+                                              messages=[{"role": "system", "content": system}, {"role": "user", "content": user}])
             msg = r.choices[0].message
             return None if getattr(msg, "refusal", None) else msg.parsed
         if client is None:
@@ -130,7 +168,10 @@ def ask_ideas(brief: str, client=None) -> Optional[Ideas]:
             client = anthropic.Anthropic(timeout=float(os.getenv("STYLE_AI_TIMEOUT_S", 40)), max_retries=1)
         r = client.beta.messages.parse(model=MODEL, max_tokens=3000, output_config={"effort": "low"},
                                        betas=["server-side-fallback-2026-07-01"], fallbacks="default",
-                                       system=system, messages=[{"role": "user", "content": brief}], output_format=Ideas)
+                                       system=system, output_format=Ideas,
+                                       messages=[{"role": "user", "content": brief if not image else [
+                                           {"type": "image", "source": {"type": "base64", "media_type": image[0], "data": image[1]}},
+                                           {"type": "text", "text": brief}]}])
         return None if r.stop_reason == "refusal" else getattr(r, "parsed_output", None)
     except Exception as e:  # 키·네트워크·한도 문제여도 규칙 템플릿으로 계속
         log.warning("조합 컨셉 생성 실패 → 규칙 템플릿: %s", e)

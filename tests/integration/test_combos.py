@@ -123,3 +123,76 @@ def test_products_without_a_color_name_never_get_a_color_reason(svc):
     from recommender.cmf import StyleTags
     bare = next(p for p in svc.catalog.products if p.cmf_options and p.cmf_options[0].color is None)
     assert svc._color_score(bare, StyleTags()) == (0.5, None)
+
+
+# ---- 사진 한 장으로 꾸미기: 하우니에 사진을 붙이면 AI는 분위기·색만 읽고, 제품·자리·가격은 코드 ----
+import base64  # noqa: E402
+
+PNG = base64.b64encode(bytes.fromhex(
+    "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
+    "1f15c4890000000d49444154789c6360f8cfc0000003010100c9fe92ef0000000049454e44ae426082")).decode()
+PHOTO = f"data:image/png;base64,{PNG}"
+
+
+def _photo_idea(**kw):
+    idea = Idea(name="우드 스위트", why="짙은 나무와 리넨이 차분해요.", tips=["간접 조명을 낮게"],
+                palette=["#EDE6DA", "#5A4632"], materials=["walnut", "linen", "warm"], wall_texture="plaster", floor_texture="wood",
+                furniture=[Slot(kind="bed", role="anchor"), Slot(kind="nightstand", role="pair")], price_plan="target",
+                appliance_point="나무 톤과 어울리는 무광")
+    return Ideas(purpose="bedroom", ideas=[idea, idea.model_copy(update={"name": "B", "price_plan": "save"})], **kw)
+
+
+def test_photo_goes_to_the_ai_and_gives_combos_with_what_it_saw(c, svc, pid):
+    seen = {}
+
+    def fake(brief, image=None):
+        seen["image"] = image
+        return _photo_idea(seen="짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명")
+
+    svc.ideator = fake
+    r = c.post(f"/api/projects/{pid}/assist", json={"prompt": "이 느낌으로 침실", "image": PHOTO})
+    assert r.status_code == 200, r.text
+    d = r.json()
+    assert d["type"] == "combos" and d["engine"] == "ai"
+    assert d["seen"] == "짙은 호두나무 · 베이지 리넨 · 따뜻한 간접조명"
+    assert seen["image"] == ("image/png", PNG)
+    assert d["combos"][0]["name"] == "우드 스위트"
+
+
+def test_photo_alone_without_words_is_enough(c, svc, pid):
+    svc.ideator = lambda brief, image=None: _photo_idea(seen="밝은 미니멀")
+    d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
+    assert d["type"] == "combos" and d["seen"] == "밝은 미니멀"
+
+
+def test_photo_that_is_not_a_room_gets_a_plain_answer(c, svc, pid):
+    svc.ideator = lambda brief, image=None: _photo_idea(not_a_room=True)
+    d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO}).json()
+    assert d["type"] == "message" and "방 사진" in d["message"]
+
+
+def test_photo_unreadable_says_so_and_uses_the_words(c, svc, pid):
+    svc.ideator = lambda brief, image=None: None
+    d = c.post(f"/api/projects/{pid}/assist", json={"prompt": "호텔 같은 침실", "image": PHOTO}).json()
+    assert d["type"] == "combos" and d["engine"] == "rules" and d["seen"] is None
+    assert "사진" in d["message"]
+
+
+def test_photo_is_not_kept_in_the_project(c, svc, pid):
+    svc.ideator = lambda brief, image=None: _photo_idea(seen="x")
+    c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": PHOTO})
+    assert PNG not in str(c.get(f"/api/projects/{pid}").json())
+
+
+@pytest.mark.parametrize("bad", [
+    "data:image/gif;base64," + PNG,              # 받지 않는 형식
+    "data:image/png;base64,!!!notbase64",        # 깨진 데이터
+    "data:image/png;base64," + base64.b64encode(b"hello").decode(),  # 이름만 png
+    "http://example.com/a.png",                  # 주소는 받지 않음
+])
+def test_bad_photos_are_rejected(c, pid, bad):
+    assert c.post(f"/api/projects/{pid}/assist", json={"prompt": "", "image": bad}).status_code == 422
+
+
+def test_no_words_and_no_photo_is_rejected(c, pid):
+    assert c.post(f"/api/projects/{pid}/assist", json={"prompt": ""}).status_code == 422
