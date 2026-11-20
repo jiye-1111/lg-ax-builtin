@@ -135,7 +135,7 @@ export function makeViewer(el, handlers = {}) {
   // 눈높이 1.6 m에서 WASD로 걷고, 화면을 누르면 마우스로 둘러본다(Esc로 풀림). 벽·가구·제품은 못 지나간다.
   const plc = new PointerLockControls(cam, renderer.domElement);
   plc.pointerSpeed = 0.8;
-  let walk = null, lastT = performance.now();
+  let walk = null, lastT = performance.now(), stepSunFn = null; // 해 보간 함수는 아래 '해'에서 채운다
   const euler = new THREE.Euler(0, 0, 0, "YXZ");
   const KEYS = { KeyW: "f", ArrowUp: "f", KeyS: "b", ArrowDown: "b", KeyA: "l", ArrowLeft: "l", KeyD: "r", ArrowRight: "r" };
   const onWalkKey = (e) => {
@@ -198,6 +198,7 @@ export function makeViewer(el, handlers = {}) {
       cutaway();
     }
     animateHeld();
+    stepSunFn?.(dt);
     composer.render();
     requestAnimationFrame(loop);
   })();
@@ -205,27 +206,48 @@ export function makeViewer(el, handlers = {}) {
   // realSun: null이면 보기 좋은 기본 해(카메라 왼쪽 위). 있으면 {direction:[x,y,z](해 쪽), color, intensity(0~1), up}
   let realSun = null, shell = null, roomR = 8;
   const roomC = new THREE.Vector3();
+  // 해는 목표(goal)로 바로 바뀌지 않고 매 프레임 조금씩 다가간다(약 0.2초 시정수).
+  // 시간 슬라이더를 움직이거나 하루를 재생해도 방향·색·세기·하늘빛이 끊김 없이 이어진다.
+  const DEFAULT_DIR = new THREE.Vector3(-0.6, 1.6, 0.8).normalize();
+  const goal = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
+  const cur = { dir: DEFAULT_DIR.clone(), color: new THREE.Color(STUDIO.color), sun: STUDIO.intensity, hemi: STUDIO.hemi };
+  let snapSun = true;
   const placeSun = () => {
-    const d = realSun ? new THREE.Vector3(...realSun.direction).normalize() : new THREE.Vector3(-0.6, 1.6, 0.8).normalize();
-    sun.position.copy(roomC).addScaledVector(d, roomR * 2);
+    sun.position.copy(roomC).addScaledVector(cur.dir, roomR * 2);
     sun.target.position.copy(roomC);
     sun.target.updateMatrixWorld();
   };
-  const applySun = () => {
+  const stepSun = (dt) => {
+    const k = snapSun ? 1 : 1 - Math.exp(-dt / 0.2);
+    snapSun = false;
+    cur.dir.lerp(goal.dir, k).normalize();
+    cur.color.lerp(goal.color, k); // 선형 색 공간에서 섞는다
+    cur.sun += (goal.sun - cur.sun) * k;
+    cur.hemi += (goal.hemi - cur.hemi) * k;
+    sun.color.copy(cur.color);
+    sun.intensity = cur.sun;
+    hemi.intensity = cur.hemi;
+    sun.castShadow = cur.sun > 0.01;
+    placeSun();
+  };
+  stepSunFn = stepSun;
+  const applySun = (instant = false) => {
     if (shell) shell.visible = !!realSun; // 벽·천장 그림자: 실제 해일 때만 (창으로만 볕이 든다)
     if (!realSun) {
-      sun.color.set(STUDIO.color);
-      sun.intensity = STUDIO.intensity;
-      hemi.intensity = STUDIO.hemi;
+      goal.dir.copy(DEFAULT_DIR);
+      goal.color.set(STUDIO.color);
+      goal.sun = STUDIO.intensity;
+      goal.hemi = STUDIO.hemi;
     } else {
-      sun.color.set(realSun.color);
+      goal.dir.set(...realSun.direction).normalize();
+      goal.color.set(realSun.color);
       // 직사광은 실내 간접광보다 몇 배 밝다: 창으로 든 볕이 바닥에 또렷하게
-      sun.intensity = realSun.up ? 6.0 * realSun.intensity : 0;
-      // 하늘빛: 낮에는 밝고, 해가 낮으면 줄고, 밤에는 아주 어둡게
-      hemi.intensity = realSun.up ? 0.22 + 0.2 * Math.min(1, realSun.intensity * 1.4) : 0.1;
+      goal.sun = realSun.up ? 6.0 * realSun.intensity : 0;
+      // 하늘빛: 해가 진 뒤에도 박명(sky)만큼 남았다가 서서히 어두워진다
+      const sky = realSun.sky ?? (realSun.up ? 1 : 0);
+      goal.hemi = 0.1 + 0.12 * sky + 0.2 * Math.min(1, realSun.intensity * 1.4);
     }
-    sun.castShadow = sun.intensity > 0;
-    placeSun();
+    if (instant) snapSun = true;
   };
 
   // 방 전체가 보이게 카메라를 잡는다 (화면 비율이 세로로 길면 더 멀리)
@@ -677,10 +699,11 @@ export function makeViewer(el, handlers = {}) {
         blocked: isBlocked([cam.position.x, cam.position.z], walk.world) };
     },
     /** 실제 해로 비춘다 (채광 API의 sun). null이면 기본 해. */
-    setSun(s) { realSun = s && s.direction ? s : null; applySun(); },
+    /** 해 바꾸기. 기본은 부드럽게 이어서, instant면 바로 */
+    setSun(s, { instant = false } = {}) { realSun = s && s.direction ? s : null; applySun(instant); },
     /** 지금 해 (E2E 확인용) */
     sunInfo() {
-      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, shell: !!shell?.visible,
+      return { real: !!realSun, color: "#" + sun.color.getHexString(), intensity: sun.intensity, hemi: hemi.intensity, shell: !!shell?.visible,
         position: sun.position.toArray().map((v) => +v.toFixed(3)), target: sun.target.position.toArray().map((v) => +v.toFixed(3)) };
     },
     /** 접촉 그림자(GTAO) 켜고 끄기. 느린 PC용. mode: true | false | "debug"(AO 버퍼만 보기) */
