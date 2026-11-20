@@ -19,6 +19,19 @@ from .cmf import DE_SCALE, W_COLOR, W_MATERIAL, delta_e2000, hex_to_lab, materia
 
 Texture = Literal["plaster", "fabric", "stone", "wood", "paint"]
 TEXTURE_KO = {"plaster": "회벽", "fabric": "직물", "stone": "스톤", "wood": "우드", "paint": "도장"}
+KEYWORD_KO = {**TEXTURE_KO, "matte": "무광", "glossy": "유광", "natural": "내추럴", "warm": "따뜻함", "white": "화이트",
+              "beige": "베이지", "gray": "그레이", "black": "블랙", "brown": "브라운", "green": "그린", "navy": "네이비",
+              "minimal": "미니멀", "metal": "메탈", "glass": "유리", "pink": "핑크", "silver": "실버"}
+
+
+def _color_phrase(de: float) -> str:
+    if de < 3:
+        return "원하는 색과 거의 같아요"
+    if de < 10:
+        return "원하는 색과 가까워요"
+    if de < 20:
+        return "원하는 색과 비슷한 계열이에요"
+    return "원하는 색과는 거리가 있어요"
 
 
 class Tone(BaseModel):
@@ -90,14 +103,14 @@ def _score(f: Finish, labs: list, want: set[str]) -> FinishMatch:
         best = min(((min(delta_e2000(hex_to_lab(t.hex), lab) for lab in labs), t) for t in f.tones), key=lambda x: x[0])
         min_de, tone = best
         color_score = max(0.0, 1 - min_de / DE_SCALE)
-        reasons.append(f"{tone.name}이 원하는 색과 가까움 (ΔE00 {min_de:.1f}, 근사색 기준)")
+        reasons.append(f"{tone.name}: {_color_phrase(min_de)}")
     kw_score, matched = None, []
     if want:
-        have = material_keywords(*f.keywords, f.texture, TEXTURE_KO[f.texture], f.name)
+        have = material_keywords(*f.keywords, f.texture, TEXTURE_KO[f.texture])  # 이름은 빼기: "클라우드"에 "우드"가 들어 있다
         matched = sorted(want & have)
         kw_score = len(matched) / len(want)
         if matched:
-            reasons.append(f"재질 키워드 일치: {', '.join(matched)}")
+            reasons.append(f"질감·분위기 일치: {'·'.join(KEYWORD_KO.get(m, m) for m in matched)}")
     if color_score is not None and kw_score is not None:
         score = W_COLOR * color_score + W_MATERIAL * kw_score
     else:

@@ -35,7 +35,7 @@ const DRAW = {
   // 손으로 바른 듯한 회벽: 큰 얼룩 + 흙손 자국
   plaster(g, r) {
     const n1 = noise(SIZE, SIZE, 96, r), n2 = noise(SIZE, SIZE, 22, r), n3 = noise(SIZE, SIZE, 5, r);
-    paintPixels(g, (x, y) => 228 + (n1(x, y) - 0.5) * 34 + (n2(x, y) - 0.5) * 18 + (n3(x, y) - 0.5) * 8);
+    paintPixels(g, (x, y) => 240 + (n1(x, y) - 0.5) * 22 + (n2(x, y) - 0.5) * 12 + (n3(x, y) - 0.5) * 6);
     for (let k = 0; k < 70; k++) {
       g.strokeStyle = `rgba(255,255,255,${0.05 + r() * 0.07})`;
       g.lineWidth = 6 + r() * 16;
@@ -48,13 +48,13 @@ const DRAW = {
     const n = noise(SIZE, SIZE, 40, r), slub = noise(SIZE, SIZE, 9, r);
     paintPixels(g, (x, y) => {
       const warp = Math.sin(x * 1.6) * 0.5 + 0.5, weft = Math.sin(y * 1.6) * 0.5 + 0.5;
-      return 222 + (warp * weft - 0.25) * 26 + (n(x, y) - 0.5) * 14 + (slub(x, y) > 0.82 ? -10 : 0);
+      return 238 + (warp * weft - 0.25) * 18 + (n(x, y) - 0.5) * 10 + (slub(x, y) > 0.82 ? -7 : 0);
     });
   },
   // 대리석·스톤: 밝은 바탕 + 회색 결
   stone(g, r) {
     const n1 = noise(SIZE, SIZE, 120, r), n2 = noise(SIZE, SIZE, 30, r);
-    paintPixels(g, (x, y) => 236 + (n1(x, y) - 0.5) * 18 + (n2(x, y) - 0.5) * 10);
+    paintPixels(g, (x, y) => 242 + (n1(x, y) - 0.5) * 14 + (n2(x, y) - 0.5) * 8);
     for (let k = 0; k < 9; k++) {
       let x = r() * SIZE, y = r() * SIZE, a = r() * Math.PI * 2;
       g.strokeStyle = `rgba(110,108,104,${0.12 + r() * 0.2})`;
@@ -70,7 +70,7 @@ const DRAW = {
     for (let row = 0; row < rows; row++) {
       let x = -r() * 200;
       while (x < SIZE) {
-        const len = 150 + r() * 140, v = 214 + r() * 38;
+        const len = 150 + r() * 140, v = 222 + r() * 33;
         g.fillStyle = `rgb(${v},${v},${v})`;
         g.fillRect(x, row * rowH, len, rowH);
         for (let k = 0; k < 7; k++) {
@@ -127,7 +127,8 @@ export function tileMeters(finish) {
   return 0.9;
 }
 
-export const BUMP = { plaster: 0.012, fabric: 0.006, stone: 0.002, wood: 0.004, paint: 0.001 };
+// three r160 bumpScale은 작게: 크면 면이 어둡게 얼룩진다
+export const BUMP = { plaster: 0.0025, fabric: 0.0015, stone: 0.0004, wood: 0.0008, paint: 0 };
 export const ROUGH = { plaster: 0.95, fabric: 0.98, stone: 0.35, wood: 0.6, paint: 0.9 };
 
 /** 카드용 미리보기 그림 (톤 색을 곱한 질감) */

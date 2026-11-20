@@ -36,7 +36,7 @@ def test_wood_style_puts_wood_floor_first(items):
     assert r[0].finish.texture == "wood"
     assert all(x.finish.kind == "floor" for x in r)
     assert r[0].score >= r[-1].score
-    assert any("우드" in s or "wood" in s for s in r[0].reasons)
+    assert any("우드" in s for s in r[0].reasons)
 
 
 def test_marble_style_puts_stone_floor_first(items):
