@@ -571,9 +571,10 @@ body[data-route="c"] .top .acct { margin-left: auto; }
    베이지 = 바탕·칸·비활성 칩, 흰색 = 카드·패널·기본 버튼, 레드 = 누른 것·고른 것·주요 버튼·판정 표시.
    검정 면(버튼·칩·말풍선)은 쓰지 않는다. 적합/부적합도 이 세 색 안에서: 적합은 베이지 + 레드 표시, 부적합은 레드 면 */
 :root {
-  --fit: var(--lg); --fit-bg: var(--warm-grey);
-  --cond: var(--lg); --cond-bg: var(--warm-grey);
-  --nofit: var(--lg-deep); --nofit-bg: var(--lg-soft);
+  /* 판정 색은 예외: 들어가면 초록, 안 들어가면 빨강 (지예: 3D에서 초록/빨강으로 판단) */
+  --fit: #1e7a4f; --fit-bg: #e2f2e8;
+  --cond: #1e7a4f; --cond-bg: #e2f2e8;
+  --nofit: #b3261e; --nofit-bg: #fbe9e7;
   --unk: var(--graphite);
 }
 button, .btn { background: var(--sheet); color: var(--ink); border-color: var(--line); }
@@ -610,13 +611,13 @@ body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj 
 /* 지예: 3D 위 메뉴 단순하게. 살아 보기는 오른쪽 위 밀어서 켜는 스위치 3개(채광·와이파이·동선), 도면·실측은 뺀다 */
 #liveBtn, #liveBar, .studio #extraBtn { display: none !important; }
 .sim-switches { display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 999px; background: var(--warm-grey); }
-.sim-switches .sw { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border: 0; border-radius: 999px; background: none; color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: none; }
-.sim-switches .sw:hover { background: var(--sheet); }
+.sim-switches .simsw { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px 6px 8px; border: 0; border-radius: 999px; background: none; color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: none; }
+.sim-switches .simsw:hover { background: var(--sheet); }
 .sw-track { position: relative; width: 30px; height: 18px; border-radius: 999px; background: var(--line); transition: background-color .18s var(--ease); flex: none; }
 .sw-track i { position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--sheet); box-shadow: 0 1px 2px rgba(0, 0, 0, .2); transition: transform .18s var(--ease); }
-.sim-switches .sw.on { background: var(--sheet); }
-.sim-switches .sw.on .sw-track { background: var(--lg); }
-.sim-switches .sw.on .sw-track i { transform: translateX(12px); }
+.sim-switches .simsw.on { background: var(--sheet); }
+.sim-switches .simsw.on .sw-track { background: var(--lg); }
+.sim-switches .simsw.on .sw-track i { transform: translateX(12px); }
 .toolbar #walk { margin-left: 4px; }
 /* LG 가전 탭: 상세 필터를 펼쳐도 패널 밖으로 안 나가게 패널 전체가 한 번에 스크롤 (탭은 위에 고정) */
 .studio:not(.app) .lib[data-tab="lg"] { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
@@ -624,3 +625,49 @@ body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj 
 .studio:not(.app) .lib[data-tab="lg"] #lib { flex: none; overflow: visible; }
 .studio:not(.app) .lib[data-tab="lg"] .lib-tabs { position: sticky; top: -16px; z-index: 3; background: var(--sheet); padding: 16px 0 8px; margin-top: -16px; }
 .studio:not(.app) .lib .opt-steps { max-height: none; overflow: visible; }
+
+/* 살아 보기 스위치: 3D 위 오른쪽 위 (툴바 아래). 버튼 기본 .sw(색 견본)와 이름이 겹쳐 simsw로 */
+.canvas > .sim-switches { position: absolute; top: 12px; right: 12px; z-index: 5; background: var(--sheet); box-shadow: var(--shadow-float); }
+.sim-switches .simsw.on { background: var(--warm-grey); }
+/* 설치 단계 안내 카드는 뺀다: 놓으면 3D에서 초록·빨강으로 바로 보인다 */
+.studio #stepCard { display: none !important; }
+/* 신청 카드는 오른쪽 끝, 하우니 버튼 바로 위 */
+.studio:not(.app) .side { margin: 0 12px 88px 0; }
+.studio:not(.app) .side .order-bar { padding-right: 12px; }
+.studio .view-pane .render-btn { top: 64px; }
+
+/* ---- 추천 배치 (조합 카드) ---- */
+.combo-pop { position: absolute; top: 12px; left: 12px; z-index: 7; width: min(400px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto;
+  padding: 16px; border-radius: 18px; background: var(--sheet); box-shadow: var(--shadow-float); }
+.combo-pop h4 { margin: 14px 0 6px; font-size: 13px; }
+.combo-pop .chip.on, .combo-pop .chip[aria-pressed="true"] { background: var(--lg); border-color: var(--lg); color: #fff; }
+.combo-budget { display: flex; align-items: center; gap: 8px; }
+.combo-budget input { width: 140px; }
+.combo-pop > input { width: 100%; }
+.combo-moods { margin-top: 6px; }
+.combo-go { width: 100%; margin-top: 14px; padding: 12px; border-radius: 14px; font-weight: 700; }
+.combo-btn { background: var(--lg); color: #fff; border-color: var(--lg); }
+.combo-btn:hover { background: var(--lg-deep); }
+.combo-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.combo { padding: 12px 14px; border-radius: 14px; background: var(--warm-grey); border: 2px solid transparent; }
+.combo.on { border-color: var(--lg); background: var(--sheet); }
+.combo header { display: flex; align-items: center; gap: 8px; }
+.combo header b { font-size: 15px; }
+.combo header .tag { margin-left: auto; font-size: 11.5px; font-weight: 600; color: var(--lg); }
+.combo .palette i { width: 12px; height: 12px; }
+.combo .why { margin: 6px 0; font-size: 13px; line-height: 1.5; }
+.combo-lg { list-style: none; margin: 6px 0; padding: 0; display: grid; gap: 6px; }
+.combo-lg li { display: grid; grid-template-columns: 1fr auto; gap: 2px 8px; padding: 8px 10px; border-radius: 10px; background: var(--sheet); font-size: 13px; }
+.combo-lg .price { font-weight: 700; }
+.combo-lg small { grid-column: 1 / -1; color: var(--ink-soft, #6b6560); font-size: 12px; }
+.combo-decor { margin: 4px 0; font-size: 12px; color: var(--ink-soft, #6b6560); }
+.combo-tips summary { font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.combo-tips ul { margin: 6px 0 0; padding-left: 18px; font-size: 12.5px; line-height: 1.5; }
+.combo footer { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.combo footer .total { font-weight: 800; font-size: 15px; }
+.combo footer .muted { font-size: 12px; }
+.combo footer .primary { margin-left: auto; }
+.combo-clear { margin-top: 10px; width: 100%; }
+.bot-log .combo-list { margin-top: 8px; }
+.bot-prods li.best { background: var(--warm-grey); border-radius: 12px; }
+.combo-pop[hidden] { display: none; }

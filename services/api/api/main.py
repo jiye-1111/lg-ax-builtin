@@ -466,6 +466,37 @@ def ai_style(pid: str, body: AiStyleIn, s: Service = S):
     return s.ai_style(pid, body.prompt, body.zone_id, body.apply_finishes)
 
 
+class CombosIn(BaseModel):
+    categories: list[str] = Field(default_factory=list, max_length=6)
+    budget: Optional[int] = Field(default=None, ge=100_000, le=100_000_000)
+    prompt: str = Field(default="", max_length=500)
+    zone_id: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/combos")
+def make_combos(pid: str, body: CombosIn, s: Service = S):
+    return s.make_combos(pid, body.categories, body.budget, body.prompt, body.zone_id)
+
+
+class AssistIn(BaseModel):
+    prompt: str = Field(min_length=1, max_length=500)
+
+
+@app.post("/api/projects/{pid}/assist")
+def assist(pid: str, body: AssistIn, s: Service = S):
+    return s.assist(pid, body.prompt)
+
+
+@app.delete("/api/projects/{pid}/combos/applied")
+def clear_combo(pid: str, s: Service = S):
+    return s.clear_combo(pid)
+
+
+@app.post("/api/projects/{pid}/combos/{combo_id}/apply")
+def apply_combo(pid: str, combo_id: str, s: Service = S):
+    return s.apply_combo(pid, combo_id)
+
+
 @app.post("/api/projects/{pid}/materials")
 def apply_material(pid: str, body: MaterialIn, s: Service = S):
     return s.apply_material(pid, body.target, body.hex_color, body.finish, body.wall_id)

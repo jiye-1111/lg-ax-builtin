@@ -29,6 +29,7 @@ from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
 from .decor import decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
+from .service_combos import ComboMixin
 from .store import Store
 
 KST = timezone(timedelta(hours=9))
@@ -100,7 +101,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service:
+class Service(ComboMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())
@@ -684,10 +685,50 @@ class Service:
             room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
         return snap_to_wall(room, prod, pose, self.fit_cfg)
 
+    CABINETS = frozenset({"decor:basecab", "decor:island"})
+
+    def _undersink(self, sku: str | None) -> bool:
+        """싱크대 하부장 안에 들어가는 빌트인 정수기 (출수 파이프만 상판 위로 나온다)."""
+        if not sku or is_decor(sku):
+            return False
+        try:
+            prod = self.catalog.get(sku)
+        except KeyError:
+            return False
+        return prod.category == "water_purifier" and (prod.install_type == "built_in" or prod.install_form == "빌트인")
+
     def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
         if is_flat(prod.sku):  # 러그: 가구·제품과 겹쳐도 된다 (벽과 방 밖만 본다)
             return check_pose(room, prod, pose, self.fit_cfg, hidden=self._blocked_off(p) + [o.object_id for o in room.objects])
-        return check_pose(room, prod, pose, self.fit_cfg, others=self._others(p, exclude), hidden=self._blocked_off(p))
+        others = self._others(p, exclude)
+        # 빌트인 정수기는 하부장 안에 들어간다: 서로 겹쳐도 된다
+        if self._undersink(prod.sku):
+            others = [x for x in others if x.get("sku") not in self.CABINETS]
+        elif prod.sku in self.CABINETS:
+            others = [x for x in others if not self._undersink(x.get("sku"))]
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p))
+
+    def _add_sink_cabinet(self, room: Room, p: dict, x: dict) -> None:
+        """빌트인 정수기를 하부장 없이 놓으면 그 자리에 주방 하부장(600 x 850 x 600)을 같이 놓는다."""
+        from recommender.pose import overlaps, rect
+        mine = rect(tuple(x["center_xz"]), x["yaw_rad"] - math.pi / 2, x["size_m"][0], x["size_m"][2])
+        for y in p["scene_state"]["placements"]:
+            if y.get("sku") in self.CABINETS and y.get("size_m") and overlaps(
+                    mine, rect(tuple(y["center_xz"]), y["yaw_rad"] - math.pi / 2, y["size_m"][0], y["size_m"][2])):
+                return
+        size = (0.6, 0.85, 0.6)
+        push = size[2] / 2 - x["size_m"][2] / 2   # 등을 정수기와 같은 벽에 맞춘다
+        c = (x["center_xz"][0] + math.cos(x["yaw_rad"]) * push, x["center_xz"][1] + math.sin(x["yaw_rad"]) * push)
+        prod = decor_product("decor:basecab", size)
+        pose = Pose(c, x["yaw_rad"], x.get("wall_id"))
+        r = self._judge(room, p, prod, pose)
+        if r.verdict.value == "no_fit":
+            return
+        p["scene_state"]["placements"].append({
+            "placement_id": self.db.next_id("pl"), "sku": "decor:basecab", "zone_id": None, "center_xz": list(c),
+            "yaw_rad": x["yaw_rad"], "size_m": list(size), "wall_id": x.get("wall_id"), "color": None, "hex": None,
+            "verdict": r.verdict.value, "reasons": r.reasons, "kind": "decor", "host_of": x["placement_id"],
+            **({"combo": x["combo"]} if x.get("combo") else {})})
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
@@ -724,6 +765,8 @@ class Service:
         if is_decor(sku):
             x["kind"] = "decor"  # 꾸미기 가구: 주문·설치 신청에 넣지 않는다
         p["scene_state"]["placements"].append(x)
+        if self._undersink(sku):
+            self._add_sink_cabinet(room, p, x)
         self._rejudge_all(room, p)
         self._save_project(p)
         out = self._rebuild(pid)
@@ -865,6 +908,9 @@ class Service:
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
             x["zone_id"] = None  # 옮긴 순간부터 자유 배치
+            if self._undersink(x["sku"]):  # 같이 놓은 하부장도 따라온다
+                p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"] if y.get("host_of") != placement_id]
+                self._add_sink_cabinet(room, p, x)
         self._rejudge_all(room, p)
         self._save_project(p)
         out = self._rebuild(pid)
@@ -875,7 +921,9 @@ class Service:
     def delete_placement(self, pid: str, placement_id: str) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         self._find_placement(p, placement_id)
-        p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"] if y.get("placement_id") != placement_id]
+        # 빌트인 정수기와 같이 놓은 하부장도 같이 뺀다
+        p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"]
+                                          if y.get("placement_id") != placement_id and y.get("host_of") != placement_id]
         self._rejudge_all(room, p)
         self._save_project(p)
         return self._rebuild(pid)
