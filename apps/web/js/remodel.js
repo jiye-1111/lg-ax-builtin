@@ -629,14 +629,14 @@ export async function customer(pid) {
       box.querySelector("#rl").onclick = () => rotate(-ROT_STEP);
       box.querySelector("#rr").onclick = () => rotate(ROT_STEP);
       box.querySelector("#snap").onclick = () => patch(x.placement_id, { center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: true });
-      const spotUrl = `/api/projects/${pid}/placements/${x.placement_id}/measured`;
+      const spotPut = (body) => put(`/api/projects/${pid}/placements/${x.placement_id}/measured`, body);
       box.querySelector("#spotSave").onclick = guard(async () => {
         const v = (k) => { const n = parseFloat(box.querySelector(`[data-spot="${k}"]`).value); return n > 0 ? n : null; };
         const body = { w_mm: v("w"), h_mm: v("h"), d_mm: v("d") };
         if (!body.w_mm && !body.h_mm && !body.d_mm) { toast("잰 값을 하나 이상 넣어 주세요"); return; }
-        await put(spotUrl, body); toast("잰 값으로 다시 판정했어요"); await refresh(true);
+        await spotPut(body); toast("잰 값으로 다시 판정했어요"); await refresh(true);
       });
-      box.querySelector("#spotClear")?.addEventListener("click", guard(async () => { await put(spotUrl, { w_mm: null, h_mm: null, d_mm: null }); await refresh(true); }));
+      box.querySelector("#spotClear")?.addEventListener("click", guard(async () => { await spotPut({ w_mm: null, h_mm: null, d_mm: null }); await refresh(true); }));
       box.querySelector("#del").onclick = guard(async () => { await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "DELETE" }); selPl = null; await refresh(true); });
       box.querySelectorAll("[data-variant]").forEach((b) => (b.onclick = () => { if (b.dataset.variant !== x.sku) patch(x.placement_id, { sku: b.dataset.variant }); }));
       return;
