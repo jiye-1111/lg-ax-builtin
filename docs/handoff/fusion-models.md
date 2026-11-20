@@ -2,10 +2,10 @@
 
 카탈로그 53종을 LGE.COM 치수도 기준으로 Fusion에서 다시 모델링해 웹 모델(`apps/web/models/products/<SKU>.glb`)을 바꿔 끼우는 작업이다. 빌트인 주방부터 했고, 이어서 나머지 가전으로 넓힌다.
 
-- 브랜치: `claude/project-thread-nqfl5j` (main 51ea54f 위). 커밋은 제품군마다 하나씩.
+- 브랜치: `claude/project-thread-nqfl5j` (main 81c233d까지 합쳐 둠. main으로 직접 푸시는 권한이 막혀 있어 PR로 합쳐야 한다). 커밋은 제품군마다 하나씩.
 - 커밋 작성자: 이 PC에는 git 전역 이름이 없어서 `git -c user.name="jiye-1111" -c user.email=<지예 이메일> commit ...`으로 커밋했다.
 
-## 진행 상황: 25 / 53
+## 진행 상황: 26 / 53
 
 끝남 (`data/fusion/<SKU>/drawing.json` 있음):
 
@@ -19,9 +19,9 @@
 | 컨버터블 패키지 | X323MEF, Y323MEF, Z323MEF, X324GB7, Y324GB7 |
 | 와인셀러 | W1213GG, W1212GB, W0492GG, W0082GLE |
 
-남음 (28):
+남음 (27):
 
-- 오븐·전자레인지: MLJ32ERS, MLJ39ER, MW23FDI
+- 오븐·전자레인지: MLJ39ER, MW23FDI (MLJ32ERS는 끝)
 - 세탁·건조: WL21WDU, WL21EGZU, FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER
 - 스타일러·슈케어: SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E
 - TV·스탠바이미: OLED65C5ENA, 65QNED65BBA, OLED77B6BNA, 27LX6TPGA, 32LX6BPGA
