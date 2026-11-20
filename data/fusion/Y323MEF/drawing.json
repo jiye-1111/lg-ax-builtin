@@ -1,0 +1,19 @@
+{
+ "sku": "Y323MEF",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/z323mef.akor_2p.jpg (Y323·Z323 상세페이지가 같은 치수도를 씀). X323MEF와 치수·핸들 위치가 같음 (폭 595, 높이 1860, 깊이 670 / 핸들 포함 707, 핸들 길이 300, 하단 955)",
+ "geometry_from": "X323MEF",
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 베이지",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2B2B2D",
+   "from": "치수도 측면 이미지가 검정"
+  }
+ }
+}
