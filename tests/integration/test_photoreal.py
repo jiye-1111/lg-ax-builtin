@@ -95,3 +95,26 @@ def test_photoreal_rejects_bad_images(c, pid):
     assert c.post(f"/api/projects/{pid}/photoreal", json={"image": "data:image/png;base64,AAAA", "mask": png_url(mask)}).status_code == 422
     small = view.resize((100, 100))
     assert c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(small), "mask": png_url(mask)}).status_code == 422
+
+
+def test_photoreal_tries_the_next_model_when_the_key_cannot_use_one(c, svc, pid, monkeypatch):
+    from core import photoreal
+    monkeypatch.setattr(photoreal, "MODELS", ["gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"])
+    tried = []
+    inner = svc.image_client
+
+    class Picky:
+        def edit(self, **kw):
+            tried.append(kw["model"])
+            if kw["model"] != "gpt-image-1-mini":
+                raise RuntimeError(f"Error code: 400 - The model '{kw['model']}' does not exist.")
+            return inner.edit(**kw)
+
+    svc.image_client = Picky()
+    view, mask = view_and_mask()
+    r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask)})
+    assert r.status_code == 200 and r.json()["model"] == "gpt-image-1-mini"
+    assert tried == ["gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"]
+    tried.clear()
+    c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask)})
+    assert tried == ["gpt-image-1-mini"]  # 된 모델을 기억한다
