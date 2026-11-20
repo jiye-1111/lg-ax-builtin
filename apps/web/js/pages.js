@@ -2,6 +2,16 @@
 import { $app, cleanup, esc, api, apiUrl, post, put, toast, guard, lastHome, homeHref } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
+// 스캔 정확도 높이는 법 (근거: docs/research/lidar-error-correction.md §3)
+const SCAN_TIPS = `
+  <ul>
+    <li>벽에서 <b>1~1.5 m</b> 떨어져서, 3 m 넘게 멀어지지 않게</li>
+    <li><b>천천히</b> 움직이고, 모서리에서는 잠깐 멈추기</li>
+    <li>집 전체보다 <b>주방만 짧게</b> 한 번 더 (오래 찍을수록 오차가 쌓여요)</li>
+    <li>시작한 자리로 <b>돌아와서</b> 끝내기</li>
+    <li>불을 켜고, 유리·스테인리스 앞은 가까이서 비스듬히</li>
+  </ul>
+  <p class="hint-sm" style="margin:6px 0 0">그래도 1~3 cm는 틀릴 수 있어요. 딱 맞는 자리는 판정에서 '확인 필요'로 알려 드려요.</p>`;
 
 export async function selfScan() {
   const last = lastHome();
@@ -35,6 +45,7 @@ export async function selfScan() {
               <b>USDZ 파일을 끌어다 놓거나 눌러서 선택</b><span class="muted">UGScan · RoomPlan 내보내기</span>
               <input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
             <label class="fp-pick"><span>도면 함께 올리기 <em>선택</em></span><input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf"></label>
+            <details class="scan-tips"><summary>정확하게 스캔하는 법</summary>${SCAN_TIPS}</details>
             <a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a>
           </div>
         </div>
@@ -178,6 +189,7 @@ export async function technicianHome() {
       <select id="by"><option value="technician">서비스센터 기사</option><option value="customer">고객 셀프 스캔 (L1)</option></select>
       <label>USDZ 파일</label>
       <div class="drop" id="drop">파일을 끌어다 놓거나 <u>선택</u>하세요<input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
+      <div class="scan-tips"><h3>더 정확하게 스캔하려면</h3>${SCAN_TIPS}</div>
       <label>도면 (선택) — 있으면 함께 첨부, 판정에는 쓰지 않고 참고용으로 보여 줍니다</label>
       <input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf">
       <div class="row" style="margin-top:12px">
