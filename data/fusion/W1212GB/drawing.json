@@ -1,0 +1,19 @@
+{
+ "sku": "W1212GB",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/W1212GB_size_2p.jpg (폭 595, 높이 1488, 깊이 585). 색 있는 문 테두리 + 어두운 유리창, 나무 선반 4줄, 검정 본체. 창·선반 위치는 치수도 비율 근사값",
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 베이지",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#1E1E20",
+   "from": "치수도 측면 이미지가 검정"
+  }
+ },
+ "geometry_from": "W1213GG"
+}

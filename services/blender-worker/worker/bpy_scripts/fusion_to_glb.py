@@ -5,7 +5,7 @@
 
 - Fusion 쪽: 정면 = -Y, Z-up, 바닥 가운데 원점 (build_products.py와 같은 좌표). 부품 하나 = 바디 하나 = STL 하나.
 - 파일 이름 앞부분이 역할이다: body, door_*, top_*(상판, 색 바뀌는 겉판), handle_*, vent_*, trim_*, display,
-  print_*(상판 인쇄), panel_*(drawing.json colors.panel 색), chrome_*.
+  print_*(상판 인쇄), panel_*(drawing.json colors.panel 색), chrome_*, wood_*(나무).
 - 같은 폴더의 drawing.json(레퍼런스 치수·색)에 colors.body.hex_approx가 있으면 본체 색으로 쓴다.
   geometry_from: "<다른 SKU>"가 있으면 그 SKU 폴더의 STL을 쓴다 (색·재질만 다른 모델).
   companion: {src, suffix, height_mm, offset_m}가 있으면 따로 놓이는 부품(정수기 파우셋 등)도 <SKU><suffix>.glb로
@@ -27,7 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_products import material, palette  # noqa: E402  (같은 재질표를 쓴다)
 
 ROLE_MAT = {"body": "body", "door": "finish", "top": "finish", "handle": "handle", "vent": "trim", "trim": "trim",
-            "display": "display", "print": "print", "panel": "panel", "chrome": "chrome"}
+            "display": "display", "print": "print", "panel": "panel", "chrome": "chrome", "wood": "wood"}
 
 
 def role_of(stem: str) -> str:
@@ -62,6 +62,7 @@ def build(prod: dict, src: Path, out: Path, geo: Path | None = None, height_mm: 
         pal["body"] = material("body", body_hex, 0.5, 0.3)
     panel_hex = drawing.get("colors", {}).get("panel", {}).get("hex_approx")  # 조작부처럼 색이 따로 있는 판
     pal["panel"] = material("panel", panel_hex, 0.35) if panel_hex else pal["trim"]
+    pal["wood"] = material("wood", "#9A6A43", 0.55)  # 와인셀러 선반 앞 나무
     if geo is None:  # 색만 다른 모델은 몸체 공유
         geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src
     objs = []

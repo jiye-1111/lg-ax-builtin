@@ -5,7 +5,7 @@
 - 브랜치: `claude/project-thread-nqfl5j` (main 51ea54f 위). 커밋은 제품군마다 하나씩.
 - 커밋 작성자: 이 PC에는 git 전역 이름이 없어서 `git -c user.name="jiye-1111" -c user.email=<지예 이메일> commit ...`으로 커밋했다.
 
-## 진행 상황: 21 / 53
+## 진행 상황: 23 / 53
 
 끝남 (`data/fusion/<SKU>/drawing.json` 있음):
 
@@ -18,9 +18,9 @@
 | 정수기 (+파우셋) | WU523AWB, WU523ACB |
 | 컨버터블 패키지 | X323MEF, Y323MEF, Z323MEF, X324GB7, Y324GB7 |
 
-남음 (32):
+남음 (30):
 
-- 와인셀러: W1213GG, W1212GB, W0492GG, W0082GLE
+- 와인셀러: W0492GG, W0082GLE (W1213GG·W1212GB는 끝. 문 테두리 finish + display 유리창 + wood 선반 방식 그대로 쓰면 된다)
 - 오븐·전자레인지: MLJ32ERS, MLJ39ER, MW23FDI
 - 세탁·건조: WL21WDU, WL21EGZU, FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER
 - 스타일러·슈케어: SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E
@@ -66,3 +66,42 @@ LGE.COM 정수기 색 옵션(크림 화이트/베이지)은 실제로는 **파�
 - `data/drawings/<SKU>.json`(Figma 도면, Blender `build_products.py`용)은 그대로 두었다. `index.json`의 layout은 여전히 "drawing"이지만 실제 glb는 Fusion 모델이다.
 - `C:\apps\web\img\products\G646GBB031.webp`는 처음에 상대경로로 렌더하다 잘못 생긴 파일이다. 지워도 된다 (도구로는 시스템 경로라 못 지웠다).
 - Blender 쪽 마감 강화(문 유리 코팅 반사, 홈 안쪽 그림자, 웹 압축)는 아직 안 했다.
+
+## 남은 제품 치수도 주소 (2026-11-20 제품 페이지에서 확인)
+
+앞에 `https://static.lge.co.kr/kr/` 를 붙인다. 제품 페이지 HTML을 fetch해서 `images/spec/...` 를 찾으면 한 번에 나온다.
+
+| SKU | 치수도 |
+|---|---|
+| W1213GG | images/spec/w1213gg_size_2p.jpg |
+| W1212GB | images/spec/W1212GB_size_2p.jpg |
+| W0492GG | images/spec/W0492GG_size_2p.jpg |
+| W0082GLE | images/spec/W0082GLE_size_2p.jpg |
+| MLJ32ERS | images/spec/mlj32ers.akor_2p.jpg |
+| MLJ39ER | images/spec/mlj39er.akor_2p.jpg |
+| MW23FDI | images/spec/mw23fd.akor_2p.jpg |
+| WL21WDU | images/spec/wl21wdu.akor_2p.jpg |
+| WL21EGZU | images/spec/wl21egzu.akor_2p.jpg |
+| FH25KA | images/spec/fh25ka.akor_2p.jpg |
+| FX24KNTR | images/spec/fx24knt.akor_2p.jpg |
+| FX24ENER | images/spec/fx24ene.akor_2p.jpg |
+| RD20KNTR | images/spec/rd20kntr.akor_2p.jpg |
+| RD21ESER | images/spec/rd21eser.akor_2p.jpg |
+| SC5GMR80S | images/spec/sc5gmr80s_2p.jpg |
+| SC5MBR80S | images/spec/sc5mbr80s_2p.jpg |
+| SC5MSR82A | images/spec/sc5msr82a.akor_2p.jpg |
+| SS4RHS60E | images/spec/ss4rhs60e.akor_2p.jpg |
+| SS4RWS60E | images/spec/ss4rws60e.akor_2p.jpg |
+| OLED65C5ENA | images/spec/OLED65C5SNA_wa_2p.jpg |
+| 65QNED65BBA | images/spec/65QNED70BKS.AKRG_2p.jpg |
+| OLED77B6BNA | images/spec/OLED77B6SS.AKRG_2p.jpg |
+| 27LX6TPGA | images/spec/27LX6TPGA.AKR_2p.jpg |
+| 32LX6BPGA | images/spec/32LX6BPGA.AKR_1_2p.jpg |
+| FQ18GV3EK2 | images/spec/FQ17EV3ED1.akor_2p.jpg |
+| FQ17GU1ED2 | images/spec/fq18gu1ea1.akor_2p.jpg |
+| AS305DWWL | images/spec/as305dwwa.akor_2p.jpg |
+| AS356NSMA | images/spec/as356nsma.akor_2p.jpg |
+| AS186HWWL | images/spec/as186hwwl.akor_2p.jpg |
+| HY706RWUAB | images/spec/HY706RWUA_2p.jpg |
+| DQ235MWGA | images/spec/dq235mwgas.akor_2p.jpg |
+| AX920BWE | images/spec/ax920bwe.akor_2p.jpg |
