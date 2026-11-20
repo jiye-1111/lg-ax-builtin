@@ -54,6 +54,8 @@ class ComboMixin:
 
     @staticmethod
     def _color_score(p: Product, tags: StyleTags):
+        if not p.cmf_options or p.cmf_options[0].color is None:
+            return 0.5, None  # LGE.COM에 색 정보가 없는 모델(TV 등): 색으로 고르지도, 색을 말하지도 않는다
         r = rank_cmf(p, tags, 1)
         return (r[0].score, r[0].option) if r else (0.0, None)
 

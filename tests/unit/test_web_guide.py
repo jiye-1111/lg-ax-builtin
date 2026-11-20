@@ -145,3 +145,14 @@ def test_combo_panel_and_haeuni_use_server_combos():
     assert "/assist" in REMODEL and "/style/ai`, { prompt })" not in REMODEL.split("botForm.onsubmit", 1)[1]
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     assert ".canvas > .sim-switches" in css and "#stepCard { display: none" in css
+
+
+def test_color_dots_only_for_products_with_a_color_name():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert "x.color && a.findIndex" in js
+
+
+def test_action_bar_drops_its_follow_position_when_holding_something():
+    # 들고 있을 때 메뉴가 예전 자리에서 길게 늘어나 바닥 클릭을 막던 문제
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'actBar.style.left = ""' in js and 'actBar.style.top = ""' in js

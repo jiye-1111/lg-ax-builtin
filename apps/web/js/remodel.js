@@ -443,7 +443,8 @@ export async function customer(pid) {
     return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
   };
   // 목록 카드의 색 동그라미는 색마다 하나만
-  const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
+  // 색 점은 LGE.COM에 색 이름이 있는 것만 (hex_approx는 3D 근사색이라 색상 표시로 쓰지 않는다)
+  const colorDots = (f) => f.variants.filter((x, i, a) => x.color && a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
   // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
   ["fW", "fH", "sortBy"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
@@ -1100,15 +1101,18 @@ export async function customer(pid) {
     m.setAttribute("points", `${px},${pz} ${px + L * Math.cos(a - half)},${pz + L * Math.sin(a - half)} ${px + L * Math.cos(a + half)},${pz + L * Math.sin(a + half)}`);
     d.setAttribute("cx", px); d.setAttribute("cy", pz);
   };
+  // 제품 옆에 붙어 있던 메뉴를 3D 아래 가운데로 되돌린다. 자리(left/top)를 남겨 두면 들고 있을 때
+  // 메뉴가 그 자리부터 아래까지 길게 늘어나 바닥 클릭을 가로채서 물건이 안 놓였다.
+  const unNear = () => { if (actBar.classList.contains("near")) { actBar.classList.remove("near"); actBar.style.left = ""; actBar.style.top = ""; } };
   const trackAct = () => {
     actRaf = requestAnimationFrame(trackAct);
     trackCam();
-    if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { actBar.classList.remove("near"); return; }
+    if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { unNear(); return; }
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     const o = !x && selObj && room?.objects.find((q) => q.object_id === selObj);
     const held = viewer.held?.();
     const xz = held ? held.xz : x ? x.center_xz : o ? [o.position[0], o.position[2]] : null;
-    if (!xz) { actBar.classList.remove("near"); return; }
+    if (!xz) { unNear(); return; }
     const top = x ? (x.size_m?.[1] ?? 1) : o ? o.bbox_m.h : 1;
     const [sx, sy] = viewer.toScreen(xz, top), r = canvasEl.getBoundingClientRect();
     const w = actBar.offsetWidth, h = actBar.offsetHeight;

@@ -117,3 +117,9 @@ def test_clear_combo_keeps_hand_placed(c, pid):
 def test_room_word_in_product_question_still_gives_one_product(c, pid):
     r = c.post(f"/api/projects/{pid}/assist", json={"prompt": "방에 놓을 공기청정기 추천해줘"}).json()
     assert r["type"] == "products"
+
+
+def test_products_without_a_color_name_never_get_a_color_reason(svc):
+    from recommender.cmf import StyleTags
+    bare = next(p for p in svc.catalog.products if p.cmf_options and p.cmf_options[0].color is None)
+    assert svc._color_score(bare, StyleTags()) == (0.5, None)
