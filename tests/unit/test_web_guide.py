@@ -162,3 +162,10 @@ def test_haeuni_takes_a_photo_and_sends_it_small():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert 'id="botPhoto"' in js and "PHOTO_MAX = 1024" in js and 'toDataURL("image/jpeg"' in js
     assert "{ prompt, image }" in js and 'd.type === "message"' in js
+
+
+def test_photoreal_button_sends_view_and_product_mask():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    vw = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert ">실사로 보기<" in js and "/photoreal" in js and "viewer.snapshot()" in js
+    assert "snapshot(W = 1536, H = 1024)" in vw and 'startsWith("decor:")' in vw

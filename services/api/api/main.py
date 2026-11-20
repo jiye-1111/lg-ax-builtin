@@ -18,6 +18,8 @@ from core import config
 from core.decor import decor_items
 from core.accounts import AuthError, Conflict, Forbidden, is_approved_tech
 from core.service import Invalid, NotFound, Service
+from core.photoreal import Unavailable
+from core.service_photoreal import TooMany
 from recommender.finder import Conditions
 
 WEB_DIR = config.ROOT / "apps" / "web"
@@ -74,6 +76,16 @@ async def _auth(_, e):
 @app.exception_handler(Forbidden)
 async def _forbidden(_, e):
     return JSONResponse({"detail": str(e) or "권한이 없습니다"}, status_code=403)
+
+
+@app.exception_handler(Unavailable)
+async def _unavail(_, e):
+    return JSONResponse({"detail": str(e)}, status_code=503)
+
+
+@app.exception_handler(TooMany)
+async def _toomany(_, e):
+    return JSONResponse({"detail": str(e)}, status_code=429)
 
 
 @app.exception_handler(Conflict)
@@ -664,6 +676,16 @@ def render(pid: str, body: Optional[RenderBody] = None, s: Service = S):
     return s.render(pid, body.date if body else None, body.time if body else None)
 
 
+class PhotorealIn(BaseModel):
+    image: str = Field(max_length=12_000_000)  # 지금 3D 화면 (data URL)
+    mask: str = Field(max_length=12_000_000)   # 같은 시점, LG 제품만 흰색
+
+
+@app.post("/api/projects/{pid}/photoreal")
+def photoreal(pid: str, body: PhotorealIn, s: Service = S):
+    return s.photoreal(pid, body.image, body.mask)
+
+
 @app.get("/api/projects/{pid}/zones/{zid}/recommendations")
 def recommend(pid: str, zid: str, category: Optional[str] = None, s: Service = S):
     return s.recommend(pid, zid, category)
@@ -712,7 +734,8 @@ def floorplan_file(pid: str, s: Service = S):
 
 @app.get("/api/projects/{pid}/files/{name}")
 def project_file(pid: str, name: str, s: Service = S):
-    allowed = {"scene.glb": "scene/scene.glb", "render.png": "scene/render.png", "room.json": "scan/room.json"}
+    allowed = {"scene.glb": "scene/scene.glb", "render.png": "scene/render.png", "photoreal.png": "scene/photoreal.png",
+               "room.json": "scan/room.json"}
     if name not in allowed:
         raise HTTPException(404)
     p = s.pdir(pid) / allowed[name]

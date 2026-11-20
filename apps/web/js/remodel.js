@@ -95,7 +95,7 @@ export async function customer(pid) {
             <button class="pip-swap" data-swap="plan" title="평면도를 크게 보기">평면도 보기</button></div>
           <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
             <button class="pip-swap" data-swap="3d" title="3D를 크게 보기">3D 보기</button>
-            <button class="render-btn" id="render">렌더 이미지</button>
+            <button class="render-btn" id="render">실사로 보기</button>
             <div class="before-pane" id="beforePane" hidden><div class="viewer" id="beforeViewer"></div><span class="before-tag">스캔했을 때 모습</span></div></div>
           <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
@@ -128,7 +128,9 @@ export async function customer(pid) {
             <p class="hint-sm">평면의 벽 번호를 보고, 잰 값만 넣으면 됩니다.</p>
             <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
           </section>
-          <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
+          <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="실사 이미지">
+            <figcaption id="renderCap" class="hint-sm"></figcaption>
+            <span class="render-act"><a class="ghost small btn" id="renderSave" download="우리집-실사.png">저장</a><button class="ghost small" id="renderClose">닫기</button></span></figure>
           <div class="sim-switches" role="group" aria-label="살아 보기"><button class="simsw" data-sim="daylight" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>채광</button><button class="simsw" data-sim="wifi" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>와이파이</button><button class="simsw" data-sim="flow" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>동선</button></div>
           <section class="minimap" id="minimap" aria-label="도면" hidden></section>
           <p class="hint" id="hint" aria-live="polite"></p>
@@ -1386,14 +1388,29 @@ export async function customer(pid) {
     })));
   };
 
+  // 실사로 보기: 지금 3D 시점 + LG 제품 마스크 → 서버의 이미지 AI가 벽·바닥·빛만 사진처럼 (제품은 3D 그대로)
+  const showShot = (url, cap) => {
+    const img = document.getElementById("renderImg");
+    img.src = url;
+    document.getElementById("renderSave").href = url;
+    document.getElementById("renderCap").textContent = cap;
+    document.getElementById("renderBox").hidden = false;
+  };
   document.getElementById("render").onclick = guard(async (e) => {
-    e.target.disabled = true; e.target.textContent = "렌더 중…";
+    const b = e.currentTarget;
+    if (walking) setWalking(false);
+    viewer.cancelHold(); armed = null; ghost(null);
+    const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
+    const shot = viewer.snapshot();
+    selPl = keepSel; draw();
+    b.disabled = true; b.textContent = "실사로 만드는 중… (30초쯤)";
     try {
-      // 채광을 보고 있으면 그 날짜·시각의 해로 렌더한다 (화면과 같은 빛)
-      await post(`/api/projects/${pid}/render`, sim === "daylight" ? { date: simState.date, time: simState.time } : {});
-      document.getElementById("renderImg").src = apiUrl(`/api/projects/${pid}/files/render.png?v=${Date.now()}`);
-      document.getElementById("renderBox").hidden = false;
-    } finally { e.target.disabled = false; e.target.textContent = "렌더 이미지"; }
+      const r = await post(`/api/projects/${pid}/photoreal`, shot);
+      showShot(apiUrl(r.url), "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
+    } catch (err) {
+      if (err.status !== 503 && err.status !== 429) throw err;
+      toast(err.message, true);
+    } finally { b.disabled = false; b.textContent = "실사로 보기"; }
   });
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
 
