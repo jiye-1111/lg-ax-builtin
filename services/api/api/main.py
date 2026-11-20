@@ -475,6 +475,17 @@ def place(pid: str, body: PlaceIn, s: Service = S):
     return s.place_product(pid, body.zone_id, body.sku, body.color)
 
 
+class AutoPlaceIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    sku: str
+    color: Optional[str] = None
+
+
+@app.post("/api/projects/{pid}/auto-place")
+def auto_place(pid: str, body: AutoPlaceIn, s: Service = S):
+    return s.auto_place(pid, body.sku, body.color)
+
+
 @app.post("/api/projects/{pid}/pose-check")
 def pose_check(pid: str, body: PoseIn, s: Service = S):
     return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id)

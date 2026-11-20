@@ -14,7 +14,7 @@ from recommender.cmf import rank_cmf
 from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
-from recommender.pose import Pose, check_pose, snap_to_wall
+from recommender.pose import Pose, check_pose, find_spot, snap_to_wall
 from sim.regions import REGIONS
 from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
@@ -639,10 +639,12 @@ class Service:
         return self._judge(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap), placement_id).to_dict()
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                 color: str | None = None) -> dict:
+                 color: str | None = None, wall_id: str | None = None) -> dict:
         prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
         opt = self._color_option(prod, color)
         pose = self._pose(room, prod, center_xz, yaw_rad, snap)
+        if wall_id and not pose.wall_id:
+            pose = Pose(pose.center_xz, pose.yaw_rad, wall_id)
         r = self._judge(room, p, prod, pose)
         if r.size_m is None:
             raise Invalid("제품 치수 정보가 없어 놓을 수 없습니다")
@@ -656,6 +658,15 @@ class Service:
         out = self._rebuild(pid)
         out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == x["placement_id"])
         return out
+
+    def auto_place(self, pid: str, sku: str, color: str | None = None) -> dict:
+        """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다. 어디에도 안 들어가면 Invalid."""
+        prod, room, p = self.catalog.get(sku), self.get_room(pid), self.get_project(pid)
+        others = [x for x in p["scene_state"]["placements"] if x.get("size_m")]
+        r = find_spot(room, prod, self.fit_cfg, others=others, hidden=self._hidden(p))
+        if r is None:
+            raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
+        return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color, wall_id=r.pose.wall_id)
 
     def _find_placement(self, p: dict, placement_id: str) -> dict:
         x = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None)

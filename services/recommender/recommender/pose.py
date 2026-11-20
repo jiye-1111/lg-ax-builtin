@@ -283,3 +283,40 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("scan_based", Verdict.CONDITIONAL)
     v = worst(verdicts) if verdicts else Verdict.FIT
     return PoseResult(v, pose, reasons, F, R, (w_m, h_m, d_m))
+
+
+# ---------- 알맞은 자리 찾기 ----------
+_RANK = {Verdict.FIT: 0, Verdict.CONDITIONAL: 1, Verdict.UNKNOWN: 2, Verdict.NO_FIT: 3}
+
+
+def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others: Iterable[dict] = (),
+              hidden: Iterable[str] = (), step_m: float = 0.1) -> Optional[PoseResult]:
+    """벽을 따라 step_m 간격으로 등을 붙여 놓아 보고 가장 잘 들어가는 자리를 고른다.
+    적합 > 조건부 순, 같으면 걸리는 이유가 적은 곳, 그다음 벽 가운데에 가까운 곳. 어디에도 안 들어가면 None."""
+    cfg = cfg or FitConfig()
+    size = product_size(product)
+    if size is None or not room.walls:
+        return None
+    others, hidden = list(others), list(hidden)
+    w_m, _, d_m = size
+    side, back, _, _ = _clear(product)
+    margin = cfg.margin_scanned_mm / 1000
+    best, best_key = None, None
+    for wall in room.walls:
+        f = _inward(room, wall)
+        half = w_m / 2 + side + margin
+        if f.length < 2 * half:
+            continue
+        nx, ny = f.v_axis
+        v = _thick(wall) / 2 + back + margin + d_m / 2
+        n = int((f.length - 2 * half) / step_m) + 1
+        for i in range(n):
+            u = half + i * step_m
+            pose = Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
+            r = check_pose(room, product, pose, cfg, others=others, hidden=hidden)
+            if r.verdict == Verdict.NO_FIT:
+                continue
+            key = (_RANK[r.verdict], len(r.reasons), abs(u - f.length / 2))
+            if best_key is None or key < best_key:
+                best, best_key = r, key
+    return best

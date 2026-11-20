@@ -225,3 +225,30 @@ def test_doorless_products_skip_passage():
     t = RoomObject(object_id="t3", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.3), position=(2.0, 0.375, 1.3))
     r = check_pose(room(objects=[t]), washer(door=None, category="tv"), AT_WALL, CFG)
     assert "passage_narrow" not in codes(r)
+
+
+# ---- 알맞은 자리 찾기 (자동 배치) ----
+from recommender.pose import find_spot  # noqa: E402
+
+
+def test_find_spot_puts_product_against_a_wall():
+    r = find_spot(room(), fridge(), CFG)
+    assert r is not None and r.verdict == Verdict.FIT and r.pose.wall_id
+    # 등이 벽에 붙어 있다: 다시 판정해도 같은 결과
+    assert check_pose(room(), fridge(), r.pose, CFG).verdict == Verdict.FIT
+
+
+def test_find_spot_avoids_furniture_and_other_products():
+    # 벽 w1 앞을 탁자가 막고 있으면 다른 자리를 고른다
+    t = RoomObject(object_id="t9", category="table", bbox_m=BBox(w=3.8, h=0.75, d=1.2), position=(2.0, 0.375, 0.65))
+    r = find_spot(room(objects=[t]), fridge(), CFG)
+    assert r is not None and r.verdict == Verdict.FIT and r.pose.wall_id != "w1"
+
+
+def test_find_spot_returns_none_when_nothing_fits():
+    r = find_spot(room(h=1.5), fridge(), CFG)  # 천장이 낮아 어디에도 안 들어감
+    assert r is None
+
+
+def test_find_spot_unknown_dims_is_none():
+    assert find_spot(room(), fridge(w=None), CFG) is None

@@ -192,3 +192,15 @@ def test_before_scene_ignores_later_changes(c, pid):
     r = c.get(f"/api/projects/{pid}/files/before.glb")
     assert r.status_code == 200 and r.content == first
     assert c.get("/api/projects/none/files/before.glb").status_code == 404
+
+
+def test_auto_place_finds_a_spot_in_the_real_scan(c, pid):
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})  # 가구 치운 빈 방
+    r = c.post(f"/api/projects/{pid}/auto-place", json={"sku": SKU})
+    assert r.status_code == 200, r.text
+    pl = r.json()["placement"]
+    assert pl["verdict"] in {"fit", "conditional"} and pl["wall_id"]
+    # 두 번째도 첫 번째와 안 겹치는 자리
+    pl2 = c.post(f"/api/projects/{pid}/auto-place", json={"sku": SKU}).json()["placement"]
+    assert all(x["code"] != "overlaps_placement" for x in pl2["reasons"])
+    assert c.post(f"/api/projects/{pid}/auto-place", json={"sku": "NOPE"}).status_code == 404
