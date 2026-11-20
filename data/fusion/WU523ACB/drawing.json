@@ -1,0 +1,23 @@
+{
+ "sku": "WU523ACB",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/wu523acb.akor_2p.jpg 본체: 폭 170, 높이 420, 두께 410 (양 끝이 둥근 모양, 검정 윗판). 파우셋(폭 188, 높이 264, Ø48)은 따로라 모델에 넣지 않음",
+ "note": "LGE.COM 색 옵션(크림 화이트/베이지)은 사실 파우셋 색이고 싱크대 아래 본체는 두 모델 모두 밝은 회색이다. 웹 규칙상 finish 재질이 필요해 본체 겉판을 finish로 둠 (카탈로그 색이 거의 흰색이라 차이는 작음). 파우셋을 따로 모델로 넣을지 정해야 함",
+ "colors": {
+  "door": {
+   "name": "솔리드 베이지",
+   "from": "카탈로그 cmf_options (파우셋 색)"
+  },
+  "measured_body_rgb": {
+   "value": [
+    205,
+    205,
+    205
+   ],
+   "from": "치수도 이미지 본체 픽셀, 두 모델 같음"
+  }
+ },
+ "geometry_from": "WU523AWB"
+}
