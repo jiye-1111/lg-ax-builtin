@@ -202,7 +202,7 @@ export async function technicianHome() {
     } catch (e) { drop.textContent = "다시 시도하세요"; throw e; }
   });
   drop.onclick = () => file.click();
-  document.getElementById("pick").onclick = () => file.click();
+  document.getElementById("pick")?.addEventListener("click", () => file.click());
   file.onchange = () => file.files[0] && send(file.files[0], file.files[0].name);
   drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
   drop.ondragleave = () => drop.classList.remove("over");

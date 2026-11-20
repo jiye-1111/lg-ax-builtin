@@ -33,6 +33,7 @@ bash s.sh api-housetwin.13-238-79-150.sslip.io https://housetwin.pages.dev
 | `PUBLIC_BASE_URL` | `https://housetwin.pages.dev` (고객 링크에 쓰임) |
 | `CORS_ORIGINS` | `https://housetwin.pages.dev` |
 | `USE_BLENDER` | `0` (서버엔 Blender 없음, 렌더는 Python 폴백) |
+| `ADMIN_EMAIL` / `ADMIN_PASSWORD` | 기사 승인용 관리자 계정. 비밀번호는 서버 `.env`에만 둔다 ([accounts.md](specs/accounts.md)) |
 
 MCP HTTP는 서버에서 열지 않는다.
 
