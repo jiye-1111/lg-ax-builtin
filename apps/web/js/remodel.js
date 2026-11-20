@@ -11,6 +11,9 @@ import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL } from "./guide.js";
 import { optionSteps } from "./options.js";
 import { startTour, tourSeen } from "./tour.js";
 
+// 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
+const APP_MAX_W = 1100;
+
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
   const saved = uiState(pid); // 다른 화면에 다녀와도 보던 그대로
@@ -22,6 +25,7 @@ export async function customer(pid) {
         <details class="home-menu" id="homeMenu"><summary aria-label="저장·다른 집"><i class="save-dot" aria-hidden="true"></i>저장 · 내 집 <span aria-hidden="true">▾</span></summary>
           <div class="home-pop">
             <div class="savebar" id="savebar" aria-label="저장"></div>
+            <button class="btn ghost small app-only" id="extraBtn2">도면·실측 넣기</button>
             <a class="btn ghost small new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
           </div></details>
       </header>
@@ -29,7 +33,9 @@ export async function customer(pid) {
       <aside class="lib" data-panel="lib" aria-label="LG 제품">
         <div class="lib-side">
           <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span>
-            <select id="sortBy" aria-label="정렬"><option value="">추천순</option><option value="price">낮은 가격순</option><option value="size">작은 크기순</option></select></div>
+            <select id="sortBy" aria-label="정렬"><option value="">추천순</option><option value="price">낮은 가격순</option><option value="size">작은 크기순</option></select>
+            <button class="primary small app-only" id="orderMini" hidden>구매·설치 신청</button>
+            <button class="ghost small app-only" id="libMore" aria-expanded="false">전체 보기</button></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="ask" id="ask" aria-label="공간 용도"></div>
           <div class="chips" id="cats" aria-label="가전 종류"></div>
@@ -130,8 +136,17 @@ export async function customer(pid) {
       ${botHtml()}
     </div>`;
   const studio = $app.querySelector(".studio");
-  // 휴대폰에서는 3D가 작아서, 살아 보기 설정 카드를 3D 위가 아니라 3D 아래에 둔다
-  if (matchMedia("(max-width: 900px)").matches) studio.querySelector(".stage").append(document.getElementById("simctl"));
+  // 앱(폰·작은 창): 3D를 꽉 채우고, 제품은 아래 서랍, 고른 제품은 아래 카드로. 덜 쓰는 버튼은 숨긴다
+  const appMq = matchMedia(`(max-width: ${APP_MAX_W}px)`);
+  const libMore = document.getElementById("libMore");
+  const openLib = (on) => { studio.classList.toggle("lib-open", on); libMore.textContent = on ? "접기" : "전체 보기"; libMore.setAttribute("aria-expanded", on); };
+  const syncApp = () => { studio.classList.toggle("app", appMq.matches); if (!appMq.matches) openLib(false); };
+  syncApp();
+  appMq.addEventListener("change", syncApp);
+  cleanup.push(() => appMq.removeEventListener("change", syncApp));
+  libMore.onclick = () => openLib(!studio.classList.contains("lib-open"));
+  studio.addEventListener("click", (e) => { if (e.target === studio) openLib(false); }); // 서랍 바깥 어두운 곳
+  document.getElementById("q").addEventListener("focus", () => { if (studio.classList.contains("app")) openLib(true); });
   // 큰 화면이 아닌 쪽(평면 또는 3D)은 오른쪽 패널 아래 미니맵으로 옮겨서 시야를 가리지 않게 한다
   const canvasEl = studio.querySelector(".canvas"), minimap = document.getElementById("minimap");
   const planPane = studio.querySelector(".plan-pane"), viewPane = studio.querySelector(".view-pane");
@@ -181,6 +196,7 @@ export async function customer(pid) {
   const extraPop = document.getElementById("extraPop"), extraBtn = document.getElementById("extraBtn");
   const showExtra = (on) => { extraPop.hidden = !on; extraBtn.classList.toggle("on", on); extraBtn.setAttribute("aria-expanded", on); if (on) showKeys(false); };
   extraBtn.onclick = () => showExtra(extraPop.hidden);
+  document.getElementById("extraBtn2").onclick = () => { document.getElementById("homeMenu").open = false; showExtra(true); };
   document.getElementById("extraClose").onclick = () => showExtra(false);
   extraPop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showExtra(false); extraBtn.focus(); } });
   // 저장·다른 집 메뉴: 바깥을 누르면 닫는다
@@ -530,7 +546,7 @@ export async function customer(pid) {
       closeDetail();
       if (walking) setWalking(false);
       armed = sku; mode = "move"; syncMode(); setHint(); renderLib();
-      if (matchMedia("(max-width: 900px)").matches) document.querySelector(".canvas").scrollIntoView({ behavior: "smooth", block: "center" });
+      openLib(false); // 앱에서는 서랍을 내려 3D 바닥이 보이게
     };
     place.focus({ preventScroll: true });
     pdModal.scrollTop = 0;
@@ -897,6 +913,7 @@ export async function customer(pid) {
     const box = document.getElementById("insp");
     const x = selPl && project.scene_state.placements.find((q) => q.placement_id === selPl);
     document.getElementById("plBox").hidden = !!(x || selObj);
+    studio.classList.toggle("has-sel", !!(x || selObj));
     if (x) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
       const fv = familyOf(x.sku)?.variants.find((q) => q.sku === x.sku);
@@ -981,6 +998,7 @@ export async function customer(pid) {
   };
   orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
   document.getElementById("orderBtn").onclick = openOrder;
+  document.getElementById("orderMini").onclick = openOrder;
 
   // ---- 놓은 제품 자리의 살아 보기 결과(채광·와이파이): 서버가 계산한 값을 문장으로 ----
   let life = {}, lifeKey = "", lifeBusy = false;
@@ -1000,6 +1018,7 @@ export async function customer(pid) {
     renderProgress();
     const pls = project.scene_state.placements;
     document.getElementById("plCount").textContent = pls.length;
+    document.getElementById("orderMini").hidden = !pls.length;
     document.getElementById("pls").innerHTML = pls.length ? pls.map((x) => `
       <li data-sel="${esc(x.placement_id || "")}" class="${x.placement_id === selPl ? "on" : ""}">
         <i class="dot" style="background:${esc(x.hex || "#fff")}"></i><span style="flex:1">${esc(prodOf(x.sku)?.name || x.sku)}</span><span class="badge ${x.verdict}">${LABEL[x.verdict]}</span></li>`).join("")
@@ -1516,8 +1535,24 @@ export async function customer(pid) {
       return Math.abs(a / 2);
     })();
     const objs = room.objects.length;
-    startTour([
-      { title: "집 스캔이 끝났어요!", text: `벽 ${room.walls.length}개${area > 1 ? `, 바닥 약 ${area.toFixed(1)}㎡` : ""}${objs ? `, 가구 ${objs}개` : ""}를 3D로 옮겨 왔어요. 이제 LG 가전을 직접 놓아 보면서 우리 집에 들어가는지 확인해 볼 수 있어요. 어떤 기능이 있는지 하나씩 알려 드릴게요.` },
+    const intro = { title: "집 스캔이 끝났어요!", text: `벽 ${room.walls.length}개${area > 1 ? `, 바닥 약 ${area.toFixed(1)}㎡` : ""}${objs ? `, 가구 ${objs}개` : ""}를 3D로 옮겨 왔어요. 이제 LG 가전을 직접 놓아 보면서 우리 집에 들어가는지 확인해 볼 수 있어요. 어떤 기능이 있는지 하나씩 알려 드릴게요.` };
+    const outro = { title: "직접 체험해 볼까요?", text: "이 집에 들어가는 제품 하나를 알맞은 자리에 놓아 드릴게요. 놓은 뒤 아래 버튼으로 옮기거나 돌려 보세요.", cta: { label: "체험해 보기", run: tryIt } };
+    openLib(false);
+    // 앱(폰·작은 창)은 화면에 보이는 메뉴만 짧게
+    const steps = studio.classList.contains("app") ? [
+      intro,
+      { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요. 누르면 상세가 열리고 '넣어 보기'로 3D에 놓아요." },
+      { sel: "#libMore", title: "전체 보기", text: "다른 제품을 찾거나 용량·색상·가격으로 좁히고 싶으면 여기를 눌러요." },
+      { sel: ".canvas", title: "우리 집 3D", text: "놓은 제품을 누르면 아래에 이동·회전·자동 정렬·삭제 버튼이 나와요. 두 손가락으로 확대하고, 끌면 시점이 돌아가요." },
+      { sel: ".icon-row", title: "되돌리기", text: "잘못 놓았으면 되돌리면 돼요. 물음표를 누르면 이 안내를 다시 볼 수 있어요." },
+      { sel: "#liveBtn", title: "살아 보기", text: "눈높이로 걸어 보고, 볕·와이파이·동선을 봐요." },
+      { sel: "#finBtn", title: "벽지 · 바닥", text: "실제 판매 중인 벽지와 바닥재로 바꿔 입혀 봐요." },
+      { sel: "#homeMenu", title: "저장 · 내 집", text: "저장, 다른 집 스캔, 도면·실측 넣기는 여기 모여 있어요." },
+      { sel: "#orderMini", title: "구매 및 설치 신청", text: "마음에 들면 LGE.COM에서 구매하고, 설치 기사 방문을 바로 신청할 수 있어요." },
+      { sel: "#botBtn", title: "하우니에게 물어보기", text: "\"600리터 넘는 냉장고\"처럼 말로 물어보면 제가 골라 드려요." },
+      outro,
+    ] : [
+      intro,
       { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인 순서로 진행해요. 지금 어디쯤인지 여기서 보여요." },
       { sel: ".lib-side", title: "제품 찾기", text: "이름으로 찾거나 종류를 눌러 좁혀요. 용량·색상 같은 조건은 '상세 필터'를 열면 나와요." },
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
@@ -1530,8 +1565,9 @@ export async function customer(pid) {
       { sel: ".side", title: "설치 확인", text: "고른 제품이 설치 가능한지, 문 여는 공간과 지나다닐 통로, 그 자리의 채광·와이파이까지 한눈에 보여요." },
       { sel: "#orderBtn", title: "구매 및 설치 신청", text: "마음에 들면 LGE.COM에서 구매하고, 설치 기사 방문을 바로 신청할 수 있어요." },
       { sel: "#botBtn", title: "하우니에게 물어보기", text: "\"밝은 우드에 호텔처럼\", \"600리터 넘는 냉장고\"처럼 말로 물어보면 제가 골라 드려요." },
-      { title: "직접 체험해 볼까요?", text: "이 집에 들어가는 제품 하나를 알맞은 자리에 놓아 드릴게요. 놓은 뒤 아래 버튼으로 옮기거나 돌려 보세요.", cta: { label: "체험해 보기", run: tryIt } },
-    ], { face: BOT_SVG });
+      outro,
+    ];
+    startTour(steps, { face: BOT_SVG });
   };
   document.getElementById("tourBtn").onclick = runTour;
   if (project && !tourSeen()) setTimeout(runTour, 600);
