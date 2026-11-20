@@ -3,7 +3,8 @@
 생성형 AI(Claude)는 말을 스타일로 '옮기는' 일만 한다. 어떤 벽지·바닥재·가전 색이 맞는지
 점수는 recommender(finishes.py, cmf.py)가 계산한다 (CLAUDE.md: 판정·점수는 코드가 계산).
 
-API 키(ANTHROPIC_API_KEY)는 서버 .env에만 둔다. 키가 없거나 호출이 실패하면
+API 키는 서버 .env에만 둔다. ANTHROPIC_API_KEY가 있으면 Claude, OPENAI_API_KEY만 있으면 OpenAI를 쓴다
+(둘 다 있으면 STYLE_AI_PROVIDER=claude|openai로 고른다). 키가 없거나 호출이 실패하면
 키워드 규칙(rule_based_style)으로 대신 해석하고 engine="rules"로 알려 준다.
 """
 from __future__ import annotations
@@ -18,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, field_validator
 log = logging.getLogger(__name__)
 
 MODEL = os.getenv("STYLE_AI_MODEL", "claude-opus-5-5")
+OPENAI_MODEL = os.getenv("STYLE_AI_OPENAI_MODEL", "gpt-5-mini")
 HEX = re.compile(r"^#[0-9A-Fa-f]{6}$")
 TextureName = Literal["plaster", "fabric", "stone", "wood", "paint"]
 
@@ -66,11 +68,22 @@ SYSTEM = """너는 LG HouseTwin의 인테리어 스타일 해석기다.
 {catalog}"""
 
 
+def pick_provider() -> Optional[str]:
+    has = {"claude": bool(os.getenv("ANTHROPIC_API_KEY")), "openai": bool(os.getenv("OPENAI_API_KEY"))}
+    want = (os.getenv("STYLE_AI_PROVIDER") or "").strip().lower()
+    if want in has and has[want]:
+        return want
+    return "claude" if has["claude"] else "openai" if has["openai"] else None
+
+
 def interpret_style(prompt: str, catalog_brief: str = "", client=None) -> StyleIntent:
-    """Claude로 해석. 키가 없거나 실패·거절이면 규칙 기반으로."""
+    """서버에 있는 키로 해석 (Claude 우선, 없으면 OpenAI). 키가 없거나 실패·거절이면 규칙 기반으로."""
     if client is None:
-        if not os.getenv("ANTHROPIC_API_KEY"):
+        provider = pick_provider()
+        if provider is None:
             return rule_based_style(prompt)
+        if provider == "openai":
+            return interpret_with_openai(prompt, catalog_brief)
         import anthropic
         client = anthropic.Anthropic(timeout=float(os.getenv("STYLE_AI_TIMEOUT_S", 40)), max_retries=1)
     try:
@@ -92,6 +105,30 @@ def interpret_style(prompt: str, catalog_brief: str = "", client=None) -> StyleI
         return out
     except Exception as e:  # 네트워크·키·한도 문제여도 시연은 계속된다
         log.warning("스타일 해석 실패 → 규칙 기반: %s", e)
+        return rule_based_style(prompt)
+
+
+def interpret_with_openai(prompt: str, catalog_brief: str = "", client=None) -> StyleIntent:
+    """OpenAI structured output으로 같은 StyleIntent를 받는다. 실패·거절이면 규칙 기반으로."""
+    try:
+        if client is None:
+            import openai
+            client = openai.OpenAI(timeout=float(os.getenv("STYLE_AI_TIMEOUT_S", 40)), max_retries=1)
+        r = client.chat.completions.parse(
+            model=OPENAI_MODEL,
+            messages=[{"role": "system", "content": SYSTEM.format(catalog=catalog_brief or "(없음)")},
+                      {"role": "user", "content": prompt}],
+            response_format=StyleIntent,
+        )
+        msg = r.choices[0].message
+        if getattr(msg, "refusal", None) or msg.parsed is None:
+            log.warning("스타일 해석(OpenAI) 거절/빈 응답 → 규칙 기반")
+            return rule_based_style(prompt)
+        out = msg.parsed
+        out.engine = "openai"
+        return out
+    except Exception as e:
+        log.warning("스타일 해석(OpenAI) 실패 → 규칙 기반: %s", e)
         return rule_based_style(prompt)
 
 

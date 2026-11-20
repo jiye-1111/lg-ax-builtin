@@ -614,12 +614,13 @@ export async function customer(pid) {
       <div><b>${esc(m.finish.name)}</b> <span class="muted">${esc(m.tone.name)}</span>${applied ? ` <span class="badge fit">적용</span>` : ""}
         <span class="muted why">${esc(m.reasons.join(" · ") || "기본 순서")}</span></div>
       ${applied ? "" : `<button class="small ghost" data-fin="${esc(m.finish.id)}" data-tone="${esc(m.tone.hex)}">입히기</button>`}</li>`;
+  const ENGINE = { claude: "Claude가 해석", openai: "OpenAI가 해석", rules: "키워드로 해석" };
   const showAi = (d) => {
     const box = document.getElementById("aiRes");
     box.innerHTML = `<div class="ai-out">
       <p class="ai-sum">${esc(d.summary)}</p>
       <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}" title="${esc(h)}"></i>`).join("")}</div>
-        <span class="badge ${d.engine === "claude" ? "ai" : "src"}">${d.engine === "claude" ? "Claude가 해석" : "키워드로 해석"}</span></div>
+        <span class="badge ${d.engine === "rules" ? "src" : "ai"}">${ENGINE[d.engine] || "키워드로 해석"}</span></div>
       ${["wall", "floor"].map((k) => `<h4>${k === "wall" ? "벽지" : "바닥재"} 추천</h4><ul class="ai-list">${d.finishes[k].map((m, i) => aiRow(m, i === 0 && d.applied[k])).join("")}</ul>`).join("")}
       <button class="small ghost" id="aiToRecs">이 스타일로 LG 가전 색 추천 보기</button></div>`;
     box.querySelectorAll("[data-fin]").forEach((b) => (b.onclick = guard(async () => {
@@ -635,7 +636,7 @@ export async function customer(pid) {
     try {
       const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
       showAi(d);
-      toast(d.engine === "claude" ? "Claude가 고른 스타일을 입혔어요" : "키워드로 고른 스타일을 입혔어요");
+      toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
       await refresh(true);
     } finally { b.disabled = false; b.textContent = "추천 받기"; }
   });

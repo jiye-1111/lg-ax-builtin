@@ -18,7 +18,8 @@
 1. 고객이 원하는 분위기를 적는다 (최대 500자).
 2. Claude(`claude-opus-5-5`, structured output `StyleIntent`)가 팔레트 2~5색, 재질 키워드, 벽·바닥 선호 질감, 짧은 설명으로 **옮기기만** 한다. 점수·제품명은 만들지 않는다.
    - 거절되면 서버 측 fallback(`fallbacks: "default"`)이 다른 모델로 다시 돌린다.
-   - `ANTHROPIC_API_KEY`가 없거나 실패하면 키워드 규칙(`rule_based_style`)으로 해석하고 `engine: "rules"`로 알린다. 화면에는 "키워드로 해석" 배지.
+   - `ANTHROPIC_API_KEY` 대신 `OPENAI_API_KEY`만 있으면 OpenAI(`STYLE_AI_OPENAI_MODEL`, 기본 gpt-5-mini) structured output으로 같은 `StyleIntent`를 받는다 (`engine: "openai"`). 둘 다 있으면 `STYLE_AI_PROVIDER`로 고른다.
+   - 키가 하나도 없거나 실패하면 키워드 규칙(`rule_based_style`)으로 해석하고 `engine: "rules"`로 알린다. 화면에는 "키워드로 해석" 배지.
 3. 스타일을 `set_style`로 저장 → 가전 CMF 추천이 바로 이 스타일을 따른다.
 4. 벽지·바닥재 상위 3개를 계산하고, 점수가 0보다 크면 1위를 적용한다(`apply_finishes=false`면 안 함).
 
