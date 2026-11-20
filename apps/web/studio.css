@@ -232,3 +232,16 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .side .order-bar { padding-right: 92px; }
 .studio .bot-btn .bot-tip { display: none; }
 .sugg-head #askBot { padding: 3px 10px; font-size: 11.5px; }
+/* 하우니 대화의 제품 카드 */
+.bot-prods { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+.bot-prods li { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 6px; background: #fff; border-radius: 12px; }
+.bot-prods .ph { width: 44px; height: 44px; border-radius: 8px; overflow: hidden; background: var(--drafting); }
+.bot-prods img { width: 100%; height: 100%; object-fit: contain; }
+.bot-prods .nm { min-width: 0; font-size: 12px; line-height: 1.3; }
+.bot-prods .nm b { display: block; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bot-prods .nm small { color: var(--graphite); }
+.lib-head select { padding: 3px 8px; font-size: 12px; border-radius: 999px; }
+.lib-head { gap: 8px; align-items: center; } .lib-head h2 { margin-right: auto; }
+.lib .prod .price { font-size: 12px; font-weight: 700; margin-top: 2px; font-variant-numeric: tabular-nums; }
+#insp .insp-price { margin: -8px 0 14px; font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; }
+#insp .insp-price .muted { font-size: 11px; font-weight: 400; }

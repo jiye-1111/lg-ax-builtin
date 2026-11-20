@@ -28,7 +28,8 @@ export async function customer(pid) {
 
       <aside class="lib" data-panel="lib" aria-label="LG 제품">
         <div class="lib-side">
-          <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span></div>
+          <div class="lib-head"><h2>LG 제품</h2><span class="muted" id="libCount"></span>
+            <select id="sortBy" aria-label="정렬"><option value="">추천순</option><option value="price">낮은 가격순</option><option value="size">작은 크기순</option></select></div>
           <input id="q" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
           <div class="ask" id="ask" aria-label="공간 용도"></div>
           <div class="chips" id="cats" aria-label="가전 종류"></div>
@@ -338,7 +339,7 @@ export async function customer(pid) {
   const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
   // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
-  ["fW", "fH"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
+  ["fW", "fH", "sortBy"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
   // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
   // (API 서버가 아직 판매 여부를 안 주는 옛 버전이면 전부 보여 준다)
   const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
@@ -414,7 +415,11 @@ export async function customer(pid) {
     suggPool = items.filter((f) => !f.demo_only && f.product_dims_mm?.w && f.product_dims_mm?.h && f.product_dims_mm?.d)
       .slice(0, SUGG_POOL).map((f) => pick[f.family_id] || f.variants[0].sku);
     scheduleSuggest();
-    items.sort((a, b) => a.demo_only - b.demo_only || isRec(b) - isRec(a)); // 이 집에 들어가는 제품을 위로
+    const sortBy = document.getElementById("sortBy").value;
+    const priceOf = (f) => (f.variants.find((v) => v.sku === pick[f.family_id]) || f.variants[0]).price_krw ?? Infinity;
+    const sizeOf = (f) => { const d = f.product_dims_mm || {}; return d.w && d.d ? d.w * d.d : Infinity; };
+    items.sort((a, b) => a.demo_only - b.demo_only || (sortBy === "price" ? priceOf(a) - priceOf(b) : sortBy === "size" ? sizeOf(a) - sizeOf(b) : 0)
+      || isRec(b) - isRec(a)); // 기본: 이 집에 들어가는 제품을 위로
     const nf = filterCount();
     document.getElementById("filterOn").textContent = nf ? `${nf}개 적용` : "";
     document.getElementById("libCount").textContent = `${items.length}개 모델`;
@@ -426,6 +431,7 @@ export async function customer(pid) {
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}${isRec(f) ? ` <span class="badge rec" title="이 집 벽을 따라 놓아 보니 들어가는 제품이에요">들어가요</span>` : ""}</div>
           <div class="cat">${sized ? `${mm(d.w)}×${mm(d.h)}×${mm(d.d)} mm` : "치수 정보 없음"}</div>
+          ${typeof v.price_krw === "number" ? `<div class="price">${v.price_krw.toLocaleString("ko-KR")}원</div>` : ""}
           ${many ? `<div class="variants" role="radiogroup" aria-label="색·재질">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}
             <span class="vlabel">${esc(finishLabel(v))}${models > dots.length ? ` · 모델 ${models}개` : ""}</span></div>` : `<div class="vlabel solo">${esc(finishLabel(v) || "색상 표기 없음")}${models > 1 ? ` · 모델 ${models}개` : ""}</div>`}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
@@ -902,6 +908,7 @@ export async function customer(pid) {
         <h2 class="insp-name">${esc(p.name)}</h2>
         <p class="insp-meta">${esc([OPT_SHORT(p), x.color].filter(Boolean).join(" · "))}${p.demo_only ? ` <span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</p>
         ${pd.w && pd.h && pd.d ? `<p class="insp-dims">${mm(pd.w)} × ${mm(pd.h)} × ${mm(pd.d)} mm</p>` : ""}
+        ${typeof fv?.price_krw === "number" ? `<p class="insp-price">${fv.price_krw.toLocaleString("ko-KR")}원 <span class="muted">LGE.COM 판매가</span></p>` : ""}
         ${fitCardHtml(x, life[x.placement_id])}
         ${f && f.variants.length > 1 ? `<div class="swatches" aria-label="색상">${f.variants.map((v) => `<button class="swatch ${v.sku === x.sku ? "on" : ""}" data-variant="${esc(v.sku)}" title="${esc(optLabel(f, v))}"><i style="background:${esc(v.hex || "#fff")}"></i>${esc(optLabel(f, v))}</button>`).join("")}</div>` : ""}
         <p class="insp-links"><button class="linklike" id="inspDetail">제품 상세</button>${p.source_url && !p.demo_only ? `<a href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기 ↗</a>` : ""}</p>`;
@@ -1081,7 +1088,8 @@ export async function customer(pid) {
   // 말로 꾸미기 한 번: 서버가 말을 해석하고 벽지·바닥재를 골라 입힌다. 순위는 서버 코드가 계산
   const askAi = async (prompt) => {
     const d = await post(`/api/projects/${pid}/style/ai`, { prompt });
-    toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
+    const styled = Object.keys(d.applied || {}).length > 0;
+    if (styled) toast(d.engine === "rules" ? "키워드로 고른 스타일을 입혔어요" : "AI가 고른 스타일을 입혔어요");
     await refresh(true);
     return d;
   };
@@ -1134,12 +1142,25 @@ export async function customer(pid) {
     const wait = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
     try {
       const d = await askAi(prompt);
-      const name = (k) => d.applied[k] ? esc(d.finishes[k][0].finish.name) : null;
+      const name = (k) => d.applied?.[k] ? esc(d.finishes[k][0].finish.name) : null;
       const used = [name("wall") && `벽은 <b>${name("wall")}</b>`, name("floor") && `바닥은 <b>${name("floor")}</b>`].filter(Boolean).join(", ");
-      wait.innerHTML = `<p>${esc(d.summary)}</p>${used ? `<p>${used}로 입혀 봤어요.</p>` : ""}
-        <div class="row"><div class="palette">${d.style.palette.map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</div>${engineBadge(d)}</div>
-        <div class="msg-acts"><button class="small ghost" data-go="finish">다른 후보 보기</button></div>`;
+      const styled = !!used;
+      const prods = d.products?.items || [];
+      // 제품을 물었으면 맞는 제품 카드(넣어 보기), 분위기를 말했으면 입힌 벽지·바닥
+      wait.innerHTML = `<p>${esc(d.products?.message || d.summary)}</p>${used ? `<p>${used}로 입혀 봤어요.</p>` : ""}
+        ${prods.length ? `<ul class="bot-prods">${prods.map((it) => `<li><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
+          <span class="nm"><b>${esc(it.family_name || it.product.name)}</b><small>${esc((it.reasons || []).join(" · "))}</small></span>
+          <button class="small primary" data-try="${esc(it.product.sku)}">넣어 보기</button></li>`).join("")}</ul>` : ""}
+        ${styled ? `<div class="row"><div class="palette">${(d.style?.palette || []).map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</div>${engineBadge(d)}</div>
+        <div class="msg-acts"><button class="small ghost" data-go="finish">다른 후보 보기</button></div>` : ""}`;
       wait.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => setTab(b.dataset.go)));
+      wait.querySelectorAll("[data-try]").forEach((b) => (b.onclick = () => {
+        const sku = b.dataset.try;
+        if (!prodOf(sku)) return;
+        openBot(false);
+        if (walking) setWalking(false);
+        armed = sku; ghost(null); setHint(); renderLib();
+      }));
     } catch (err) {
       wait.innerHTML = `<p>앗, 지금은 해석이 안 됐어요. 잠시 뒤 다시 말해 주세요.</p>`;
     } finally { delete botForm.dataset.busy; bot.classList.remove("thinking"); botLog.scrollTop = botLog.scrollHeight; }

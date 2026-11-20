@@ -1,4 +1,4 @@
-// 단계별 옵션 필터: 설치 방식 → 종류 → 도어 수 → 용량 → 화면 크기 → 도어 재질 → 색상 순으로 좁혀 간다.
+// 단계별 옵션 필터: 설치 방식 → 종류 → 도어 수 → 용량 → 화면 크기 → 도어 재질 → 색상 → 가격대 순으로 좁혀 간다.
 // 순서는 LGE.COM·삼성닷컴 상세필터를 따랐고, 값은 카탈로그의 LGE.COM 스펙(options)에서 온다. 화면과 떨어진 순수 함수.
 
 const bucket = (edges, unit, open) => (n) => {
@@ -13,6 +13,7 @@ const exact = (unit) => (n) => (n == null ? null : `${n}${unit}`);
 const literBucket = bucket([300, 400, 600, 800], "L", "이상");
 const kgBucket = bucket([10, 15, 20], "kg", "이상");
 const cmBucket = bucket([110, 140, 170, 200], "cm", "이상");
+const wonBucket = bucket([100, 200, 300, 500], "만 원", "이상"); // LGE.COM 판매가를 만 원 단위로
 
 export const INSTALL_STEP = { built_in: "빌트인", built_in_look: "빌트인", freestanding: "일반" };
 
@@ -28,6 +29,7 @@ export const AXES = [
   { key: "door_type", label: "문 여는 방향", of: (v) => v.options?.door_type ?? null },
   { key: "door_material", label: "도어 재질", of: (v) => v.options?.door_material ?? null },
   { key: "color", label: "색상", of: (v) => v.color ?? null },
+  { key: "price", label: "가격대", of: (v) => (typeof v.price_krw === "number" ? v.price_krw / 10000 : null), numeric: true, fine: wonBucket, coarse: wonBucket },
 ];
 const MAX_FINE = 6; // 이보다 값이 많으면 구간으로 묶는다
 const firstNumber = (s) => { const m = String(s).match(/[\d.]+/); return m ? Number(m[0]) : Infinity; };
