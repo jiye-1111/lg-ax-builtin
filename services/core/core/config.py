@@ -7,16 +7,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 
 
+# .env.ai = AI 키만 따로 두는 파일 (메모장으로 붙여 넣기 쉽게). 둘 다 git에 올리지 않는다.
+ENV_FILES = (".env", ".env.ai")
+
+
 def _load_dotenv() -> None:
-    p = ROOT / ".env"
-    if not p.exists():
-        return
-    for line in p.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line or line.startswith("#") or "=" not in line:
+    for name in ENV_FILES:
+        p = ROOT / name
+        if not p.exists():
             continue
-        k, v = line.split("=", 1)
-        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+        for line in p.read_text(encoding="utf-8-sig").splitlines():  # 메모장이 붙이는 BOM도 처리
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            k, v = line.split("=", 1)
+            if v.strip():
+                os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
 
 
 _load_dotenv()
