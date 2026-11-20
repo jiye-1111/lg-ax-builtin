@@ -80,6 +80,11 @@ class Catalog:
                 f = config.ROOT / "data" / "drawings" / f"{p.sku}.json"
                 shapes[p.sku] = shape_key(json.loads(f.read_text(encoding="utf-8"))) if f.exists() else None
             self._families = families([p.model_dump() for p in self.products], shapes)
+            # 제품 사진: 우리 3D 모델을 Blender로 렌더한 것 (웹 기준 상대 경로, 없으면 None)
+            photos = config.ROOT / "apps" / "web" / "img" / "products"
+            for f in self._families:
+                for v in f["variants"]:
+                    v["thumb"] = f"img/products/{v['sku']}.webp" if (photos / f"{v['sku']}.webp").exists() else None
         return self._families
 
     def family_of(self, sku: str) -> dict:

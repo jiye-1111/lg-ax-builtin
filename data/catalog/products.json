@@ -1,5 +1,5 @@
 {
-  "_note": "LGE.COM 공개 정보만 (2026-11-19 확인). 확인 못한 값은 null. hex_approx는 제품 대표 이미지 중앙부 중앙값 색(근사, 공식 아님).",
+  "_note": "LGE.COM 공개 정보만 (2026-11-19·20 확인). 확인 못한 값은 null. hex_approx는 근사 색(공식 아님): 11-19분은 제품 대표 이미지 중앙값, 11-20분은 LGE.COM 색상 이름 기준.",
   "products": [
     {
       "sku": "G646GBB031",
@@ -730,6 +730,1720 @@
       ],
       "source_url": "https://www.lge.co.kr/water-purifiers/wu523acb",
       "source_checked_at": "2026-11-19",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Y323MEF",
+      "name": "LG 컨버터블 패키지 오브제컬렉션 (냉동전용고)",
+      "category": "freezer",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1860,
+        "d": 707
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 1,860 x 707: 제품 페이지 스펙 표",
+        "설치타입: 빌트인 타입, 1도어, 좌/우 가변도어, 페어설치키트 적용가능"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#EEE9E5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y323mef",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Z323MEF",
+      "name": "LG 컨버터블 패키지 오브제컬렉션 (김치전용고)",
+      "category": "kimchi_refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1860,
+        "d": 707
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 1,860 x 707: 제품 페이지 스펙 표",
+        "설치타입: 빌트인 타입, 1도어, 좌/우 가변도어, 페어설치키트 적용가능"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#EEE9E5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z323mef",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "X323MEF",
+      "name": "LG 컨버터블 패키지 오브제컬렉션 (냉장전용고)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1860,
+        "d": 707
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 1,860 x 707: 제품 페이지 스펙 표",
+        "설치타입: 빌트인 타입, 1도어, 좌/우 가변도어, 페어설치키트 적용가능"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#EEE9E5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x323mef",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "Y324GB7",
+      "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉동전용고)",
+      "category": "freezer",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 598,
+        "h": 1860,
+        "d": 670
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 598 x 1,860 x 670: 제품 페이지 스펙 표",
+        "설치타입: Fit & Max, 1도어, 좌/우 가변도어"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#EEE9E5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y324gb7",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "X324GB7",
+      "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+      "category": "refrigerator",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "built_in_look",
+      "product_dims_mm": {
+        "w": 598,
+        "h": 1860,
+        "d": 670
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 598 x 1,860 x 670: 제품 페이지 스펙 표",
+        "설치타입: Fit & Max, 1도어, 좌/우 가변도어"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#EEE9E5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gb7",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "W1213GG",
+      "name": "LG 디오스 오브제컬렉션 와인셀러 (121병)",
+      "category": "wine_cellar",
+      "zone_fit": [
+        "kitchen",
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1488,
+        "d": 585
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 1,488 x 585: 제품 페이지 스펙 표",
+        "121병, 2존(상/하)"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 그린",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#7C8B7A"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/winecellar/w1213gg",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "W1212GB",
+      "name": "LG 디오스 오브제컬렉션 와인셀러 (121병, 베이지)",
+      "category": "wine_cellar",
+      "zone_fit": [
+        "kitchen",
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 1488,
+        "d": 585
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 1,488 x 585: 제품 페이지 스펙 표",
+        "121병, 2존(상/하), 다중 글라스 도어"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E9E3DA"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/winecellar/w1212gb",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "W0492GG",
+      "name": "LG 디오스 오브제컬렉션 와인셀러 (49병)",
+      "category": "wine_cellar",
+      "zone_fit": [
+        "kitchen",
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 595,
+        "h": 838,
+        "d": 580
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 595 x 838 x 580: 제품 페이지 스펙 표",
+        "49병, 다중 글라스 도어"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 그린",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#7C8B7A"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/winecellar/w0492gg",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "W0082GLE",
+      "name": "LG 디오스 오브제컬렉션 와인셀러 (8병)",
+      "category": "wine_cellar",
+      "zone_fit": [
+        "kitchen",
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 282,
+        "h": 497,
+        "d": 534
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 282 x 497 x 534: 제품 페이지 스펙 표",
+        "8병, 싱글존"
+      ],
+      "cmf_options": [
+        {
+          "color": "오브제컬렉션 크림 라벤더",
+          "material": "글라스 (크리스탈)",
+          "finish": null,
+          "hex_approx": "#D9D3E6"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/winecellar/w0082gle",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "MLJ32ERS",
+      "name": "LG 디오스 오브제컬렉션 광파오븐 (32L)",
+      "category": "oven",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 527,
+        "h": 394,
+        "d": 480
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 527 x 394 x 480: 제품 페이지 스펙 표",
+        "상하도어. 설치환경: 윗면 20cm 이상, 측면/뒷면 벽과 10cm 이상, 바닥에서 85cm 이상"
+      ],
+      "cmf_options": [
+        {
+          "color": "카밍 베이지 (외관: 블랙)",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E6DFD5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32ers",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "MLJ39ER",
+      "name": "LG 디오스 오브제컬렉션 광파오븐 (39L)",
+      "category": "oven",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 540,
+        "h": 325,
+        "d": 523
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 540 x 325 x 523: 제품 페이지 스펙 표",
+        "슬림형, 상하도어. 설치환경: 윗면 20cm 이상, 측면/뒷면 벽과 10cm 이상, 바닥에서 85cm 이상"
+      ],
+      "cmf_options": [
+        {
+          "color": "카밍 베이지 (외관: 블랙)",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E6DFD5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39er",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "MW23FDI",
+      "name": "LG 디오스 오브제컬렉션 전자레인지 (23L)",
+      "category": "microwave",
+      "zone_fit": [
+        "kitchen"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 476,
+        "h": 272,
+        "d": 369
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
+        "슬림형, 좌우도어. 설치환경: 윗면 20cm 이상, 측면/뒷면 벽과 10cm 이상"
+      ],
+      "cmf_options": [
+        {
+          "color": "크리스탈 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#EAE2D6"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23fdi",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "WL21WDU",
+      "name": "LG 트롬 오브제컬렉션 워시타워",
+      "category": "wash_tower",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 1890,
+        "d": 830
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 1,890 x 830: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,410"
+      ],
+      "cmf_options": [
+        {
+          "color": "릴리 화이트 / 릴리 화이트",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#F2F1EE"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/wl21wdu",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "WL21EGZU",
+      "name": "LG 트롬 오브제컬렉션 워시타워 (네이처 베이지/그린)",
+      "category": "wash_tower",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 1890,
+        "d": 830
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 1,890 x 830: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,410. 색상 (세탁/건조) 네이처 베이지 / 네이처 그린"
+      ],
+      "cmf_options": [
+        {
+          "color": "네이처 베이지 / 네이처 그린",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E3DFD7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/wl21egzu",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "FH25KA",
+      "name": "LG 트롬 오브제컬렉션 워시콤보",
+      "category": "washer_dryer",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 990,
+        "d": 830
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 990 x 830: 제품 페이지 스펙 표",
+        "도어 열림 시 770 x 990 x 1,410"
+      ],
+      "cmf_options": [
+        {
+          "color": "스페이스 블랙",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#2E3036"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/fh25ka",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "FX24KNTR",
+      "name": "LG 트롬 오브제컬렉션 세탁기 (24kg)",
+      "category": "washer",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 990,
+        "d": 830
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 990 x 830: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,410"
+      ],
+      "cmf_options": [
+        {
+          "color": "스페이스 블랙",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#2E3036"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/washing-machines/fx24kntr",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "FX24ENER",
+      "name": "LG 트롬 오브제컬렉션 세탁기 (24kg, 네이처 베이지)",
+      "category": "washer",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 990,
+        "d": 830
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 990 x 830: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,410"
+      ],
+      "cmf_options": [
+        {
+          "color": "네이처 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E3DFD7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/washing-machines/fx24ener",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "RD20KNTR",
+      "name": "LG 트롬 오브제컬렉션 건조기 (20kg)",
+      "category": "dryer",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 990,
+        "d": 824
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 990 x 824: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,380"
+      ],
+      "cmf_options": [
+        {
+          "color": "스페이스 블랙",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#2E3036"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/dryers/rd20kntr",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "RD21ESER",
+      "name": "LG 트롬 오브제컬렉션 건조기 (21kg, 네이처 베이지)",
+      "category": "dryer",
+      "zone_fit": [
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 700,
+        "h": 990,
+        "d": 824
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 700 x 990 x 824: 제품 페이지 스펙 표",
+        "도어 열림 시 깊이 1,380"
+      ],
+      "cmf_options": [
+        {
+          "color": "네이처 베이지",
+          "material": "글라스",
+          "finish": null,
+          "hex_approx": "#E3DFD7"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/dryers/rd21eser",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "SC5GMR80S",
+      "name": "LG 스타일러 AI 오브제컬렉션 (2026, 블랙틴트미러)",
+      "category": "styler",
+      "zone_fit": [
+        "bedroom",
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 600,
+        "h": 1965,
+        "d": 620
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 600 x 1,965 x 620: 제품 페이지 스펙 표",
+        "우측 열림, 도어 열림 시 깊이 1,190"
+      ],
+      "cmf_options": [
+        {
+          "color": "블랙틴트미러",
+          "material": "미러",
+          "finish": null,
+          "hex_approx": "#3A3B3F"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/lg-styler/sc5gmr80s",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "SC5MBR80S",
+      "name": "LG 스타일러 AI 오브제컬렉션 (2026, 샌드 베이지)",
+      "category": "styler",
+      "zone_fit": [
+        "bedroom",
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 600,
+        "h": 1965,
+        "d": 620
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 600 x 1,965 x 620: 제품 페이지 스펙 표",
+        "우측 열림, 도어 열림 시 깊이 1,190"
+      ],
+      "cmf_options": [
+        {
+          "color": "샌드 베이지",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#DCD2C4"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mbr80s",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "SC5MSR82A",
+      "name": "LG 스타일러 오브제컬렉션 (에센스 화이트)",
+      "category": "styler",
+      "zone_fit": [
+        "bedroom",
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 600,
+        "h": 1965,
+        "d": 620
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 600 x 1,965 x 620: 제품 페이지 스펙 표",
+        "우측 열림, 도어 열림 시 깊이 1,190"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 화이트",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/lg-styler/sc5msr82a",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "SS4RHS60E",
+      "name": "LG 스타일러 오브제컬렉션 슈케어 (에센스 그라파이트)",
+      "category": "shoe_care",
+      "zone_fit": [
+        "entrance"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 380,
+        "h": 1008,
+        "d": 390
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 380 x 1,008 x 390: 제품 페이지 스펙 표",
+        "최대 4켤레, 우측 열림, 도어 열림 시 깊이 750"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 그라파이트",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#4A4B4F"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/shoe-care/ss4rhs60e",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "SS4RWS60E",
+      "name": "LG 스타일러 오브제컬렉션 슈케어 (에센스 화이트)",
+      "category": "shoe_care",
+      "zone_fit": [
+        "entrance"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 380,
+        "h": 1008,
+        "d": 390
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 380 x 1,008 x 390: 제품 페이지 스펙 표",
+        "최대 4켤레, 우측 열림, 도어 열림 시 깊이 750"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 화이트",
+          "material": "메탈",
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/shoe-care/ss4rws60e",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "OLED65C5ENA",
+      "name": "LG 올레드 evo AI 65형 (벽걸이형)",
+      "category": "tv",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 1441,
+        "h": 826,
+        "d": 45
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 1,441 x 826 x 45: 제품 페이지 스펙 표",
+        "스탠드 제외 1,441 x 826 x 45.1 (깊이 45로 반올림). 화면 163cm"
+      ],
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#1C1C1E"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/tvs/oled65c5ena-wall",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "65QNED65BBA",
+      "name": "LG QNED AI 65형 (스탠드형)",
+      "category": "tv",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 1447,
+        "h": 901,
+        "d": 269
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 1,447 x 901 x 269: 제품 페이지 스펙 표",
+        "스탠드 포함 크기. 스탠드 제외 1,447 x 838 x 70.8, 스탠드 1,185 x 269"
+      ],
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#1C1C1E"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/tvs/65qned65bba-stand",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "OLED77B6BNA",
+      "name": "LG 올레드 AI 77형 (스탠드형)",
+      "category": "tv",
+      "zone_fit": [
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 1719,
+        "h": 1057,
+        "d": 268
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 1,719 x 1,057 x 268: 제품 페이지 스펙 표",
+        "스탠드 포함 크기. 스탠드 제외 1,719 x 989 x 50.9, 스탠드 1,390 x 268"
+      ],
+      "cmf_options": [
+        {
+          "color": "블랙",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#1C1C1E"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/tvs/oled77b6bna-stand",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "27LX6TPGA",
+      "name": "LG 스탠바이미 2",
+      "category": "portable_tv",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 623,
+        "h": 1265,
+        "d": 398
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 623 x 1,265 x 398: 제품 페이지 스펙 표",
+        "스탠드 포함 크기. 스탠드 제외 623 x 364 x 28.5, 스탠드 398 x 398"
+      ],
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#F2F2F0"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/stan-by-me/27lx6tpga",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "32LX6BPGA",
+      "name": "LG 스탠바이미 2 Max",
+      "category": "portable_tv",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 724,
+        "h": 1308,
+        "d": 420
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 724 x 1,308 x 420: 제품 페이지 스펙 표",
+        "스탠드 포함 크기. 스탠드 제외 724 x 421 x 28.5, 스탠드 420 x 420"
+      ],
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#F2F2F0"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/stan-by-me/32lx6bpga",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "FQ18GV3EK2",
+      "name": "LG 휘센 AI 오브제컬렉션 뷰I 에어컨 2in1 (스탠드)",
+      "category": "air_conditioner",
+      "zone_fit": [
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 350,
+        "h": 1840,
+        "d": 295
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 350 x 1,840 x 295: 제품 페이지 스펙 표",
+        "스탠드 실내기 크기. 벽걸이 754 x 308 x 189, 실외기 870 x 650 x 330은 따로"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/air-conditioners/fq18gv3ek2",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "FQ17GU1ED2",
+      "name": "LG 휘센 AI 오브제컬렉션 뷰II 에어컨 2in1 (스탠드)",
+      "category": "air_conditioner",
+      "zone_fit": [
+        "living"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 350,
+        "h": 1840,
+        "d": 295
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 350 x 1,840 x 295: 제품 페이지 스펙 표",
+        "스탠드 실내기 크기. 벽걸이 754 x 308 x 189, 실외기 870 x 650 x 330은 따로"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/air-conditioners/fq17gu1ed2",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "AS305DWWL",
+      "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+      "category": "air_purifier",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 376,
+        "h": 1073,
+        "d": 376
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 376 x 1,073 x 376: 제품 페이지 스펙 표"
+      ],
+      "cmf_options": [
+        {
+          "color": "크리미스노우",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#F1EFEA"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/air-purifier/as305dwwl",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "AS356NSMA",
+      "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M7",
+      "category": "air_purifier",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 377,
+        "h": 1100,
+        "d": 377
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 377 x 1,100 x 377: 제품 페이지 스펙 표"
+      ],
+      "cmf_options": [
+        {
+          "color": "카밍 베이지",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#E6DFD5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/air-purifier/as356nsma",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "AS186HWWL",
+      "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+      "category": "air_purifier",
+      "zone_fit": [
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 315,
+        "h": 511,
+        "d": 315
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 315 x 511 x 315: 제품 페이지 스펙 표"
+      ],
+      "cmf_options": [
+        {
+          "color": "화이트 (그릴: 다크 그레이)",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/air-purifier/as186hwwl",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "HY706RWUAB",
+      "name": "LG 퓨리케어 오브제컬렉션 하이드로타워",
+      "category": "humidifier",
+      "zone_fit": [
+        "living",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 310,
+        "h": 986,
+        "d": 310
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 310 x 986 x 310: 제품 페이지 스펙 표",
+        "크기 310(240) x 986 x 310(240): 아래 310, 위 240"
+      ],
+      "cmf_options": [
+        {
+          "color": "화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#F2F2F0"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/humidifiers/hy706rwuab",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "DQ235MWGA",
+      "name": "LG 휘센 오브제컬렉션 제습기",
+      "category": "dehumidifier",
+      "zone_fit": [
+        "utility",
+        "bedroom"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 410,
+        "h": 640,
+        "d": 210
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 410 x 640 x 210: 제품 페이지 스펙 표"
+      ],
+      "cmf_options": [
+        {
+          "color": "에센스 화이트",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#EFEFEF"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq235mwga",
+      "source_checked_at": "2026-11-20",
+      "model_3d": null,
+      "demo_only": false
+    },
+    {
+      "sku": "AX920BWE",
+      "name": "LG 코드제로 오브제컬렉션 A9S (올인원타워)",
+      "category": "vacuum",
+      "zone_fit": [
+        "living",
+        "utility"
+      ],
+      "install_type": "freestanding",
+      "product_dims_mm": {
+        "w": 300,
+        "h": 1100,
+        "d": 245
+      },
+      "required_space_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "clearance_mm": {
+        "side": null,
+        "top": null,
+        "back": null
+      },
+      "door_swing_mm": null,
+      "cutout_mm": {
+        "w": null,
+        "h": null,
+        "d": null
+      },
+      "spec_notes": [
+        "크기 (WxHxD) 300 x 1,100 x 245: 제품 페이지 스펙 표",
+        "올인원타워 포함 크기"
+      ],
+      "cmf_options": [
+        {
+          "color": "카밍 베이지",
+          "material": null,
+          "finish": null,
+          "hex_approx": "#E6DFD5"
+        }
+      ],
+      "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/ax920bwe",
+      "source_checked_at": "2026-11-20",
       "model_3d": null,
       "demo_only": false
     }

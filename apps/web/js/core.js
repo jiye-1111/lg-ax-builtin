@@ -4,9 +4,19 @@ export const cleanup = [];
 export const LABEL = { fit: "적합", conditional: "조건부", no_fit: "불가", unknown: "판정 불가" };
 export const PURPOSE = { kitchen: "주방", living: "거실", bedroom: "침실", utility: "다용도실", other: "기타" };
 export const CATEGORY = {
-  refrigerator: "냉장고", kimchi_refrigerator: "김치냉장고", dishwasher: "식기세척기", oven: "오븐",
-  cooktop: "쿡탑", water_purifier: "정수기", air_conditioner: "에어컨", styler: "의류관리기", washer: "세탁기",
+  refrigerator: "냉장고", freezer: "냉동고", kimchi_refrigerator: "김치냉장고", wine_cellar: "와인셀러", dishwasher: "식기세척기",
+  oven: "광파오븐", microwave: "전자레인지", cooktop: "인덕션", water_purifier: "정수기",
+  washer: "세탁기", dryer: "건조기", wash_tower: "워시타워", washer_dryer: "워시콤보", styler: "스타일러", shoe_care: "슈케어",
+  tv: "TV", portable_tv: "스탠바이미", air_conditioner: "에어컨", air_purifier: "공기청정기", humidifier: "가습기",
+  dehumidifier: "제습기", vacuum: "청소기",
 };
+// 제품 서랍 위 큰 분류 (LGE.COM 메뉴 묶음과 같은 순서)
+export const CATEGORY_GROUP = [
+  ["kitchen", "주방", ["refrigerator", "freezer", "kimchi_refrigerator", "wine_cellar", "dishwasher", "oven", "microwave", "cooktop", "water_purifier"]],
+  ["laundry", "세탁·의류", ["washer", "dryer", "wash_tower", "washer_dryer", "styler", "shoe_care"]],
+  ["living", "TV·거실", ["tv", "portable_tv", "air_conditioner"]],
+  ["air", "공기·청소", ["air_purifier", "humidifier", "dehumidifier", "vacuum"]],
+];
 export const DIM = { width: "폭", height: "높이", depth: "깊이" };
 export const OBJ = { chair: "의자", table: "테이블", storage: "수납장", sofa: "소파", bed: "침대", refrigerator: "냉장고", stove: "레인지",
   sink: "싱크", washer_dryer: "세탁기", oven: "오븐", dishwasher: "식기세척기", television: "TV", toilet: "변기", bathtub: "욕조", fireplace: "벽난로", stairs: "계단" };
