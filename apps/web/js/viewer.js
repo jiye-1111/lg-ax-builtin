@@ -37,15 +37,30 @@ const MODEL_DIR = "models/products/";
 const templates = new Map();
 const pending = new Map();
 let modelIndex = null;
+let companionIndex = null;
 const gltf = new GLTFLoader();
 function loadModel(sku) {
   if (templates.has(sku)) return Promise.resolve(true);
   if (pending.has(sku)) return pending.get(sku);
   modelIndex ??= fetch(MODEL_DIR + "index.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
-  const job = modelIndex.then((idx) => {
+  // 본체와 떨어져 같이 놓이는 부품 (정수기 파우셋 등). offset_m = 본체 바닥 가운데 기준 [x, 위, 앞]
+  companionIndex ??= fetch(MODEL_DIR + "companions.json").then((r) => (r.ok ? r.json() : { models: {} })).catch(() => ({ models: {} }));
+  const job = Promise.all([modelIndex, companionIndex]).then(([idx, comps]) => {
     const entry = idx.models?.[sku];
     if (!entry) return false; // 모델이 없으면 치수 상자로 둔다
-    return gltf.loadAsync(MODEL_DIR + entry.file).then((g) => { templates.set(sku, g.scene); return true; }, () => false);
+    const comp = comps.models?.[sku];
+    return Promise.all([
+      gltf.loadAsync(MODEL_DIR + entry.file),
+      comp ? gltf.loadAsync(MODEL_DIR + comp.file).catch(() => null) : null,
+    ]).then(([g, c]) => {
+      if (c) {
+        c.scene.position.fromArray(comp.offset_m);
+        c.scene.userData.companion = true;
+        g.scene.add(c.scene);
+      }
+      templates.set(sku, g.scene);
+      return true;
+    }, () => false);
   });
   pending.set(sku, job);
   return job;

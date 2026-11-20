@@ -1,0 +1,107 @@
+{
+ "sku": "W0492GG",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/W0492GG_size_2p.jpg (폭 595, 높이 838, 깊이 580). 색 있는 문 테두리 + 어두운 유리창, 금속 선반 4줄, 검정 본체. 창·선반 위치는 치수도 비율 근사값",
+ "front": {
+  "w": 595,
+  "h": 838,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 595,
+    "h": 813
+   },
+   {
+    "name": "door/0_frame",
+    "x": 1,
+    "y": 0,
+    "w": 593,
+    "h": 813
+   },
+   {
+    "name": "display/glass",
+    "x": 54,
+    "y": 64,
+    "w": 487,
+    "h": 680
+   },
+   {
+    "name": "handle/shelf_1",
+    "x": 54,
+    "y": 253,
+    "w": 487,
+    "h": 16
+   },
+   {
+    "name": "handle/shelf_2",
+    "x": 54,
+    "y": 372,
+    "w": 487,
+    "h": 16
+   },
+   {
+    "name": "handle/shelf_3",
+    "x": 54,
+    "y": 500,
+    "w": 487,
+    "h": 16
+   },
+   {
+    "name": "handle/shelf_4",
+    "x": 54,
+    "y": 707,
+    "w": 487,
+    "h": 16
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 22.5,
+    "y": 813,
+    "w": 40,
+    "h": 25
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 532.5,
+    "y": 813,
+    "w": 40,
+    "h": 25
+   }
+  ]
+ },
+ "side": {
+  "w": 580,
+  "h": 838,
+  "parts": [
+   {
+    "name": "door/side",
+    "x": 0,
+    "y": 0,
+    "w": 40,
+    "h": 813
+   },
+   {
+    "name": "body",
+    "x": 40,
+    "y": 0,
+    "w": 540,
+    "h": 813
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 그린",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#1E1E20",
+   "from": "치수도 측면 이미지가 검정"
+  }
+ }
+}

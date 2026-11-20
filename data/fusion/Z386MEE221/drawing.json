@@ -1,0 +1,19 @@
+{
+ "sku": "Z386MEE221",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/z386sll281.akor_2p.jpg (Z386 세 모델 상세페이지가 같은 치수도를 씀). 폭 697, 높이 1860, 깊이 696 (후면 핸들 없음). 위 문 1개 + 가운데·아래 서랍, 문 나눔은 치수도 픽셀 비율로 잰 값",
+ "colors": {
+  "door": {
+   "name": "오브제컬렉션 베이지",
+   "material": "메탈",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "body": {
+   "hex_approx": "#2B2B2D",
+   "from": "치수도 측면 이미지가 검정"
+  }
+ },
+ "geometry_from": "Z386GBB281"
+}

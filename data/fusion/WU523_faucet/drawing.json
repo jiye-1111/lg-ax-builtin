@@ -1,0 +1,43 @@
+{
+ "sku": "WU523_faucet",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/wu523awb.akor_2p.jpg 파우셋: 폭 188, 높이 264, Ø48 (데코링 포함 52)",
+ "side": {
+  "w": 190,
+  "h": 264,
+  "parts": [
+   {
+    "name": "door/faucet_decoring",
+    "x": 164,
+    "y": 260,
+    "w": 52,
+    "h": 4,
+    "shape": "circle"
+   },
+   {
+    "name": "door/faucet_column",
+    "x": 166,
+    "y": 0,
+    "w": 48,
+    "h": 260,
+    "shape": "circle"
+   },
+   {
+    "name": "door/faucet_spout",
+    "x": 0,
+    "y": 2,
+    "w": 164,
+    "h": 32,
+    "shape": "circle"
+   },
+   {
+    "name": "display/nozzle",
+    "x": 10,
+    "y": 34,
+    "w": 12,
+    "h": 4
+   }
+  ]
+ }
+}

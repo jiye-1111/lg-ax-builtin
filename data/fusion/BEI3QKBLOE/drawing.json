@@ -1,0 +1,85 @@
+{
+ "sku": "BEI3QKBLOE",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "LGE.COM 치수도 https://static.lge.co.kr/kr/images/spec/bei3qkblo.akor_2p.jpg (가로 580, 세로 520, 두께 59). 화이트 글라스 상판 + 앞쪽 미스트 베이지 조작부 띠, 화구 표시는 선 3개(왼쪽 앞·뒤, 오른쪽 가운데). 위치는 사진 비율 근사값",
+ "colors": {
+  "top": {
+   "name": "화이트",
+   "material": "글라스",
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  },
+  "panel": {
+   "name": "미스트 베이지 (조작부)",
+   "hex_approx": "#E6DED2",
+   "from": "카탈로그 색 이름 '조작부: 미스트 베이지' + 치수도 이미지 앞쪽 띠"
+  },
+  "body": {
+   "hex_approx": "#D9D9D6",
+   "from": "치수도 이미지 상판 아래 하우징이 밝은 회색"
+  }
+ },
+ "top": {
+  "w": 580,
+  "h": 520,
+  "parts": [
+   {
+    "name": "top/glass",
+    "x": 0,
+    "y": 0,
+    "w": 580,
+    "h": 520
+   },
+   {
+    "name": "panel/control",
+    "x": 3,
+    "y": 450,
+    "w": 574,
+    "h": 70,
+    "note": "앞쪽 조작부 띠"
+   },
+   {
+    "name": "print/zone_left_back",
+    "x": 90,
+    "y": 138,
+    "w": 160,
+    "h": 3
+   },
+   {
+    "name": "print/zone_left_front",
+    "x": 90,
+    "y": 318,
+    "w": 160,
+    "h": 3
+   },
+   {
+    "name": "print/zone_right",
+    "x": 350,
+    "y": 228,
+    "w": 160,
+    "h": 3
+   }
+  ]
+ },
+ "side": {
+  "w": 520,
+  "h": 59,
+  "parts": [
+   {
+    "name": "top/glass",
+    "x": 0,
+    "y": 0,
+    "w": 520,
+    "h": 6
+   },
+   {
+    "name": "body/housing",
+    "x": 15,
+    "y": 6,
+    "w": 480,
+    "h": 53
+   }
+  ]
+ }
+}
