@@ -19,8 +19,8 @@
 | 컨버터블 패키지 | X323MEF, Y323MEF, Z323MEF, X324GB7, Y324GB7 |
 | 와인셀러 | W1213GG, W1212GB, W0492GG, W0082GLE |
 | 오븐·전자레인지 | MLJ32ERS, MLJ39ER, MW23FDI |
-| 세탁·건조 | WL21WDU, WL21EGZU(투톤 색은 아직 한 색), FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER |
-| 스타일러·슈케어 | SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E (SC5MBR80S·SS4RWS60E 치수도는 직접 못 봄) |
+| 세탁·건조 | WL21WDU, WL21EGZU(위 그린·아래 베이지 투톤, 검정 본체), FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER |
+| 스타일러·슈케어 | SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E  |
 | TV·스탠바이미 | OLED65C5ENA, 65QNED65BBA, OLED77B6BNA, 27LX6TPGA, 32LX6BPGA (스탠바이미는 최대 높이 상태) |
 | 에어컨·공기·청소기 | FQ18GV3EK2, FQ17GU1ED2, AS305DWWL, AS356NSMA, AS186HWWL, HY706RWUAB, DQ235MWGA, AX920BWE(스틱만, 올인원타워 없음) |
 
@@ -64,7 +64,7 @@ LGE.COM 정수기 색 옵션(크림 화이트/베이지)은 실제로는 **파�
 - 전체 `uv run pytest`에서 `tests/integration/test_deploy.py::test_pages_build_writes_api_base`는 이 PC에 WSL bash가 없어서 실패하고, `tests/unit/test_ai_style.py::test_without_api_key_uses_rules`는 전체로 돌릴 때만 가끔 실패한다(단독으로는 통과). 둘 다 이 작업과 상관없다.
 - `data/drawings/<SKU>.json`(Figma 도면, Blender `build_products.py`용)은 그대로 두었다. `index.json`의 layout은 여전히 "drawing"이지만 실제 glb는 Fusion 모델이다.
 - `C:\apps\web\img\products\G646GBB031.webp`는 처음에 상대경로로 렌더하다 잘못 생긴 파일이다. 지워도 된다 (도구로는 시스템 경로라 못 지웠다).
-- Blender 쪽 마감 강화(문 유리 코팅 반사, 홈 안쪽 그림자, 웹 압축)는 아직 안 했다.
+- Blender 마감(2026-11-20): fusion_to_glb.py가 STL의 겹친 꼭짓점을 합치고 평평한 면을 정리해 필렛이 부드럽게 보이고 파일이 약 1/6로 줄었다. 유리 문은 코팅 반사를 더 또렷하게, 홈·받침은 더 어둡게 했다. Draco 압축은 웹 로더에 디코더가 없어서 쓰지 않았다. 텍스처(헤어라인, 패브릭)나 로고는 아직 없다.
 
 ## 남은 제품 치수도 주소 (2026-11-20 제품 페이지에서 확인)
 

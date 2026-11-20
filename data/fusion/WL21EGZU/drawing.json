@@ -3,14 +3,70 @@
  "unit": "mm",
  "drawn_at": "2026-11-20",
  "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
- "source": "https://static.lge.co.kr/kr/images/spec/wl21egzu.akor_2p.jpg — WL21WDU와 같은 몸체. 실제 제품은 위·아래 색이 다른 투톤(네이처 베이지/그린)인데 지금 모델은 겉면 한 색만 지원해 첫 번째 색으로 칠함",
- "geometry_from": "WL21WDU",
- "todo": "투톤 색 (위/아래 따로) 지원",
+ "source": "https://static.lge.co.kr/kr/images/spec/wl21egzu.akor_2p.jpg (폭 700, 높이 1890, 깊이 830). 앞면이 투톤: 위(건조기) 네이처 그린, 아래(세탁기) 네이처 베이지, 가운데 검정 조작부. 옆면·본체는 검정. 둥근 문은 WL21WDU 것을 복사",
  "colors": {
   "door": {
-   "name": "네이처 베이지 / 네이처 그린",
-   "material": "글라스",
-   "from": "카탈로그 cmf_options (본체 겉면 전체가 이 색)"
+   "name": "네이처 베이지 (아래 앞판)",
+   "from": "카탈로그 cmf_options + 치수도 이미지 (226,222,219)"
+  },
+  "panel": {
+   "name": "네이처 그린 (위 앞판)",
+   "hex_approx": "#55605F",
+   "from": "치수도 이미지 위 앞판 픽셀 (80,90,91)"
+  },
+  "body": {
+   "hex_approx": "#1C1C1D",
+   "from": "치수도 측면 이미지가 검정 (23,23,23)"
   }
+ },
+ "front": {
+  "w": 700,
+  "h": 1890,
+  "parts": [
+   {
+    "name": "body",
+    "x": 0,
+    "y": 0,
+    "w": 700,
+    "h": 1890
+   },
+   {
+    "name": "panel/upper_front",
+    "x": 0,
+    "y": 0,
+    "w": 700,
+    "h": 823
+   },
+   {
+    "name": "display/control",
+    "x": 0,
+    "y": 823,
+    "w": 700,
+    "h": 95
+   },
+   {
+    "name": "door/lower_front",
+    "x": 0,
+    "y": 918,
+    "w": 700,
+    "h": 972
+   },
+   {
+    "name": "trim/door_ring_upper",
+    "x": 50,
+    "y": 112,
+    "w": 600,
+    "h": 600,
+    "shape": "circle"
+   },
+   {
+    "name": "trim/door_ring_lower",
+    "x": 50,
+    "y": 1070,
+    "w": 600,
+    "h": 600,
+    "shape": "circle"
+   }
+  ]
  }
 }
