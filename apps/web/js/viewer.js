@@ -16,7 +16,8 @@ import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker
 import { dressRoom, furnish, shadowShell, furnitureTemplate, fitFurniture } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
-const SELECT_HEX = 0xa50034;
+// 고른 것도 판정 색 그대로 (빨강 = 안 들어감으로 읽히므로 선택·필요 공간에 LG 레드를 쓰지 않는다)
+const SELECT_HEX = 0x5b6370;
 const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 const SURFACE_MAX_M = 2.2; // 공유기를 올릴 수 있는 가장 높은 윗면 (선반 꼭대기까지). 서버 Service.SURFACE_MAX_M과 같게
 const NOT_SURFACE = new Set(["decor:wall", "decor:partition", "decor:rug", "decor:plant", "decor:lamp"]); // 서버 NOT_SURFACE와 같게
@@ -419,7 +420,7 @@ export function makeViewer(el, handlers = {}) {
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
-    const vhex = selected ? SELECT_HEX : VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
+    const vhex = VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
     const tmpl = p.sku && templates.get(p.sku);
     if (tmpl) {
       // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z). 꾸미기 가구는 크기에 맞춰 늘린다

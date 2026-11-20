@@ -130,8 +130,29 @@ def test_toolbar_switches_and_one_button_toggles():
     """지예: 살아 보기는 오른쪽 위 밀어서 켜는 스위치(채광·와이파이·동선), 처음과 비교·가구 모두 지우기는 버튼 하나, 도면·실측은 뺀다."""
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     for k in ("daylight", "wifi", "flow"):
-        assert f'class="sw" data-sim="{k}" role="switch"' in REMODEL, k
+        assert f'class="simsw" data-sim="{k}" role="switch"' in REMODEL, k
     assert "가구 모두 지우기" in REMODEL and 'id="beforeBtn" aria-pressed' in REMODEL
     assert "#liveBtn, #liveBar, .studio #extraBtn { display: none !important; }" in css
     # 손에 든 물건은 마우스를 따라오고 누르면 놓인다 (가구·가전·가벽·공유기 모두)
     assert "const follow = (p) =>" in REMODEL and "arm(b.dataset.decor)" in REMODEL and "viewer.routerFollow(p)" in REMODEL
+
+
+def test_combo_panel_and_haeuni_use_server_combos():
+    """지예: 가전 종류와 목표 가격을 고르면 조합 2~3개를 3D에 한 번에. 하우니는 나열 대신 조합·한 개 추천."""
+    js = (WEB / "js" / "combos.js").read_text(encoding="utf-8")
+    assert 'id="comboBudget"' in js and 'id="comboCats"' in js and "/combos" in js and "/apply" in js
+    assert 'id="comboBtn"' in REMODEL and "comboPopHtml()" in REMODEL
+    assert "/assist" in REMODEL and "/style/ai`, { prompt })" not in REMODEL.split("botForm.onsubmit", 1)[1]
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    assert ".canvas > .sim-switches" in css and "#stepCard { display: none" in css
+
+
+def test_color_dots_only_for_products_with_a_color_name():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert "x.color && a.findIndex" in js
+
+
+def test_action_bar_drops_its_follow_position_when_holding_something():
+    # 들고 있을 때 메뉴가 예전 자리에서 길게 늘어나 바닥 클릭을 막던 문제
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    assert 'actBar.style.left = ""' in js and 'actBar.style.top = ""' in js

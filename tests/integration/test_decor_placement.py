@@ -147,3 +147,40 @@ def test_router_on_desk_edge_uses_desk_width(c, pid):
     edge = [x + math.cos(yaw) * w * 0.4, z + math.sin(yaw) * w * 0.4]
     rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": edge}).json()["scene_state"]["router"]
     assert rt["height_m"] == pytest.approx(desk["size_m"][1])
+
+
+def test_built_in_water_purifier_comes_with_sink_cabinet(c, pid):
+    """빌트인 정수기는 싱크대 하부장 안에 들어간다. 하부장 없이 놓으면 하부장을 같이 놓고, 빼면 같이 빠진다."""
+    r = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "WU923AS"})
+    assert r.status_code == 200, r.text
+    pls = r.json()["scene_state"]["placements"]
+    wp = next(x for x in pls if x["sku"] == "WU923AS")
+    cab = [x for x in pls if x.get("host_of") == wp["placement_id"]]
+    assert len(cab) == 1 and cab[0]["sku"] == "decor:basecab" and cab[0]["verdict"] != "no_fit"
+    assert wp["verdict"] != "no_fit"   # 하부장 안이라 겹침이 아니다
+    left = c.delete(f"/api/projects/{pid}/placements/{wp['placement_id']}").json()["scene_state"]["placements"]
+    assert not left
+
+
+@pytest.mark.parametrize("cleared", [False, True])
+def test_every_decor_item_can_be_placed_in_the_real_scan(c, pid, cleared):
+    """지예: 모든 물건이 놓이는지 확인. 스캔 가구가 있을 때와 다 치웠을 때 모두, 가구·소품마다 들어가는 자리가 있어야 한다."""
+    if cleared:
+        assert c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True}).status_code == 200
+    kinds = [i["sku"] for i in c.get("/api/decor").json()["items"]]
+    for sku in kinds:
+        r = c.post(f"/api/projects/{pid}/auto-place", json={"sku": sku})
+        assert r.status_code == 200, (sku, r.text)
+        pl = r.json()["placement"]
+        assert pl["verdict"] != "no_fit", (sku, pl["reasons"])
+        c.delete(f"/api/projects/{pid}/placements/{pl['placement_id']}")
+
+
+def test_plant_in_open_floor_is_fit_after_clearing(c, pid):
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    room = c.get(f"/api/projects/{pid}/room").json()
+    xs = [v for w in room["walls"] for v in (w["start"][0], w["end"][0])]
+    zs = [v for w in room["walls"] for v in (w["start"][1], w["end"][1])]
+    mid = [(min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2]
+    r = c.post(f"/api/projects/{pid}/pose-check", json={"sku": "decor:plant", "center_xz": mid, "yaw_rad": 0, "snap": False}).json()
+    assert r["verdict"] == "fit", r["reasons"]

@@ -10,6 +10,7 @@ import { mountSaveBar } from "./account.js";
 import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
 import { optionSteps } from "./options.js";
 import { startTour, tourSeen } from "./tour.js";
+import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
@@ -67,13 +68,13 @@ export async function customer(pid) {
         <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
         <section class="order-sheet" id="orderSheet" role="dialog" aria-label="구매 및 설치 신청" hidden></section>
         <div class="toolbar">
+          <button class="furn-btn combo-btn" id="comboBtn" aria-expanded="false" aria-controls="comboPop" title="가전과 목표 가격을 고르면 이 집에 맞춘 조합을 놓아 봐요">추천 배치</button>
           <button class="furn-btn" id="beforeBtn" aria-pressed="false" title="스캔했을 때 모습과 견줘 봐요">처음과 비교</button>
           <button class="furn-btn live-btn" id="liveBtn" aria-pressed="false" title="실제로 살아 보듯 둘러보고, 볕·와이파이·동선을 봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg>살아 보기</button>
           <button class="furn-btn" id="finBtn" aria-expanded="false" aria-controls="finishPop" title="벽지·바닥재를 바꿔 봐요">벽지·바닥</button>
           <button class="furn-btn" id="furn" aria-pressed="false" title="스캔에 잡힌 가구를 한꺼번에 치우거나 되돌려요">가구 모두 지우기</button>
           <button class="furn-btn" id="extraBtn" aria-expanded="false" aria-controls="extraPop" title="도면을 올리거나 줄자로 잰 벽 길이를 넣어요">도면·실측</button>
           <span class="spacer"></span>
-          <div class="sim-switches" role="group" aria-label="살아 보기"><button class="sw" data-sim="daylight" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>채광</button><button class="sw" data-sim="wifi" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>와이파이</button><button class="sw" data-sim="flow" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>동선</button></div>
           <button class="furn-btn" id="walk" title="눈높이 1.6 m에서 집 안을 걸어 봐요 (WASD 걷기, 화면을 누르면 마우스로 둘러보기)">둘러보기</button>
           <div class="icon-row" role="group" aria-label="되돌리기">
             <button class="icon-btn" id="undo" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
@@ -109,6 +110,7 @@ export async function customer(pid) {
             <h4>저장 (로그인하면)</h4>
             <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
+          ${comboPopHtml()}
           <section class="finish-pop" id="finishPop" role="dialog" aria-label="벽지·바닥" hidden>
             <div class="keys-head"><b>벽지 · 바닥</b><button class="ghost small" id="finClose">닫기</button></div>
             ${aiBoxHtml("finish")}
@@ -127,6 +129,7 @@ export async function customer(pid) {
             <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
           </section>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="렌더 결과"><button class="ghost small" id="renderClose">닫기</button></figure>
+          <div class="sim-switches" role="group" aria-label="살아 보기"><button class="simsw" data-sim="daylight" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>채광</button><button class="simsw" data-sim="wifi" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>와이파이</button><button class="simsw" data-sim="flow" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>동선</button></div>
           <section class="minimap" id="minimap" aria-label="도면" hidden></section>
           <p class="hint" id="hint" aria-live="polite"></p>
           <div class="step-card" id="stepCard" aria-live="polite" hidden></div>
@@ -440,7 +443,8 @@ export async function customer(pid) {
     return f.variants.filter((y) => finishLabel(y) === finishLabel(x)).length > 1 ? `${l} · ${x.sku}` : l;
   };
   // 목록 카드의 색 동그라미는 색마다 하나만
-  const colorDots = (f) => f.variants.filter((x, i, a) => a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
+  // 색 점은 LGE.COM에 색 이름이 있는 것만 (hex_approx는 3D 근사색이라 색상 표시로 쓰지 않는다)
+  const colorDots = (f) => f.variants.filter((x, i, a) => x.color && a.findIndex((y) => y.color === x.color && y.hex === x.hex) === i);
   // 단계별 옵션 필터: 종류를 고르면 설치 방식 → 종류 → 도어 수 → 용량 → … → 색상 순으로 좁힌다 (options.js)
   const inRange = (val, r) => { if (!r) return true; if (!val) return false; const [a, b] = r.split("-").map(Number); return val >= a && val <= b; };
   ["fW", "fH", "sortBy"].forEach((id) => (document.getElementById(id).onchange = () => renderLib()));
@@ -1097,15 +1101,18 @@ export async function customer(pid) {
     m.setAttribute("points", `${px},${pz} ${px + L * Math.cos(a - half)},${pz + L * Math.sin(a - half)} ${px + L * Math.cos(a + half)},${pz + L * Math.sin(a + half)}`);
     d.setAttribute("cx", px); d.setAttribute("cy", pz);
   };
+  // 제품 옆에 붙어 있던 메뉴를 3D 아래 가운데로 되돌린다. 자리(left/top)를 남겨 두면 들고 있을 때
+  // 메뉴가 그 자리부터 아래까지 길게 늘어나 바닥 클릭을 가로채서 물건이 안 놓였다.
+  const unNear = () => { if (actBar.classList.contains("near")) { actBar.classList.remove("near"); actBar.style.left = ""; actBar.style.top = ""; } };
   const trackAct = () => {
     actRaf = requestAnimationFrame(trackAct);
     trackCam();
-    if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { actBar.classList.remove("near"); return; }
+    if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { unNear(); return; }
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     const o = !x && selObj && room?.objects.find((q) => q.object_id === selObj);
     const held = viewer.held?.();
     const xz = held ? held.xz : x ? x.center_xz : o ? [o.position[0], o.position[2]] : null;
-    if (!xz) { actBar.classList.remove("near"); return; }
+    if (!xz) { unNear(); return; }
     const top = x ? (x.size_m?.[1] ?? 1) : o ? o.bbox_m.h : 1;
     const [sx, sy] = viewer.toScreen(xz, top), r = canvasEl.getBoundingClientRect();
     const w = actBar.offsetWidth, h = actBar.offsetHeight;
@@ -1487,30 +1494,31 @@ export async function customer(pid) {
     say("me", esc(prompt));
     const wait = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
     try {
-      const d = await askAi(prompt);
-      const name = (k) => d.applied?.[k] ? esc(d.finishes[k][0].finish.name) : null;
-      const used = [name("wall") && `벽은 <b>${name("wall")}</b>`, name("floor") && `바닥은 <b>${name("floor")}</b>`].filter(Boolean).join(", ");
-      const styled = !!used;
-      const prods = d.products?.items || [];
-      // 제품을 물었으면 맞는 제품 카드(넣어 보기), 분위기를 말했으면 입힌 벽지·바닥
-      wait.innerHTML = `<p>${esc(d.products?.message || d.summary)}</p>${used ? `<p>${used}로 입혀 봤어요.</p>` : ""}
-        ${prods.length ? `<ul class="bot-prods">${prods.map((it) => `<li><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
-          <span class="nm"><b>${esc(it.family_name || it.product.name)}</b><small>${esc((it.reasons || []).join(" · "))}</small></span>
-          <button class="small primary" data-try="${esc(it.product.sku)}">넣어 보기</button></li>`).join("")}</ul>` : ""}
-        ${styled ? `<div class="row"><div class="palette">${(d.style?.palette || []).map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</div>${engineBadge(d)}</div>
-        <div class="msg-acts"><button class="small ghost" data-go="finish">다른 후보 보기</button></div>` : ""}`;
-      wait.querySelectorAll("[data-go]").forEach((b) => (b.onclick = () => setTab(b.dataset.go)));
-      wait.querySelectorAll("[data-try]").forEach((b) => (b.onclick = () => {
-        const sku = b.dataset.try;
-        if (!prodOf(sku)) return;
-        openBot(false);
-        if (walking) setWalking(false);
-        arm(sku);
-      }));
+      // 하우니: 꾸미기·분위기를 말하면 조합, 제품만 물으면 이 집에 맞는 하나 + 대안 (서버가 계산)
+      const d = await post(`/api/projects/${pid}/assist`, { prompt });
+      if (d.type === "combos") {
+        wait.innerHTML = `<p>${esc(d.message)}</p>${comboCardsHtml(d)}`;
+        bindComboCards(wait, pid, () => refresh(true));
+      } else {
+        const [best, ...alt] = d.items || [];
+        const row = (it, big) => `<li class="${big ? "best" : ""}"><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
+          <span class="nm"><b>${esc(it.family_name || it.product.name)}</b>${it.product.price_krw ? `<small>${it.product.price_krw.toLocaleString("ko-KR")}원</small>` : ""}
+          ${big && it.reasons?.length ? `<small>${esc(it.reasons.slice(0, 2).join(" · "))}</small>` : ""}</span>
+          <button class="small ${big ? "primary" : "ghost"}" data-try="${esc(it.product.sku)}">넣어 보기</button></li>`;
+        wait.innerHTML = `<p>${esc(d.message)}</p>${best ? `<ul class="bot-prods">${row(best, true)}${alt.map((it) => row(it, false)).join("")}</ul>` : ""}`;
+        wait.querySelectorAll("[data-try]").forEach((b) => (b.onclick = () => {
+          const sku = b.dataset.try;
+          if (!prodOf(sku)) return;
+          openBot(false);
+          if (walking) setWalking(false);
+          arm(sku);
+        }));
+      }
     } catch (err) {
       wait.innerHTML = `<p>앗, 지금은 해석이 안 됐어요. 잠시 뒤 다시 말해 주세요.</p>`;
     } finally { delete botForm.dataset.busy; bot.classList.remove("thinking"); botLog.scrollTop = botLog.scrollHeight; }
   };
+  mountComboPop(pid, () => refresh(true));
   if (!saved.botSeen) { bot.classList.add("nudge"); saveUiState(pid, { botSeen: true }); }
   api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
 
@@ -1537,9 +1545,10 @@ export async function customer(pid) {
     const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}` : "";
     if (key === needKey) return;
     needKey = key;
-    if (!x) { viewer.setNeed(null); document.getElementById("needTag").hidden = true; return; }
+    // 가구·소품은 문 열 공간이 없으니 필요 공간 점선도 없다 (본체와 같아서 겹쳐 보이기만 한다)
+    if (!x || x.kind === "decor") { viewer.setNeed(null); document.getElementById("needTag").hidden = true; return; }
     try {
-      const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id });
+      const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id, size_m: x.size_m });
       if (needKey !== key) return;
       viewer.setNeed(r.required);
       document.getElementById("needTag").hidden = true; // 점선 범례 글은 띄우지 않는다 (화면을 가볍게)
@@ -1943,10 +1952,10 @@ function botHtml() {
       <header class="bot-head">${BOT_SVG}<div><b>하우니</b><span>LG 봇 · 말로 꾸미기</span></div>
         <button class="bot-x" id="botClose" aria-label="닫기">×</button></header>
       <div class="bot-log" id="botLog" aria-live="polite">
-        <div class="msg hb"><p>안녕하세요, 하우니예요! 원하는 집 분위기를 말해 주면 실제 벽지·바닥재를 골라 3D에 바로 입혀 볼게요.</p></div>
+        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요.</p></div>
       </div>
       <div class="chips bot-ex" id="botEx"></div>
-      <form class="bot-form" id="botForm"><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 밝은 우드에 호텔처럼" aria-label="하우니에게 말하기">
+      <form class="bot-form" id="botForm"><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 호텔 같은 침실, 가전은 300만 원 안" aria-label="하우니에게 말하기">
         <button class="primary" aria-label="보내기">보내기</button></form>
     </section>
     <button class="bot-btn" id="botBtn" aria-expanded="false" aria-controls="botPanel" title="하우니에게 말로 꾸미기">${BOT_SVG}<span class="bot-tip">말로 꾸며 볼까요?</span></button>
