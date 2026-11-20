@@ -64,7 +64,7 @@ LGE.COM 정수기 색 옵션(크림 화이트/베이지)은 실제로는 **파�
 - 전체 `uv run pytest`에서 `tests/integration/test_deploy.py::test_pages_build_writes_api_base`는 이 PC에 WSL bash가 없어서 실패하고, `tests/unit/test_ai_style.py::test_without_api_key_uses_rules`는 전체로 돌릴 때만 가끔 실패한다(단독으로는 통과). 둘 다 이 작업과 상관없다.
 - `data/drawings/<SKU>.json`(Figma 도면, Blender `build_products.py`용)은 그대로 두었다. `index.json`의 layout은 여전히 "drawing"이지만 실제 glb는 Fusion 모델이다.
 - `C:\apps\web\img\products\G646GBB031.webp`는 처음에 상대경로로 렌더하다 잘못 생긴 파일이다. 지워도 된다 (도구로는 시스템 경로라 못 지웠다).
-- Blender 마감(2026-11-20): fusion_to_glb.py가 STL의 겹친 꼭짓점을 합치고 평평한 면을 정리해 필렛이 부드럽게 보이고 파일이 약 1/6로 줄었다. 유리 문은 코팅 반사를 더 또렷하게, 홈·받침은 더 어둡게 했다. Draco 압축은 웹 로더에 디코더가 없어서 쓰지 않았다. 텍스처(헤어라인, 패브릭)나 로고는 아직 없다.
+- Blender 마감(2026-11-20): fusion_to_glb.py가 STL의 겹친 꼭짓점을 합치고 평평한 면을 정리해 필렛이 부드럽게 보이고 파일이 약 1/6로 줄었다. 유리 문은 코팅 반사를 더 또렷하게, 홈·받침은 더 어둡게 했다. Draco 압축은 웹 로더에 디코더가 없어서 쓰지 않았다. 표면 질감(메탈 헤어라인, 패브릭 노멀맵)은 코드로 만들어 넣었고(docs/model-sources.md), 손잡이 홈에는 아래 문 윗모서리가 비스듬히 깎인 턱(grip_lips)을 Blender에서 덧붙인다. 로고와 조작부 글자는 없다.
 
 ## 남은 제품 치수도 주소 (2026-11-20 제품 페이지에서 확인)
 

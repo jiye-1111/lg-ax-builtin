@@ -62,7 +62,8 @@
   "door": {
    "name": "카밍 베이지",
    "material": null,
-   "from": "카탈로그 cmf_options + 치수도 이미지"
+   "from": "카탈로그 cmf_options + 치수도 이미지",
+   "texture": "fabric"
   },
   "panel": {
    "name": "뚜껑 크림색",
