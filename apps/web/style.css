@@ -807,3 +807,12 @@ table.techs td { vertical-align: middle; }
 .pd-verdict.v-no_fit { background: var(--nofit-bg); color: var(--nofit); }
 .pd-verdict.v-none b { font-size: var(--t-md); }
 .pd-verdict:not(.v-none) span { color: inherit; opacity: .75; }
+
+/* 채광: 주소 입력 한 줄, 집 방향(남향·북향) */
+.simgrid .addr-row { grid-column: 1 / -1; }
+.simgrid .addr-row input { flex: 1; min-width: 0; margin: 0; }
+.simgrid .addr-row #addrNow { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; max-width: 70%; vertical-align: bottom; }
+.facing { margin: 0 0 8px; font-size: var(--t-sm); }
+.facing b { font-size: 17px; }
+.facing em { display: block; font-style: normal; font-size: 12px; color: var(--graphite); margin-top: 2px; text-wrap: pretty; }
+.canvas .sheet { max-height: min(78%, 560px); }

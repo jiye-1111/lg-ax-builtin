@@ -321,6 +321,8 @@ class SiteIn(BaseModel):
     model_config = {"extra": "forbid"}
     north_deg: Optional[float] = None
     region: Optional[str] = None
+    address: Optional[str] = Field(default=None, max_length=200)
+    auto_north: bool = False
 
 
 class RouterIn(BaseModel):
@@ -490,7 +492,7 @@ def delete_placement(pid: str, plid: str, s: Service = S):
 
 @app.put("/api/projects/{pid}/site")
 def set_site(pid: str, body: SiteIn, s: Service = S):
-    return s.set_site(pid, body.north_deg, body.region)
+    return s.set_site(pid, body.north_deg, body.region, body.address, body.auto_north)
 
 
 @app.get("/api/projects/{pid}/sim/daylight")

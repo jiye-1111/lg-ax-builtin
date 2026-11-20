@@ -106,6 +106,35 @@ def test_flow_routes_to_placed_products(c, pid):
     assert c.delete(f"/api/projects/{pid}/marks/sink").status_code == 200
 
 
+def test_auto_north_and_window_facings(c, pid):
+    # 스캔에는 나침반이 없다 → 가장 큰 창이 남쪽을 본다고 보고 북쪽을 잡는다
+    r = c.put(f"/api/projects/{pid}/site", json={"auto_north": True})
+    assert r.status_code == 200, r.text
+    site = r.json()["site"]
+    assert 0 <= site["north_deg"] < 360 and site["north_basis"] == "main_window_south"
+    d = c.get(f"/api/projects/{pid}/sim/daylight", params={"date": "2026-06-21", "time": "12:30", "heatmap": "false"}).json()
+    assert d["facings"] and d["facings"][0]["label"] == "남향"
+    # 직접 고치면 추정이 아니다
+    site = c.put(f"/api/projects/{pid}/site", json={"north_deg": 90}).json()["site"]
+    assert site["north_basis"] == "manual"
+
+
+def test_address_sets_lat_lon_and_building_based_north(c, pid, monkeypatch):
+    from sim import geocode as g
+
+    monkeypatch.setattr(g, "_http_get", lambda url, headers: '[{"lat": "35.1796", "lon": "129.0756", "display_name": "부산광역시청, 연제구, 부산광역시",'
+                        ' "geojson": {"type": "Polygon", "coordinates": [[[129.0750, 35.1800], [129.0750, 35.1790], [129.0765, 35.1790], [129.0765, 35.1800], [129.0750, 35.1800]]]}}]')
+    r = c.put(f"/api/projects/{pid}/site", json={"address": "부산 연제구 중앙대로 1001"})
+    assert r.status_code == 200, r.text
+    site = r.json()["site"]
+    assert site["lat"] == pytest.approx(35.1796) and site["lon"] == pytest.approx(129.0756)
+    assert site["region"] == "부산" and "부산" in site["address"]
+    assert site["north_basis"] == "building_footprint" and 0 <= site["north_deg"] < 360
+    monkeypatch.setattr(g, "_http_get", lambda url, headers: "[]")
+    r = c.put(f"/api/projects/{pid}/site", json={"address": "없는 주소"})
+    assert r.status_code == 422 and "주소" in r.json()["detail"]
+
+
 def test_router_keeps_yaw_when_moved(c, pid):
     """3D에서 공유기를 돌려 놓으면 방향이 저장되고, 자리만 옮길 때(추천 자리 등)는 방향이 그대로 남는다."""
     r = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.5, 2.0]})

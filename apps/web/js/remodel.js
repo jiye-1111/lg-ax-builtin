@@ -926,7 +926,7 @@ export async function customer(pid) {
   };
   const runDaylight = async () => {
     const box = document.getElementById("simres");
-    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">스캔에는 방향 정보가 없어요. 위 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요. (휴대폰 나침반 앱으로 확인)</p>`; return; }
+    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">창이 없는 방이라 방향을 추정하지 못했어요. 북쪽 방향 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요.</p>`; return; }
     const key = JSON.stringify([simState.date, project.site, project.scene_state.placements.map((x) => [x.placement_id, x.center_xz]), version]);
     const needHeat = simState.heat && heatCache.key !== key;
     const pathKey = JSON.stringify([simState.date, project.site]);
@@ -942,18 +942,25 @@ export async function customer(pid) {
     setOverlay(daily ? heat(daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join("") : "");
     const s = d.sun, dir = DIRS[Math.round(s.azimuth_deg / 45) % 8];
     const pls = daily ? project.scene_state.placements.filter((x) => x.placement_id in daily.points) : [];
-    box.innerHTML = `
+    const BASIS = { main_window_south: "가장 큰 창이 남쪽을 본다고 보고 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", building_footprint: "주소의 건물 방향에 맞춰 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", manual: "" };
+    const fc = d.facings || [];
+    const facing = fc.length ? `<p class="facing"><b>${esc(fc[0].label)}</b> 집이에요 <span class="muted">가장 큰 창 기준${fc.length > 1 ? ` · 다른 창 ${fc.slice(1).map((x) => esc(x.label)).join(", ")}` : ""}</span>${BASIS[project.site?.north_basis] ? `<em>${BASIS[project.site.north_basis]}</em>` : ""}</p>` : "";
+    box.innerHTML = `${facing}
       <p style="margin:0 0 6px">${s.up ? `해 높이 <b>${s.altitude_deg.toFixed(0)}°</b> · <b>${dir}쪽</b> 하늘(방위 ${s.azimuth_deg.toFixed(0)}°) · 빛 색 ${s.kelvin.toLocaleString()} K${s.altitude_deg < 10 ? " (해 질 녘)" : ""} · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"}${daily ? ` · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)` : ""}</p>
       ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
       <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</details>`;
   };
   const daylightCtl = async () => {
     regions = regions || (await api("/api/regions"));
+    // 스캔에는 나침반이 없다 → 북쪽을 안 정했으면 가장 큰 창이 남쪽을 본다고 보고 먼저 잡아 준다 (슬라이더로 고칠 수 있다)
+    if (project.site?.north_deg == null) { try { project = await put(`/api/projects/${pid}/site`, { auto_north: true }); draw(); } catch { /* 창이 없으면 안내문 */ } }
     const site = project.site || {};
     document.getElementById("simctl").innerHTML = `
       <div class="simgrid">
+        <label class="addr-row">주소 <span class="muted" id="addrNow">${site.address ? esc(site.address) : "적으면 그 위치의 해로 계산해요"}</span>
+          <span class="time-row"><input type="search" id="addr" placeholder="예) 서울 중구 세종대로 110" maxlength="200" autocomplete="street-address"><button class="small ghost" id="addrGo">찾기</button></span></label>
         <label>지역<select id="region">${Object.keys(regions).map((r) => `<option ${r === (site.region || "서울") ? "selected" : ""}>${r}</option>`).join("")}</select></label>
-        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="355" step="5" value="${site.north_deg ?? 0}"></label>
+        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="359" step="1" value="${Math.round(site.north_deg ?? 0)}"></label>
         <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
         <label>시각 <b id="tv">${simState.time}</b><span class="time-row"><button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button><input type="range" id="stime" min="300" max="1260" step="1" value="${Math.round(simMin)}"></span></label>
       </div>
@@ -961,6 +968,20 @@ export async function customer(pid) {
         <label class="chip" style="cursor:pointer;display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="sheat" ${simState.heat ? "checked" : ""} style="margin:0;width:auto">하루 햇빛 시간 겹쳐 보기</label></div>
       <div id="simres"></div>`;
     const kick = () => { clearTimeout(simTimer); simTimer = setTimeout(() => guard(runDaylight)(), 120); };
+    // 주소 → 위도·경도 (서버가 찾는다). 건물 방향을 알면 북쪽도 같이 잡힌다
+    const findAddr = guard(async () => {
+      const q = document.getElementById("addr").value.trim();
+      if (!q) return;
+      const b = document.getElementById("addrGo"); b.disabled = true; b.textContent = "찾는 중…";
+      try {
+        project = await put(`/api/projects/${pid}/site`, { address: q });
+        sunPath = { key: null, pts: null };
+        toast("주소 위치로 채광을 다시 계산했어요");
+        draw(); await daylightCtl();
+      } finally { const x = document.getElementById("addrGo"); if (x) { x.disabled = false; x.textContent = "찾기"; } }
+    });
+    document.getElementById("addrGo").onclick = findAddr;
+    document.getElementById("addr").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); findAddr(); } };
     document.getElementById("region").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { region: e.target.value }); kick(); });
     document.getElementById("north").oninput = (e) => {
       document.getElementById("nv").textContent = `${e.target.value}°`;
