@@ -37,6 +37,7 @@ class FitConfig:
     min_wall_overlap_m: float = 0.3
     snap_m: float = 0.3  # 자유 배치: 이 거리 안의 벽에 제품 등을 붙인다
     scanned_max_conditional: bool = False  # True면 스캔값만으로는 조건부까지만 (기획 초안 규칙)
+    front_default_mm: float = 600.0  # 일반 가전의 문 열림 공간을 모를 때 가정하는 앞 공간
 
     @classmethod
     def from_env(cls) -> "FitConfig":
@@ -45,6 +46,7 @@ class FitConfig:
             margin_measured_mm=float(os.getenv("FIT_MARGIN_MEASURED_MM", 5)),
             snap_m=float(os.getenv("FIT_SNAP_M", 0.3)),
             scanned_max_conditional=os.getenv("FIT_SCANNED_MAX_CONDITIONAL", "0") == "1",
+            front_default_mm=float(os.getenv("FIT_FRONT_DEFAULT_MM", 600)),
         )
 
 
@@ -129,6 +131,36 @@ def required_space(p: Product) -> tuple[dict[str, Optional[float]], bool]:
     return {"width": w, "height": h, "depth": d}, clearance_unknown
 
 
+# 앞으로 여닫는 문이 있는 종류. 일반(프리스탠딩) 제품이면 앞쪽에 문 열림 공간이 필요하다.
+# 빌트인과 Fit & Max(빌트인 핏)는 장 안에 들어가는지만 본다.
+DOOR_CATEGORIES = {
+    "refrigerator", "kimchi_refrigerator", "freezer", "wine_cellar", "dishwasher", "oven",
+    "washer", "dryer", "wash_tower", "washer_dryer", "styler", "shoe_care",
+}
+
+
+def front_space(p: Product, cfg: FitConfig) -> tuple[Optional[float], bool]:
+    """일반 가전의 앞쪽 문 열림 공간(mm). 빌트인·빌트인 핏이거나 문이 없으면 None.
+    두 번째 값: LGE.COM 값이 없어 기본값(FIT_FRONT_DEFAULT_MM)을 가정했는지."""
+    if p.install_type != "freestanding":
+        return None, False
+    if p.door_swing_mm is not None:
+        return p.door_swing_mm, False
+    if p.category in DOOR_CATEGORIES:
+        return cfg.front_default_mm, True
+    return None, False
+
+
+def _front_free(room: Room, origin: g.Pt, direction: g.Pt) -> Optional[float]:
+    """origin에서 direction으로 벽이나 기존 가구에 닿을 때까지의 거리(m)."""
+    hits = [g.ray_exit_distance(origin, direction, [tuple(w.start), tuple(w.end)]) for w in room.walls]
+    for ob in room.objects:
+        hits.append(g.ray_exit_distance(origin, direction,
+                                        g.rect_footprint(ob.position[0], ob.position[2], ob.bbox_m.w, ob.bbox_m.d, ob.yaw_rad)))
+    hits = [h for h in hits if h is not None]
+    return min(hits) if hits else None
+
+
 def zone_walls(room: Room, zone: Zone, cfg: FitConfig) -> list[Wall]:
     if zone.wall_ids:
         return [room.wall(wid) for wid in zone.wall_ids]
@@ -203,8 +235,21 @@ def _check_wall(room: Room, zone: Zone, wall: Wall, p: Product, cfg: FitConfig) 
         "height": judge_dimension(avail_h, req["height"], h_measured, cfg),
         "depth": judge_dimension(avail_d, req["depth"], d_measured, cfg),
     }
+    # 4) 일반 가전: 제품 앞면에서 벽·가구까지 남는 거리 ≥ 문 열림 공간
+    front_req, front_assumed = front_space(p, cfg)
+    if front_req is not None:
+        front_avail = None
+        if best is not None and req["depth"] is not None:
+            mid = fr.to_world((best[0] + best[1]) / 2, 1e-4)
+            free = _front_free(room, mid, fr.v_axis)
+            front_avail = None if free is None else (free + 1e-4) * 1000 - req["depth"]
+        dims["front"] = judge_dimension(front_avail, front_req, False, cfg)
     verdict = worst(d.verdict for d in dims.values())
     notes = []
+    if front_assumed:
+        notes.append("front_space_assumed")
+        if verdict == Verdict.FIT:
+            verdict = Verdict.CONDITIONAL
     if clearance_unknown:
         notes.append("clearance_unknown")
         if verdict == Verdict.FIT:

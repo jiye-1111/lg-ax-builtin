@@ -683,7 +683,7 @@ table.techs td { vertical-align: middle; }
 .insp-photo { position: relative; overflow: hidden; height: 150px; border-radius: 14px; background: radial-gradient(120% 90% at 50% 100%, #e7e1d6 0%, var(--warm-grey) 70%); display: grid; place-items: center; margin-bottom: 10px; }
 .insp-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; padding: 8px; box-sizing: border-box; }
 /* 제품 필터 (종류는 칩, 나머지는 작은 선택 상자) */
-.lib .filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.lib .filters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 .lib .filters label { margin: 0; display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
 .lib .filters select { margin: 0; padding: 5px 8px; font-size: var(--t-xs); border-radius: 10px; background: var(--drafting); }
 
@@ -765,6 +765,22 @@ table.techs td { vertical-align: middle; }
 .time-row input[type="range"] { flex: 1; min-width: 0; margin: 0; }
 .time-row button { flex: none; white-space: nowrap; }
 
+/* 제품 서랍: 공간 용도 묻기 + 단계별 옵션 필터 */
+.lib .ask-q { margin: 0 0 6px; font-size: var(--t-sm); font-weight: 600; }
+.lib .ask-a { margin: 0; display: flex; align-items: baseline; gap: 4px; font-size: var(--t-sm); color: var(--graphite); }
+.lib .ask-a b { color: var(--ink); }
+.lib .ask-a button { margin-left: auto; padding: 0; border: 0; background: none; font-size: var(--t-xs); color: var(--graphite); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.lib .ask-a button:hover { color: var(--lg); }
+.lib .opt-steps { list-style: none; counter-reset: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; max-height: 32vh; overflow-y: auto; scrollbar-width: thin; }
+.lib .opt-steps:empty { display: none; }
+.lib .opt-steps li { margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+.lib .opt-steps li::before { content: none; }
+.lib .step-n { flex: none; width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center; font-size: 10px; font-weight: 700; color: var(--graphite); border: 1px solid var(--line); }
+.lib .step.done .step-n { background: var(--lg); border-color: var(--lg); color: #fff; }
+.lib .step-l { font-size: var(--t-xs); font-weight: 600; white-space: nowrap; }
+.lib .step .chips { flex-basis: 100%; }
+.lib .step .chip { padding: 3px 9px; white-space: nowrap; }
+.lib .step .chip i { font-style: normal; font-size: 10px; opacity: .6; margin-left: 2px; }
 /* ---- 덜어 내기 (지예: "아직도 조잡해 보인다") ----
    3D를 줄이던 아래 칸을 없앤다: 안내는 3D 왼쪽 위 작은 칩, 살아 보기 설정은 왼쪽 아래 떠 있는 카드.
    도구줄은 테두리 없는 조용한 버튼, 제품 목록은 사진 + 이름 + 치수 한 줄씩. */

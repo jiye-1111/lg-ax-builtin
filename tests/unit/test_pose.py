@@ -128,3 +128,45 @@ def test_snap_ignores_far_walls():
 def test_result_is_serializable():
     r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG).to_dict()
     assert r["verdict"] == "fit" and len(r["footprint"]) == 4 and r["pose"]["center_xz"] == [2.0, 1.5]
+
+
+# ---- 일반(프리스탠딩) 가전: 앞쪽 문 열림 공간 ----
+def washer(door=580, install="freestanding", category="washer"):
+    return Product(
+        sku="T-WM", name="테스트 세탁기", category=category, zone_fit=["laundry"], install_type=install,
+        product_dims_mm=Dims(w=700, h=990, d=830), clearance_mm=Clearance(side=5, top=10, back=50),
+        door_swing_mm=door, source_url=None, source_checked_at=None, demo_only=True,
+    )
+
+
+TABLE = RoomObject(object_id="t1", category="table", bbox_m=BBox(w=1.0, h=0.75, d=0.5), position=(2.0, 0.375, 1.3))
+AT_WALL = Pose((2.0, 0.05 + 0.05 + 0.03 + 0.415), UP)  # 등이 벽 w1, 앞면 y=0.96
+
+
+def test_freestanding_with_room_to_open_door_is_fit():
+    r = check_pose(room(), washer(), AT_WALL, CFG)
+    assert r.verdict == Verdict.FIT and not r.reasons
+
+
+def test_freestanding_door_space_blocked_is_no_fit():
+    # 문 열림 580mm → 앞면에서 y=1.54까지 필요한데 테이블이 y=1.05부터 있음
+    r = check_pose(room(objects=[TABLE]), washer(), AT_WALL, CFG)
+    assert r.verdict == Verdict.NO_FIT and "front_blocked" in codes(r)
+
+
+def test_built_in_ignores_front_door_space():
+    r = check_pose(room(objects=[TABLE]), washer(install="built_in"), AT_WALL, CFG)
+    assert "front_blocked" not in codes(r) and r.verdict == Verdict.FIT
+
+
+def test_freestanding_door_space_unknown_uses_default_and_is_conditional():
+    cfg = FitConfig(margin_scanned_mm=30, margin_measured_mm=5, front_default_mm=600)
+    r = check_pose(room(), washer(door=None, category="refrigerator"), AT_WALL, cfg)
+    assert r.verdict == Verdict.CONDITIONAL and "front_space_assumed" in codes(r)
+    r = check_pose(room(objects=[TABLE]), washer(door=None, category="refrigerator"), AT_WALL, cfg)
+    assert r.verdict == Verdict.NO_FIT and "front_blocked" in codes(r)
+
+
+def test_doorless_freestanding_needs_no_front_space():
+    r = check_pose(room(objects=[TABLE]), washer(door=None, category="tv"), AT_WALL, CFG)
+    assert r.verdict == Verdict.FIT and not r.reasons
