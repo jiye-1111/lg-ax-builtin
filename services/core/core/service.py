@@ -30,6 +30,7 @@ from .accounts import Accounts, Forbidden, is_approved_tech
 from .decor import decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .service_combos import ComboMixin
+from .service_photoreal import PhotorealMixin
 from .store import Store
 
 KST = timezone(timedelta(hours=9))
@@ -101,7 +102,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service(ComboMixin):
+class Service(ComboMixin, PhotorealMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())

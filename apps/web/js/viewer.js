@@ -897,6 +897,48 @@ export function makeViewer(el, handlers = {}) {
       const f = new THREE.Vector3().subVectors(ctl.target, cam.position).setY(0).normalize();
       return { fwd: [f.x, f.z], right: [-f.z, f.x] };
     },
+    /** 실사로 보기: 지금 시점을 1536x1024로 찍고, 같은 시점에서 LG 제품만 흰색인 마스크도 찍는다.
+     *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다. */
+    snapshot(W = 1536, H = 1024) {
+      const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
+      const hidden = [];
+      const hide = (o) => { if (o?.visible) { o.visible = false; hidden.push(o); } };
+      [overlay, ghost, need, walkersG, grid].forEach(hide);
+      products.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) hide(o); });
+      renderer.setPixelRatio(1); composer.setPixelRatio(1);
+      renderer.setSize(W, H, false); composer.setSize(W, H);
+      cam.aspect = W / H; cam.updateProjectionMatrix();
+      let image, mask;
+      try {
+        composer.render();
+        image = renderer.domElement.toDataURL("image/png");
+        const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        const lgOf = (o) => { for (let q = o; q && q !== scene; q = q.parent) if (q.parent === products) return !!q.userData.sku && !q.userData.sku.startsWith("decor:"); return false; };
+        const swapped = [];
+        scene.traverse((o) => {
+          if (!o.visible) return;
+          if (o.isMesh) {
+            const mats = [].concat(o.material);
+            // 비쳐 보이는 벽(카메라 쪽 컷어웨이)·유리는 마스크에서 가리지 않는다 (뒤의 제품이 보이니까)
+            if (!lgOf(o) && mats.every((m) => m.transparent && (m.opacity ?? 1) < 0.9)) { hide(o); return; }
+            swapped.push([o, o.material]); o.material = lgOf(o) ? white : black;
+          } else if (o.isLine || o.isPoints || o.isSprite) hide(o);
+        });
+        const bg = scene.background, tm = renderer.toneMapping;
+        scene.background = new THREE.Color(0x000000); renderer.toneMapping = THREE.NoToneMapping;
+        renderer.render(scene, cam);
+        mask = renderer.domElement.toDataURL("image/png");
+        swapped.forEach(([o, m]) => (o.material = m));
+        scene.background = bg; renderer.toneMapping = tm;
+        black.dispose(); white.dispose();
+      } finally {
+        hidden.forEach((o) => (o.visible = true));
+        renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
+        cam.aspect = aspect; cam.updateProjectionMatrix();
+        renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
+      }
+      return { image, mask };
+    },
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
     /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
     setFinishes(f) { finishSet = f || {}; },
