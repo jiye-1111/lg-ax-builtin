@@ -1,0 +1,63 @@
+{
+ "sku": "DQ235MWGA",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/dq235mwgas.akor_2p.jpg (가로 410, 높이 640, 두께 210). 모서리가 크게 둥근 몸체, 앞 오른쪽 아래 물통 창, 발",
+ "front": {
+  "w": 410,
+  "h": 640,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 410,
+    "h": 620
+   },
+   {
+    "name": "display/water_tank",
+    "x": 265,
+    "y": 360,
+    "w": 100,
+    "h": 220
+   },
+   {
+    "name": "trim/foot_left",
+    "x": 60,
+    "y": 620,
+    "w": 30,
+    "h": 20
+   },
+   {
+    "name": "trim/foot_right",
+    "x": 320,
+    "y": 620,
+    "w": 30,
+    "h": 20
+   }
+  ]
+ },
+ "top": {
+  "w": 410,
+  "h": 210,
+  "parts": [
+   {
+    "name": "door/shell",
+    "x": 0,
+    "y": 0,
+    "w": 410,
+    "h": 210,
+    "shape": "stadium",
+    "r": 80
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "에센스 화이트",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}

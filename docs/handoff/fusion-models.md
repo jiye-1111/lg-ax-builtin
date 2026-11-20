@@ -5,7 +5,7 @@
 - 브랜치: `claude/project-thread-nqfl5j` (main 81c233d까지 합쳐 둠. main으로 직접 푸시는 권한이 막혀 있어 PR로 합쳐야 한다). 커밋은 제품군마다 하나씩.
 - 커밋 작성자: 이 PC에는 git 전역 이름이 없어서 `git -c user.name="jiye-1111" -c user.email=<지예 이메일> commit ...`으로 커밋했다.
 
-## 진행 상황: 45 / 53
+## 진행 상황: 53 / 53 (카탈로그 53종 끝)
 
 끝남 (`data/fusion/<SKU>/drawing.json` 있음):
 
@@ -22,11 +22,10 @@
 | 세탁·건조 | WL21WDU, WL21EGZU(투톤 색은 아직 한 색), FH25KA, FX24KNTR, FX24ENER, RD20KNTR, RD21ESER |
 | 스타일러·슈케어 | SC5GMR80S, SC5MBR80S, SC5MSR82A, SS4RHS60E, SS4RWS60E (SC5MBR80S·SS4RWS60E 치수도는 직접 못 봄) |
 | TV·스탠바이미 | OLED65C5ENA, 65QNED65BBA, OLED77B6BNA, 27LX6TPGA, 32LX6BPGA (스탠바이미는 최대 높이 상태) |
+| 에어컨·공기·청소기 | FQ18GV3EK2, FQ17GU1ED2, AS305DWWL, AS356NSMA, AS186HWWL, HY706RWUAB, DQ235MWGA, AX920BWE(스틱만, 올인원타워 없음) |
 
-남음 (8):
+남음 (0): 53종은 모두 끝. 다음은 카탈로그 전체(1,150종)로 넓히는 것과 아래 마감 작업
 
-- 에어컨·공기 관련: FQ18GV3EK2, FQ17GU1ED2, AS305DWWL, AS356NSMA, AS186HWWL, HY706RWUAB, DQ235MWGA
-- 청소기: AX920BWE
 
 53종 다음은 전 모델로 넓힌다 (카탈로그 스레드가 LGE.COM 전체를 넣는 중).
 

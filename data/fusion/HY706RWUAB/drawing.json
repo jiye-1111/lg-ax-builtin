@@ -1,0 +1,59 @@
+{
+ "sku": "HY706RWUAB",
+ "unit": "mm",
+ "drawn_at": "2026-11-20",
+ "figma": "Figma 'LG 빌트인 제품 도면' 파일로 옮길 것 (2026-11-20 Figma MCP 월 한도 초과로 보류)",
+ "source": "https://static.lge.co.kr/kr/images/spec/HY706RWUA_2p.jpg (본체 폭 240, 받침대 310, 높이 986). 받침판, 세로 줄무늬 금속 몸통, 투명 목, 위 흰 물통, 앞 표시창",
+ "front": {
+  "w": 310,
+  "h": 986,
+  "parts": [
+   {
+    "name": "door/top_tank",
+    "x": 35,
+    "y": 0,
+    "w": 240,
+    "h": 286,
+    "shape": "circle"
+   },
+   {
+    "name": "chrome/neck",
+    "x": 45,
+    "y": 286,
+    "w": 220,
+    "h": 60,
+    "shape": "circle"
+   },
+   {
+    "name": "handle/body_fins",
+    "x": 40,
+    "y": 346,
+    "w": 230,
+    "h": 620,
+    "shape": "circle"
+   },
+   {
+    "name": "display/panel",
+    "x": 140,
+    "y": 406,
+    "w": 30,
+    "h": 160
+   },
+   {
+    "name": "door/base",
+    "x": 0,
+    "y": 966,
+    "w": 310,
+    "h": 20,
+    "shape": "circle"
+   }
+  ]
+ },
+ "colors": {
+  "door": {
+   "name": "화이트",
+   "material": null,
+   "from": "카탈로그 cmf_options + 치수도 이미지"
+  }
+ }
+}
