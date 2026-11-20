@@ -4,7 +4,8 @@
         --src data/fusion/G646GBB031 --out apps/web/models/products
 
 - Fusion 쪽: 정면 = -Y, Z-up, 바닥 가운데 원점 (build_products.py와 같은 좌표). 부품 하나 = 바디 하나 = STL 하나.
-- 파일 이름 앞부분이 역할이다: body, door_*, handle_*, vent_*, trim_*, display.
+- 파일 이름 앞부분이 역할이다: body, door_*, top_*(상판, 색 바뀌는 겉판), handle_*, vent_*, trim_*, display,
+  print_*(상판 인쇄), panel_*(drawing.json colors.panel 색), chrome_*.
 - 같은 폴더의 drawing.json(레퍼런스 치수·색)에 colors.body.hex_approx가 있으면 본체 색으로 쓴다.
   geometry_from: "<다른 SKU>"가 있으면 그 SKU 폴더의 STL을 쓴다 (색·재질만 다른 모델). 역할별 재질은 build_products와 같다
   (문 앞판 재질 이름 "finish"는 웹에서 색을 바꿀 때 쓴다).
@@ -23,8 +24,8 @@ import bpy
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from build_products import material, palette  # noqa: E402  (같은 재질표를 쓴다)
 
-ROLE_MAT = {"body": "body", "door": "finish", "handle": "handle", "vent": "trim", "trim": "trim",
-            "display": "display"}
+ROLE_MAT = {"body": "body", "door": "finish", "top": "finish", "handle": "handle", "vent": "trim", "trim": "trim",
+            "display": "display", "print": "print", "panel": "panel", "chrome": "chrome"}
 
 
 def role_of(stem: str) -> str:
@@ -52,6 +53,8 @@ def build(prod: dict, src: Path, out: Path) -> dict:
     body_hex = drawing.get("colors", {}).get("body", {}).get("hex_approx")
     if body_hex:
         pal["body"] = material("body", body_hex, 0.5, 0.3)
+    panel_hex = drawing.get("colors", {}).get("panel", {}).get("hex_approx")  # 조작부처럼 색이 따로 있는 판
+    pal["panel"] = material("panel", panel_hex, 0.35) if panel_hex else pal["trim"]
     geo = src.parent / drawing["geometry_from"] if drawing.get("geometry_from") else src  # 색만 다른 모델은 몸체 공유
     objs = []
     for stl in sorted(geo.glob("*.stl")):
