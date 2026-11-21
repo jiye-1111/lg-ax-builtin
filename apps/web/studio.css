@@ -834,3 +834,28 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .fsec .chip.on, .fsec .use-chips .chip.on { background: var(--lg); border-color: var(--lg); color: #fff; }
 .studio.app .sugg-card .vv { white-space: nowrap; }
 .studio.app .sugg-card .nm { min-width: 0; }
+
+/* 남는 틈 표시: 고른 물건 옆·위·뒤 틈 (mm). 설치 여유 값이 있는 틈만 초록/빨강 */
+.gap-tags { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
+.gap-tags[hidden] { display: none; }
+.gap-tag { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; padding: 3px 9px; border-radius: 999px; background: var(--sheet); border: 1px solid var(--line);
+  color: var(--ink); font-size: 12px; line-height: 1.25; white-space: nowrap; box-shadow: var(--shadow-sheet); font-variant-numeric: tabular-nums; will-change: transform; }
+.gap-tag b { font-weight: 700; }
+.gap-tag small { font-size: 10.5px; font-weight: 600; }
+.gap-tag.ok { border-color: var(--fit); color: var(--fit); background: var(--fit-bg); }
+.gap-tag.bad { border-color: var(--nofit); color: #fff; background: var(--nofit); }
+.gap-tag small { margin-top: -1px; }
+.gap-tag:has(small) { border-radius: 12px; }
+
+/* 크기 조절: 실제 제품 치수 칩 + 폭·높이·깊이 mm 입력 */
+.act-bar.sizing { flex-direction: column; align-items: stretch; gap: 8px; padding: 10px 12px; border-radius: 16px; }
+.act-bar.sizing.near::after { display: none; }
+.act-bar .sz-presets { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 380px; }
+.act-bar .sz-presets .chip { padding: 5px 11px; font-size: 12.5px; background: var(--warm-grey); border-color: transparent; }
+.act-bar .sz-presets .chip.on { background: var(--lg); color: #fff; }
+.act-bar .sz-row { display: flex; align-items: flex-end; gap: 8px; }
+.act-bar .sz-f { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; font-weight: 600; color: var(--graphite); }
+.act-bar .sz-f input { width: 78px; margin: 0; padding: 7px 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--sheet); color: var(--ink); font-size: 14px; font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+.act-bar .sz-f input:focus { outline: 2px solid var(--lg); outline-offset: 1px; border-color: transparent; }
+.act-bar .sz-unit { padding-bottom: 9px; font-size: 12.5px; color: var(--graphite); }
+.studio.app .act-bar .sz-f input { width: 66px; }
