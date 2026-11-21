@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 import urllib.parse
 import urllib.request
 from typing import Callable, Optional
@@ -13,6 +14,7 @@ from typing import Callable, Optional
 from .orientation import footprint_axis_deg
 
 MAX_QUERY = 200
+NOMINATIM_GAP_S = 1.0
 
 
 class GeocodeError(ValueError):
@@ -27,7 +29,7 @@ def _http_get(url: str, headers: dict) -> str:
 
 def parse_place(items: list) -> dict:
     if not items:
-        raise GeocodeError("주소를 찾지 못했어요. 도로명 주소나 건물 이름으로 다시 적어 주세요")
+        raise GeocodeError("주소를 찾지 못했어요")
     it = items[0]
     try:
         lat, lon = float(it["lat"]), float(it["lon"])
@@ -46,23 +48,51 @@ def parse_place(items: list) -> dict:
             "axis_deg": None if axis is None else round(axis, 1)}
 
 
+AREA_KINDS = {"boundary", "place", "highway"}   # 동네로 받아들이는 것: 행정 구역·지명·길. 가게·역 같은 점은 엉뚱한 곳일 수 있어 뺀다
+MAX_AREA_TRIES = 4
+NOT_FOUND = "주소를 찾지 못했어요. 도로명 주소나 동 이름으로 다시 적어 주세요"
+
+
+def area_queries(q: str) -> list[str]:
+    """못 찾았을 때 다시 물어볼 말. 뒤 낱말을 하나씩 떼고, 마지막에는 첫 낱말의 앞 3·2글자 (아파트 이름은 대개 동 이름으로 시작한다)."""
+    words = q.split()
+    out = [" ".join(words[:n]) for n in range(len(words) - 1, 1, -1)]
+    head = words[0]
+    out += [head] if len(words) > 1 and len(head) <= 3 else []
+    out += [head[:n] for n in (3, 2) if len(head) > n]
+    return list(dict.fromkeys(out))[:MAX_AREA_TRIES]
+
+
+def _search(q: str, limit: int, fetch: Callable[[str, dict], str]) -> list:
+    base = os.getenv("GEOCODER_URL", "https://nominatim.openstreetmap.org/search")
+    url = base + "?" + urllib.parse.urlencode({"format": "jsonv2", "limit": limit, "countrycodes": "kr", "accept-language": "ko",
+                                               "polygon_geojson": 1, "q": q})
+    headers = {"User-Agent": os.getenv("GEOCODER_USER_AGENT", "housetwin-demo/0.1")}
+    try:
+        items = json.loads(fetch(url, headers))
+    except Exception as e:  # 네트워크·형식 오류
+        raise GeocodeError("주소 검색에 연결하지 못했어요. 잠시 뒤 다시 해 보세요") from e
+    if not isinstance(items, list):
+        raise GeocodeError("주소 검색 결과를 읽지 못했어요")
+    return items
+
+
 def geocode(query: str, fetch: Callable[[str, dict], str] | None = None) -> dict:
+    """approx=True면 적은 곳 그대로는 못 찾아 동네까지만 찾은 것. 해 위치에는 충분하지만 건물 방향(axis_deg)은 쓰지 않는다."""
     q = (query or "").strip()
     if not q:
         raise GeocodeError("주소를 적어 주세요")
     if len(q) > MAX_QUERY:
         raise GeocodeError("주소가 너무 길어요")
-    base = os.getenv("GEOCODER_URL", "https://nominatim.openstreetmap.org/search")
-    url = base + "?" + urllib.parse.urlencode({"format": "jsonv2", "limit": 1, "countrycodes": "kr", "accept-language": "ko",
-                                               "polygon_geojson": 1, "q": q})
-    headers = {"User-Agent": os.getenv("GEOCODER_USER_AGENT", "housetwin-demo/0.1")}
-    try:
-        body = (fetch or _http_get)(url, headers)
-        items = json.loads(body)
-    except GeocodeError:
-        raise
-    except Exception as e:  # 네트워크·형식 오류
-        raise GeocodeError("주소 검색에 연결하지 못했어요. 잠시 뒤 다시 해 보거나 지역을 직접 골라 주세요") from e
-    if not isinstance(items, list):
-        raise GeocodeError("주소 검색 결과를 읽지 못했어요")
-    return parse_place(items)
+    live = fetch is None
+    get = fetch or _http_get
+    items = _search(q, 1, get)
+    if items:
+        return {**parse_place(items), "approx": False}
+    for sub in area_queries(q):
+        if live:
+            time.sleep(NOMINATIM_GAP_S)   # Nominatim은 초당 1회 이하로 써야 한다
+        areas = [it for it in _search(sub, 5, get) if isinstance(it, dict) and it.get("category") in AREA_KINDS]
+        if areas:
+            return {**parse_place(areas[:1]), "axis_deg": None, "approx": True}
+    raise GeocodeError(NOT_FOUND)

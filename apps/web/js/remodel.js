@@ -1854,6 +1854,7 @@ export async function customer(pid) {
       color: "#" + [mix(ra, rb), mix(ga, gb), mix(ba, bb)].map((v) => Math.round(v).toString(16).padStart(2, "0")).join(""),
       kelvin: Math.round(mix(a.kelvin, b.kelvin)), intensity: mix(a.intensity, b.intensity), sky: mix(a.sky, b.sky) };
   };
+  let addrTyped = null; // 주소 칸에는 적은 말을 그대로 둔다 (찾은 곳의 긴 지도 이름으로 바꾸지 않는다)
   const runDaylight = async () => {
     const box = document.getElementById("simres");
     if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="sim-line">창이 없는 방이라 방향을 알 수 없어요. 주소를 넣으면 건물 방향으로 알려 드려요.</p>`; return; }
@@ -1866,7 +1867,9 @@ export async function customer(pid) {
     viewer.setSun(sunAt(simMin) || d.sun);
     setOverlay("");
     const main = (d.facings || [])[0];
-    box.innerHTML = main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "";
+    // 적은 곳을 지도에서 못 찾아 동네까지만 찾았으면 어디 기준인지 한 줄로 알려 준다
+    const near = project.site?.approx ? `<p class="sim-line">${esc(String(project.site.address || "").split(",")[0])} 근처 기준이에요</p>` : "";
+    box.innerHTML = (main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "") + near;
   };
   // 채광: 주소만 넣으면 어느 향인지 한 줄로 알려 준다. 해가 하루 동안 어떻게 움직이는지는 '하루 재생'으로 본다
   const daylightCtl = async () => {
@@ -1875,7 +1878,7 @@ export async function customer(pid) {
     const site = project.site || {};
     document.getElementById("simctl").innerHTML = `
       <div class="sim-row">
-        <input type="search" id="addr" placeholder="우리 집 주소 (예: 서울 중구 세종대로 110)" value="${esc(site.address || "")}" maxlength="200" autocomplete="street-address" aria-label="우리 집 주소">
+        <input type="search" id="addr" placeholder="우리 집 주소 (예: 서울 중구 세종대로 110)" value="${esc(addrTyped ?? site.address ?? "")}" maxlength="200" autocomplete="street-address" aria-label="우리 집 주소">
         <button class="small primary" id="addrGo">찾기</button>
         <button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button>
       </div>
@@ -1887,8 +1890,13 @@ export async function customer(pid) {
       const b = document.getElementById("addrGo"); b.disabled = true; b.textContent = "찾는 중…";
       try {
         project = await put(`/api/projects/${pid}/site`, { address: q });
+        addrTyped = q;
         sunPath = { key: null, pts: null };
         draw(); await daylightCtl();
+      } catch (e) {
+        // 못 찾았으면 예전 결과를 그대로 두지 않고 그 자리에 알려 준다 (잠깐 떴다 사라지는 알림만으로는 놓친다)
+        const box = document.getElementById("simres");
+        if (box) box.innerHTML = `<p class="sim-line warn" role="alert">${esc(e.message)}</p>`;
       } finally { const x = document.getElementById("addrGo"); if (x) { x.disabled = false; x.textContent = "찾기"; } }
     });
     document.getElementById("addrGo").onclick = findAddr;

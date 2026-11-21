@@ -130,6 +130,7 @@ def test_address_sets_lat_lon_and_building_based_north(c, pid, monkeypatch):
     assert site["lat"] == pytest.approx(35.1796) and site["lon"] == pytest.approx(129.0756)
     assert site["region"] == "부산" and "부산" in site["address"]
     assert site["north_basis"] == "building_footprint" and 0 <= site["north_deg"] < 360
+    assert site["approx"] is False
     monkeypatch.setattr(g, "_http_get", lambda url, headers: "[]")
     r = c.put(f"/api/projects/{pid}/site", json={"address": "없는 주소"})
     assert r.status_code == 422 and "주소" in r.json()["detail"]
