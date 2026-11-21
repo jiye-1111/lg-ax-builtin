@@ -136,6 +136,22 @@
     "h": 0.85,
     "d": 0.6
    }
+  },
+  "wardrobe": {
+   "file": "wardrobe.glb",
+   "ref_m": {
+    "w": 1.0,
+    "h": 2.36,
+    "d": 0.58
+   }
+  },
+  "tallcab": {
+   "file": "tallcab.glb",
+   "ref_m": {
+    "w": 0.6,
+    "h": 2.0,
+    "d": 0.6
+   }
   }
  }
 }

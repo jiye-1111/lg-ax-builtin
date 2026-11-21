@@ -294,6 +294,31 @@ def basecab(w, h, d):
     part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.006)
 
 
+def wardrobe(w, h, d):
+    """장롱: 걸레받이 + 키 큰 여닫이문 2짝, 가운데에 긴 손잡이 (정면 +Z)"""
+    base, gap = 0.07, 0.003
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.05, 0, base, "ses", 0.003)
+    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    for i in range(2):
+        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
+        part(f"door{i}", "white", x0, x1, d / 2 - 0.02, d / 2, base + gap, h - gap, "sse", 0.003)
+        hx = x1 - 0.035 if i == 0 else x0 + 0.035
+        part(f"handle{i}", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, h * 0.42, h * 0.42 + 0.3, "ppe", 0.004)
+
+
+def tallcab(w, h, d):
+    """키큰장: 걸레받이 + 위아래 문 2짝 (냉장고 옆에 세우는 주방 장, 정면 +Z)"""
+    base, gap, split = 0.1, 0.003, 0.62
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
+    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    ym = base + (h - base) * split
+    part("door_low", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, base + gap, ym - gap, "sse", 0.003)
+    part("door_up", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, ym + gap, h - gap, "sse", 0.003)
+    hx = w / 2 - 0.04
+    part("handle_low", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym - 0.3, ym - 0.06, "epe", 0.004)
+    part("handle_up", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym + 0.06, ym + 0.3, "epe", 0.004)
+
+
 TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "chair": ((0.5, 0.85, 0.52), chair),
     "table": ((1.6, 0.74, 0.8), table),
@@ -313,6 +338,8 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "wall": ((2.0, 2.4, 0.1), wall),
     "dresser": ((0.8, 0.9, 0.45), dresser),
     "basecab": ((1.2, 0.85, 0.6), basecab),
+    "wardrobe": ((1.0, 2.36, 0.58), wardrobe),
+    "tallcab": ((0.6, 2.0, 0.6), tallcab),
 }
 
 
@@ -331,11 +358,13 @@ def main() -> None:
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
+    ap.add_argument("--only", nargs="*", help="이 종류만 다시 만든다 (나머지는 index.json에 있는 그대로)")
     a = ap.parse_args(argv)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    old = json.loads((out / "index.json").read_text(encoding="utf-8"))["models"] if a.only and (out / "index.json").exists() else {}
     index = {"_note": "build_furniture.py로 생성. 웹이 스캔 크기에 맞춰 부품별로 늘린다 (rig: s/p/e).",
-             "models": {cat: build(cat, out) for cat in TEMPLATES}}
+             "models": {**old, **{cat: build(cat, out) for cat in (a.only or TEMPLATES)}}}
     (out / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(index["models"]))
 

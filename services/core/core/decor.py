@@ -25,6 +25,8 @@ DECOR: dict[str, dict] = {
     "coffee": {"label": "테이블", "group": "furniture", "model": "coffee", "size_mm": (1000, 400, 600)},
     "bed": {"label": "침대", "group": "furniture", "model": "bed", "size_mm": (1600, 950, 2100)},
     "desk": {"label": "책상", "group": "furniture", "model": "desk", "size_mm": (1200, 730, 600)},
+    "wardrobe": {"label": "장롱", "group": "storage", "model": "wardrobe", "size_mm": (1000, 2360, 580)},
+    "tallcab": {"label": "키큰장", "group": "storage", "model": "tallcab", "size_mm": (600, 2000, 600)},
     "storage": {"label": "수납장", "group": "storage", "model": "storage", "size_mm": (1000, 1900, 450)},
     "shelf": {"label": "선반", "group": "storage", "model": "shelf", "size_mm": (800, 1800, 300)},
     "dresser": {"label": "서랍장", "group": "storage", "model": "dresser", "size_mm": (800, 900, 450)},
@@ -34,6 +36,33 @@ DECOR: dict[str, dict] = {
     "rug": {"label": "러그", "group": "decor", "model": "rug", "size_mm": (2000, 12, 1400), "flat": True},
     "lamp": {"label": "조명", "group": "decor", "model": "lamp", "size_mm": (400, 1600, 400)},
     "plant": {"label": "식물", "group": "decor", "model": "plant", "size_mm": (500, 1200, 500)},
+}
+
+
+IKEA = "https://www.ikea.com/"
+
+
+def _p(label: str, w: int, h: int, d: int, path: str) -> dict:
+    return {"label": label, "size_mm": {"w": w, "h": h, "d": d}, "source_url": IKEA + path}
+
+
+# 크기 프리셋: 실제 판매 제품의 공개 치수 (폭·높이·깊이 mm). 출처는 docs/catalog-sources.md '가구 크기 프리셋'
+PRESETS: dict[str, list[dict]] = {
+    "wardrobe": [
+        _p("IKEA PAX 50", 500, 2010, 580, "kr/ko/p/pax-wardrobe-frame-white-20355127/"),
+        _p("IKEA PAX 75 얕은 장", 750, 2010, 350, "kr/ko/p/pax-wardrobe-frame-white-00355133/"),
+        _p("IKEA PAX 100 높은 장", 1000, 2360, 580, "gb/en/p/pax-wardrobe-frame-white-80458207/"),
+    ],
+    "tallcab": [_p("IKEA METOD 키큰장 60", 600, 2000, 600, "kr/ko/p/metod-high-cabinet-white-40270938/")],
+    "basecab": [
+        _p("IKEA METOD 40", 400, 800, 600, "kr/ko/p/metod-base-cabinet-white-20270883/"),
+        _p("IKEA METOD 60", 600, 800, 600, "kr/ko/p/metod-base-cabinet-white-90270889/"),
+        _p("IKEA METOD 80", 800, 800, 600, "kr/ko/p/metod-base-cabinet-white-10270893/"),
+    ],
+    "dresser": [
+        _p("IKEA MALM 4칸", 800, 1000, 480, "kr/ko/p/malm-chest-of-4-drawers-white-20354646/"),
+        _p("IKEA MALM 6칸", 1600, 780, 480, "kr/ko/p/malm-chest-of-6-drawers-white-70354644/"),
+    ],
 }
 
 
@@ -55,7 +84,7 @@ def is_flat(sku: str | None) -> bool:
 def decor_items() -> list[dict]:
     """웹 라이브러리용 목록. 이름·묶음·기본 크기·모델만 (가격·출처 없음)."""
     return [{"sku": PREFIX + k, "label": d["label"], "name": d.get("name", d["label"]), "group": d["group"], "model": d["model"],
-             "size_mm": dict(zip("whd", d["size_mm"])), "flat": d.get("flat", False)} for k, d in DECOR.items()]
+             "size_mm": dict(zip("whd", d["size_mm"])), "flat": d.get("flat", False), "presets": PRESETS.get(k, [])} for k, d in DECOR.items()]
 
 
 def _clamp(v: float) -> float:
