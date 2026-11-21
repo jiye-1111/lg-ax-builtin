@@ -48,9 +48,19 @@ def parse_place(items: list) -> dict:
             "axis_deg": None if axis is None else round(axis, 1)}
 
 
-AREA_KINDS = {"boundary", "place", "highway"}   # 동네로 받아들이는 것: 행정 구역·지명·길. 가게·역 같은 점은 엉뚱한 곳일 수 있어 뺀다
+AREA_KINDS = {"boundary", "place", "highway", "railway"}   # 동네로 받아들이는 것: 행정 구역·지명·길·역. 가게 같은 점은 엉뚱한 곳일 수 있어 뺀다
 MAX_AREA_TRIES = 4
 NOT_FOUND = "주소를 찾지 못했어요. 도로명 주소나 동 이름으로 다시 적어 주세요"
+
+
+def area_label(display_name: str) -> str:
+    """지도 이름("영통, 봉영로, 영통동, 영통구, …")에서 화면에 보여 줄 동네 이름. 동·읍·면이 먼저, 없으면 구·군·시, 그것도 없으면 맨 앞."""
+    parts = [p.strip() for p in display_name.split(",") if p.strip()]
+    for ends in ("동읍면", "구군시"):
+        for p in parts:
+            if len(p) >= 2 and p[-1] in ends:
+                return p
+    return parts[0] if parts else ""
 
 
 def area_queries(q: str) -> list[str]:
@@ -88,11 +98,13 @@ def geocode(query: str, fetch: Callable[[str, dict], str] | None = None) -> dict
     get = fetch or _http_get
     items = _search(q, 1, get)
     if items:
-        return {**parse_place(items), "approx": False}
+        return {**parse_place(items), "approx": False, "area": None}
     for sub in area_queries(q):
         if live:
             time.sleep(NOMINATIM_GAP_S)   # Nominatim은 초당 1회 이하로 써야 한다
         areas = [it for it in _search(sub, 5, get) if isinstance(it, dict) and it.get("category") in AREA_KINDS]
+        areas.sort(key=lambda it: it.get("category") == "railway")   # 역보다 행정 구역·지명이 먼저
         if areas:
-            return {**parse_place(areas[:1]), "axis_deg": None, "approx": True}
+            place = parse_place(areas[:1])
+            return {**place, "axis_deg": None, "approx": True, "area": area_label(place["address"])}
     raise GeocodeError(NOT_FOUND)

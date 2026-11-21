@@ -41,8 +41,22 @@ def test_fallback_drops_trailing_words_first():
     assert g["approx"] is True and "수원시 영통구" in calls
 
 
-def test_fallback_ignores_shops_and_stations():
-    fetch, _ = fake({"영통": [STATION]})
+def test_station_counts_as_neighbourhood_and_label_is_the_dong():
+    # 실제 Nominatim은 "영통"에 역만 돌려준다. 역도 동네로 받고, 화면에는 역 이름이 아니라 동 이름을 보여 준다
+    real = {"lat": "37.2513466", "lon": "127.0712790", "category": "railway", "type": "station",
+            "display_name": "영통, 봉영로, 영통동, 영통구, 수원시, 경기도, 16701, 대한민국"}
+    fetch, _ = fake({"영통": [real]})
+    g = geocode("영통포레 파크원", fetch)
+    assert g["approx"] is True and g["area"] == "영통동" and g["lat"] == pytest.approx(37.2513466)
+
+
+def test_area_label_falls_back_to_first_part():
+    fetch, _ = fake({"수원시 영통구": [DONG]})
+    assert geocode("수원시 영통구 없는아파트 101동", fetch)["area"] == "영통동"
+
+
+def test_fallback_ignores_shops():
+    fetch, _ = fake({"영통": [{**STATION, "category": "shop"}]})
     with pytest.raises(GeocodeError):
         geocode("영통포레 파크원", fetch)
 
