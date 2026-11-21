@@ -803,8 +803,8 @@ export async function customer(pid) {
   };
   const follow = (p) => {
     lastHover = p;
-    if (armedRouter) { viewer.routerFollow(p); return; }
-    if (armedStart) { viewer.personFollow(p); return; }
+    if (armedRouter && !armed) { viewer.routerFollow(p); return; }
+    if (armedStart && !armed) { viewer.personFollow(p); return; }
     if (mode !== "move" || wallPicking) return;
     if (wallDraw) { // 가벽: 시작점 전에는 기둥 하나, 시작점을 찍은 뒤에는 시작점부터 마우스까지 벽
       const a = wallDraw.start;
@@ -949,13 +949,16 @@ export async function customer(pid) {
   // 바닥을 눌렀을 때 할 일 (평면·3D 공통): 동선 출발 자리, 공유기 놓기, 제품 놓기
   const floorAction = (p) => {
     if (mode !== "move") return false;
-    if (armedStart) { // "어디서 출발할까요?": 누른 자리에 사람을 세우고 거기서 걷기 시작
+    if (armedStart && !armed) { // "어디서 출발할까요?" (제품을 들고 있으면 제품 놓기가 먼저): 누른 자리에 사람을 세우고 거기서 걷기 시작
       armedStart = false;
       viewer.personFollow(null);
-      guard(async () => { project = await put(`/api/projects/${pid}/marks/start`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
+      guard(async () => {
+        try { project = await put(`/api/projects/${pid}/marks/start`, { center_xz: p }); }
+        finally { if (sim === "flow") await flowCtl(); } // 저장이 안 됐으면 flowCtl이 다시 묻는다
+      })();
       return true;
     }
-    if (armedRouter) {
+    if (armedRouter && !armed) {
       armedRouter = false;
       viewer.routerFollow(null); // 서버가 높이까지 정해 돌려주면 그 자리로 (실패하면 원래 자리)
       guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
@@ -1403,6 +1406,7 @@ export async function customer(pid) {
   const FIX = {
     hits_wall: "벽에서 조금 떼거나 '자동 정렬'을 눌러 보세요", outside_room: "방 안쪽으로 옮겨 주세요",
     overlaps_object: "가구를 옮기거나 '가구 치우기'로 치워 보세요", overlaps_placement: "다른 제품과 겹쳐요. 한쪽을 옮겨 주세요",
+    not_on_wall: "벽이나 가벽 가까이를 누르면 벽에 달려요",
     surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
     front_blocked: "문을 열 앞 공간이 막혀요. 앞을 비우거나 돌려 보세요", passage_narrow: "지나갈 길이 좁아져요. 벽 쪽으로 붙여 보세요",
     door_blocked: "방문이 열릴 자리를 막아요. 옆으로 옮겨 주세요", entry_narrow: "방문보다 제품이 커서 들여오기 어려워요",

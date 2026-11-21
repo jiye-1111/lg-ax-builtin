@@ -1321,8 +1321,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if center_xz is None:
             marks.pop(name, None)
         else:
-            if len(center_xz) != 2:
-                raise Invalid("center_xz는 [x, z]")
+            if len(center_xz) != 2 or not all(math.isfinite(float(v)) for v in center_xz):
+                raise Invalid("center_xz는 숫자 [x, z]")
             marks[name] = [float(center_xz[0]), float(center_xz[1])]
         return self._save_project(p)
 

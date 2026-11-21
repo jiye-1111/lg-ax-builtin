@@ -40,6 +40,7 @@ LABELS = {
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
+    "not_on_wall": "문은 벽이나 가벽에 달아 주세요",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
     "surface_overhang": "올려 둔 가구 밖으로 나옴",
@@ -324,8 +325,10 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("surface_overhang", Verdict.NO_FIT, host_id)
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
+    on_wall = False
     for kind, ref, poly, _lo, _hi in obstacles:
         if mounted and kind == "wall" and overlaps(F, poly):
+            on_wall = True
             continue  # 문이 달린 벽
         if overlaps(F, poly):
             add(hit_code[kind], Verdict.NO_FIT, ref)
@@ -337,6 +340,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
             add("tight", Verdict.CONDITIONAL, ref)
         elif P is not None and passage_ref is None and overlaps(P, poly):
             passage_ref = ref
+    if mounted and not on_wall:
+        add("not_on_wall", Verdict.NO_FIT)
     if passage_ref is not None and not any(r["code"] == "front_blocked" for r in reasons):
         add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
             label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")

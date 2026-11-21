@@ -74,3 +74,8 @@ def test_wall_is_not_blamed_for_the_door_mounted_in_it():
     door = {"placement_id": "pl9", "sku": "decor:door", "center_xz": [3.0, 2.0], "yaw_rad": UP, "size_m": [0.9, 2.1, 0.14]}
     r = check_pose(room(), decor_product("decor:wall", [3.0, 2.4, 0.1]), Pose((3.0, 2.0), UP), CFG, others=[door])
     assert "overlaps_placement" not in codes(r)
+
+
+def test_door_must_hang_on_a_wall():
+    r = check_pose(room(), DOOR, Pose((3.0, 2.0), UP), CFG)
+    assert r.verdict.value == "no_fit" and "not_on_wall" in codes(r)
