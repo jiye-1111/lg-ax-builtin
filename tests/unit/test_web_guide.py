@@ -190,7 +190,7 @@ def test_haeuni_takes_a_photo_and_sends_it_small():
 def test_photoreal_button_sends_view_and_product_mask():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     vw = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
-    assert ">실사로 보기<" in js and "/photoreal" in js and "viewer.snapshot()" in js
+    assert 'id="render"' in js and "<span>실사</span>" in js and "/photoreal" in js and "viewer.snapshot()" in js
     assert "snapshot(W = 1536, H = 1024)" in vw and 'startsWith("decor:")' in vw
 
 
@@ -234,7 +234,19 @@ def test_furniture_x_and_hold_to_compare():
     assert "beforeBtn.onpointerdown" in REMODEL and '"pointerup"' in REMODEL
 
 
-def test_walk_button_sits_on_the_3d_view():
-    """지예: 둘러보기 글자 버튼이 동떨어져 보인다 → 3D 구석의 사람 아이콘, 걷는 중에는 나가기."""
-    assert 'class="walk-btn" id="walk"' in REMODEL and "<span>나가기</span>" in REMODEL
-    assert '<button class="furn-btn" id="walk"' not in REMODEL
+def test_view_stack_on_the_3d_view():
+    """지예: 떠 있는 걷기 버튼이 뭔지 모르겠다 → 3D 오른쪽 위에 지도 앱처럼 보기 버튼을 세로로 (위에서 / 걸어 보기 / 실사)."""
+    for el in ('class="view-stack"', 'class="vbtn on" id="viewTop"', 'class="vbtn" id="walk"', 'class="vbtn" id="render"'):
+        assert el in REMODEL, el
+    assert "walk-btn" not in REMODEL and "render-btn" not in REMODEL
+    # 위 도구 아이콘에는 이름이 붙는다
+    for label in ("되돌리기", "가구 치우기", "처음 모습", "전체 화면"):
+        assert f'data-l="{label}"' in REMODEL, label
+
+
+def test_live_modes_stack_and_time_bar():
+    """지예: 채광·와이파이·동선을 같이 켜고 싶다. 하루 재생 대신 향 아래에 시간 바."""
+    assert "const sims = new Set()" in REMODEL and 'class="sim-sec"' not in REMODEL.split("const showSim")[0]
+    assert 'id="sunTime"' in REMODEL and "하루 재생" not in REMODEL and 'id="splay"' not in REMODEL
+    # 고른 제품만 끌어서 옮긴다 (실수로 밀리지 않게)
+    assert "id === selPl" in REMODEL

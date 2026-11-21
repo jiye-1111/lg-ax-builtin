@@ -624,7 +624,7 @@ export function makeViewer(el, handlers = {}) {
     if (held) { down = { x: e.clientX, y: e.clientY, hit: null, p: null, held: true }; return; }
     const hit = pick(e);
     down = { x: e.clientX, y: e.clientY, hit, p: floorPoint(e) };
-    if (hit?.type === "placement" && handlers.canDrag?.()) {
+    if (hit?.type === "placement" && handlers.canDrag?.(hit.id)) {
       // 제품 위에서 누르면 카메라 회전을 멈추고 끌기
       ctl.enabled = false;
       const g = products.children.find((c) => c.userData.placementId === hit.id);

@@ -59,16 +59,21 @@ const post = send("POST"), put = send("PUT");
   await wait(2500);
   if (await page.locator("#liveBtn").isVisible()) await page.click("#liveBtn");
   await page.click('[data-sim="daylight"]');
-  await page.waitForSelector("#simres .facing", { timeout: 20000 });
+  await page.waitForSelector(".sim-res .facing", { timeout: 20000 });
   let text = await sheet();
-  check("채광: 주소 한 칸과 어느 향인지 한 줄", !!(await page.$("#addr")) && /향 집이에요/.test(text) && (await page.locator("#simctl input").count()) === 1, text.replace(/\s+/g, " "));
+  check("채광: 주소 한 칸과 어느 향인지 한 줄", !!(await page.$("#addr")) && /향 집이에요/.test(text) && (await page.locator('#simctl input[type="search"]').count()) === 1, text.replace(/\s+/g, " "));
+  // 하루 재생 대신 시간 바: 끌면 그 시각으로 바뀐다
+  const t0 = await page.textContent("#sunNow");
+  await page.$eval("#sunTime", (el) => { el.value = String(+el.min + 60); el.dispatchEvent(new Event("input", { bubbles: true })); });
+  const t1 = await page.textContent("#sunNow");
+  check("채광: 향 아래 시간 바, 하루 재생 버튼 없음", !(await page.$("#splay")) && t0 !== t1 && /오전|오후/.test(t1), `${t0} → ${t1}`);
   check("참고 사항 칸이 없다", !text.includes("참고") && !(await page.$(".sim-notes")));
 
   await page.click('[data-sim="wifi"]');
   await wait(600);
-  check("와이파이: 공유기 종류 둘과 놓기만", (await page.locator("#simctl [data-band]").count()) === 2 && (await page.locator("#simctl button").count()) === 3);
+  check("와이파이: 공유기 종류 둘과 놓기만", (await page.locator("#simctl [data-band]").count()) === 2 && (await page.locator('#simctl [data-sec="wifi"] button').count()) === 3);
   { const [mx, my] = await toScreen([cx, cy]); await page.mouse.move(mx, my, { steps: 5 }); await wait(300); await page.mouse.click(mx, my); }
-  await page.waitForSelector("#simres .wifi-legend", { timeout: 20000 });
+  await page.waitForSelector(".sim-res .wifi-legend", { timeout: 20000 });
   text = await sheet();
   const fills = await page.$$eval("#overlay rect[fill]", (els) => [...new Set(els.map((e) => e.getAttribute("fill")))]);
   check("와이파이: 바닥에 색만, 수치 글자 없음", fills.length >= 1 && fills.every((c) => ["#1f7a4d", "#e0a800", "#b3261e", null].includes(c)) && !/dBm|%/.test(text), `${fills} · ${text.replace(/\s+/g, " ")}`);
@@ -88,6 +93,10 @@ const post = send("POST"), put = send("PUT");
   let pj = await j(`/api/projects/${pid}`);
   check("누른 자리가 출발 자리로 저장되고 사람이 걷는다", !!pj.scene_state.marks?.start && (await v3("walkersInfo")).length >= 1 && !(await v3("starterInfo")).visible, JSON.stringify(pj.scene_state.marks));
   check("동선 칸에 현관·싱크 지정 버튼이 없다", !/현관|싱크/.test(await sheet()));
+  // 채광·와이파이·동선을 같이 켜 둘 수 있다: 칸이 차례로 쌓이고 3D에는 셋 다 보인다
+  const secs = await page.$$eval("#simctl .sim-sec", (els) => els.map((e) => e.dataset.sec));
+  const allOn = await page.$$eval('[data-sim][aria-checked="true"]', (els) => els.length);
+  check("세 가지를 같이 켤 수 있다", secs.join() === "daylight,wifi,flow" && allOn === 3 && (await page.$$("#overlay rect[fill]")).length > 0 && (await page.$$("#overlay .route")).length > 0, secs.join());
 
   // 냉장고를 가벽으로 가두면 ✕가 뜨고, 누르면 빠진다
   const f = [Math.cos(lg.yaw_rad), Math.sin(lg.yaw_rad)], u = [-f[1], f[0]], [w, , d] = lg.size_m, c = lg.center_xz;
