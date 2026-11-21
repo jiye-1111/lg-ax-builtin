@@ -29,7 +29,7 @@ const skuOf = (o) => { while (o && !o.userData?.sku) o = o.parent; return o?.use
 const GHOST_NEAR_M = 0.8; // 미리 보기 상자가 카메라와 이만큼 가까우면 그리지 않는다
 // 바닥 텍스처용 SVG에는 페이지 CSS가 안 먹으므로 오버레이 스타일을 같이 넣는다 (style.css의 .plan 오버레이와 같은 색)
 const OVERLAY_CSS = `.sunpatch{fill:#ffd54a;fill-opacity:.55;stroke:#e0a800}.route{fill:none;stroke:#4b45b0;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:.9}
-.narrow{fill:none;stroke:#b3261e;stroke-opacity:.9}.tag rect{fill:#1c2024;fill-opacity:.82}.tag text{fill:#fff;font-weight:600}.router-sym rect{fill:#1c2024}.router-sym path{stroke:#1c2024}text{font-family:Pretendard,sans-serif}`;
+.narrow{fill:none;stroke:#b3261e;stroke-opacity:.9}.tag rect{fill:#1c2024;fill-opacity:.82}.tag text{fill:#fff;font-weight:600}.router-sym rect{fill:#1c2024}.router-sym path{stroke:#1c2024}.start-dot{fill:#4b45b0;fill-opacity:.28;stroke:#4b45b0;stroke-width:.03px}text{font-family:Pretendard,sans-serif}`;
 
 // 공유기·사람 모델 (Blender: build_router.py, build_person.py). 한 번만 받는다
 const assets = new Map();
@@ -41,6 +41,7 @@ const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walk
 const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
 const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
 const MAX_WALKERS = 4;
+const DOOR_SKU = "decor:door", DOOR_JAMB_M = 0.045, DOOR_OPEN_RAD = (78 * Math.PI) / 180; // 문틀 폭은 build_furniture.py door와 같게
 
 // 제품 모델: 한 번 받아 두고 배치마다 복제한다 (화면을 바꿔도 다시 받지 않는다)
 const MODEL_DIR = "models/products/";
@@ -170,6 +171,17 @@ export function makeViewer(el, handlers = {}) {
   const walkersG = new THREE.Group();
   scene.add(walkersG);
   let walkers = [], walkersKey = "", walkersPaused = false;
+  // 동선 출발 자리 고르기: 마우스를 따라오는 사람 (발밑에 고리)
+  const starter = new THREE.Group();
+  starter.visible = false;
+  scene.add(starter);
+  let starterMixer = null, starterAsked = false;
+  {
+    const ring = new THREE.Mesh(new THREE.RingGeometry(0.3, 0.36, 48), new THREE.MeshBasicMaterial({ color: 0x4b45b0, transparent: true, opacity: 0.75, depthWrite: false }));
+    ring.rotation.x = -Math.PI / 2;
+    ring.position.y = 0.008;
+    starter.add(ring);
+  }
 
   // 카메라 쪽 벽은 반투명으로 (돌하우스 컷어웨이)
   const cutaway = () => {
@@ -272,6 +284,7 @@ export function makeViewer(el, handlers = {}) {
     if (renderer.getPixelRatio() !== Math.min(devicePixelRatio, 1.5)) resize();
     animateHeld();
     stepWalkers(dt);
+    if (starter.visible) starterMixer?.update(dt);
     stepSunFn?.(dt);
     composer.render();
     requestAnimationFrame(loop);
@@ -443,6 +456,27 @@ export function makeViewer(el, handlers = {}) {
   }
 
 
+  // 문: 열 수 있으면 문짝을 열어 두고, 못 열면 닫힌 채 바닥에 붉은 열림 자리를 깐다. 고르거나 놓는 중에는 열림 자리를 판정 색으로
+  const doorExtras = (model, p, { selected, preview }) => {
+    const [w, , d] = p.size_m, blocked = p.verdict === "no_fit";
+    const hingeX = -w / 2 + DOOR_JAMB_M, leafW = w - 2 * DOOR_JAMB_M, out = [];
+    const pivot = new THREE.Group();
+    pivot.position.set(hingeX, 0, 0);
+    const leaf = [];
+    model.traverse((o) => { if (o.isMesh && o.name.startsWith("leaf")) leaf.push(o); });
+    leaf.forEach((o) => { o.position.x -= hingeX; pivot.add(o); });
+    pivot.rotation.y = blocked ? 0 : -DOOR_OPEN_RAD; // 경첩은 왼쪽, 앞(+z)으로 열린다
+    out.push(pivot);
+    if (blocked || selected || preview) {
+      const fan = new THREE.Mesh(new THREE.CircleGeometry(leafW, 40, -Math.PI / 2, Math.PI / 2),
+        new THREE.MeshBasicMaterial({ color: VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide }));
+      fan.rotation.x = -Math.PI / 2; // 바닥에 눕힌다: 원의 -y 쪽이 앞(+z)
+      fan.position.set(hingeX, 0.007, d / 2);
+      fan.userData.verdictPlate = true;
+      out.push(fan);
+    }
+    return out;
+  };
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
@@ -467,6 +501,7 @@ export function makeViewer(el, handlers = {}) {
         }
       });
       g.add(m);
+      if (p.sku === DOOR_SKU) g.add(...doorExtras(m, p, { selected, preview }));
     } else {
       if (p.sku) requestModel(p.sku);
       const body = new THREE.Mesh(
@@ -850,6 +885,23 @@ export function makeViewer(el, handlers = {}) {
         });
       });
     },
+    /** 동선 출발 자리 고르기: 마우스를 따라오는 사람. null이면 숨긴다 */
+    personFollow(xz) {
+      if (!xz) { starter.visible = false; return; }
+      starter.position.set(xz[0], 0, xz[1]);
+      starter.visible = true;
+      if (starterAsked) return;
+      starterAsked = true;
+      loadAsset(PERSON_URL).then((g) => {
+        if (!g || !alive) return;
+        const node = cloneSkinned(g.scene);
+        node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+        const idle = g.animations.find((a) => a.name === "idle");
+        if (idle) { starterMixer = new THREE.AnimationMixer(node); starterMixer.clipAction(idle).play(); }
+        starter.add(node);
+      });
+    },
+    starterInfo() { return { visible: starter.visible, loaded: starter.children.length > 1, pos: [+starter.position.x.toFixed(3), +starter.position.z.toFixed(3)] }; },
     /** 걷는 사람 멈추기/다시 걷기 (화면 캡처용) */
     pauseWalkers(on = true) { walkersPaused = !!on; },
     /** 걷는 사람 (E2E 확인용) */
@@ -945,7 +997,7 @@ export function makeViewer(el, handlers = {}) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
       const hide = (o) => { if (o?.visible) { o.visible = false; hidden.push(o); } };
-      [overlay, ghost, need, walkersG, grid].forEach(hide);
+      [overlay, ghost, need, walkersG, starter, grid].forEach(hide);
       products.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) hide(o); });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);

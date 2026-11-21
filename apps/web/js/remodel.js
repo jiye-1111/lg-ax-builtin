@@ -7,7 +7,7 @@ import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
-import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
+import { fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
 import { optionSteps, priceScale } from "./options.js";
 import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, parseManwon, wonText } from "./filters.js";
 import { startTour, tourSeen } from "./tour.js";
@@ -16,6 +16,7 @@ import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./c
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
 const MAX_DOTS = 5; // 카드에 보이는 색 동그라미 수 (나머지는 상세 창에서)
+const DOOR_SKU = "decor:door"; // 벽에 다는 문: 앞이 비어야 열린다 (서버 판정 front_blocked)
 const CATS_CLIP_PX = 72; // 품목 칩 두 줄 높이 (studio.css .cat-chips.clip과 같은 값)
 
 export async function customer(pid) {
@@ -25,13 +26,13 @@ export async function customer(pid) {
     <div class="studio" data-view="3d">
       <header class="studio-head">
         <div class="studio-title"><h1>우리 집 가상 리모델링</h1><p class="sub" id="sub">불러오는 중…</p></div>
-        <ol class="steps5 steps3" id="progress" aria-label="진행 단계"></ol>
-        <details class="home-menu" id="homeMenu"><summary aria-label="저장·다른 집"><i class="save-dot" aria-hidden="true"></i><span id="saveSum">저장 · 내 집</span> <span aria-hidden="true">▾</span></summary>
-          <div class="home-pop">
-            <div class="savebar" id="savebar" aria-label="저장"></div>
-            <button class="btn ghost small app-only" id="extraBtn2">도면·실측 넣기</button>
-            <a class="btn ghost small new-scan" href="#/new" title="지금 집은 그대로 남고, 다른 집을 새로 올려요">+ 다른 집 스캔</a>
-          </div></details>
+        <div class="file-bar" role="toolbar" aria-label="파일">
+          <span class="save-note" id="savebar" aria-live="polite"></span>
+          <button class="fbtn app-only" id="extraBtn2">도면·실측</button>
+          <a class="fbtn" id="newBtn" href="#/new" title="지금 집은 그대로 두고, 다른 집을 새로 스캔해 올려요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14h6"/></svg>새로 만들기</a>
+          <button class="fbtn" id="loadBtn" title="저장해 둔 집을 불러와요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>불러오기</button>
+          <button class="fbtn primary" id="saveBtn" title="지금 꾸민 집을 저장해요 (Ctrl+S)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M7 3v6h8V3M7 21v-7h10v7"/></svg>저장</button>
+        </div>
       </header>
 
       <aside class="lib" data-panel="lib" aria-label="공간 꾸미기 라이브러리">
@@ -149,10 +150,10 @@ export async function customer(pid) {
           <div class="sim-switches" role="group" aria-label="살아 보기"><button class="simsw" data-sim="daylight" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>채광</button><button class="simsw" data-sim="wifi" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>와이파이</button><button class="simsw" data-sim="flow" role="switch" aria-checked="false"><span class="sw-track" aria-hidden="true"><i></i></span>동선</button></div>
           <section class="minimap" id="minimap" aria-label="도면" hidden></section>
           <p class="hint" id="hint" aria-live="polite"></p>
-          <div class="step-card" id="stepCard" aria-live="polite" hidden></div>
           <p class="fit-badge" id="fitBadge" aria-live="polite" hidden></p>
           <div class="act-bar" id="actBar" role="toolbar" aria-label="고른 제품 조작" hidden></div>
           <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
+          <div class="flow-xs" id="flowX"></div>
           <div class="sheet" id="simctl"></div>
           <button class="sheet-fold" id="simFold" aria-expanded="true" aria-controls="simctl">정보 접기</button>
         </div>
@@ -267,14 +268,9 @@ export async function customer(pid) {
   const extraPop = document.getElementById("extraPop"), extraBtn = document.getElementById("extraBtn");
   const showExtra = (on) => { extraPop.hidden = !on; extraBtn.classList.toggle("on", on); extraBtn.setAttribute("aria-expanded", on); if (on) showKeys(false); };
   extraBtn.onclick = () => showExtra(extraPop.hidden);
-  document.getElementById("extraBtn2").onclick = () => { document.getElementById("homeMenu").open = false; showExtra(true); };
+  document.getElementById("extraBtn2").onclick = () => showExtra(true);
   document.getElementById("extraClose").onclick = () => showExtra(false);
   extraPop.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); showExtra(false); extraBtn.focus(); } });
-  // 저장·다른 집 메뉴: 바깥을 누르면 닫는다
-  const homeMenu = document.getElementById("homeMenu");
-  const closeMenu = (e) => { if (homeMenu.open && !homeMenu.contains(e.target)) homeMenu.open = false; };
-  document.addEventListener("pointerdown", closeMenu);
-  cleanup.push(() => document.removeEventListener("pointerdown", closeMenu));
   // 전체 화면: 3D 쪽만 크게
   const fullBtn = document.getElementById("fullBtn");
   fullBtn.onclick = () => {
@@ -326,11 +322,11 @@ export async function customer(pid) {
   let wallPicking = false, removeWall = () => {}; // 벽 철거: 3D에서 벽을 눌러 고르는 중 (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
-    canDrag: () => mode === "move" && !armed && !armedRouter && !armedMark,
+    canDrag: () => mode === "move" && !armed && !armedRouter && !armedStart,
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
     onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
     onHover: (p) => { hovering = true; follow(p); },
-    onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); },
+    onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (point && floorAction(point)) return;
@@ -369,11 +365,10 @@ export async function customer(pid) {
   const restoredCam = viewer.setCamera(saved.cam);
   if (VIEWS.includes(saved.view) && saved.view !== "3d") setView(saved.view, restoredCam);
   const svg = document.getElementById("plan");
-  let renderProgress = () => {}, setFlow = () => {}; // 3단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let tabletop = () => false; // 카탈로그를 받은 뒤 채운다
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
-  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
+  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" };
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   // 공간 꾸미기 가구 (제품 정보 없이 모양만, sku = "decor:종류"). 주문·설치 신청에는 넣지 않는다
   let decorList = [];
@@ -390,6 +385,7 @@ export async function customer(pid) {
     poly: "꼭짓점을 차례로 누르고, 첫 점을 다시 누르거나 더블클릭하면 완성됩니다.",
   };
   let renderAct = () => {}; // 3D 아래 조작 버튼 (아래에서 채운다)
+  let trackFlowX = () => {}; // 동선에서 길이 막힌 제품의 ✕ 자리 (아래에서 채운다)
   const setHint = (msg) => {
     renderAct();
     if (msg) { document.getElementById("hint").textContent = msg; return; }
@@ -652,7 +648,6 @@ export async function customer(pid) {
     el.onfocus = () => el.select();
   }
   const renderLib = () => {
-    renderProgress();
     const q = qEl.value.trim().toLowerCase();
     const fW = fWEl.value, fH = fHEl.value;
     const scope = shop.filter((f) => inScope(f.category));
@@ -809,6 +804,7 @@ export async function customer(pid) {
   const follow = (p) => {
     lastHover = p;
     if (armedRouter) { viewer.routerFollow(p); return; }
+    if (armedStart) { viewer.personFollow(p); return; }
     if (mode !== "move" || wallPicking) return;
     if (wallDraw) { // 가벽: 시작점 전에는 기둥 하나, 시작점을 찍은 뒤에는 시작점부터 마우스까지 벽
       const a = wallDraw.start;
@@ -950,12 +946,13 @@ export async function customer(pid) {
     toast(`${z.name} 영역을 만들었어요. ‘추천’ 탭에서 들어가는 제품을 확인하세요`); setTab("zones");
     await refresh(true);
   });
-  // 바닥을 눌렀을 때 할 일 (평면·3D 공통): 현관·싱크 지정, 공유기 놓기, 제품 놓기
+  // 바닥을 눌렀을 때 할 일 (평면·3D 공통): 동선 출발 자리, 공유기 놓기, 제품 놓기
   const floorAction = (p) => {
     if (mode !== "move") return false;
-    if (armedMark) {
-      const name = armedMark; armedMark = null;
-      guard(async () => { project = await put(`/api/projects/${pid}/marks/${name}`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
+    if (armedStart) { // "어디서 출발할까요?": 누른 자리에 사람을 세우고 거기서 걷기 시작
+      armedStart = false;
+      viewer.personFollow(null);
+      guard(async () => { project = await put(`/api/projects/${pid}/marks/start`, { center_xz: p }); if (sim === "flow") await flowCtl(); })();
       return true;
     }
     if (armedRouter) {
@@ -1107,7 +1104,7 @@ export async function customer(pid) {
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
     if (k === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (k === "y" && e.ctrlKey) { e.preventDefault(); redo(); return; }
-    if (k === "Escape") { if (armedRouter) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
+    if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
     const PAN = 0.3;
@@ -1242,6 +1239,7 @@ export async function customer(pid) {
   const trackAct = () => {
     actRaf = requestAnimationFrame(trackAct);
     trackCam();
+    trackFlowX();
     if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { unNear(); return; }
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     const o = !x && selObj && room?.objects.find((q) => q.object_id === selObj);
@@ -1283,7 +1281,10 @@ export async function customer(pid) {
       // 안 들어가면 왜 안 되는지와 고치는 방법까지 한 줄로 (벽·가구·다른 제품과 겹칠 때 등)
       const r = x.verdict === "no_fit" ? badReasons(x)[0] : null;
       fitBadge.className = `fit-badge v-${shownVerdict(x.verdict)}`;
-      fitBadge.innerHTML = `<b>${esc(BADGE[x.verdict] || BADGE.unknown)}</b>${r ? `<span>${esc(r.label)} · ${esc(FIX[r.code] || "다른 자리로 옮겨 보세요")}</span>` : ""}`;
+      const doorShut = x.sku === DOOR_SKU && r?.code === "front_blocked"; // 문은 열리는지부터 말해 준다
+      const head = x.sku === DOOR_SKU && !r ? "문이 잘 열려요" : doorShut ? "문이 안 열려요" : BADGE[x.verdict] || BADGE.unknown;
+      const why = doorShut ? "앞에 문짝만큼 비워 주세요. R로 돌리면 반대쪽으로 열려요" : r ? `${r.label} · ${FIX[r.code] || "다른 자리로 옮겨 보세요"}` : "";
+      fitBadge.innerHTML = `<b>${esc(head)}</b>${why ? `<span>${esc(why)}</span>` : ""}`;
     }
     if (walking) { actBar.hidden = true; return; }
     if (armed) {
@@ -1362,68 +1363,12 @@ export async function customer(pid) {
     }
     box.innerHTML = "";
   };
-  // ---- 3단계 진행 표시 (공간 확인 → 제품 고르기 → 설치 확인): 지금 상태에서 계산한다 ----
-  // ---- 3단계 진행: 단계마다 직접 해야 하나씩 체크된다 (공간 확인 버튼 → 제품 놓기 → 구매·설치 신청) ----
-  let flow = { ...(saved.flow || {}) }, prevSteps = null, doneTimer = 0;
-  setFlow = (patch) => { flow = { ...flow, ...patch }; saveUiState(pid, { flow }); renderProgress(); };
-  const stepCard = document.getElementById("stepCard");
-  const renderStepCard = (steps) => {
-    const cur = steps.findIndex((s) => s.state !== "done");
-    if (cur < 0) {
-      if (flow.doneSeen) { stepCard.hidden = true; return; }
-      stepCard.hidden = false;
-      stepCard.innerHTML = `<span class="sc-n done" aria-hidden="true">✓</span><p><b>세 단계를 모두 마쳤어요</b><span>구매 및 설치 신청에서 상담을 이어 가요</span></p>`;
-      clearTimeout(doneTimer);
-      doneTimer = setTimeout(() => { flow = { ...flow, doneSeen: true }; saveUiState(pid, { flow }); stepCard.hidden = true; }, 6000);
-      return;
-    }
-    const s = steps[cur];
-    const TEXT = {
-      scan: ["스캔한 우리 집이 맞는지 둘러보세요", `<button class="primary small" data-sc="ok">맞아요, 다음</button>`],
-      pick: ["이 집에 들어가는 제품을 골라 3D에 놓아 보세요", ""],
-      check: s.state === "warn" ? ["놓을 수 없는 제품이 있어요. 옮기거나 다른 제품으로 바꿔 보세요", ""]
-        : ["놓은 제품을 눌러 보고, 마음에 들면 신청해요", `<button class="primary small" data-sc="order">구매 및 설치 신청</button>`],
-    }[s.key];
-    stepCard.hidden = false;
-    stepCard.innerHTML = `<span class="sc-n${s.state === "warn" ? " warn" : ""}" aria-hidden="true">${cur + 1}</span><p><b>${esc(s.label)}</b><span>${esc(TEXT[0])}</span></p>${TEXT[1]}`;
-    stepCard.querySelector('[data-sc="ok"]')?.addEventListener("click", () => setFlow({ space: true }));
-    stepCard.querySelector('[data-sc="order"]')?.addEventListener("click", () => openOrder());
-  };
-  renderProgress = () => {
-    const el = document.getElementById("progress");
-    if (!el || !project) return;
-    const steps = stepState(project, armed, flow);
-    el.innerHTML = stepperHtml(steps);
-    // 방금 끝낸 단계는 체크가 톡 하고 차오르게 (여러 개면 차례로)
-    if (prevSteps) {
-      let n = 0;
-      steps.forEach((st, i) => {
-        if (st.state === "done" && prevSteps[i] !== "done") {
-          const li = el.children[i];
-          li.classList.add("just-done");
-          li.style.setProperty("--d", `${n++ * 350}ms`);
-        }
-      });
-      const last = steps.filter((st, i) => st.state === "done" && prevSteps[i] !== "done").pop();
-      if (last) toast(`${last.label} 완료!`);
-    }
-    prevSteps = steps.map((st) => st.state);
-    renderStepCard(steps);
-    el.querySelectorAll("[data-step]").forEach((b) => (b.onclick = () => {
-      const k = b.dataset.step, pls = project.scene_state.placements;
-      if (k === "scan") { if (!flow.space) setFlow({ space: true }); else showExtra(true); }
-      else if (k === "pick") { openLib(studio.classList.contains("app")); document.getElementById("q").focus(); }
-      else if (!pls.length) toast("제품을 놓으면 그 자리에 들어가는지 바로 확인해요");
-      else openOrder();
-    }));
-  };
   // ---- 구매 및 설치 신청: 놓은 제품과 판정을 모아 보여 주고, 구매는 LGE.COM, 설치는 방문 신청으로 잇는다 ----
   const orderSheet = document.getElementById("orderSheet");
   const closeOrder = () => { orderSheet.hidden = true; orderSheet.innerHTML = ""; };
   const openOrder = () => {
     const pls = lgOnly(project.scene_state.placements); // 가구·소품은 꾸미기용이라 신청에 넣지 않는다
     const bad = pls.filter((x) => x.verdict === "no_fit").length;
-    if (pls.length && !bad && !flow.order) setTimeout(() => setFlow({ order: true }), 0);
     orderSheet.innerHTML = `
       <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
       ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
@@ -1479,7 +1424,6 @@ export async function customer(pid) {
     box.querySelectorAll("[data-chk]").forEach((b) => (b.onclick = () => focusPlacement(b.dataset.chk)));
   };
   const renderPlacements = () => {
-    renderProgress();
     const every = project.scene_state.placements, pls = lgOnly(every);
     document.getElementById("plCount").textContent = every.length;
     document.getElementById("orderMini").hidden = !pls.length;
@@ -1773,24 +1717,12 @@ export async function customer(pid) {
   };
 
   // ---- 살아 보기: 채광 ----
-  const heat = (grid, color, maxV) => {
-    const out = [];
-    const [x0, y0] = grid.origin, c = grid.cell_m;
-    grid.values.forEach((row, j) => row.forEach((v, i) => {
-      if (v == null || v <= 0) return;
-      out.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${color}" fill-opacity="${Math.min(0.75, 0.12 + (0.63 * v) / maxV).toFixed(2)}"/>`);
-    }));
-    return out.join("");
-  };
-  let simTimer = null, playing = null;
+  let playing = null;
   const stopPlay = () => {
     if (!playing) return;
     cancelAnimationFrame(playing.raf); playing = null;
     const b = document.getElementById("splay"); if (b) { b.textContent = "하루 재생"; b.setAttribute("aria-pressed", "false"); }
   };
-  // 하루 직사광 격자는 무겁다: 날짜·위치·북쪽·놓은 제품이 같으면 다시 받지 않는다 (시간 슬라이더는 해만 받는다)
-  let heatCache = { key: null, daily: null, assumptions: [] };
-  const DIRS = ["북", "북동", "동", "남동", "남", "남서", "서", "북서"];
   // 하루 해 경로(5분 간격)를 한 번 받아 두고 그 사이를 이어서 쓴다: 시간을 움직여도 서버를 기다리지 않고 바로, 끊김 없이
   let sunPath = { key: null, pts: null };
   const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
@@ -1815,200 +1747,172 @@ export async function customer(pid) {
   };
   const runDaylight = async () => {
     const box = document.getElementById("simres");
-    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="notice" style="margin:0">창이 없는 방이라 방향을 추정하지 못했어요. 북쪽 방향 슬라이더로 평면도의 나침반을 실제 북쪽에 맞춰 주세요.</p>`; return; }
-    const key = JSON.stringify([simState.date, project.site, project.scene_state.placements.map((x) => [x.placement_id, x.center_xz]), version]);
-    const needHeat = simState.heat && heatCache.key !== key;
+    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="sim-line">창이 없는 방이라 방향을 알 수 없어요. 주소를 넣으면 건물 방향으로 알려 드려요.</p>`; return; }
     const pathKey = JSON.stringify([simState.date, project.site]);
     const needPath = sunPath.key !== pathKey;
-    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=${needHeat}&path=${needPath}`);
+    const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=false&path=${needPath}`);
     if (sim !== "daylight") return;
-    if (needHeat) heatCache = { key, daily: d.daily, assumptions: d.assumptions };
     if (needPath && d.path) sunPath = { key: pathKey, pts: d.path };
     // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다. 재생 중이면 응답이 늦게 와도 지금 시각의 해를 쓴다
     viewer.setSun(sunAt(simMin) || d.sun);
-    const daily = simState.heat ? heatCache.daily : null;
-    const maxH = daily ? Math.max(1, ...daily.values.flat().filter((v) => v != null)) : 1;
-    setOverlay(daily ? heat(daily, "#f2a900", maxH) + d.patches.map((p) => `<polygon class="sunpatch" points="${p.polygon.map((q) => q.join(",")).join(" ")}" style="stroke-width:${pv.sw(1.5)}px"/>`).join("") : "");
-    const s = d.sun, dir = DIRS[Math.round(s.azimuth_deg / 45) % 8];
-    const pls = daily ? project.scene_state.placements.filter((x) => x.placement_id in daily.points) : [];
-    const BASIS = { main_window_south: "가장 큰 창이 남쪽을 본다고 보고 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", building_footprint: "주소의 건물 방향에 맞춰 추정했어요. 다르면 북쪽 방향을 고쳐 주세요", manual: "" };
-    const fc = d.facings || [];
-    const facing = fc.length ? `<p class="facing"><b>${esc(fc[0].label)}</b> 집이에요 <span class="muted">가장 큰 창 기준${fc.length > 1 ? ` · 다른 창 ${fc.slice(1).map((x) => esc(x.label)).join(", ")}` : ""}</span>${BASIS[project.site?.north_basis] ? `<em>${BASIS[project.site.north_basis]}</em>` : ""}</p>` : "";
-    box.innerHTML = `${facing}
-      <p style="margin:0 0 6px">${s.up ? `해 높이 <b>${s.altitude_deg.toFixed(0)}°</b> · <b>${dir}쪽</b> 하늘(방위 ${s.azimuth_deg.toFixed(0)}°) · 빛 색 ${s.kelvin.toLocaleString()} K${s.altitude_deg < 10 ? " (해 질 녘)" : ""} · 지금 볕 드는 창 ${d.patches.length}개` : "해가 진 시간입니다"}${daily ? ` · 진한 노랑일수록 하루 직사광이 깁니다 (최대 ${maxH.toFixed(1)}시간)` : ""}</p>
-      ${pls.length ? `<ul class="reasons">${pls.map((x) => { const h = daily.points[x.placement_id]; return `<li>${esc(prodOf(x.sku)?.name || x.sku)}: 하루 직사광 <b>${h.toFixed(1)}시간</b>${h >= 2 ? ` <span class="badge conditional">햇빛 주의</span>` : ""}</li>`; }).join("")}</ul>` : ""}
-      <details class="sim-notes"><summary>참고 사항</summary>참고용 시뮬레이션 · ${[...(daily ? heatCache.assumptions : d.assumptions)].map(esc).join(" · ")}</details>`;
+    setOverlay("");
+    const main = (d.facings || [])[0];
+    box.innerHTML = main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "";
   };
+  // 채광: 주소만 넣으면 어느 향인지 한 줄로 알려 준다. 해가 하루 동안 어떻게 움직이는지는 '하루 재생'으로 본다
   const daylightCtl = async () => {
-    regions = regions || (await api("/api/regions"));
-    // 스캔에는 나침반이 없다 → 북쪽을 안 정했으면 가장 큰 창이 남쪽을 본다고 보고 먼저 잡아 준다 (슬라이더로 고칠 수 있다)
+    // 스캔에는 나침반이 없다 → 북쪽을 안 정했으면 가장 큰 창이 남쪽을 본다고 보고 먼저 잡아 준다 (주소를 넣으면 건물 방향으로 바뀐다)
     if (project.site?.north_deg == null) { try { project = await put(`/api/projects/${pid}/site`, { auto_north: true }); draw(); } catch { /* 창이 없으면 안내문 */ } }
     const site = project.site || {};
     document.getElementById("simctl").innerHTML = `
-      <div class="simgrid">
-        <label class="addr-row">주소 <span class="muted" id="addrNow">${site.address ? esc(site.address) : "적으면 그 위치의 해로 계산해요"}</span>
-          <span class="time-row"><input type="search" id="addr" placeholder="예) 서울 중구 세종대로 110" maxlength="200" autocomplete="street-address"><button class="small ghost" id="addrGo">찾기</button></span></label>
-        <label>지역<select id="region">${Object.keys(regions).map((r) => `<option ${r === (site.region || "서울") ? "selected" : ""}>${r}</option>`).join("")}</select></label>
-        <label>북쪽 방향 <span class="muted" id="nv">${site.north_deg ?? "미지정"}${site.north_deg != null ? "°" : ""}</span><input type="range" id="north" min="0" max="359" step="1" value="${Math.round(site.north_deg ?? 0)}"></label>
-        <label>날짜<input type="date" id="sdate" value="${simState.date}"></label>
-        <label>시각 <b id="tv">${simState.time}</b><span class="time-row"><button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button><input type="range" id="stime" min="300" max="1260" step="1" value="${Math.round(simMin)}"></span></label>
+      <div class="sim-row">
+        <input type="search" id="addr" placeholder="우리 집 주소 (예: 서울 중구 세종대로 110)" value="${esc(site.address || "")}" maxlength="200" autocomplete="street-address" aria-label="우리 집 주소">
+        <button class="small primary" id="addrGo">찾기</button>
+        <button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button>
       </div>
-      <div class="chips" style="margin:6px 0 8px">${[["동지", "-12-21"], ["춘분", "-03-20"], ["하지", "-06-21"]].map(([k, v]) => `<button class="chip" data-day="${v}">${k}</button>`).join("")}<button class="chip" data-day="today">오늘</button>
-        <label class="chip" style="cursor:pointer;display:inline-flex;flex-direction:row;align-items:center;gap:6px;white-space:nowrap"><input type="checkbox" id="sheat" ${simState.heat ? "checked" : ""} style="margin:0;width:auto">하루 햇빛 시간 겹쳐 보기</label></div>
       <div id="simres"></div>`;
-    const kick = () => { clearTimeout(simTimer); simTimer = setTimeout(() => guard(runDaylight)(), 120); };
     // 주소 → 위도·경도 (서버가 찾는다). 건물 방향을 알면 북쪽도 같이 잡힌다
     const findAddr = guard(async () => {
       const q = document.getElementById("addr").value.trim();
-      if (!q) return;
+      if (!q) { document.getElementById("addr").focus(); return; }
       const b = document.getElementById("addrGo"); b.disabled = true; b.textContent = "찾는 중…";
       try {
         project = await put(`/api/projects/${pid}/site`, { address: q });
         sunPath = { key: null, pts: null };
-        toast("주소 위치로 채광을 다시 계산했어요");
         draw(); await daylightCtl();
       } finally { const x = document.getElementById("addrGo"); if (x) { x.disabled = false; x.textContent = "찾기"; } }
     });
     document.getElementById("addrGo").onclick = findAddr;
     document.getElementById("addr").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); findAddr(); } };
-    document.getElementById("region").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { region: e.target.value }); kick(); });
-    document.getElementById("north").oninput = (e) => {
-      document.getElementById("nv").textContent = `${e.target.value}°`;
-      svg.querySelector(".compass")?.setAttribute("transform", svg.querySelector(".compass").getAttribute("transform").replace(/rotate\([^ ]+/, `rotate(${e.target.value}`));
-    };
-    document.getElementById("north").onchange = guard(async (e) => { project = await put(`/api/projects/${pid}/site`, { north_deg: Number(e.target.value) }); draw(); kick(); });
-    document.getElementById("sdate").onchange = (e) => { simState.date = e.target.value; kick(); };
-    document.getElementById("sheat").onchange = (e) => { simState.heat = e.target.checked; kick(); };
-    // 시각을 옮기면 해는 받아 둔 경로로 바로(부드럽게) 따라오고, 볕 자리·설명은 손을 멈추면 다시 받는다
-    const setMin = (v, fetchNow) => {
-      simMin = v; simState.time = hhmm(v);
-      document.getElementById("tv").textContent = simState.time;
-      const s = sunAt(v); if (s) viewer.setSun(s);
-      if (fetchNow) kick();
-    };
-    document.getElementById("stime").oninput = (e) => { stopPlay(); setMin(Number(e.target.value), true); };
-    // 하루 재생: 1초에 1시간씩 해가 움직인다. 볕 자리는 0.7초마다만 다시 받는다
-    let lastFetch = 0;
+    // 하루 재생: 1초에 1시간씩 해가 움직인다 (받아 둔 해 경로를 이어서, 끊김 없이)
+    const DAY_START = 300, DAY_END = 1260;
     const tick = (now) => {
-      if (!playing || sim !== "daylight" || !document.getElementById("stime")) { stopPlay(); return; }
+      if (!playing || sim !== "daylight" || !document.getElementById("splay")) { stopPlay(); return; }
       const dt = Math.min(0.1, (now - (playing.t || now)) / 1000); playing.t = now;
-      let v = simMin + dt * 60;
-      if (v >= 1260) { v = 1260; stopPlay(); }
-      document.getElementById("stime").value = Math.round(v);
-      setMin(v, false);
-      if (now - lastFetch > 700) { lastFetch = now; guard(runDaylight)(); }
+      simMin = Math.min(DAY_END, simMin + dt * 60); simState.time = hhmm(simMin);
+      const s = sunAt(simMin); if (s) viewer.setSun(s);
+      if (simMin >= DAY_END) stopPlay();
       if (playing) playing.raf = requestAnimationFrame(tick);
-      else kick();
     };
     document.getElementById("splay").onclick = () => {
-      if (playing) { stopPlay(); kick(); return; }
-      if (simMin >= 1255) setMin(300, false);
+      if (playing) { stopPlay(); return; }
+      if (simMin >= DAY_END - 5) simMin = DAY_START;
       playing = { t: 0 }; playing.raf = requestAnimationFrame(tick);
       const b = document.getElementById("splay"); b.textContent = "멈추기"; b.setAttribute("aria-pressed", "true");
     };
-    document.querySelectorAll("[data-day]").forEach((b) => (b.onclick = () => {
-      simState.date = b.dataset.day === "today" ? new Date().toISOString().slice(0, 10) : `${simState.date.slice(0, 4)}${b.dataset.day}`;
-      document.getElementById("sdate").value = simState.date; kick();
-    }));
     if (project.site?.north_deg == null) draw();
     await runDaylight();
   };
   // ---- 살아 보기: 와이파이 ----
+  // 공유기 종류를 고르고 놓기만 한다. 결과는 방 바닥에 색으로만: 초록 잘 통함 · 노랑 보통 · 빨강 약함
   let armedRouter = false, band = "5";
   const WCOLOR = { good: "#1f7a4d", ok: "#e0a800", weak: "#b3261e" };
-  const WLABEL = { good: "좋음", ok: "보통", weak: "약함" };
   const runWifi = async () => {
     const box = document.getElementById("simres");
     const rt = project.scene_state.router;
-    if (!rt) { setOverlay(""); viewer.setRouter(null); box.innerHTML = `<p class="notice" style="margin:0">공유기를 평면도에 놓거나 '추천 자리 찾기'를 눌러 보세요.</p>`; return; }
+    if (!rt) { setOverlay(""); viewer.setRouter(null); box.innerHTML = ""; return; }
     const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
+    if (sim !== "wifi") return;
     const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
     const [x0, y0] = g.origin, c = g.cell_m, cells = [];
-    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.28"/>`); }));
+    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.3"/>`); }));
     const [rx, ry] = g.router;
     // 평면도에는 실제 크기 윗면 기호(본체 + 안테나 4개), 3D에는 실제 공유기 모델
     const yawDeg = ((rt.yaw_rad ?? 0) * 180) / Math.PI;
     const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
     setOverlay(cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
     viewer.setRouter(rt);
-    const pct = (v) => `${Math.round((v || 0) * 100)}%`;
-    box.innerHTML = `
-      <p style="margin:0 0 6px">${["good", "ok", "weak"].map((k) => `<span class="badge" style="background:${WCOLOR[k]}22;color:${WCOLOR[k]}">${WLABEL[k]} ${pct(g.share[k])}</span>`).join(" ")} · 가장 약한 곳 <b>${g.min_dbm} dBm</b></p>
-      ${g.zones.length ? `<ul class="reasons">${g.zones.map((z) => `<li>${esc(z.name)}: ${z.min_dbm == null ? "영역 안 칸 없음" : `가장 약한 곳 ${z.min_dbm} dBm · 약함 ${pct(z.share.weak)}`}</li>`).join("")}</ul>` : `<p class="muted" style="font-size:12px;margin:0">영역을 그리면 영역별 요약도 보여 드려요.</p>`}
-      <p class="muted" style="font-size:12px;margin:6px 0 0">3D에서 공유기를 누르면 집어 들어요. 옮기거나 R로 돌려 내려놓으면 다시 계산해요.</p>
-      <details class="sim-notes"><summary>참고 사항</summary>공유기 모델: TP-Link Archer AX55 공개 치수 261.1×134.5×41 mm · 참고용 시뮬레이션 · ${g.assumptions.map(esc).join(" · ")}</details>`;
+    box.innerHTML = `<p class="wifi-legend"><span><i style="background:${WCOLOR.good}"></i>잘 통해요</span><span><i style="background:${WCOLOR.ok}"></i>보통</span><span><i style="background:${WCOLOR.weak}"></i>약해요</span></p>`;
   };
   const wifiCtl = async () => {
     document.getElementById("simctl").innerHTML = `
-      <div class="row" style="margin-top:8px">
-        <div class="tabs" style="margin:0"><button data-band="5" class="${band === "5" ? "on" : ""}">5 GHz</button><button data-band="2.4" class="${band === "2.4" ? "on" : ""}">2.4 GHz</button></div>
-        <button class="small ghost" id="putRouter">${armedRouter ? "놓을 자리를 누르세요 · 책상·선반 위도 돼요" : "공유기 놓기"}</button>
-        <button class="small ghost" id="bestRouter">추천 자리 찾기</button></div>
-      <div id="simres" style="margin-top:8px"></div>`;
+      <div class="sim-row">
+        <div class="seg2 band" role="group" aria-label="공유기 종류">
+          <button data-band="5" class="${band === "5" ? "on" : ""}" aria-pressed="${band === "5"}">5 GHz <span class="n">빠름</span></button>
+          <button data-band="2.4" class="${band === "2.4" ? "on" : ""}" aria-pressed="${band === "2.4"}">2.4 GHz <span class="n">멀리</span></button></div>
+        <button class="small ${armedRouter ? "primary" : "ghost"}" id="putRouter" aria-pressed="${armedRouter}">${armedRouter ? "놓을 자리를 눌러 주세요" : "공유기 놓기"}</button>
+      </div>
+      <div id="simres"></div>`;
     document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = () => { band = b.dataset.band; wifiCtl(); }));
     document.getElementById("putRouter").onclick = () => { armedRouter = !armedRouter; if (!armedRouter) viewer.routerFollow(null); armed = null; mode = "move"; syncMode(); wifiCtl(); };
-    document.getElementById("bestRouter").onclick = guard(async (e) => {
-      e.target.disabled = true; e.target.textContent = "찾는 중…";
-      const b = await api(`/api/projects/${pid}/sim/wifi/best?band=${band}`);
-      project = await put(`/api/projects/${pid}/router`, { center_xz: b.center_xz, band });
-      toast(`가장 약한 곳이 ${b.min_dbm} dBm가 되는 자리로 옮겼습니다`);
-      wifiCtl();
-    });
+    if (armedRouter) { armed = null; mode = "move"; syncMode(); }
     await runWifi();
   };
   // ---- 살아 보기: 동선 ----
-  let armedMark = null;
+  // 처음에 "어디서 출발할까요?"를 묻고, 마우스를 따라오는 사람을 놓은 자리에서 가전 앞까지 걸어 본다.
+  // 길이 막혀 못 가는 제품에는 3D에 ✕가 뜨고, 누르면 그 제품을 뺀다. 싱크대는 가구(수납)에서 놓는다.
+  let armedStart = false, flowBlocked = [];
+  const flowX = document.getElementById("flowX");
+  const clearFlowX = () => { flowBlocked = []; flowX.innerHTML = ""; };
+  const drawFlowX = (ids) => {
+    flowBlocked = ids.map((id) => project.scene_state.placements.find((x) => x.placement_id === id)).filter(Boolean);
+    flowX.innerHTML = flowBlocked.map((x) => `<button class="flow-x" data-id="${esc(x.placement_id)}" title="길이 막혀 못 가요. 누르면 빼요" aria-label="${esc(nameOf(x.sku))} 빼기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`).join("");
+    flowX.querySelectorAll(".flow-x").forEach((b) => (b.onclick = guard(async (e) => {
+      e.stopPropagation();
+      const id = b.dataset.id;
+      b.disabled = true;
+      rememberRemoval(id);
+      await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" });
+      if (selPl === id) selPl = null;
+      toast("길을 막던 제품을 뺐어요 · 되돌리기로 다시 놓을 수 있어요");
+      await refresh(true);
+    })));
+  };
+  // ✕는 제품 오른쪽 위 모서리를 따라다닌다 (매 프레임, trackAct에서 부른다)
+  trackFlowX = () => {
+    if (!flowBlocked.length) return;
+    const r = canvasEl.getBoundingClientRect();
+    flowBlocked.forEach((x, i) => {
+      const b = flowX.children[i];
+      if (!b) return;
+      const [w, h] = x.size_m, u = x.yaw_rad - Math.PI / 2, top = (x.base_m || 0) + h;
+      const ends = [1, -1].map((k) => viewer.toScreen([x.center_xz[0] + Math.cos(u) * k * w / 2, x.center_xz[1] + Math.sin(u) * k * w / 2], top));
+      const [sx, sy] = ends[0][0] >= ends[1][0] ? ends[0] : ends[1];
+      b.style.transform = `translate(${Math.round(sx - r.left)}px, ${Math.round(sy - r.top)}px)`;
+    });
+  };
   const runFlow = async () => {
     const box = document.getElementById("simres");
+    if (armedStart) { setOverlay(""); viewer.setWalkers([]); clearFlowX(); box.innerHTML = ""; return; }
     const f = await api(`/api/projects/${pid}/sim/flow`);
-    const parts = [];
+    if (sim !== "flow" || armedStart) return;
+    const parts = [], paths = [], blocked = [];
     const lw = pv.sw(2);
-    const paths = [];
     for (const [k, r] of Object.entries(f.routes)) {
-      if (!r.reachable) continue;
+      if (!r.reachable) { if (k !== "sink") blocked.push(k); continue; }
       paths.push(r.path);
       parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px;stroke-dasharray:${pv.sw(6)} ${pv.sw(5)}"/>`);
       // 좁은 곳: 바닥에 얇은 빨간 고리 (0.9 m보다 좁음)
       for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
     }
-    // 현관·싱크는 바닥에 글자 표시 (그림 문자 대신)
-    const tag = (x, y, t) => {
-      const fs = 0.16, w = fs * 0.95 * t.length + 0.12, h = fs + 0.1;
-      return `<g class="tag"><rect x="${x - w / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2}"/><text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" style="font-size:${fs}px">${t}</text></g>`;
-    };
-    if (f.entrance) parts.push(tag(...f.entrance.point, "현관"));
-    for (const [k, v] of Object.entries(f.marks || {})) if (k === "sink") parts.push(tag(v[0], v[1], "싱크"));
+    if (f.start) parts.push(`<circle class="start-dot" cx="${f.start[0]}" cy="${f.start[1]}" r="0.16"/>`);
     setOverlay(parts.join(""));
-    viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 현관에서 제품 앞까지 걷는다
-    const rows = Object.entries(f.routes).map(([k, r]) => {
-      const nm = esc(f.names[k] || k);
-      if (!r.reachable) return `<li><span class="badge no_fit">못 감</span> ${nm}: 현관에서 갈 길이 막혔어요</li>`;
-      const bad = r.min_width_m < 0.9;
-      return `<li><span class="badge ${bad ? "conditional" : "fit"}">${bad ? "좁음" : "여유"}</span> ${nm}: ${r.length_m} m · 가장 좁은 곳 ${r.min_width_m} m</li>`;
-    }).join("");
-    const t = f.triangle;
-    box.innerHTML = `
-      ${rows ? `<ul class="reasons">${rows}</ul>` : `<p class="muted" style="margin:0">제품을 놓으면 현관에서 제품 앞까지 동선을 그려 드려요.</p>`}
-      ${t ? `<p style="margin:6px 0 0">주방 작업 삼각형(냉장고·싱크·쿡탑) 합계 <b>${t.perimeter_m} m</b> (${t.legs_m.join(" / ")} m) <span class="badge ${t.ok ? "fit" : "conditional"}">${t.ok ? "권장 범위" : "권장 범위 밖"}</span></p>` : ""}
-      <details class="sim-notes"><summary>참고 사항</summary>걷는 사람 키 170 cm, 보통 걸음 1.3 m/s · 빨간 고리 = 0.9 m보다 좁은 곳 · 참고용 시뮬레이션 · ${f.assumptions.map(esc).join(" · ")}</details>`;
+    viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 출발 자리에서 제품 앞까지 걷는다
+    drawFlowX(blocked);
+    box.innerHTML = Object.keys(f.routes).length ? "" : `<p class="sim-line">가전을 놓으면 출발 자리에서 걸어가 볼게요.</p>`;
   };
   const flowCtl = async () => {
+    const hasStart = !!project.scene_state.marks?.start;
+    if (!hasStart) armedStart = true; // 처음이면 바로 묻는다
     document.getElementById("simctl").innerHTML = `
-      <div class="row" style="margin-top:8px">
-        <button class="small ghost" id="mkEnt">${armedMark === "entrance" ? "현관 쪽을 누르세요…" : "현관 지정"}</button>
-        <button class="small ghost" id="mkSink">${armedMark === "sink" ? "싱크 자리를 누르세요…" : "싱크 위치 지정"}</button>
-        <span class="muted" style="font-size:12px">싱크를 지정하고 냉장고·쿡탑을 놓으면 작업 삼각형을 계산해요.</span></div>
-      <div id="simres" style="margin-top:8px"></div>`;
-    document.getElementById("mkEnt").onclick = () => { armedMark = armedMark === "entrance" ? null : "entrance"; armed = null; mode = "move"; syncMode(); flowCtl(); };
-    document.getElementById("mkSink").onclick = () => { armedMark = armedMark === "sink" ? null : "sink"; armed = null; mode = "move"; syncMode(); flowCtl(); };
+      <div class="sim-row">
+        ${armedStart ? `<p class="sim-ask"><b>어디서 출발할까요?</b><span>사람을 놓을 자리를 눌러 주세요</span></p>${hasStart ? `<button class="small ghost" id="reStart">취소</button>` : ""}`
+          : `<p class="sim-ask"><span>출발 자리에서 가전 앞까지 걸어 봐요</span></p><button class="small ghost" id="reStart">출발 자리 바꾸기</button>`}
+      </div>
+      <div id="simres"></div>`;
+    const re = document.getElementById("reStart");
+    if (re) re.onclick = () => { armedStart = !armedStart; if (!armedStart) viewer.personFollow(null); flowCtl(); };
+    if (armedStart) { armed = null; mode = "move"; syncMode(); if (lastHover) viewer.personFollow(lastHover); }
     await runFlow();
   };
-  const SIMS = { daylight: daylightCtl, wifi: wifiCtl, flow: flowCtl };
+  // 와이파이를 켰는데 공유기가 아직 없으면 바로 놓을 수 있게 마우스에 붙인다
+  const SIMS = { daylight: daylightCtl, wifi: () => { if (!project.scene_state.router) armedRouter = true; return wifiCtl(); }, flow: flowCtl };
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => { x.classList.toggle("on", x.dataset.sim === sim); x.setAttribute("aria-checked", x.dataset.sim === sim); });
     if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
     if (sim !== "wifi") viewer.setRouter(null);
-    if (sim !== "flow") viewer.setWalkers([]);
+    if (sim !== "flow") { viewer.setWalkers([]); viewer.personFollow(null); armedStart = false; clearFlowX(); }
+    if (sim !== "wifi" && armedRouter) { armedRouter = false; viewer.routerFollow(null); }
     if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
     draw();
     if (SIMS[sim]) await SIMS[sim]();
@@ -2066,12 +1970,10 @@ export async function customer(pid) {
   }
   if (project) {
     rememberHome(pid, token || project.share_token);
-    const saveSum = document.getElementById("saveSum"), menuEl = document.getElementById("homeMenu");
-    document.getElementById("savebar").addEventListener("savestate", (e) => {
-      saveSum.textContent = e.detail.text;
-      menuEl.dataset.save = e.detail.kind; // ok · busy · dirty · fail · off
-    });
-    mountSaveBar(document.getElementById("savebar"), pid, () => token || project.share_token);
+    // 저장 · 불러오기: 로그인을 안 했으면 누를 때 로그인을 안내한다
+    const file = mountSaveBar(document.getElementById("savebar"), pid, () => token || project.share_token);
+    document.getElementById("saveBtn").onclick = file.save;
+    document.getElementById("loadBtn").onclick = file.open;
   }
   if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; setLive(true); showSim(); }
   // ---- 첫 안내: 하우니가 스캔 결과를 알려 주고, 메뉴를 하나씩 짚은 뒤, 직접 놓아 보게 한다 ----
@@ -2079,7 +1981,6 @@ export async function customer(pid) {
     const pool = suggItems.length ? suggItems.map((x) => x.sku) : suggPool;
     const sku = pool[0];
     if (!sku) { toast("왼쪽 목록에서 제품을 하나 골라 3D 바닥을 눌러 보세요"); return; }
-    setFlow({ space: true }); // 안내를 끝까지 봤으면 공간 확인은 한 것
     await autoPlace(sku);
     setHint("놓은 제품 위 메뉴로 이동·회전·벽에 붙이기·삭제를 해 보세요. 오른쪽에서 설치 가능한지 바로 보여요");
   });
@@ -2104,13 +2005,13 @@ export async function customer(pid) {
       { sel: ".icon-row", title: "되돌리기", text: "잘못 놓았으면 되돌리면 돼요. 물음표를 누르면 이 안내를 다시 볼 수 있어요." },
       { sel: "#liveBtn", title: "살아 보기", text: "눈높이로 걸어 보고, 볕·와이파이·동선을 봐요." },
       { sel: "#finBtn", title: "벽지 · 바닥", text: "실제 판매 중인 벽지와 바닥재로 바꿔 입혀 봐요." },
-      { sel: "#homeMenu", title: "저장 · 내 집", text: "저장, 다른 집 스캔, 도면·실측 넣기는 여기 모여 있어요." },
+      { sel: ".file-bar", title: "저장 · 불러오기", text: "꾸민 집을 저장하고, 저장해 둔 집을 불러와요. 새로 만들기로 다른 집도 스캔해 올릴 수 있어요." },
       { sel: "#orderMini", title: "구매 및 설치 신청", text: "마음에 들면 LGE.COM에서 구매하고, 설치 기사 방문을 바로 신청할 수 있어요." },
       { sel: "#botBtn", title: "하우니에게 물어보기", text: "\"600리터 넘는 냉장고\"처럼 말로 물어보면 제가 골라 드려요." },
       outro,
     ] : [
       intro,
-      { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인을 하나씩 해 나가면 차례로 체크돼요." },
+      { sel: ".file-bar", title: "저장 · 불러오기", text: "꾸민 집을 저장하고, 저장해 둔 집을 불러와요. 새로 만들기로 다른 집도 스캔해 올릴 수 있어요." },
       { sel: ".lib-side", title: "제품 찾기", text: "설치 방식, 품목, 가격 범위 순서로 좁혀요. 색상·용량 같은 조건은 '상세 필터'에 있고, 고른 조건은 목록 위에 칩으로 보여요." },
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
       { sel: "#lib", title: "제품 목록", text: "제품을 누르면 상세가 열리고, '넣어 보기'를 누르면 3D에 놓을 수 있어요." },

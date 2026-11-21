@@ -39,17 +39,18 @@ const emoji = /\p{Extended_Pictographic}/u;
   // ---- 와이파이 ----
   await page.click('[data-sim="wifi"]');
   await wait(500);
-  await page.click("#bestRouter");
+  // 공유기가 없으면 켜자마자 마우스에 붙는다: 방 가운데 바닥을 눌러 놓는다
+  { const [mx, my] = await toScreen([cx, cy]); await page.mouse.move(mx, my, { steps: 5 }); await wait(300); await page.mouse.click(mx, my); }
   await wait(4000);
   let pj = await j(`/api/projects/${pid}`);
   await page.waitForFunction(() => document.getElementById("viewer").viewer.routerInfo().visible, null, { timeout: 15000 }).catch(() => {});
   let ri = await v3("routerInfo");
   const r0 = pj.scene_state.router.center_xz;
-  check("공유기 3D 모델이 추천 자리에 놓임", ri.visible && Math.hypot(ri.pos[0] - r0[0], ri.pos[1] - r0[1]) < 0.01, JSON.stringify(ri));
+  check("공유기 3D 모델이 놓은 자리에 있음", ri.visible && Math.hypot(ri.pos[0] - r0[0], ri.pos[1] - r0[1]) < 0.01, JSON.stringify(ri));
   check("와이파이 화면에 그림 문자 없음", !emoji.test(await page.$eval("#overlay", (e) => e.innerHTML)) && !emoji.test(await page.textContent("#simres")));
   await page.screenshot({ path: path.join(OUT, "wifi-router-3d.png") });
   // 3D에서 공유기를 눌러 집고, R로 돌리고, 1.5 m 옮겨 내려놓기
-  const before = await page.textContent("#simres");
+  const before = await page.$eval("#overlay", (e) => e.innerHTML);
   let [sx, sy] = await toScreen(r0, 0.03);
   await page.mouse.click(sx, sy);
   await wait(300);
@@ -67,17 +68,17 @@ const emoji = /\p{Extended_Pictographic}/u;
   check("옮긴 자리·돌린 방향 저장", Math.hypot(rt.center_xz[0] - r0[0], rt.center_xz[1] - r0[1]) > 1 && Math.abs(rt.yaw_rad - Math.PI / 4) < 0.01, JSON.stringify(rt));
   ri = await v3("routerInfo");
   check("3D 공유기도 새 자리·방향", Math.hypot(ri.pos[0] - rt.center_xz[0], ri.pos[1] - rt.center_xz[1]) < 0.05 && Math.abs(ri.yaw - rt.yaw_rad) < 0.01, JSON.stringify(ri));
-  check("옮기면 신호를 다시 계산", (await page.textContent("#simres")) !== before);
+  check("옮기면 신호를 다시 계산", (await page.$eval("#overlay", (e) => e.innerHTML)) !== before);
   await page.screenshot({ path: path.join(OUT, "wifi-router-moved.png") });
 
   // ---- 동선 ----
-  // 리모델링하듯 교실 책상·의자를 치우고, 현관(문 안쪽)과 냉장고를 놓고 동선 보기
+  // 리모델링하듯 교실 책상·의자를 치우고, 출발 자리(문 안쪽)와 냉장고를 놓고 동선 보기
   await put(`/api/projects/${pid}/objects/hidden`, { hidden: true });
   const door = room.openings.find((o) => o.type === "door");
   const dw = room.walls.find((w) => w.wall_id === door.wall_id);
   const L = Math.hypot(dw.end[0] - dw.start[0], dw.end[1] - dw.start[1]), u = (door.offset_m + door.width_m / 2) / L;
   const d = [dw.start[0] + (dw.end[0] - dw.start[0]) * u, dw.start[1] + (dw.end[1] - dw.start[1]) * u];
-  await put(`/api/projects/${pid}/marks/entrance`, { center_xz: [d[0] + (cx - d[0]) * 0.1, d[1] + (cy - d[1]) * 0.1] });
+  await put(`/api/projects/${pid}/marks/start`, { center_xz: [d[0] + (cx - d[0]) * 0.1, d[1] + (cy - d[1]) * 0.1] });
   const far = [cx + (cx - d[0]) * 0.6, cy + (cy - d[1]) * 0.6];
   await j(`/api/projects/${pid}/placements`, { method: "POST", headers: { "content-type": "application/json" },
     body: JSON.stringify({ sku: "G646GBB031", center_xz: far, yaw_rad: 1.57 }) });
@@ -95,7 +96,7 @@ const emoji = /\p{Extended_Pictographic}/u;
   check("공유기는 와이파이 화면에서만", !(await v3("routerInfo")).visible);
   // 걷는 사람 가까이서 한 장
   await page.screenshot({ path: path.join(OUT, "flow-walker-3d.png") });
-  await page.click('[data-sim=""]');
+  await page.click('[data-sim="flow"]');
   await wait(500);
   check("동선을 끄면 사람도 사라짐", (await v3("walkersInfo")).length === 0);
   check("페이지 오류 없음", errors.length === 0, errors.join(" | "));

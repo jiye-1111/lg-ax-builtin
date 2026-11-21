@@ -256,6 +256,7 @@ def snap_door(segments: Iterable[tuple[g.Pt, g.Pt]], pose: Pose, width_m: float,
 # ---------- 판정 ----------
 MOUNTED = frozenset({"decor_door"})  # 벽에 겹쳐 다는 것 (문)
 WALL_LIKE = frozenset({"decor:wall", "decor:partition"})  # 문을 달 수 있는 배치
+DOOR_SKU = "decor:door"
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
 
 
@@ -305,7 +306,10 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     obstacles += [("object", o.object_id, rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d),
                    o.position[1] - o.bbox_m.h / 2, o.position[1] + o.bbox_m.h / 2)
                   for o in room.objects if o.object_id not in hidden]
+    wall_like = product.sku in WALL_LIKE
     for o in others:
+        if wall_like and o.get("sku") == DOOR_SKU:
+            continue  # 이 벽에 달린 문은 겹침으로 보지 않는다
         sw, sh, sd = o["size_m"]
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
         lo = float(o.get("base_m") or 0.0)

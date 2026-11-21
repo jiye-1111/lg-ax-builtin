@@ -68,3 +68,9 @@ def test_snap_door_onto_nearest_wall_line_facing_the_pointer_side():
     # 벽에서 멀면 그대로
     far = Pose((3.0, 1.0), 0.3)
     assert snap_door(segs, far, 0.9, snap_m=0.6) == far
+
+
+def test_wall_is_not_blamed_for_the_door_mounted_in_it():
+    door = {"placement_id": "pl9", "sku": "decor:door", "center_xz": [3.0, 2.0], "yaw_rad": UP, "size_m": [0.9, 2.1, 0.14]}
+    r = check_pose(room(), decor_product("decor:wall", [3.0, 2.4, 0.1]), Pose((3.0, 2.0), UP), CFG, others=[door])
+    assert "overlaps_placement" not in codes(r)
