@@ -1,4 +1,4 @@
-"""리모델링 화면 안내 구성 (지예 정정 목업): 3단계 진행, 설치 확인 카드, 구매·설치 신청, 첫 안내.
+"""리모델링 화면 안내 구성 (지예 정정 목업): 설치 확인 카드, 구매·설치 신청, 첫 안내.
 
 없는 기능을 가짜로 채우지 않는다: 검사 항목은 판정 코드(recommender.pose.LABELS)에서만 만들고,
 전원·배관처럼 데이터가 없는 것은 '기사 확인'으로 안내한다.
@@ -13,10 +13,35 @@ GUIDE = (WEB / "js" / "guide.js").read_text(encoding="utf-8")
 REMODEL = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
 
 
-def test_three_steps_in_order():
-    labels = re.findall(r'label: "([^"]+)"', GUIDE.split("export function stepState", 1)[1].split("export", 1)[0])
-    assert labels == ["공간 확인", "제품 고르기", "설치 확인"]
-    assert 'id="progress"' in REMODEL
+def test_no_step_indicator_and_familiar_file_buttons():
+    """지예: 단계를 굳이 나눌 필요 없다 → 진행 단계 표시는 없고, 머리에는 새로 만들기 · 불러오기 · 저장만."""
+    assert "stepState" not in GUIDE and 'id="progress"' not in REMODEL and "stepCard" not in REMODEL
+    head = REMODEL.split('<header class="studio-head">', 1)[1].split("</header>", 1)[0]
+    assert head.index("새로 만들기") < head.index("불러오기") < head.index(">저장<")
+    for el in ('id="newBtn"', 'id="loadBtn"', 'id="saveBtn"', 'href="#/new"'):
+        assert el in head, el
+    account = (WEB / "js" / "account.js").read_text(encoding="utf-8")
+    # '로그인 필요' 표시는 없고, 로그인 없이 저장·불러오기를 누르면 그때 안내한다
+    assert "로그인 필요" not in account and "로그인 필요" not in REMODEL
+    assert "저장하려면 로그인해 주세요." in account and "불러오려면 로그인해 주세요." in account
+    assert "return { save: () => manual(), open: history };" in account
+
+
+def test_live_panels_ask_for_as_little_as_possible():
+    """지예: 채광은 주소만 넣고 어느 향인지, 와이파이는 공유기 종류 고르고 놓기만, 동선은 '어디서 출발할까요?'."""
+    sims = REMODEL.split("const runDaylight", 1)[1].split("const SIMS", 1)[0]
+    for gone in ('id="north"', 'id="region"', 'id="sdate"', 'id="stime"', 'id="sheat"', "bestRouter", "가장 약한 곳",
+                 "mkEnt", "mkSink", "현관 지정", "싱크 위치 지정", "작업 삼각형", "dBm"):
+        assert gone not in sims, gone
+    assert 'id="addr"' in sims and "집이에요" in sims
+    assert sims.count("data-band=") == 2 and 'id="putRouter"' in sims and "잘 통해요" in sims
+    assert "어디서 출발할까요?" in sims and "viewer.personFollow" in REMODEL and "/marks/start" in REMODEL
+    # 길이 막힌 제품에는 ✕, 누르면 뺀다
+    assert 'class="flow-x"' in sims and 'method: "DELETE"' in sims.split("drawFlowX", 1)[1].split("trackFlowX", 1)[0]
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert "personFollow(xz)" in viewer and "doorExtras" in viewer
+    for k in ("sink", "door"):
+        assert (WEB / "models" / "furniture" / f"{k}.glb").exists() and (WEB / "img" / "decor" / f"{k}.webp").exists(), k
 
 
 def test_fit_rows_cover_every_reason_code():
@@ -49,7 +74,7 @@ def test_simple_layout_from_corrected_mockup():
     assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 5
     assert 'id="guideBar"' not in REMODEL and 'data-view="split"' not in REMODEL
     for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
-               'id="finBtn"', 'id="extraBtn"', 'id="homeMenu"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
+               'id="finBtn"', 'id="extraBtn"', 'id="saveBtn"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
         assert el in REMODEL, el
     # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품
     for path in ("/auto-align", "/auto-place", "/suggest"):
@@ -95,14 +120,12 @@ def test_three_areas_layout_and_feedback():
     # 가운데: 놓으면 그 자리로 시점 이동, 조작 메뉴는 고른 제품 위에 (상세 포함), 안 되면 이유와 고칠 방법
     assert "viewer.lookAt(r.placement.center_xz)" in REMODEL and 'actBtn("actInfo"' in REMODEL
     assert "const FIX = {" in REMODEL and ".act-bar.near" in css
-    # 위: STEP n / 3
-    assert "STEP ${i + 1} / ${n}" in guide
     # 오른쪽: 설치 체크(누르면 그 제품으로) · 합계와 신청 (지예: 이것만). 도면은 3D 구석 작은 지도로
     assert '.studio .side #mapSlot, .studio .side #suggSlot, .studio .side #plBox { display: none; }' in css
     for frag in ('id="chkBox"', 'id="mapSlot"', 'id="suggSlot"', 'id="orderTotal"', "focusPlacement", 'id="camMark"', "data-scat", "data-splace"):
         assert frag in REMODEL, frag
     # 저장 상태 다섯 가지
-    for word in ("저장 중…", "저장 실패", "저장 안 된 변경", "로그인 필요", "자동 저장됨"):
+    for word in ("저장 중…", "저장 실패", "저장 안 된 변경", "저장됨 · "):
         assert word in account, word
 
 
@@ -143,7 +166,7 @@ def test_combo_panel_and_haeuni_use_server_combos():
     assert 'id="comboBtn"' in REMODEL and "comboPopHtml()" in REMODEL
     assert "/assist" in REMODEL and "/style/ai`, { prompt })" not in REMODEL.split("botForm.onsubmit", 1)[1]
     css = (WEB / "studio.css").read_text(encoding="utf-8")
-    assert ".canvas > .sim-switches" in css and "#stepCard { display: none" in css
+    assert ".canvas > .sim-switches" in css
 
 
 def test_color_dots_only_for_products_with_a_color_name():

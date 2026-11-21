@@ -62,3 +62,19 @@ def test_work_triangle():
     r = plan_routes(room(), {"냉장고": (5, 1), "싱크": (5, 3), "쿡탑": (3, 3)}, CFG, triangle=("냉장고", "싱크", "쿡탑"))
     assert r["triangle"]["perimeter_m"] == pytest.approx(2 + 2 + (8 ** 0.5), abs=0.01)
     assert r["assumptions"]
+
+
+def test_start_point_replaces_the_entrance():
+    # 고객이 '어디서 출발할까요?'에 사람을 놓은 자리에서 출발한다 (문이 없는 방도 된다)
+    r = plan_routes(room().model_copy(update={"openings": []}), {"냉장고": (5.0, 2.0)}, CFG, start=(1.0, 2.0))
+    rt = r["routes"]["냉장고"]
+    assert rt["reachable"] and rt["length_m"] == pytest.approx(4.0, abs=0.1)
+    assert rt["path"][0] == pytest.approx([1.0, 2.0], abs=0.06)
+    assert r["start"] == pytest.approx([1.0, 2.0], abs=0.06)
+
+
+def test_open_door_makes_a_gap_in_a_blocking_wall():
+    wall = [(2.95, 0.0), (3.05, 0.0), (3.05, 4.0), (2.95, 4.0)]
+    assert plan_routes(room(), {"안쪽": (5.0, 2.0)}, CFG, extra=[wall])["routes"]["안쪽"]["reachable"] is False
+    gap = [(2.9, 1.5), (3.1, 1.5), (3.1, 2.5), (2.9, 2.5)]
+    assert plan_routes(room(), {"안쪽": (5.0, 2.0)}, CFG, extra=[wall], gaps=[gap])["routes"]["안쪽"]["reachable"] is True

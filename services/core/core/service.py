@@ -17,7 +17,7 @@ from recommender.cmf import rank_cmf
 from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, can_sit, settle_on, surface_under, Pose, check_pose, find_spot, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, WALL_LIKE, can_sit, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
@@ -684,9 +684,23 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if not snap:
             return pose
         gone = set((p or {}).get("scene_state", {}).get("hidden_walls") or [])
+        if prod.sku == self.DOOR:  # 문은 스캔 벽이나 가벽 가운데 줄에 단다
+            return snap_door(self._wall_lines(room, p, gone), pose, prod.product_dims_mm.w / 1000)
         if gone:  # 철거한 벽에는 붙지 않는다
             room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
         return snap_to_wall(room, prod, pose, self.fit_cfg)
+
+    @staticmethod
+    def _wall_lines(room: Room, p: dict | None, gone: set[str]) -> list[tuple[tuple[float, float], tuple[float, float]]]:
+        """문을 달 수 있는 선: 남아 있는 스캔 벽과 놓은 가벽·파티션의 가운데 줄."""
+        import math as _m
+        lines = [(tuple(w.start), tuple(w.end)) for w in room.walls if w.wall_id not in gone]
+        for x in (p or {}).get("scene_state", {}).get("placements", []):
+            if x.get("sku") in WALL_LIKE and x.get("size_m"):
+                u, half = x["yaw_rad"] - _m.pi / 2, x["size_m"][0] / 2
+                (cx, cz), dx, dz = x["center_xz"], _m.cos(u) * half, _m.sin(u) * half
+                lines.append(((cx - dx, cz - dz), (cx + dx, cz + dz)))
+        return lines
 
     def _settle(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None) -> Pose:
         """올려 두는 가전이 윗면 가장자리에 걸치면 다 올라오는 자리로 당긴다."""
@@ -1295,7 +1309,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return {"center_xz": [round(spot[0], 3), round(spot[1], 3)], "min_dbm": round(worst, 1), "band": band}
 
     # ---- 살아 보기: 동선 (S8) ----
-    MARKS = {"sink": "싱크", "entrance": "현관"}
+    MARKS = {"sink": "싱크대", "entrance": "현관", "start": "출발"}
+    DOOR, SINK = "decor:door", "decor:sink"
+    DOOR_GAP_DEPTH_M = 0.5  # 문 자리에서 벽 두께를 넘겨 트는 깊이
 
     def set_mark(self, pid: str, name: str, center_xz=None) -> dict:
         if name not in self.MARKS:
@@ -1305,8 +1321,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if center_xz is None:
             marks.pop(name, None)
         else:
-            if len(center_xz) != 2:
-                raise Invalid("center_xz는 [x, z]")
+            if len(center_xz) != 2 or not all(math.isfinite(float(v)) for v in center_xz):
+                raise Invalid("center_xz는 숫자 [x, z]")
             marks[name] = [float(center_xz[0]), float(center_xz[1])]
         return self._save_project(p)
 
@@ -1330,7 +1346,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                     return (w.start[0] + (w.end[0] - w.start[0]) * u, w.start[1] + (w.end[1] - w.start[1]) * u)
                 keep = min(doors, key=lambda o: _m.dist(dpos(o), (ex, ey)))
                 room = room.model_copy(update={"openings": [o for o in room.openings if o.type == "window" or o is keep]})
-        targets, extra, names, cats = {}, [], {}, {}
+        targets, extra, gaps, names, cats, sink_at = {}, [], [], {}, {}, None
         for x in p["scene_state"]["placements"]:
             if not x.get("size_m") or not x.get("placement_id"):
                 continue
@@ -1338,27 +1354,30 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             yaw = x["yaw_rad"]
             if is_flat(x["sku"]):  # 러그는 밟고 지나간다
                 continue
+            if x["sku"] == self.DOOR and x.get("verdict") != "no_fit":  # 열리는 문은 벽에 난 길
+                gaps.append(rect(tuple(x["center_xz"]), yaw - _m.pi / 2, w, max(d, self.DOOR_GAP_DEPTH_M)))
+                continue
             extra.append(rect(tuple(x["center_xz"]), yaw - _m.pi / 2, w, d))
+            reach = d / 2 + 0.35  # 제품 정면 앞에 서는 자리
+            if x["sku"] == self.SINK:  # 놓은 싱크대 앞이 작업 삼각형의 싱크 자리
+                sink_at = (x["center_xz"][0] + _m.cos(yaw) * reach, x["center_xz"][1] + _m.sin(yaw) * reach)
             if is_decor(x["sku"]):  # 가구·가벽은 피해 가기만, 걸어가는 목적지는 LG 가전
                 continue
-            reach = d / 2 + 0.35  # 제품 정면 앞에 서는 자리
             targets[x["placement_id"]] = (x["center_xz"][0] + _m.cos(yaw) * reach, x["center_xz"][1] + _m.sin(yaw) * reach)
             try:
                 prod = self._item(x["sku"], x.get("size_m"))
                 names[x["placement_id"]], cats[x["placement_id"]] = prod.name, prod.category
             except KeyError:
                 names[x["placement_id"]] = x["sku"]
-        for k, v in marks.items():
-            if k != "entrance":
-                targets[k] = tuple(v)
-                names[k] = self.MARKS[k]
+        if sink_at or "sink" in marks:
+            targets["sink"], names["sink"] = sink_at or tuple(marks["sink"]), self.MARKS["sink"]
         tri = None
         fr = next((k for k, c in cats.items() if c in ("refrigerator", "kimchi_refrigerator")), None)
         ck = next((k for k, c in cats.items() if c == "cooktop"), None)
         if fr and ck and "sink" in targets:
             tri = (fr, "sink", ck)
         out = plan_routes(room, targets, FlowConfig.from_env(), hidden=p["scene_state"].get("hidden_objects") or [],
-                          extra=extra, triangle=tri)
+                          extra=extra, triangle=tri, start=marks.get("start"), gaps=gaps)
         out["names"] = names
         out["marks"] = marks
         return out

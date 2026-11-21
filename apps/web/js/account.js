@@ -210,43 +210,25 @@ export async function adminPage() {
   draw();
 }
 
-// ---------- 리모델링 화면: 저장 막대 ----------
+// ---------- 리모델링 화면: 저장 · 불러오기 ----------
 const AUTO_EVERY_MS = 10000;
 /**
  * 로그인했으면 꾸민 상태를 서버 저장본으로 남긴다.
  * - 자동 저장: 10초마다 바뀐 게 있으면 자동 저장 한 칸을 덮어쓴다 (창을 닫거나 다른 화면으로 갈 때도)
- * - 수동 저장: 저장 버튼이나 Ctrl+S(맥은 ⌘S). 이름 붙인 저장본이 쌓이고, 저장 기록에서 되돌릴 수 있다
+ * - 수동 저장: 저장 버튼이나 Ctrl+S(맥은 ⌘S). 이름 붙인 저장본이 쌓이고, 불러오기에서 다시 꺼낼 수 있다
+ * el에는 저장 상태 한 줄만 그린다. 버튼은 화면 머리에 있고, 돌려주는 save()·open()을 부른다.
+ * 로그인을 안 했으면 아무것도 그리지 않고, 저장·불러오기를 누를 때 로그인을 안내한다.
  */
 export function mountSaveBar(el, pid, shareToken) {
   let can = false, lastAuto = null, busy = false, lastAt = null, why = "", failed = false, dirty = false;
-  // 머리의 '저장' 메뉴 글자도 같은 상태로 (저장됨·저장 중·저장 안 된 변경·로그인 필요·저장 실패)
-  const tell = (kind, text) => el.dispatchEvent(new CustomEvent("savestate", { bubbles: true, detail: { kind, text } }));
-  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
   let shown = "";
-  const paint = (html, wire) => { if (html !== shown) { shown = html; el.innerHTML = html; wire?.(); } };
+  const paint = (html) => { if (html !== shown) { shown = html; el.innerHTML = html; } };
   const draw = () => {
-    const u = currentUser();
-    if (!u) {
-      tell("off", "로그인 필요");
-      return paint(`<span class="save-state off"><i></i>저장 안 됨</span><button class="small primary" id="svLogin">로그인하고 저장</button>`, () => {
-        el.querySelector("#svLogin").onclick = () => openLogin({ reason: "로그인하면 지금 꾸민 집이 서버에 저장되고, 다른 기기에서도 이어서 꾸밀 수 있어요." });
-      });
-    }
-    if (!can) { tell("off", why ? "보기만 돼요" : "확인 중…"); return paint(`<span class="save-state off" title="${esc(why)}"><i></i>${esc(why || "확인 중…")}</span>`); }
-    // 상태 글자만 바뀔 때는 버튼을 그대로 두고 글자만 고친다
+    if (!currentUser()) return paint("");
+    if (!can) return paint(`<span class="save-state off" title="${esc(why)}"><i></i>${esc(why || "확인 중…")}</span>`);
     const [kind, text] = busy ? ["busy", "저장 중…"] : failed ? ["fail", "저장 실패 · 다시 시도할게요"] : dirty ? ["dirty", "저장 안 된 변경 있음"]
-      : lastAt ? ["ok", `자동 저장됨 · ${agoKo(lastAt)}`] : ["ok", "서버에 저장돼요"];
-    tell(kind, kind === "ok" && lastAt ? `저장됨 · ${agoKo(lastAt)}` : text);
-    const state = `<i></i>${text}`;
-    const st = el.querySelector(".save-state.live");
-    if (st && el.querySelector("#svNow")) { st.className = `save-state live ${kind}`; if (st.innerHTML !== state) st.innerHTML = state; return; }
-    paint(`
-      <span class="save-state live ${kind}" aria-live="polite">${state}</span>
-      <button class="small" id="svNow" title="지금 상태를 저장본으로 남겨요 (${mac ? "⌘S" : "Ctrl+S"})">저장 <kbd>${mac ? "⌘S" : "Ctrl+S"}</kbd></button>
-      <button class="small ghost" id="svList">저장 기록</button>`, () => {
-      el.querySelector("#svNow").onclick = () => manual();
-      el.querySelector("#svList").onclick = () => history();
-    });
+      : lastAt ? ["ok", `저장됨 · ${agoKo(lastAt)}`] : ["ok", "자동으로 저장돼요"];
+    paint(`<span class="save-state live ${kind}"><i></i>${text}</span>`);
   };
   const version = async () => (await api(`/api/projects/${pid}/version`)).version;
   // 로그인하면: 주인 없는 집이면 내 계정으로 가져오고, 저장할 수 있는지 확인
@@ -293,14 +275,15 @@ export function mountSaveBar(el, pid, shareToken) {
     } finally { busy = false; draw(); }
   });
   const history = () => {
+    if (!currentUser()) { openLogin({ reason: "불러오려면 로그인해 주세요." }); return; }
     document.querySelector("dialog.saves")?.remove();
     const dlg = document.createElement("dialog");
     dlg.className = "saves";
     dlg.setAttribute("aria-labelledby", "svH");
     dlg.innerHTML = `<div class="saves-in">
       <button type="button" class="auth-x" aria-label="닫기">×</button>
-      <h2 id="svH">저장 기록</h2>
-      <p class="sub">되돌리면 그 저장본의 제품 배치·마감재·영역·실측값으로 바뀌어요. 지금 상태는 자동 저장에 먼저 남겨 둬요.</p>
+      <h2 id="svH">불러오기</h2>
+      <p class="sub">저장해 둔 집을 골라 불러와요. 지금 상태는 자동 저장에 먼저 남겨 둬요.</p>
       <form class="row" id="svForm"><input name="label" maxlength="60" placeholder="이름 붙여 저장 (예: 화이트 주방 1안)" aria-label="저장본 이름"><button class="primary">저장</button></form>
       <ul class="saves-list" id="svUl"><li class="muted">불러오는 중…</li></ul></div>`;
     document.body.append(dlg);
@@ -313,17 +296,17 @@ export function mountSaveBar(el, pid, shareToken) {
         <li><div><span><b>${esc(s.label)}</b>${s.kind === "auto" ? ` <span class="badge src">10초마다</span>` : ""}</span>
           <span class="muted">${timeKo(s.saved_at)} · ${esc(s.by_name)} · 제품 ${s.placements}개 · 영역 ${s.zones}개</span></div>
           <span class="spacer"></span>
-          <button class="small ghost" data-restore="${esc(s.save_id)}">되돌리기</button>
+          <button class="small ghost" data-restore="${esc(s.save_id)}">불러오기</button>
           ${s.kind === "manual" ? `<button class="small danger" data-del="${esc(s.save_id)}" aria-label="${esc(s.label)} 지우기">지우기</button>` : ""}</li>`).join("")
         : `<li class="muted">아직 저장본이 없어요. 위에서 이름을 붙여 저장해 보세요.</li>`;
       dlg.querySelectorAll("[data-restore]").forEach((b) => (b.onclick = guard(async () => {
-        if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "한 번 더 누르면 되돌려요"; b.classList.add("primary"); return; }
+        if (b.dataset.armed !== "1") { b.dataset.armed = "1"; b.textContent = "한 번 더 누르면 불러와요"; b.classList.add("primary"); return; }
         b.disabled = true;
         const auto = list.find((x) => x.kind === "auto");
         if (b.dataset.restore !== auto?.save_id) await autoSave(); // 되돌리기 전 상태를 자동 저장에 남김
         await post(`/api/projects/${pid}/saves/${encodeURIComponent(b.dataset.restore)}/restore`, {});
         lastAuto = null;
-        toast("저장본으로 되돌렸어요");
+        toast("저장해 둔 집을 불러왔어요");
         dlg.close();
         autoSave();
       })));
@@ -362,4 +345,5 @@ export function mountSaveBar(el, pid, shareToken) {
   }
   cleanup.push(() => { autoSave(true); dispose(); });
   setup();
+  return { save: () => manual(), open: history };
 }

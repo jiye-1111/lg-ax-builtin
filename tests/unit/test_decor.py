@@ -39,3 +39,8 @@ def test_size_is_clamped_to_sane_range():
 def test_unknown_decor_raises():
     with pytest.raises(KeyError):
         decor_product("decor:spaceship")
+
+
+def test_sink_and_door_are_in_the_library():
+    assert DECOR["sink"]["group"] == "storage" and DECOR["sink"]["label"] == "싱크대"
+    assert DECOR["door"]["group"] == "structure" and DECOR["door"]["label"] == "문"

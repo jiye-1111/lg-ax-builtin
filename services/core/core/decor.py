@@ -15,10 +15,12 @@ PREFIX = "decor:"
 MIN_MM, MAX_MM = 10, 8000
 
 # group: structure(벽체·구조) · furniture(가구) · storage(수납·선반) · decor(소품)
-# size_mm: 기본 크기 (w, h, d). flat: 다른 것과 겹쳐도 되는 바닥 깔개
+# size_mm: 기본 크기 (w, h, d). flat: 다른 것과 겹쳐도 되는 바닥 깔개. swing: 앞으로 여는 문 (열림 공간 = 폭)
 DECOR: dict[str, dict] = {
     "wall": {"label": "벽 추가", "name": "가벽", "group": "structure", "model": "wall", "size_mm": (2000, 2400, 100)},
     "partition": {"label": "파티션", "group": "structure", "model": "partition", "size_mm": (1200, 2100, 50)},
+    # 문: 벽·가벽에 겹쳐 단다. 앞쪽으로 문짝 폭만큼 비어 있어야 열린다 (swing)
+    "door": {"label": "문", "group": "structure", "model": "door", "size_mm": (900, 2100, 140), "swing": True},
     "sofa": {"label": "소파", "group": "furniture", "model": "sofa", "size_mm": (2000, 850, 900)},
     "table": {"label": "식탁", "group": "furniture", "model": "table", "size_mm": (1600, 740, 800)},
     "chair": {"label": "의자", "group": "furniture", "model": "chair", "size_mm": (500, 850, 520)},
@@ -28,6 +30,7 @@ DECOR: dict[str, dict] = {
     "storage": {"label": "수납장", "group": "storage", "model": "storage", "size_mm": (1000, 1900, 450)},
     "shelf": {"label": "선반", "group": "storage", "model": "shelf", "size_mm": (800, 1800, 300)},
     "dresser": {"label": "서랍장", "group": "storage", "model": "dresser", "size_mm": (800, 900, 450)},
+    "sink": {"label": "싱크대", "group": "storage", "model": "sink", "size_mm": (1200, 880, 600)},
     "basecab": {"label": "주방 하부장", "group": "storage", "model": "basecab", "size_mm": (1200, 850, 600)},
     "island": {"label": "아일랜드", "group": "storage", "model": "island", "size_mm": (1800, 900, 900)},
     "tvstand": {"label": "거실장", "group": "storage", "model": "tvstand", "size_mm": (1600, 450, 400)},
@@ -63,7 +66,7 @@ def _clamp(v: float) -> float:
 
 
 def decor_product(sku: str, size_m: Sequence[float] | None = None) -> Product:
-    """판정용 Product. size_m(m)을 주면 그 크기, 없으면 기본 크기. 이격·문 열림은 0 (가구라 필요 없음)."""
+    """판정용 Product. size_m(m)을 주면 그 크기, 없으면 기본 크기. 이격은 0 (가구라 필요 없음). 문만 앞쪽 열림 공간을 본다."""
     key = kind_of(sku)
     d = DECOR[key]
     if size_m and not all(math.isfinite(v) for v in size_m):
@@ -71,4 +74,4 @@ def decor_product(sku: str, size_m: Sequence[float] | None = None) -> Product:
     w, h, dp = (v * 1000 for v in size_m) if size_m else d["size_mm"]
     return Product(sku=PREFIX + key, name=d.get("name", d["label"]), category=f"decor_{key}", zone_fit=[], install_type="freestanding",
                    product_dims_mm=Dims(w=_clamp(w), h=_clamp(h), d=_clamp(dp)),
-                   clearance_mm=Clearance(side=0, top=0, back=0), source_url=None, source_checked_at=None)
+                   clearance_mm=Clearance(side=0, top=0, back=0), door_swing_mm=_clamp(w) if d.get("swing") else None, source_url=None, source_checked_at=None)

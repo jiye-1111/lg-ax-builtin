@@ -40,6 +40,7 @@ LABELS = {
     "clearance_unknown": "이격 정보 없음 (제품 치수만으로 판단)",
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
+    "not_on_wall": "문은 벽이나 가벽에 달아 주세요",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
     "surface_overhang": "올려 둔 가구 밖으로 나옴",
@@ -229,7 +230,37 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Po
     return Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
 
 
+def snap_door(segments: Iterable[tuple[g.Pt, g.Pt]], pose: Pose, width_m: float, snap_m: float = 0.6) -> Pose:
+    """문 달기: 가까운 벽 선(스캔 벽·가벽의 가운데 줄, snap_m 안)에 문 가운데를 올리고, 누른 쪽으로 열리게 돌린다.
+    벽 끝을 넘지 않게 당긴다. 가까운 벽이 없으면 그대로."""
+    best = None
+    for a, b in segments:
+        d = g.point_segment_distance(pose.center_xz, tuple(a), tuple(b))
+        if d <= snap_m and (best is None or d < best[0]):
+            best = (d, tuple(a), tuple(b))
+    if best is None:
+        return pose
+    _, a, b = best
+    L = math.dist(a, b) or 1e-9
+    ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+    px, py = pose.center_xz[0] - a[0], pose.center_xz[1] - a[1]
+    half = width_m / 2
+    t = px * ux + py * uy
+    t = min(max(t, half), L - half) if L >= width_m else L / 2
+    side = -px * uy + py * ux  # 벽 선의 어느 쪽을 눌렀나
+    if abs(side) < 1e-6:  # 선 위를 눌렀으면 지금 보던 쪽에 가까운 방향
+        side = -math.cos(pose.yaw_rad) * uy + math.sin(pose.yaw_rad) * ux
+    nx, ny = (-uy, ux) if side >= 0 else (uy, -ux)
+    return Pose((round(a[0] + ux * t, 4), round(a[1] + uy * t, 4)), math.atan2(ny, nx))
+
+
 # ---------- 판정 ----------
+MOUNTED = frozenset({"decor_door"})  # 벽에 겹쳐 다는 것 (문)
+WALL_LIKE = frozenset({"decor:wall", "decor:partition"})  # 문을 달 수 있는 배치
+DOOR_SKU = "decor:door"
+DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
+
+
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
                others: Iterable[dict] = (), hidden: Iterable[str] = (), host: Optional[dict] = None) -> PoseResult:
     """host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
@@ -264,7 +295,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         P = rect(c, yaw, w_m, d_m, back=-(d_m + start), front=start + cfg.passage_mm / 1000)
     passage_ref = None
 
-    if not inside_room(room, c):
+    mounted = product.category in MOUNTED
+    if not mounted and not inside_room(room, c):  # 문은 바깥벽 가운데 줄에 달리므로 방 안팎을 따지지 않는다
         add("outside_room", Verdict.NO_FIT)
 
     hidden = set(hidden)  # 치운 가구 id + 철거한 벽 id
@@ -275,11 +307,15 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     obstacles += [("object", o.object_id, rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d),
                    o.position[1] - o.bbox_m.h / 2, o.position[1] + o.bbox_m.h / 2)
                   for o in room.objects if o.object_id not in hidden]
+    wall_like = product.sku in WALL_LIKE
     for o in others:
+        if wall_like and o.get("sku") == DOOR_SKU:
+            continue  # 이 벽에 달린 문은 겹침으로 보지 않는다
         sw, sh, sd = o["size_m"]
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
         lo = float(o.get("base_m") or 0.0)
-        obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
+        kind = "wall" if mounted and o.get("sku") in WALL_LIKE else "placement"  # 문에게 가벽은 벽
+        obstacles.append((kind, o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
     host_id = host["id"] if host else None
     # 올려 둔 가구 자신, 그리고 높이가 겹치지 않는 것(윗면보다 낮은 바닥 물건 등)은 뺀다
     # (바닥에 놓을 때 스캔 가구는 높이를 따지지 않고 전처럼 다 본다: 스캔 높이는 믿기 어렵다)
@@ -289,17 +325,23 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("surface_overhang", Verdict.NO_FIT, host_id)
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
+    on_wall = False
     for kind, ref, poly, _lo, _hi in obstacles:
+        if mounted and kind == "wall" and overlaps(F, poly):
+            on_wall = True
+            continue  # 문이 달린 벽
         if overlaps(F, poly):
             add(hit_code[kind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
             add("clearance_blocked", Verdict.NO_FIT, ref)
         elif D is not None and overlaps(D, poly):
-            add("front_blocked", Verdict.NO_FIT, ref)
+            add("front_blocked", Verdict.NO_FIT, ref, label=DOOR_BLOCKED_LABEL if mounted else None)
         elif overlaps(M, poly):
             add("tight", Verdict.CONDITIONAL, ref)
         elif P is not None and passage_ref is None and overlaps(P, poly):
             passage_ref = ref
+    if mounted and not on_wall:
+        add("not_on_wall", Verdict.NO_FIT)
     if passage_ref is not None and not any(r["code"] == "front_blocked" for r in reasons):
         add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
             label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")

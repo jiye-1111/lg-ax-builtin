@@ -184,3 +184,35 @@ def test_plant_in_open_floor_is_fit_after_clearing(c, pid):
     mid = [(min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2]
     r = c.post(f"/api/projects/{pid}/pose-check", json={"sku": "decor:plant", "center_xz": mid, "yaw_rad": 0, "snap": False}).json()
     assert r["verdict"] == "fit", r["reasons"]
+
+
+def test_placed_sink_is_the_sink_of_the_work_triangle(c, pid):
+    sink = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:sink"}).json()["placement"]
+    f = c.get(f"/api/projects/{pid}/sim/flow").json()
+    assert sink["placement_id"] not in f["routes"]
+    assert "sink" in f["routes"] and f["names"]["sink"] == "싱크대"
+
+
+def test_start_mark_is_where_the_walk_begins(c, pid):
+    lg = c.post(f"/api/projects/{pid}/auto-place", json={"sku": SKU}).json()["placement"]
+    x, z = lg["center_xz"]
+    import math
+    spot = [x + math.cos(lg["yaw_rad"]) * 1.5, z + math.sin(lg["yaw_rad"]) * 1.5]
+    assert c.put(f"/api/projects/{pid}/marks/start", json={"center_xz": spot}).status_code == 200
+    f = c.get(f"/api/projects/{pid}/sim/flow").json()
+    assert f["start"] == pytest.approx(spot, abs=0.3)
+    assert f["routes"][lg["placement_id"]]["length_m"] < 2.0
+
+
+def test_door_snaps_into_a_partition_wall_and_tells_if_it_opens(c, pid):
+    wall = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:wall", "size_m": [2.4, 2.4, 0.1]}).json()["placement"]
+    import math
+    mid = wall["center_xz"]
+    # 벽 옆 20 cm를 눌러도 벽 한가운데 줄에 달린다
+    near = [mid[0] + math.cos(wall["yaw_rad"]) * 0.2, mid[1] + math.sin(wall["yaw_rad"]) * 0.2]
+    r = c.post(f"/api/projects/{pid}/placements", json={"sku": "decor:door", "center_xz": near, "yaw_rad": 0.0})
+    assert r.status_code in (200, 201), r.text
+    door = r.json()["placement"]
+    assert door["center_xz"] == pytest.approx(mid, abs=0.01)
+    assert "hits_wall" not in {x["code"] for x in door["reasons"]} and "overlaps_placement" not in {x["code"] for x in door["reasons"]}
+    assert abs(math.cos(door["yaw_rad"] - wall["yaw_rad"])) == pytest.approx(1, abs=1e-6)
