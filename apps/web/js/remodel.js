@@ -91,13 +91,13 @@ export async function customer(pid) {
           <button class="furn-btn" id="extraBtn" aria-expanded="false" aria-controls="extraPop" title="도면을 올리거나 줄자로 잰 벽 길이를 넣어요">도면·실측</button>
           <span class="spacer"></span>
           <div class="icon-row" role="group" aria-label="되돌리기">
-            <button class="icon-btn" id="undo" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
-            <button class="icon-btn" id="redo" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
-            <button class="icon-btn" id="furn" aria-pressed="false" aria-label="가구 치우기" title="가구 치우기: 가구마다 뜨는 ✕를 눌러요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a2 2 0 0 1 2-2h4M4 12h9a2 2 0 0 1 2 2v3H4zM5 17v2M14 17v2"/><path d="m16 4 5 5M21 4l-5 5"/></svg></button>
-            <button class="icon-btn" id="beforeBtn" aria-pressed="false" aria-label="처음 모습 보기" title="누르고 있는 동안 처음 모습을 보여 줘요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/><path d="m7.5 10-2 2 2 2M16.5 10l2 2-2 2"/></svg></button>
-            <button class="icon-btn" id="fullBtn" aria-label="전체 화면" title="전체 화면"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
-            <button class="icon-btn" id="tourBtn" aria-label="화면 안내 다시 보기" title="화면 안내 다시 보기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
-            <button class="icon-btn" id="keysBtn" aria-expanded="false" aria-controls="keysPop" aria-label="조작키" title="마우스·키보드 조작 방법"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></button>
+            <button class="icon-btn" id="undo" data-l="되돌리기" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+            <button class="icon-btn" id="redo" data-l="다시" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+            <button class="icon-btn" id="furn" data-l="가구 치우기" aria-pressed="false" aria-label="가구 치우기" title="가구 치우기: 가구마다 뜨는 ✕를 눌러요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a2 2 0 0 1 2-2h4M4 12h9a2 2 0 0 1 2 2v3H4zM5 17v2M14 17v2"/><path d="m16 4 5 5M21 4l-5 5"/></svg></button>
+            <button class="icon-btn" id="beforeBtn" data-l="처음 모습" aria-pressed="false" aria-label="처음 모습 보기" title="누르고 있는 동안 처음 모습을 보여 줘요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/><path d="m7.5 10-2 2 2 2M16.5 10l2 2-2 2"/></svg></button>
+            <button class="icon-btn" id="fullBtn" data-l="전체 화면" aria-label="전체 화면" title="전체 화면"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+            <button class="icon-btn" id="tourBtn" data-l="안내" aria-label="화면 안내 다시 보기" title="화면 안내 다시 보기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
+            <button class="icon-btn" id="keysBtn" data-l="조작키" aria-expanded="false" aria-controls="keysPop" aria-label="조작키" title="마우스·키보드 조작 방법"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></button>
           </div>
         </div>
         <div class="live-bar" id="liveBar" role="group" aria-label="살아 보기" hidden>
@@ -111,8 +111,11 @@ export async function customer(pid) {
             <button class="pip-swap" data-swap="plan" title="평면도를 크게 보기">평면도 보기</button></div>
           <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
             <button class="pip-swap" data-swap="3d" title="3D를 크게 보기">3D 보기</button>
-            <button class="render-btn" id="render">실사로 보기</button>
-            <button class="walk-btn" id="walk" aria-pressed="false" aria-label="집 안 걸어 보기" title="집 안에 들어가 눈높이로 걸어 봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M8.5 21l1.5-6-2-2.5V10a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2.5L14 15l1.5 6"/></svg><span>나가기</span></button>
+            <div class="view-stack" role="group" aria-label="보기 바꾸기">
+              <button class="vbtn on" id="viewTop" aria-pressed="true" title="위에서 내려다봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>위에서</span></button>
+              <button class="vbtn" id="walk" aria-pressed="false" title="집 안에 들어가 눈높이로 걸어 봐요 (W A S D)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.5"/><path d="M8.5 21l1.5-6-2-2.5V10a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2.5L14 15l1.5 6"/></svg><span>걸어 보기</span></button>
+              <button class="vbtn" id="render" title="지금 보는 장면을 사진처럼 만들어요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2"/><circle cx="12" cy="12.5" r="3.5"/><path d="M8 6l1.5-2h5L16 6"/></svg><span>실사</span></button>
+            </div>
             <div class="before-pane" id="beforePane" hidden><div class="viewer" id="beforeViewer"></div><span class="before-tag">스캔했을 때 모습</span></div></div>
           <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
@@ -295,11 +298,13 @@ export async function customer(pid) {
     const b = document.getElementById("walk");
     b.classList.toggle("on", walking);
     studio.classList.toggle("walking", walking);
-    b.setAttribute("aria-pressed", walking); b.setAttribute("aria-label", walking ? "걷기 나가기" : "집 안 걸어 보기");
+    b.setAttribute("aria-pressed", walking);
+    const top = document.getElementById("viewTop"); top.classList.toggle("on", !walking); top.setAttribute("aria-pressed", !walking);
     setHint();
     if (walking) document.getElementById("hint").textContent = "둘러보기: 화면을 누르면 마우스로 둘러봐요 · W A S D 걷기 · Shift 빠르게 · Esc 마우스 풀기 · 벽·가구·제품은 못 지나가요";
   };
-  document.getElementById("walk").onclick = () => setWalking(!walking);
+  document.getElementById("walk").onclick = () => setWalking(true);
+  document.getElementById("viewTop").onclick = () => setWalking(false);
   // 살아 보기: 버튼 하나로 들어가서 둘러보기·채광·와이파이·동선을 고른다 (켜고 끄는 토글 줄은 이 안에만)
   const liveBtn = document.getElementById("liveBtn"), liveBar = document.getElementById("liveBar");
   const setLive = (on) => {
@@ -307,7 +312,7 @@ export async function customer(pid) {
     studio.classList.toggle("living", on);
   };
   liveBtn.onclick = () => (liveBar.hidden ? setLive(true) : endLive());
-  const endLive = () => { if (walking) setWalking(false); if (sim) { sim = ""; saveUiState(pid, { sim }); showSim(); } setLive(false); };
+  const endLive = () => { if (walking) setWalking(false); if (sims.size) { sims.clear(); saveSims(); showSim(); } setLive(false); };
   document.getElementById("liveEnd").onclick = endLive;
   studio.querySelectorAll(".toolbar [data-view]").forEach((b) => (b.onclick = () => setView(b.dataset.view)));
   studio.querySelectorAll("[data-swap]").forEach((b) => (b.onclick = () => setView(b.dataset.swap)));
@@ -316,7 +321,8 @@ export async function customer(pid) {
   let wallPicking = false, removeWall = () => {}; // 벽 철거: 3D에서 벽을 눌러 고르는 중 (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
-    canDrag: () => mode === "move" && !armed && !armedRouter && !armedStart,
+    // 고른 제품만 끌어서 옮긴다. 안 고른 제품 위에서 끌면 화면이 돌아간다 (실수로 밀리지 않게)
+    canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl,
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
     onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
     onHover: (p) => { hovering = true; follow(p); },
@@ -373,7 +379,13 @@ export async function customer(pid) {
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let tabletop = () => false; // 카탈로그를 받은 뒤 채운다
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
-  let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" };
+  const sims = new Set(); // 켜 둔 살아 보기 (채광·와이파이·동선을 같이 켤 수 있다)
+  const SIM_ORDER = ["daylight", "wifi", "flow"], SIM_KO = { daylight: "채광", wifi: "와이파이", flow: "동선" };
+  const simOn = (k) => sims.has(k);
+  const saveSims = () => saveUiState(pid, { sims: [...sims] });
+  const secOf = (k) => document.querySelector(`#simctl [data-sec="${k}"]`);
+  const ctlOf = (k) => secOf(k)?.querySelector(".sim-ctl"), resOf = (k) => secOf(k)?.querySelector(".sim-res");
+  let overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00" };
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
   // 공간 꾸미기 가구 (제품 정보 없이 모양만, sku = "decor:종류"). 주문·설치 신청에는 넣지 않는다
   let decorList = [];
@@ -991,14 +1003,14 @@ export async function customer(pid) {
       viewer.personFollow(null);
       guard(async () => {
         try { project = await put(`/api/projects/${pid}/marks/start`, { center_xz: p }); }
-        finally { if (sim === "flow") await flowCtl(); } // 저장이 안 됐으면 flowCtl이 다시 묻는다
+        finally { if (simOn("flow")) await flowCtl(); } // 저장이 안 됐으면 flowCtl이 다시 묻는다
       })();
       return true;
     }
     if (armedRouter && !armed) {
       armedRouter = false;
       viewer.routerFollow(null); // 서버가 높이까지 정해 돌려주면 그 자리로 (실패하면 원래 자리)
-      guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (sim === "wifi") await wifiCtl(); })();
+      guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (simOn("wifi")) await wifiCtl(); })();
       return true;
     }
     if (wallDraw) { wallPoint(p); return true; }
@@ -1110,7 +1122,7 @@ export async function customer(pid) {
     if (it.kind === "router") {
       // 공유기를 내려놓으면 그 자리에서 신호를 다시 계산한다
       project = await put(`/api/projects/${pid}/router`, { center_xz: it.xz, yaw_rad: it.yaw, band });
-      if (sim === "wifi") await runWifi();
+      if (simOn("wifi")) await runWifi();
       return;
     }
     if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false }) });
@@ -1566,14 +1578,16 @@ export async function customer(pid) {
     const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
     const shot = viewer.snapshot();
     selPl = keepSel; draw();
-    b.disabled = true; b.textContent = "실사로 만드는 중… (30초쯤)";
+    const label = b.querySelector("span");
+    b.disabled = true; b.classList.add("busy"); label.textContent = "만드는 중";
+    toast("실사로 만드는 중이에요 (30초쯤)");
     try {
       const r = await post(`/api/projects/${pid}/photoreal`, shot);
       showShot(apiUrl(r.url), "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
     } catch (err) {
       if (err.status !== 503 && err.status !== 429) throw err;
       toast(err.message, true);
-    } finally { b.disabled = false; b.textContent = "실사로 보기"; }
+    } finally { b.disabled = false; b.classList.remove("busy"); label.textContent = "실사"; }
   });
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
 
@@ -1717,7 +1731,7 @@ export async function customer(pid) {
 
   const draw = () => {
     pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
-      selectedPl: selPl, selectedObj: selObj, overlay, northDeg: sim === "daylight" ? project.site?.north_deg ?? 0 : null });
+      selectedPl: selPl, selectedObj: selObj, overlay, northDeg: simOn("daylight") ? project.site?.north_deg ?? 0 : null });
     drawDraft();
     svg.insertAdjacentHTML("beforeend", `<polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="stroke-width:${pv.sw(1.5)}px"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
@@ -1742,7 +1756,10 @@ export async function customer(pid) {
       document.getElementById("needTag").hidden = true; // 점선 범례 글은 띄우지 않는다 (화면을 가볍게)
     } catch { viewer.setNeed(null); }
   };
-  const setOverlay = (html) => {
+  const overlays = { wifi: "", flow: "" };
+  const setOverlay = (key, html) => {
+    overlays[key] = html;
+    html = overlays.wifi + overlays.flow;
     overlay = html;
     const g = document.getElementById("overlay");
     if (g) g.innerHTML = html;
@@ -1750,17 +1767,17 @@ export async function customer(pid) {
   };
 
   // ---- 살아 보기: 채광 ----
-  let playing = null;
-  const stopPlay = () => {
-    if (!playing) return;
-    cancelAnimationFrame(playing.raf); playing = null;
-    const b = document.getElementById("splay"); if (b) { b.textContent = "하루 재생"; b.setAttribute("aria-pressed", "false"); }
-  };
   // 하루 해 경로(5분 간격)를 한 번 받아 두고 그 사이를 이어서 쓴다: 시간을 움직여도 서버를 기다리지 않고 바로, 끊김 없이
   let sunPath = { key: null, pts: null };
   const toMin = (t) => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
   const hhmm = (v) => `${String(Math.floor(v / 60)).padStart(2, "0")}:${String(Math.floor(v % 60)).padStart(2, "0")}`;
-  let simMin = toMin(simState.time); // 재생 중에는 분 단위 아래까지 이어진다
+  let simMin = toMin(simState.time);
+  const timeKo = (v) => { const h = Math.floor(v / 60), m = Math.floor(v % 60); return `${h < 12 ? "오전" : "오후"} ${h % 12 || 12}:${String(m).padStart(2, "0")}`; };
+  // 시간 바는 해가 떠 있는 동안만 (해 뜰 때 ~ 질 때). 경로를 아직 못 받았으면 6시 ~ 19시
+  const dayRange = () => {
+    const up = (sunPath.pts || []).filter((q) => q.altitude_deg > 0).map((q) => q.minute);
+    return up.length ? [Math.ceil(Math.min(...up) / 10) * 10, Math.floor(Math.max(...up) / 10) * 10] : [360, 1140];
+  };
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const sunAt = (min) => {
     const pts = sunPath.pts;
@@ -1780,33 +1797,47 @@ export async function customer(pid) {
   };
   let addrTyped = null; // 주소 칸에는 적은 말을 그대로 둔다 (찾은 곳의 긴 지도 이름으로 바꾸지 않는다)
   const runDaylight = async () => {
-    const box = document.getElementById("simres");
-    if (project.site?.north_deg == null) { setOverlay(""); viewer.setSun(null); box.innerHTML = `<p class="sim-line">창이 없는 방이라 방향을 알 수 없어요. 주소를 넣으면 건물 방향으로 알려 드려요.</p>`; return; }
+    const box = resOf("daylight");
+    if (!box) return;
+    if (project.site?.north_deg == null) { viewer.setSun(null); box.innerHTML = `<p class="sim-line">창이 없는 방이라 방향을 알 수 없어요. 주소를 넣으면 건물 방향으로 알려 드려요.</p>`; return; }
     const pathKey = JSON.stringify([simState.date, project.site]);
     const needPath = sunPath.key !== pathKey;
     const d = await api(`/api/projects/${pid}/sim/daylight?date=${simState.date}&time=${simState.time}&heatmap=false&path=${needPath}`);
-    if (sim !== "daylight") return;
+    if (!simOn("daylight") || !box.isConnected) return;
     if (needPath && d.path) sunPath = { key: pathKey, pts: d.path };
-    // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다. 재생 중이면 응답이 늦게 와도 지금 시각의 해를 쓴다
+    // 3D: 그 시각 해 방향·색·세기로 비추고 창으로 볕이 든다
+    const [lo, hi] = dayRange();
+    simMin = Math.max(lo, Math.min(hi, simMin)); simState.time = hhmm(simMin);
     viewer.setSun(sunAt(simMin) || d.sun);
-    setOverlay("");
     const main = (d.facings || [])[0];
     // 적은 곳을 지도에서 못 찾아 동네까지만 찾았으면 어디 기준인지 한 줄로 알려 준다
     const near = project.site?.approx ? `<p class="sim-line">${esc(project.site.area || String(project.site.address || "").split(",")[0])} 근처 기준이에요</p>` : "";
-    box.innerHTML = (main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "") + near;
+    // 향 한 줄 아래에 시간 바: 끌면 그 시각의 볕으로 바로 바뀐다
+    box.innerHTML = (main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "") + near + `
+      <div class="time-bar"><span class="tb-end">${timeKo(lo)}</span>
+        <input type="range" id="sunTime" min="${lo}" max="${hi}" step="10" value="${Math.round(simMin / 10) * 10}" aria-label="시각" aria-valuetext="${timeKo(simMin)}">
+        <span class="tb-end">${timeKo(hi)}</span><b class="tb-now" id="sunNow">${timeKo(simMin)}</b></div>`;
+    const bar = document.getElementById("sunTime");
+    const paint = () => bar.style.setProperty("--p", `${((bar.value - lo) / Math.max(1, hi - lo)) * 100}%`);
+    paint();
+    bar.oninput = () => {
+      simMin = +bar.value; simState.time = hhmm(simMin);
+      const sun = sunAt(simMin); if (sun) viewer.setSun(sun);
+      document.getElementById("sunNow").textContent = timeKo(simMin); bar.setAttribute("aria-valuetext", timeKo(simMin));
+      paint();
+    };
   };
-  // 채광: 주소만 넣으면 어느 향인지 한 줄로 알려 준다. 해가 하루 동안 어떻게 움직이는지는 '하루 재생'으로 본다
+  // 채광: 주소만 넣으면 어느 향인지 한 줄로 알려 주고, 그 아래 시간 바로 하루 볕을 본다
   const daylightCtl = async () => {
     // 스캔에는 나침반이 없다 → 북쪽을 안 정했으면 가장 큰 창이 남쪽을 본다고 보고 먼저 잡아 준다 (주소를 넣으면 건물 방향으로 바뀐다)
     if (project.site?.north_deg == null) { try { project = await put(`/api/projects/${pid}/site`, { auto_north: true }); draw(); } catch { /* 창이 없으면 안내문 */ } }
-    const site = project.site || {};
-    document.getElementById("simctl").innerHTML = `
+    const site = project.site || {}, ctl = ctlOf("daylight");
+    if (!ctl) return;
+    ctl.innerHTML = `
       <div class="sim-row">
         <input type="search" id="addr" placeholder="우리 집 주소 (예: 서울 중구 세종대로 110)" value="${esc(addrTyped ?? site.address ?? "")}" maxlength="200" autocomplete="street-address" aria-label="우리 집 주소">
         <button class="small primary" id="addrGo">찾기</button>
-        <button class="small ghost" id="splay" aria-pressed="false" title="하루 해의 움직임을 이어서 보여 줘요">하루 재생</button>
-      </div>
-      <div id="simres"></div>`;
+      </div>`;
     // 주소 → 위도·경도 (서버가 찾는다). 건물 방향을 알면 북쪽도 같이 잡힌다
     const findAddr = guard(async () => {
       const q = document.getElementById("addr").value.trim();
@@ -1819,28 +1850,12 @@ export async function customer(pid) {
         draw(); await daylightCtl();
       } catch (e) {
         // 못 찾았으면 예전 결과를 그대로 두지 않고 그 자리에 알려 준다 (잠깐 떴다 사라지는 알림만으로는 놓친다)
-        const box = document.getElementById("simres");
+        const box = resOf("daylight");
         if (box) box.innerHTML = `<p class="sim-line warn" role="alert">${esc(e.message)}</p>`;
       } finally { const x = document.getElementById("addrGo"); if (x) { x.disabled = false; x.textContent = "찾기"; } }
     });
     document.getElementById("addrGo").onclick = findAddr;
     document.getElementById("addr").onkeydown = (e) => { if (e.key === "Enter") { e.preventDefault(); findAddr(); } };
-    // 하루 재생: 1초에 1시간씩 해가 움직인다 (받아 둔 해 경로를 이어서, 끊김 없이)
-    const DAY_START = 300, DAY_END = 1260;
-    const tick = (now) => {
-      if (!playing || sim !== "daylight" || !document.getElementById("splay")) { stopPlay(); return; }
-      const dt = Math.min(0.1, (now - (playing.t || now)) / 1000); playing.t = now;
-      simMin = Math.min(DAY_END, simMin + dt * 60); simState.time = hhmm(simMin);
-      const s = sunAt(simMin); if (s) viewer.setSun(s);
-      if (simMin >= DAY_END) stopPlay();
-      if (playing) playing.raf = requestAnimationFrame(tick);
-    };
-    document.getElementById("splay").onclick = () => {
-      if (playing) { stopPlay(); return; }
-      if (simMin >= DAY_END - 5) simMin = DAY_START;
-      playing = { t: 0 }; playing.raf = requestAnimationFrame(tick);
-      const b = document.getElementById("splay"); b.textContent = "멈추기"; b.setAttribute("aria-pressed", "true");
-    };
     if (project.site?.north_deg == null) draw();
     await runDaylight();
   };
@@ -1849,33 +1864,41 @@ export async function customer(pid) {
   let armedRouter = false, band = "5";
   const WCOLOR = { good: "#1f7a4d", ok: "#e0a800", weak: "#b3261e" };
   const runWifi = async () => {
-    const box = document.getElementById("simres");
+    const box = resOf("wifi");
+    if (!box) return;
     const rt = project.scene_state.router;
-    if (!rt) { setOverlay(""); viewer.setRouter(null); box.innerHTML = ""; return; }
+    if (!rt) { setOverlay("wifi", ""); viewer.setRouter(null); box.innerHTML = ""; return; }
     const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
-    if (sim !== "wifi") return;
+    if (!simOn("wifi") || !box.isConnected) return;
+    const tint = simOn("daylight") ? 0.22 : 0.3; // 볕과 같이 볼 때는 색을 조금 옅게
     const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
     const [x0, y0] = g.origin, c = g.cell_m, cells = [];
-    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="0.3"/>`); }));
+    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="${tint}"/>`); }));
     const [rx, ry] = g.router;
     // 평면도에는 실제 크기 윗면 기호(본체 + 안테나 4개), 3D에는 실제 공유기 모델
     const yawDeg = ((rt.yaw_rad ?? 0) * 180) / Math.PI;
     const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
-    setOverlay(cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
+    setOverlay("wifi", cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
     viewer.setRouter(rt);
     box.innerHTML = `<p class="wifi-legend"><span><i style="background:${WCOLOR.good}"></i>잘 통해요</span><span><i style="background:${WCOLOR.ok}"></i>보통</span><span><i style="background:${WCOLOR.weak}"></i>약해요</span></p>`;
   };
   const wifiCtl = async () => {
-    document.getElementById("simctl").innerHTML = `
+    const ctl = ctlOf("wifi");
+    if (!ctl) return;
+    ctl.innerHTML = `
       <div class="sim-row">
         <div class="seg2 band" role="group" aria-label="공유기 종류">
           <button data-band="5" class="${band === "5" ? "on" : ""}" aria-pressed="${band === "5"}">5 GHz <span class="n">빠름</span></button>
           <button data-band="2.4" class="${band === "2.4" ? "on" : ""}" aria-pressed="${band === "2.4"}">2.4 GHz <span class="n">멀리</span></button></div>
         <button class="small ${armedRouter ? "primary" : "ghost"}" id="putRouter" aria-pressed="${armedRouter}">${armedRouter ? "놓을 자리를 눌러 주세요" : "공유기 놓기"}</button>
-      </div>
-      <div id="simres"></div>`;
+      </div>`;
     document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = () => { band = b.dataset.band; wifiCtl(); }));
-    document.getElementById("putRouter").onclick = () => { armedRouter = !armedRouter; if (!armedRouter) viewer.routerFollow(null); armed = null; mode = "move"; syncMode(); wifiCtl(); };
+    document.getElementById("putRouter").onclick = () => {
+      armedRouter = !armedRouter;
+      if (!armedRouter) viewer.routerFollow(null);
+      else if (armedStart) { armedStart = false; viewer.personFollow(null); if (simOn("flow")) flowCtl(); } // 손에는 하나만 든다
+      armed = null; mode = "move"; syncMode(); wifiCtl();
+    };
     if (armedRouter) { armed = null; mode = "move"; syncMode(); }
     await runWifi();
   };
@@ -1946,10 +1969,11 @@ export async function customer(pid) {
     });
   };
   const runFlow = async () => {
-    const box = document.getElementById("simres");
-    if (armedStart) { setOverlay(""); viewer.setWalkers([]); clearFlowX(); box.innerHTML = ""; return; }
+    const box = resOf("flow");
+    if (!box) return;
+    if (armedStart || !project.scene_state.marks?.start) { setOverlay("flow", ""); viewer.setWalkers([]); clearFlowX(); box.innerHTML = ""; return; }
     const f = await api(`/api/projects/${pid}/sim/flow`);
-    if (sim !== "flow" || armedStart) return;
+    if (!simOn("flow") || armedStart || !box.isConnected) return;
     const parts = [], paths = [], blocked = [];
     const lw = pv.sw(2);
     for (const [k, r] of Object.entries(f.routes)) {
@@ -1960,39 +1984,58 @@ export async function customer(pid) {
       for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
     }
     if (f.start) parts.push(`<circle class="start-dot" cx="${f.start[0]}" cy="${f.start[1]}" r="0.16"/>`);
-    setOverlay(parts.join(""));
+    setOverlay("flow", parts.join(""));
     viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 출발 자리에서 제품 앞까지 걷는다
     drawFlowX(blocked);
     box.innerHTML = Object.keys(f.routes).length ? "" : `<p class="sim-line">가전을 놓으면 출발 자리에서 걸어가 볼게요.</p>`;
   };
   const flowCtl = async () => {
-    const hasStart = !!project.scene_state.marks?.start;
-    if (!hasStart) armedStart = true; // 처음이면 바로 묻는다
-    document.getElementById("simctl").innerHTML = `
+    const hasStart = !!project.scene_state.marks?.start, ctl = ctlOf("flow");
+    if (!ctl) return;
+    if (!hasStart && !armedRouter) armedStart = true; // 처음이면 바로 묻는다 (공유기를 들고 있으면 그것부터)
+    ctl.innerHTML = `
       <div class="sim-row">
         ${armedStart ? `<p class="sim-ask"><b>어디서 출발할까요?</b><span>사람을 놓을 자리를 눌러 주세요</span></p>${hasStart ? `<button class="small ghost" id="reStart">취소</button>` : ""}`
-          : `<p class="sim-ask"><span>출발 자리에서 가전 앞까지 걸어 봐요</span></p><button class="small ghost" id="reStart">출발 자리 바꾸기</button>`}
-      </div>
-      <div id="simres"></div>`;
+          : `<p class="sim-ask"><span>${hasStart ? "출발 자리에서 가전 앞까지 걸어 봐요" : "사람이 출발할 자리를 정해 주세요"}</span></p><button class="small ghost" id="reStart">${hasStart ? "출발 자리 바꾸기" : "출발 자리 놓기"}</button>`}
+      </div>`;
     const re = document.getElementById("reStart");
-    if (re) re.onclick = () => { armedStart = !armedStart; if (!armedStart) viewer.personFollow(null); flowCtl(); };
+    if (re) re.onclick = () => {
+      armedStart = !armedStart;
+      if (!armedStart) viewer.personFollow(null);
+      else if (armedRouter) { armedRouter = false; viewer.routerFollow(null); if (simOn("wifi")) wifiCtl(); } // 손에는 하나만 든다
+      flowCtl();
+    };
     if (armedStart) { armed = null; mode = "move"; syncMode(); if (lastHover) viewer.personFollow(lastHover); }
     await runFlow();
   };
   // 와이파이를 켰는데 공유기가 아직 없으면 바로 놓을 수 있게 마우스에 붙인다
-  const SIMS = { daylight: daylightCtl, wifi: () => { if (!project.scene_state.router) armedRouter = true; return wifiCtl(); }, flow: flowCtl };
+  const SIMS = { daylight: daylightCtl, wifi: () => { if (!project.scene_state.router && !armedStart) armedRouter = true; return wifiCtl(); }, flow: flowCtl };
   const showSim = guard(async () => {
-    document.querySelectorAll("[data-sim]").forEach((x) => { x.classList.toggle("on", x.dataset.sim === sim); x.setAttribute("aria-checked", x.dataset.sim === sim); });
-    if (sim !== "daylight") { stopPlay(); viewer.setSun(null); } // 채광이 아니면 보기 좋은 기본 해
-    if (sim !== "wifi") viewer.setRouter(null);
-    if (sim !== "flow") { viewer.setWalkers([]); viewer.personFollow(null); armedStart = false; clearFlowX(); }
-    if (sim !== "wifi" && armedRouter) { armedRouter = false; viewer.routerFollow(null); }
-    if (!sim) { document.getElementById("simctl").innerHTML = ""; setOverlay(""); draw(); return; }
+    document.querySelectorAll("[data-sim]").forEach((x) => { const on = simOn(x.dataset.sim); x.classList.toggle("on", on); x.setAttribute("aria-checked", on); });
+    if (!simOn("daylight")) viewer.setSun(null); // 채광이 아니면 보기 좋은 기본 해
+    if (!simOn("wifi")) { viewer.setRouter(null); setOverlay("wifi", ""); if (armedRouter) { armedRouter = false; viewer.routerFollow(null); } }
+    if (!simOn("flow")) { viewer.setWalkers([]); viewer.personFollow(null); armedStart = false; clearFlowX(); setOverlay("flow", ""); }
+    // 켠 것마다 한 칸씩, 늘 같은 순서로 쌓는다. 이미 있는 칸은 그대로 둔다 (적던 주소가 지워지지 않게)
+    const box = document.getElementById("simctl");
+    const active = SIM_ORDER.filter(simOn);
+    [...box.children].forEach((el) => { if (!simOn(el.dataset.sec)) el.remove(); });
+    const fresh = [];
+    active.forEach((k, i) => {
+      let el = secOf(k);
+      if (!el) {
+        el = document.createElement("section");
+        el.className = "sim-sec"; el.dataset.sec = k;
+        el.innerHTML = `<h4>${SIM_KO[k]}</h4><div class="sim-ctl"></div><div class="sim-res"></div>`;
+        fresh.push(k);
+      }
+      if (box.children[i] !== el) box.insertBefore(el, box.children[i] || null);
+    });
+    box.classList.toggle("many", active.length > 1);
     draw();
-    if (SIMS[sim]) await SIMS[sim]();
-    else { setOverlay(""); document.getElementById("simctl").innerHTML = `<p class="muted">준비 중입니다.</p>`; }
+    for (const k of fresh) await SIMS[k]();
+    if (simOn("wifi") && !fresh.includes("wifi")) await runWifi(); // 채광을 켜고 끄면 색 농도가 달라진다
   });
-  document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { sim = sim === b.dataset.sim ? "" : b.dataset.sim; saveUiState(pid, { sim }); showSim(); }));
+  document.querySelectorAll("[data-sim]").forEach((b) => (b.onclick = () => { const k = b.dataset.sim; if (simOn(k)) sims.delete(k); else sims.add(k); saveSims(); showSim(); }));
   let lastSceneKey = null;
   // 다시 읽기는 한 번에 하나씩 차례로: 겹치면 늦게 끝난 옛 응답이 새 상태를 덮는다
   let chain = Promise.resolve();
@@ -2015,9 +2058,9 @@ export async function customer(pid) {
     document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
     draw();
     if (walking) viewer.setWalk(walkWorld()); // 옮긴 제품·치운 가구로 충돌을 다시
-    if (sim === "daylight" && document.getElementById("simres")) guard(runDaylight)();
-    if (sim === "wifi" && document.getElementById("simres")) guard(runWifi)();
-    if (sim === "flow" && document.getElementById("simres")) guard(runFlow)();
+    if (simOn("daylight") && resOf("daylight")) guard(runDaylight)();
+    if (simOn("wifi") && resOf("wifi")) guard(runWifi)();
+    if (simOn("flow") && resOf("flow")) guard(runFlow)();
     renderInspector();
     renderPlacements();
     renderFinishes();
@@ -2049,7 +2092,8 @@ export async function customer(pid) {
     document.getElementById("saveBtn").onclick = file.save;
     document.getElementById("loadBtn").onclick = file.open;
   }
-  if (["daylight", "wifi", "flow"].includes(saved.sim)) { sim = saved.sim; setLive(true); showSim(); }
+  (Array.isArray(saved.sims) ? saved.sims : [saved.sim]).filter((k) => SIM_ORDER.includes(k)).forEach((k) => sims.add(k));
+  if (sims.size) { setLive(true); showSim(); }
   // ---- 첫 안내: 하우니가 스캔 결과를 알려 주고, 메뉴를 하나씩 짚은 뒤, 직접 놓아 보게 한다 ----
   const tryIt = guard(async () => {
     const pool = suggItems.length ? suggItems.map((x) => x.sku) : suggPool;

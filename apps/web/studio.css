@@ -565,7 +565,6 @@ button.ghost:hover, .btn.ghost:hover { background: var(--warm-grey); border-colo
 /* 신청 카드는 오른쪽 끝, 하우니 버튼 바로 위 */
 .studio:not(.app) .side { margin: 0 12px 88px 0; }
 .studio:not(.app) .side .order-bar { padding-right: 12px; }
-.studio .view-pane .render-btn { top: 64px; }
 
 /* ---- 추천 배치 (조합 카드) ---- */
 .combo-pop { position: absolute; top: 12px; left: 12px; z-index: 7; width: min(400px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto;
@@ -801,8 +800,8 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .sim-row button { flex: none; height: 38px; white-space: nowrap; }
 .sim-row .seg2.band { flex: 1; }
 .sim-row .seg2.band button { height: 34px; padding: 0 6px; }
-#simres:empty { display: none; }
-#simres { margin-top: 10px; }
+.sim-res:empty { display: none; }
+.sim-res { margin-top: 10px; }
 .sheet .facing { margin: 0; font-size: 15px; color: var(--ink); }
 .sheet .facing b { font-size: 19px; font-weight: 700; margin-right: 2px; }
 .sim-line { margin: 0; font-size: 13px; color: var(--graphite); }
@@ -856,16 +855,20 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .furn-all { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: 0 4px 14px rgba(0, 0, 0, .12); }
 .furn-all[hidden] { display: none; }
 .furn-all:hover { border-color: var(--ink); transform: translateX(-50%); }
-/* 걸어 보기: 지도 앱의 사람 아이콘처럼 3D 구석에 둔다. 걷는 중에는 ‘나가기’ */
-.walk-btn { position: absolute; left: 224px; bottom: 12px; z-index: 6; height: 44px; min-width: 44px; padding: 0 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font-size: 13.5px; font-weight: 600; box-shadow: 0 4px 14px rgba(0, 0, 0, .14); }
-.walk-btn .ic { width: 22px; height: 22px; margin: 0; }
-.walk-btn span { display: none; }
-.walk-btn:hover { border-color: var(--ink); transform: none; }
-.walk-btn.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); padding: 0 16px 0 12px; }
-.walk-btn.on span { display: inline; }
-.studio[data-view="plan"] .walk-btn, .minimap .walk-btn { display: none; }
-.studio.app .walk-btn { left: 12px; }
-@media (max-width: 1100px) { .walk-btn { left: 154px; } }
+/* 보기 바꾸기: 지도 앱처럼 3D 오른쪽 위에 세로로. 위에서 / 걸어 보기 / 실사 */
+.view-stack { position: absolute; top: 64px; right: 12px; z-index: 6; display: flex; flex-direction: column; padding: 4px; gap: 2px; border-radius: 16px; background: rgba(255, 255, 255, .92); box-shadow: 0 4px 14px rgba(0, 0, 0, .12); }
+.vbtn { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 62px; padding: 7px 2px 6px; border: 0; border-radius: 12px; background: none; color: var(--graphite); font-size: 11.5px; font-weight: 600; box-shadow: none; white-space: nowrap; }
+.vbtn .ic { width: 20px; height: 20px; margin: 0; }
+.vbtn:hover { background: var(--warm-grey); color: var(--ink); transform: none; }
+.vbtn.on { background: var(--lg); color: #fff; }
+.studio[data-view="plan"] .view-stack, .minimap .view-stack { display: none; }
+.studio.app .view-stack { top: 8px; right: 8px; }
+.studio.app .view-stack #render { display: none; }
+/* 위 도구 아이콘 아래에 이름을 적는다 */
+.toolbar .icon-btn[data-l] { width: auto; min-width: 46px; height: 46px; padding: 4px 6px 3px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; }
+.toolbar .icon-btn[data-l]::after { content: attr(data-l); font-size: 10.5px; font-weight: 600; line-height: 1; white-space: nowrap; }
+.studio.app .toolbar .icon-btn[data-l]::after { display: none; }
+.studio.app .toolbar .icon-btn[data-l] { min-width: 34px; height: 34px; }
 .sim-line.warn { color: var(--lg-red, #A50034); }
 .sim-line + .sim-line, .facing + .sim-line { margin-top: 4px; }
 
@@ -874,3 +877,20 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .act-bar.near:not(.sizing) .act { min-width: 46px; padding: 5px 6px; gap: 2px; font-size: 10.5px; }
 .act-bar.near:not(.sizing) .act .ic { width: 17px; height: 17px; }
 .act-bar.near.under::after { display: none; }
+/* 살아 보기를 여러 개 켜면 한 칸씩 쌓인다 */
+.sim-sec h4 { display: none; margin: 0 0 6px; font-size: 12px; font-weight: 700; color: var(--graphite); }
+.sheet.many .sim-sec h4 { display: block; }
+.sim-sec + .sim-sec { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line-soft); }
+/* 채광 시간 바: 가격 범위 바와 같은 모양 */
+.time-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; margin-top: 10px; }
+.time-bar .tb-end { font-size: 11.5px; color: var(--graphite); white-space: nowrap; }
+.time-bar .tb-now { grid-column: 1 / -1; justify-self: center; font-size: 14px; font-weight: 700; color: var(--ink); }
+.time-bar input[type="range"] { --p: 50%; -webkit-appearance: none; appearance: none; width: 100%; height: 22px; margin: 0; padding: 0; border: 0; background: none; box-shadow: none; }
+.time-bar input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--lg) var(--p), var(--line) var(--p)); }
+.time-bar input[type="range"]::-moz-range-track { height: 4px; border-radius: 2px; background: linear-gradient(90deg, var(--lg) var(--p), var(--line) var(--p)); }
+.time-bar input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); cursor: grab; }
+.time-bar input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 4px rgba(0, 0, 0, .2); cursor: grab; }
+.vbtn.busy { opacity: .6; }
+/* 살아 보기 칸은 3D 가운데를 가리지 않게 좁게 */
+.studio:not(.app) .canvas .sheet { width: min(380px, calc(100% - 24px)); padding: 12px 14px; }
+.time-bar .tb-now { font-size: 13px; }
