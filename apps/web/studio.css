@@ -158,10 +158,10 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .canvas:has(.sheet:not(:empty)) .minimap { display: none; }
 
 /* 버튼으로 여는 창: 도면·실측, 벽지·바닥 */
-.extra-pop, .finish-pop { position: absolute; top: 12px; left: 12px; z-index: 7; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto;
+.extra-pop { position: absolute; top: 12px; left: 12px; z-index: 7; width: min(420px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto;
   padding: 14px 16px 16px; background: rgba(255, 255, 255, .98); border-radius: 18px; box-shadow: var(--shadow-float); }
-.extra-pop[hidden], .finish-pop[hidden] { display: none; }
-.extra-pop h3, .finish-pop h3 { font-size: 14px; margin: 10px 0 6px; }
+.extra-pop[hidden] { display: none; }
+.extra-pop h3 { font-size: 14px; margin: 10px 0 6px; }
 
 /* 왼쪽: 이 집에 들어가는 제품, 상세 필터 */
 .sugg[hidden] { display: none; }
@@ -640,7 +640,7 @@ body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj 
 .studio.app .lib-fold { display: none; }
 
 /* ① 카테고리: 한 줄 세그먼트 */
-.lib .lib-tabs { display: grid; grid-template-columns: repeat(5, auto); gap: 2px; padding: 3px; margin-bottom: 4px; border-radius: 12px; background: var(--warm-grey); }
+.lib .lib-tabs { display: grid; grid-template-columns: repeat(6, auto); gap: 2px; padding: 3px; margin-bottom: 4px; border-radius: 12px; background: var(--warm-grey); }
 .lib .lib-tabs button { padding: 7px 4px; border: 0; border-radius: 9px; background: none; color: var(--graphite); font-size: 12.5px; font-weight: 600; white-space: nowrap; box-shadow: none; }
 .lib .lib-tabs button:hover { background: rgba(255, 255, 255, .7); color: var(--ink); }
 .lib .lib-tabs button.on { background: var(--lg); color: #fff; }
@@ -849,3 +849,23 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .act-bar .sz-f input:focus { outline: 2px solid var(--lg); outline-offset: 1px; border-color: transparent; }
 .act-bar .sz-unit { padding-bottom: 9px; font-size: 12.5px; color: var(--graphite); }
 .studio.app .act-bar .sz-f input { width: 66px; }
+
+/* 벽지·바닥: 색깔 칩만 */
+.fin-sws { display: grid; grid-template-columns: repeat(auto-fill, minmax(44px, 1fr)); gap: 8px; }
+.fin-sw { padding: 0; aspect-ratio: 1; border-radius: 12px; border: 1px solid var(--line); background: var(--sheet); overflow: hidden; box-shadow: none; }
+.fin-sw img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fin-sw:hover { border-color: var(--ink); transform: none; }
+.fin-sw.on { border-color: var(--lg); box-shadow: 0 0 0 2px var(--lg); }
+.furn-all { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 5; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: 0 4px 14px rgba(0, 0, 0, .12); }
+.furn-all[hidden] { display: none; }
+.furn-all:hover { border-color: var(--ink); transform: translateX(-50%); }
+/* 걸어 보기: 지도 앱의 사람 아이콘처럼 3D 구석에 둔다. 걷는 중에는 ‘나가기’ */
+.walk-btn { position: absolute; left: 224px; bottom: 12px; z-index: 6; height: 44px; min-width: 44px; padding: 0 11px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 999px; border: 1px solid var(--line); background: var(--sheet); color: var(--ink); font-size: 13.5px; font-weight: 600; box-shadow: 0 4px 14px rgba(0, 0, 0, .14); }
+.walk-btn .ic { width: 22px; height: 22px; margin: 0; }
+.walk-btn span { display: none; }
+.walk-btn:hover { border-color: var(--ink); transform: none; }
+.walk-btn.on { background: var(--ink); color: var(--sheet); border-color: var(--ink); padding: 0 16px 0 12px; }
+.walk-btn.on span { display: inline; }
+.studio[data-view="plan"] .walk-btn, .minimap .walk-btn { display: none; }
+.studio.app .walk-btn { left: 12px; }
+@media (max-width: 1100px) { .walk-btn { left: 154px; } }
