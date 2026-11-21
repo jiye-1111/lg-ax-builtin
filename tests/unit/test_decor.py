@@ -56,3 +56,8 @@ def test_presets_are_real_products_with_source():
             assert p["source_url"].startswith("https://www.ikea.com/") and p["label"]
             assert set(p["size_mm"]) == {"w", "h", "d"} and all(v > 0 for v in p["size_mm"].values())
     assert by["decor:sofa"]["presets"] == []
+
+
+def test_sink_and_door_are_in_the_library():
+    assert DECOR["sink"]["group"] == "storage" and DECOR["sink"]["label"] == "싱크대"
+    assert DECOR["door"]["group"] == "structure" and DECOR["door"]["label"] == "문"

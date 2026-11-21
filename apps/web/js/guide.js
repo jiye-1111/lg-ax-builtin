@@ -1,47 +1,12 @@
-// 리모델링 화면 안내: 3단계 진행 표시, 설치 적합성 검사 카드. 판정은 서버가 계산한 값만 쓴다.
+// 리모델링 화면 안내: 설치 적합성 검사 카드. 판정은 서버가 계산한 값만 쓴다.
 import { esc, shownVerdict } from "./core.js";
 
 const WORST = { fit: 0, conditional: 1, unknown: 2, no_fit: 3 };
 const worst = (list) => list.reduce((a, v) => (WORST[v] > WORST[a] ? v : a), "fit");
 
-/** 지금 어디까지 했는지 (공간 확인 → 제품 고르기 → 설치 확인). state: done | current | todo | warn */
-/**
- * 3단계 진행. 단계마다 직접 해야 넘어간다 (앞 단계를 안 했으면 뒤 단계는 체크하지 않는다).
- * flow: { space: 공간 확인을 눌렀는지, order: 구매·설치 신청까지 봤는지 } (화면 상태로 저장)
- */
-export function stepState(project, armed, flow = {}) {
-  const pls = project?.scene_state?.placements || [];
-  const placed = pls.length > 0;
-  const bad = pls.some((p) => p.verdict === "no_fit");
-  const space = !!flow.space, pick = space && placed, check = pick && !bad && !!flow.order;
-  const steps = [
-    { key: "scan", label: "공간 확인", sub: space ? "스캔한 우리 집" : "벽·문·창이 맞나요?", done: space },
-    { key: "pick", label: "제품 고르기", sub: armed ? "놓을 자리 누르기" : "골라서 3D에 놓기", done: pick },
-    { key: "check", label: "설치 확인", sub: bad && pick ? "다시 놓기 필요" : "구매 및 설치 신청", done: check, warn: bad && pick },
-  ];
-  let seenCurrent = false;
-  return steps.map((s) => {
-    let state = s.done ? "done" : "todo";
-    if (!s.done && !seenCurrent) { seenCurrent = true; state = s.warn ? "warn" : "current"; }
-    return { ...s, state };
-  });
-}
-
-/** 지금 단계는 "STEP n / 3"과 할 일을 크게, 끝난 단계는 체크(눌러서 다시 보기), 다음 단계는 흐리게 */
-export function stepperHtml(steps) {
-  const n = steps.length;
-  return steps.map((s, i) => {
-    const now = s.state === "current" || s.state === "warn";
-    const tip = s.state === "done" ? "끝난 단계 · 눌러서 다시 보기" : now ? "지금 할 일" : "다음 단계";
-    return `<li class="step is-${s.state}"${now ? ' aria-current="step"' : ""}>
-    <button type="button" data-step="${s.key}" title="${tip}"><span class="num" aria-hidden="true">${s.state === "done" ? "✓" : i + 1}</span>
-    <span class="txt">${now ? `<em>STEP ${i + 1} / ${n}</em>` : ""}<b>${esc(s.label)}</b><small>${esc(s.sub)}</small></span></button></li>`;
-  }).join("");
-}
-
 // 판정 코드 → 검사 카드의 줄. 데이터가 있는 것만 검사한다.
 const GROUPS = [
-  { label: "놓을 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement", "surface_overhang"] },
+  { label: "놓을 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement", "surface_overhang", "not_on_wall"] },
   { label: "제품 문 여는 공간", codes: ["front_blocked"] },
   { label: "통행 공간", codes: ["passage_narrow"] },
   // 아래는 걸릴 때만 줄을 보인다 (카드를 짧게)

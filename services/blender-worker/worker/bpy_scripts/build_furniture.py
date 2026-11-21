@@ -46,6 +46,9 @@ LOOK = {  # 이름: (색, 거칠기, 금속성)
     "soil": ("#3B2E25", 0.95, 0.0),
     "leaf": ("#4E6B3A", 0.6, 0.0),
     "plaster": ("#EDEAE4", 0.9, 0.0),
+    "steel": ("#C5C8CB", 0.28, 0.9),
+    "basin": ("#A9ADB1", 0.35, 0.9),
+    "door_leaf": ("#C4AD8E", 0.55, 0.0),
 }
 
 
@@ -319,6 +322,91 @@ def tallcab(w, h, d):
     part("handle_up", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym + 0.06, ym + 0.3, "epe", 0.004)
 
 
+def bar(name: str, m: str, a: tuple[float, float, float], b: tuple[float, float, float], r: float, rig: str) -> None:
+    """두 점(glTF 기준 x, y 높이, z 깊이)을 잇는 둥근 막대. 수전·문손잡이용."""
+    from mathutils import Vector
+    pa, pb = Vector((a[0], -a[2], a[1])), Vector((b[0], -b[2], b[1]))
+    bm = bmesh.new()
+    bmesh.ops.create_cone(bm, cap_ends=True, segments=20, radius1=r, radius2=r, depth=(pb - pa).length)
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(mat(m))
+    for p in me.polygons:
+        p.use_smooth = True
+    ob = bpy.data.objects.new(name, me)
+    ob.location = (pa + pb) / 2
+    ob.rotation_euler = (pb - pa).to_track_quat("Z", "Y").to_euler()
+    ob["rig"] = rig
+    bpy.context.scene.collection.objects.link(ob)
+
+
+def sink(w, h, d):
+    """싱크대: 하부장 + 상판에 파인 개수대(오른쪽) + 거위목 수전. 상판은 개수대 둘레 네 조각"""
+    base, top, gap = 0.1, 0.03, 0.003
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
+    # 개수대 자리 (오른쪽 반, 뒤에 수전 놓을 턱을 남긴다). 몸통은 개수대 바닥 아래까지만, 그 위는 둘레만 채운다
+    bx0, bx1, bz0, bz1, deep = 0.02, w / 2 - 0.07, -d / 2 + 0.13, d / 2 - 0.08, 0.18
+    neck, zf = h - deep - 0.004, d / 2 - 0.04
+    part("body", "white", -w / 2, w / 2, -d / 2, zf, base, neck, "sss", 0.004)
+    part("apron_l", "white", -w / 2, bx0, -d / 2, zf, neck, h - top, "ses", 0.002)
+    part("apron_r", "white", bx1, w / 2, -d / 2, zf, neck, h - top, "ses", 0.002)
+    part("apron_b", "white", bx0, bx1, -d / 2, bz0, neck, h - top, "ses", 0.002)
+    part("apron_f", "white", bx0, bx1, bz1, zf, neck, h - top, "ses", 0.002)
+    for i in range(2):
+        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
+        part(f"door{i}", "white", x0, x1, d / 2 - 0.04, d / 2 - 0.02, base + gap, h - top - gap, "sse", 0.003)
+        hx = x1 - 0.05 if i == 0 else x0 + 0.05
+        part(f"handle{i}", "metal", hx - 0.006, hx + 0.006, d / 2 - 0.02, d / 2 - 0.005, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
+    part("top_left", "stone", -w / 2, bx0, -d / 2, d / 2, h - top, h, "ses", 0.004)
+    part("top_right", "stone", bx1, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.004)
+    part("top_back", "stone", bx0, bx1, -d / 2, bz0, h - top, h, "ses", 0.004)
+    part("top_front", "stone", bx0, bx1, bz1, d / 2, h - top, h, "ses", 0.004)
+    t = 0.012
+    part("basin_floor", "basin", bx0, bx1, bz0, bz1, h - deep, h - deep + t, "ses", 0.002)
+    part("basin_l", "steel", bx0, bx0 + t, bz0, bz1, h - deep, h - 0.002, "ses", 0.002)
+    part("basin_r", "steel", bx1 - t, bx1, bz0, bz1, h - deep, h - 0.002, "ses", 0.002)
+    part("basin_b", "steel", bx0, bx1, bz0, bz0 + t, h - deep, h - 0.002, "ses", 0.002)
+    part("basin_f", "steel", bx0, bx1, bz1 - t, bz1, h - deep, h - 0.002, "ses", 0.002)
+    cxb, czb = (bx0 + bx1) / 2, (bz0 + bz1) / 2
+    cyl("drain", "metal", cxb, czb, 0.035, h - deep + t, h - deep + t + 0.004, "pep", 24)
+    # 수전: 뒤 턱 가운데에서 올라와 개수대 쪽으로 굽는다
+    fz = -d / 2 + 0.065
+    cyl("faucet_base", "steel", cxb, fz, 0.026, h, h + 0.035, "pep", 28)
+    bar("faucet_riser", "steel", (cxb, h + 0.03, fz), (cxb, h + 0.30, fz), 0.012, "pep")
+    arc = [(h + 0.30, fz), (h + 0.345, fz + 0.03), (h + 0.36, fz + 0.08), (h + 0.345, fz + 0.14), (h + 0.30, fz + 0.17)]
+    for i, ((y0, z0), (y1, z1)) in enumerate(zip(arc, arc[1:])):
+        bar(f"faucet_neck{i}", "steel", (cxb, y0, z0), (cxb, y1, z1), 0.012, "pep")
+        ball(f"faucet_joint{i}", "steel", cxb, y0, z0, 0.012, "pep")
+    ball("faucet_joint_end", "steel", cxb, arc[-1][0], arc[-1][1], 0.012, "pep")
+    bar("faucet_tip", "steel", (cxb, h + 0.30, fz + 0.17), (cxb, h + 0.255, fz + 0.17), 0.013, "pep")
+    bar("faucet_lever", "steel", (cxb + 0.026, h + 0.022, fz), (cxb + 0.085, h + 0.04, fz), 0.007, "pep")
+
+
+def door(w, h, d):
+    """여닫이문: 문틀(양옆·위) + 문짝 + 손잡이·경첩. 문짝 부품 이름은 leaf로 시작한다 (웹이 경첩 축으로 돌려 연다).
+    경첩은 왼쪽(-x), 앞(+z)으로 열린다."""
+    jamb, head, t = 0.045, 0.045, 0.04
+    part("jamb_l", "white", -w / 2, -w / 2 + jamb, -d / 2, d / 2, 0, h, "ess", 0.004)
+    part("jamb_r", "white", w / 2 - jamb, w / 2, -d / 2, d / 2, 0, h, "ess", 0.004)
+    part("head", "white", -w / 2 + jamb, w / 2 - jamb, -d / 2, d / 2, h - head, h, "ses", 0.004)
+    x0, x1, y0, y1 = -w / 2 + jamb + 0.003, w / 2 - jamb - 0.003, 0.008, h - head - 0.003
+    part("leaf", "door_leaf", x0, x1, -t / 2, t / 2, y0, y1, "sse", 0.003)
+    # 문짝 무늬: 앞뒤로 얕게 도드라진 판 두 장
+    for side, z in (("f", t / 2), ("b", -t / 2 - 0.004)):
+        part(f"leaf_panel_top_{side}", "door_leaf", x0 + 0.09, x1 - 0.09, z, z + 0.004, 1.12, y1 - 0.1, "sse", 0.002)
+        part(f"leaf_panel_low_{side}", "door_leaf", x0 + 0.09, x1 - 0.09, z, z + 0.004, y0 + 0.12, 0.98, "sse", 0.002)
+    hx, hy = x1 - 0.06, 1.0
+    for side, s in (("f", 1), ("b", -1)):
+        z = s * t / 2
+        bar(f"leaf_rose_{side}", "steel", (hx, hy, z), (hx, hy, z + s * 0.01), 0.026, "eee")
+        bar(f"leaf_neck_{side}", "steel", (hx, hy, z), (hx, hy, z + s * 0.05), 0.009, "eee")
+        bar(f"leaf_lever_{side}", "steel", (hx + 0.008, hy, z + s * 0.05), (hx - 0.11, hy, z + s * 0.05), 0.009, "eee")
+        ball(f"leaf_lever_end_{side}", "steel", hx - 0.11, hy, z + s * 0.05, 0.009, "eee")
+    for i, y in enumerate((0.25, 1.05, 1.85)):
+        bar(f"hinge{i}", "metal", (x0 - 0.002, y - 0.045, t / 2 + 0.004), (x0 - 0.002, y + 0.045, t / 2 + 0.004), 0.007, "ees")
+
+
 TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "chair": ((0.5, 0.85, 0.52), chair),
     "table": ((1.6, 0.74, 0.8), table),
@@ -340,6 +428,8 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "basecab": ((1.2, 0.85, 0.6), basecab),
     "wardrobe": ((1.0, 2.36, 0.58), wardrobe),
     "tallcab": ((0.6, 2.0, 0.6), tallcab),
+    "sink": ((1.2, 0.88, 0.6), sink),
+    "door": ((0.9, 2.1, 0.14), door),
 }
 
 
@@ -358,13 +448,14 @@ def main() -> None:
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else sys.argv[1:]
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True)
-    ap.add_argument("--only", nargs="*", help="이 종류만 다시 만든다 (나머지는 index.json에 있는 그대로)")
+    ap.add_argument("--only", nargs="*", help="이 종류만 다시 만든다 (나머지 파일과 목록은 그대로)")
     a = ap.parse_args(argv)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
-    old = json.loads((out / "index.json").read_text(encoding="utf-8"))["models"] if a.only and (out / "index.json").exists() else {}
+    idx_path = out / "index.json"
+    kept = json.loads(idx_path.read_text(encoding="utf-8"))["models"] if a.only and idx_path.exists() else {}
     index = {"_note": "build_furniture.py로 생성. 웹이 스캔 크기에 맞춰 부품별로 늘린다 (rig: s/p/e).",
-             "models": {**old, **{cat: build(cat, out) for cat in (a.only or TEMPLATES)}}}
+             "models": {**kept, **{cat: build(cat, out) for cat in TEMPLATES if not a.only or cat in a.only}}}
     (out / "index.json").write_text(json.dumps(index, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(index["models"]))
 

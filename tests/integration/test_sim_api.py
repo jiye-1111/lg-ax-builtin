@@ -162,3 +162,9 @@ def test_life_check_tells_sun_and_wifi_at_each_product(c, pid):
     assert it["daylight"]["status"] in {"ok", "warn"} and isinstance(it["daylight"]["hours"], float) and not it["daylight"]["estimated"]
     assert it["wifi"]["status"] in {"ok", "warn"} and it["wifi"]["grade"] in {"good", "ok", "weak"}
     assert c.get(f"/api/projects/{pid}/life-check", params={"date": "어제"}).status_code == 422
+
+
+def test_mark_rejects_values_that_are_not_numbers(c, pid):
+    r = c.put(f"/api/projects/{pid}/marks/start", content='{"center_xz": [NaN, 0]}', headers={"content-type": "application/json"})
+    assert r.status_code == 422
+    assert c.get(f"/api/projects/{pid}/sim/flow").status_code == 200

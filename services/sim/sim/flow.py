@@ -47,7 +47,7 @@ def _pip(p: Pt, poly: Sequence[Pt]) -> bool:
 
 
 class _Grid:
-    def __init__(self, room: Room, cfg: FlowConfig, polys: list[Sequence[Pt]]):
+    def __init__(self, room: Room, cfg: FlowConfig, polys: list[Sequence[Pt]], gaps: Iterable[Sequence[Pt]] = ()):
         xs = [c for w in room.walls for c in (w.start[0], w.end[0])]
         ys = [c for w in room.walls for c in (w.start[1], w.end[1])]
         pad = 0.6
@@ -58,6 +58,8 @@ class _Grid:
         self._walls(room)
         for poly in polys:
             self._fill(poly)
+        for poly in gaps:  # 열리는 문: 벽에 난 틈
+            self._fill(poly, False)
         self.clear = self._distance()
 
     def center(self, i: int, j: int) -> Pt:
@@ -85,13 +87,13 @@ class _Grid:
                     if -half <= t <= L + half and d <= half and not any(g0 < t < g1 for g0, g1 in gaps):
                         self.block[j][i] = True
 
-    def _fill(self, poly: Sequence[Pt]):
+    def _fill(self, poly: Sequence[Pt], blocked: bool = True):
         i0, j0 = self.cell((min(p[0] for p in poly), min(p[1] for p in poly)))
         i1, j1 = self.cell((max(p[0] for p in poly), max(p[1] for p in poly)))
         for j in range(j0, j1 + 1):
             for i in range(i0, i1 + 1):
                 if _pip(self.center(i, j), poly):
-                    self.block[j][i] = True
+                    self.block[j][i] = blocked
 
     def _distance(self) -> list[list[float]]:
         """가장 가까운 막힌 칸 '가장자리'까지 거리(m). 두 번 훑는 근사 유클리드 거리 변환."""
@@ -156,12 +158,14 @@ def _astar(g: _Grid, start: tuple[int, int], goal: tuple[int, int], cfg: FlowCon
 
 
 def plan_routes(room: Room, targets: dict[str, Pt], cfg: FlowConfig | None = None, hidden: Iterable[str] = (),
-                extra: Iterable[Sequence[Pt]] = (), triangle: Optional[tuple[str, str, str]] = None) -> dict:
+                extra: Iterable[Sequence[Pt]] = (), triangle: Optional[tuple[str, str, str]] = None,
+                start: Optional[Pt] = None, gaps: Iterable[Sequence[Pt]] = ()) -> dict:
+    """start: 출발 자리를 직접 정했으면 현관 대신 거기서 걷는다. gaps: 열리는 문 자리 (막힌 칸을 튼다)."""
     cfg = cfg or FlowConfig.from_env()
     hidden = set(hidden)
     polys = [rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d) for o in room.objects if o.object_id not in hidden]
     polys += [list(p) for p in extra]
-    g = _Grid(room, cfg, polys)
+    g = _Grid(room, cfg, polys, gaps)
     body = cfg.body_width_m / 2
     ok = lambda n: 0 <= n[0] < g.nx and 0 <= n[1] < g.ny and not g.block[n[1]][n[0]] and g.clear[n[1]][n[0]] >= body - 1e-9  # noqa: E731
 
@@ -188,7 +192,9 @@ def plan_routes(room: Room, targets: dict[str, Pt], cfg: FlowConfig | None = Non
     ent = _entrance(room)
     out = {"entrance": {"opening_id": ent["opening_id"], "point": [round(v, 3) for v in ent["point"]]} if ent else None,
            "routes": {}, "assumptions": cfg.assumptions()}
-    start = nearest_ok(ent["point"]) if ent else None
+    origin = tuple(start) if start else (ent["point"] if ent else None)
+    start = nearest_ok(origin) if origin else None
+    out["start"] = [round(v, 3) for v in g.center(*start)] if start else None
     for name, p in targets.items():
         goal = nearest_ok(p)
         path = _astar(g, start, goal, cfg, ok) if start and goal else None

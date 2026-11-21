@@ -88,8 +88,8 @@ def test_remodel_stage_is_uncluttered():
     canvas = js.split('<div class="canvas">', 1)[1].split('<aside class="side"', 1)[0]
     # 살아 보기 설정과 안내는 3D 아래 칸이 아니라 3D 위에 뜨는 작은 카드
     assert 'id="simctl"' in canvas and 'id="hint"' in canvas
-    # 시뮬레이션 가정·범례는 '참고 사항'으로 접어 둔다
-    assert js.count('<details class="sim-notes">') >= 3
+    # 지예: 참고 사항 칸은 뺀다. 살아 보기 칸은 입력 한 줄과 결과 한 줄
+    assert "sim-notes" not in js and "참고 사항" not in js and js.count('<div class="sim-row">') == 3
     assert 'style="font-size:12px;margin:6px 0 0">참고용' not in js
     s = css()
     assert re.search(r"\.lib #lib\s*{[^}]*grid-template-columns:\s*1fr", s)

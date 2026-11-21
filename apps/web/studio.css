@@ -110,22 +110,8 @@
 body[data-route="c"] .top nav { display: none; }
 body[data-route="c"] .top .acct { margin-left: auto; }
 
-.steps3 .step { max-width: 168px; }
 .studio-head { gap: 12px; }
 
-/* 저장·다른 집 메뉴 */
-.home-menu { position: relative; margin-left: auto; flex: none; }
-.home-menu > summary { list-style: none; display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--line); border-radius: 999px;
-  background: var(--sheet); font-size: var(--t-xs); font-weight: 600; cursor: pointer; white-space: nowrap; }
-.home-menu > summary::-webkit-details-marker { display: none; }
-.home-menu[open] > summary { border-color: var(--ink); }
-.home-menu .save-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--graphite); }
-.home-menu:has(.save-state.ok) .save-dot { background: var(--fit); }
-.home-menu:has(.save-state.busy) .save-dot { background: var(--cond); }
-.home-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 30; min-width: 260px; padding: 12px; display: grid; gap: 10px;
-  background: var(--sheet); border-radius: 16px; box-shadow: var(--shadow-float); }
-.home-pop .savebar { margin: 0; flex-wrap: wrap; width: auto; order: 0; }
-.home-pop .new-scan { justify-self: start; }
 
 /* 3D 위 도구 줄 */
 .stage .toolbar { gap: 6px; padding: 10px 12px; }
@@ -223,7 +209,6 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .tour-body .tour-n { font-size: 11px; color: var(--graphite); margin-bottom: 2px; }
 .tour-acts { display: flex; align-items: center; gap: 6px; margin-top: 12px; }
 @media (max-width: 900px) {
-  .home-pop { right: auto; left: 0; }
   .canvas .minimap { width: 130px; height: 100px; }
   .act-bar .act { min-width: 54px; padding: 6px; }
   .fit-badge { top: 8px; font-size: 12.5px; }
@@ -257,10 +242,7 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 }
 .studio.app .studio-head { gap: 8px; padding: 0 2px; flex-wrap: nowrap; }
 .studio.app .studio-title h1 { font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.studio.app .studio-title .sub, .studio.app #progress { display: none; }
-.studio.app .home-menu > summary { padding: 6px 12px; font-size: 13px; }
-.studio.app .home-pop { right: 0; left: auto; }
-.studio.app .home-pop .app-only { justify-content: center; }
+.studio.app .studio-title .sub { display: none; }
 
 .studio.app .stage { grid-area: stage; }
 .studio.app .canvas { flex: 1; height: auto; min-height: 0; }
@@ -342,25 +324,12 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .fit-card li.v-info .dot { background: var(--graphite); opacity: .5; }
 
 /* ---- 3단계: 지금 할 일 카드 (3D 왼쪽 위) + 단계가 끝날 때 체크가 톡 ---- */
-.step-card { position: absolute; top: 12px; left: 12px; z-index: 5; display: flex; align-items: center; gap: 10px; max-width: min(460px, calc(100% - 96px));
-  padding: 8px 10px 8px 8px; border-radius: 16px; background: rgba(255, 255, 255, .94); box-shadow: var(--shadow-float); animation: sc-in .35s var(--ease, ease) both; }
-.step-card[hidden] { display: none; }
-.step-card .sc-n { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; color: #fff; background: var(--lg); }
-.step-card .sc-n.warn { background: var(--nofit); }
-.step-card .sc-n.done { background: var(--fit); }
-.step-card p { margin: 0; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
-.step-card p b { font-size: 13.5px; }
-.step-card p span { font-size: 12.5px; color: var(--graphite); text-wrap: pretty; }
-.step-card button { flex: none; white-space: nowrap; }
-.canvas:has(.step-card:not([hidden])) .hint { display: none; }
-.canvas:has(.fit-badge:not([hidden])) .step-card { display: none; }
 @keyframes sc-in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .steps5 .step.just-done .num { animation: step-pop .55s cubic-bezier(.2, 1.6, .4, 1) var(--d, 0ms) both; }
 .steps5 .step.just-done + .step::before { animation: step-line .45s ease var(--d, 0ms) both; }
 @keyframes step-pop { 0% { transform: scale(.6); background: var(--sheet); color: var(--lg); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
 @keyframes step-line { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 @media (prefers-reduced-motion: reduce) { .step-card, .steps5 .step.just-done .num, .steps5 .step.just-done + .step::before { animation: none; } }
-.studio.app .step-card { top: 8px; left: 8px; max-width: calc(100% - 76px); }
 
 /* ==== 세 영역 정리 (2026-11-20): 왼쪽 제품 탐색 · 가운데 공간 편집 · 오른쪽 작업 정보 ==== */
 .studio:not(.app) { grid-template-columns: 320px minmax(0, 1fr) 340px; }
@@ -391,31 +360,8 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .lib .color-row .variants { display: inline-flex; }
 .lib .place-btn { width: 100%; margin-top: 8px; padding: 8px 10px; font-size: 13px; border-radius: 10px; }
 
-/* 위: 지금 단계는 "STEP n / 3"과 함께 크게, 끝난 단계는 체크, 다음 단계는 흐리게 */
-.steps3 { gap: 6px; }
-.steps3 .step { max-width: none; flex: 0 1 auto; min-width: 0; }
-.steps3 .step + .step::before { display: none; }
-.steps3 button { flex-direction: row; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; }
-.steps3 .txt { align-items: flex-start; }
-.steps3 .is-todo button { opacity: .55; }
-.steps3 .is-done button { color: var(--ink); }
-.steps3 .is-done button:hover { background: var(--drafting); }
-.steps3 .is-current button, .steps3 .is-warn button { background: #fbf0f3; box-shadow: inset 0 0 0 1.5px var(--lg); padding: 7px 16px 7px 7px; }
-.steps3 .is-warn button { background: var(--nofit-bg); box-shadow: inset 0 0 0 1.5px var(--nofit); }
-.steps3 .is-current .num { background: var(--lg); color: #fff; box-shadow: none; width: 32px; height: 32px; font-size: 15px; }
-.steps3 em { font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; color: var(--lg); }
-.steps3 .is-current b, .steps3 .is-warn b { font-size: 15px; font-weight: 700; }
-.steps3 .is-done small, .steps3 .is-todo small { display: none; }
-.steps3 .step:not(:last-child)::after { content: "›"; align-self: center; margin-left: 6px; color: var(--line); font-size: 18px; }
-.steps3 .step { display: flex; }
 
-/* 저장 상태: 머리 메뉴 글자와 점 색으로 바로 보이게 */
-.home-menu[data-save="ok"] .save-dot { background: var(--fit); }
-.home-menu[data-save="busy"] .save-dot { background: var(--cond); animation: pulse 1s infinite alternate; }
-.home-menu[data-save="dirty"] .save-dot { background: var(--cond); }
-.home-menu[data-save="fail"] .save-dot { background: var(--nofit); }
-.home-menu[data-save="fail"] > summary { color: var(--nofit); border-color: var(--nofit); }
-.home-menu[data-save="off"] .save-dot { background: #c9c3b9; }
+/* 저장 상태: 점 색으로 바로 보이게 */
 .save-state.dirty i { background: var(--cond); } .save-state.fail i { background: var(--nofit); } .save-state.fail { color: var(--nofit); }
 
 /* 가운데: 고른 제품 바로 위에 따라붙는 조작 메뉴 */
@@ -619,7 +565,6 @@ body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj 
 .canvas > .sim-switches { position: absolute; top: 12px; right: 12px; z-index: 5; background: var(--sheet); box-shadow: var(--shadow-float); }
 .sim-switches .simsw.on { background: var(--warm-grey); }
 /* 설치 단계 안내 카드는 뺀다: 놓으면 3D에서 초록·빨강으로 바로 보인다 */
-.studio #stepCard { display: none !important; }
 /* 신청 카드는 오른쪽 끝, 하우니 버튼 바로 위 */
 .studio:not(.app) .side { margin: 0 12px 88px 0; }
 .studio:not(.app) .side .order-bar { padding-right: 12px; }
@@ -834,6 +779,51 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .fsec .chip.on, .fsec .use-chips .chip.on { background: var(--lg); border-color: var(--lg); color: #fff; }
 .studio.app .sugg-card .vv { white-space: nowrap; }
 .studio.app .sugg-card .nm { min-width: 0; }
+
+/* ---- 화면 단순하게 (2026-11-21): 머리는 새로 만들기 · 불러오기 · 저장, 살아 보기 칸은 한 줄 ---- */
+.file-bar { margin-left: auto; flex: none; display: flex; align-items: center; gap: 6px; }
+.file-bar .save-note:empty { display: none; }
+.file-bar .save-state { margin-right: 6px; }
+.fbtn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 13px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--ink);
+  font-size: 13.5px; font-weight: 600; text-decoration: none; white-space: nowrap; box-shadow: none; cursor: pointer; transition: background .15s, border-color .15s; }
+.fbtn .ic { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.fbtn:hover:not(:disabled) { background: var(--warm-grey); border-color: #cfc8bc; }
+.fbtn.primary { background: var(--lg); border-color: var(--lg); color: #fff; }
+.fbtn.primary:hover:not(:disabled) { background: var(--lg-deep); border-color: var(--lg-deep); }
+.fbtn.app-only { display: none; }
+.studio.app .fbtn.app-only { display: inline-flex; }
+.studio.app .file-bar { gap: 4px; }
+.studio.app .fbtn { height: 34px; padding: 0 10px; font-size: 13px; }
+.studio.app .file-bar .save-note { display: none; }
+@media (max-width: 560px) { .studio.app .fbtn:not(.primary) { padding: 0 9px; font-size: 0; gap: 0; } .studio.app .fbtn.app-only { font-size: 12.5px; } }
+
+/* 살아 보기 칸: 입력 한 줄 + 결과 한 줄 */
+.canvas .sheet:not(:empty) { width: min(460px, calc(100% - 24px)); padding: 12px 14px; }
+.sim-row { display: flex; align-items: center; gap: 8px; }
+.sim-row input[type="search"] { flex: 1; min-width: 0; margin: 0; height: 38px; }
+.sim-row button { flex: none; height: 38px; white-space: nowrap; }
+.sim-row .seg2.band { flex: 1; }
+.sim-row .seg2.band button { height: 34px; padding: 0 6px; }
+#simres:empty { display: none; }
+#simres { margin-top: 10px; }
+.sheet .facing { margin: 0; font-size: 15px; color: var(--ink); }
+.sheet .facing b { font-size: 19px; font-weight: 700; margin-right: 2px; }
+.sim-line { margin: 0; font-size: 13px; color: var(--graphite); }
+.sim-ask { flex: 1; min-width: 0; margin: 0; display: flex; flex-direction: column; gap: 1px; }
+.sim-ask b { font-size: 16px; font-weight: 700; color: var(--ink); }
+.sim-ask span { font-size: 13px; color: var(--graphite); }
+.wifi-legend { margin: 0; display: flex; gap: 14px; font-size: 13px; color: var(--ink); }
+.wifi-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.wifi-legend i { width: 12px; height: 12px; border-radius: 4px; }
+.plan .start-dot { fill: var(--route); fill-opacity: .28; stroke: var(--route); stroke-width: .03px; }
+
+/* 동선: 길이 막힌 제품 오른쪽 위의 ✕ (누르면 뺀다) */
+.flow-xs { position: absolute; inset: 0; z-index: 4; pointer-events: none; overflow: hidden; }
+.flow-x { position: absolute; left: -15px; top: -15px; width: 30px; height: 30px; padding: 0; display: grid; place-items: center; border: 2px solid #fff; border-radius: 50%;
+  background: var(--nofit); color: #fff; box-shadow: 0 2px 8px rgba(60, 48, 30, .35); pointer-events: auto; cursor: pointer; will-change: transform; }
+.flow-x svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
+.flow-x:hover:not(:disabled) { background: #8f1d17; }
+.studio[data-view="plan"] .flow-xs { display: none; }
 
 /* 남는 틈 표시: 고른 물건 옆·위·뒤 틈 (mm). 설치 여유 값이 있는 틈만 초록/빨강 */
 .gap-tags { position: absolute; inset: 0; z-index: 3; pointer-events: none; overflow: hidden; }
