@@ -27,9 +27,10 @@ const j = async (p) => (await fetch(BASE + p)).json();
 
   // S1 셀프 스캔: 실제 UGScan 파일 + 도면 올리기
   await page.goto(BASE + "/#/");
-  check("첫 화면: 내 집 스캔", await page.isVisible("#drop"));
+  check("첫 화면: 내 집 스캔", await page.isVisible('[data-slot="scan"]'));
   await page.setInputFiles("#fp", path.join(ROOT, "docs/specs/usdz-analysis-2026-11-18.png"));
   await page.setInputFiles("#file", path.join(ROOT, "data/samples/ugscan_2026-11-18.usdz"));
+  await page.click("#go");
   await page.waitForFunction(() => location.hash.startsWith("#/c/"), null, { timeout: 60000 });
   const pid = page.url().split("#/c/")[1].split("?")[0];
   await page.waitForSelector("#lib .prod");
@@ -283,10 +284,10 @@ const j = async (p) => (await fetch(BASE + p)).json();
   await wait(1000);
   check("방문 스캔 신청", /요청 번호/.test(await page.textContent("#reqDone")));
   // 다른 화면에 다녀와도 내 집이 그대로: 내 집 스캔 → 꾸미던 집, 보던 보기도 그대로
-  await page.click('[data-nav="home"]');
+  await page.click(".top .brand");
   await page.waitForFunction((id) => location.hash.startsWith("#/c/" + id), pid, { timeout: 10000 }).catch(() => {});
   await page.waitForSelector("#lib .prod", { timeout: 20000 }).catch(() => {});
-  check("방문 신청 다녀와도 내 집 그대로", page.url().includes("#/c/" + pid) && (await page.$$("#drop")).length === 0);
+  check("방문 신청 다녀와도 내 집 그대로", page.url().includes("#/c/" + pid) && (await page.$$('[data-slot="scan"]')).length === 0);
   const viewNow = await page.getAttribute(".studio", "data-view");
   check("보던 보기 그대로", viewNow === viewBefore, viewNow);
   check("작은 화면은 오른쪽 패널 아래 미니맵", viewNow === "split" || (await page.$$("#minimap .pane")).length === 1);

@@ -1043,6 +1043,24 @@ export function makeViewer(el, handlers = {}) {
       }
       return { image, mask };
     },
+    /** 첫 화면 카드에 쓰는 작은 미리보기 (지금 시점, JPEG). 표시용 선·사람은 빼고 찍는다 */
+    thumb(W = 480, H = 320) {
+      const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
+      const hidden = [];
+      [overlay, ghost, need, walkersG, starter, grid].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+      renderer.setPixelRatio(1); composer.setPixelRatio(1);
+      renderer.setSize(W, H, false); composer.setSize(W, H);
+      cam.aspect = W / H; cam.updateProjectionMatrix();
+      try {
+        composer.render();
+        return renderer.domElement.toDataURL("image/jpeg", 0.8);
+      } finally {
+        hidden.forEach((o) => (o.visible = true));
+        renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
+        cam.aspect = aspect; cam.updateProjectionMatrix();
+        renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
+      }
+    },
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
     /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
     setFinishes(f) { finishSet = f || {}; },

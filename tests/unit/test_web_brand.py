@@ -49,10 +49,18 @@ def test_service_worker_caches_brand_assets():
         assert f in sw
 
 
-def test_home_keeps_upload_controls():
+def test_home_shows_only_upload_samples_and_recent():
+    """지예: 첫 화면은 스캔 올리기(스캔 파일·도면 칸 따로), 샘플 집 카드, 최근에 만든 집만."""
     js = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
-    for el in ('id="drop"', 'id="file"', 'id="fp"', 'id="sample"', 'id="projects"'):
-        assert el in js
+    html = (WEB / "index.html").read_text(encoding="utf-8")
+    for el in ('slotHtml("scan"', 'slotHtml("plan"', 'id="go"', "data-sample=", 'id="projects"', "/api/me/projects", "data-del="):
+        assert el in js, el
+    home = js.split("// ---------- 화면: 방문 스캔 신청")[0]
+    for gone in ('id="sample"', 'id="pick"', 'class="steps"', "hero-cap", "꾸미던 집 이어서", "기사 스캔", "placements.length}개"):
+        assert gone not in home, gone
+    assert "data-nav" not in html and "기사 화면" not in html
+    for f in ("apt_living_kitchen", "synthetic_room", "ugscan_2026-11-18"):
+        assert (WEB / "img" / "samples" / f"{f}.webp").exists(), f
 
 
 def test_remodel_is_simple():

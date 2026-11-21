@@ -83,11 +83,30 @@ const readStore = (k) => { try { return JSON.parse(localStorage.getItem(k) || "n
 const writeStore = (k, v) => { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch { /* 저장 못 해도 괜찮다 */ } };
 /** 마지막으로 열어 본 집 {pid, token} 또는 null */
 export const lastHome = () => { const h = readStore(HOME_KEY); return h && typeof h.pid === "string" ? h : null; };
+// 이 브라우저에서 열어 본 집들 [{pid, token}] (최근 것이 앞). 로그인하지 않아도 첫 화면 ‘최근에 만든 집’에 보인다.
+const HOMES_KEY = "lgb.homes", HOMES_MAX = 12;
+export const localHomes = () => { const l = readStore(HOMES_KEY); return Array.isArray(l) ? l.filter((h) => h && typeof h.pid === "string") : []; };
 export const rememberHome = (pid, token) => {
-  const old = lastHome();
-  writeStore(HOME_KEY, { pid, token: token || (old?.pid === pid ? old.token : "") });
+  const old = lastHome(), known = localHomes().find((h) => h.pid === pid);
+  const tok = token || known?.token || (old?.pid === pid ? old.token : "");
+  writeStore(HOME_KEY, { pid, token: tok });
+  const all = [{ pid, token: tok }, ...localHomes().filter((h) => h.pid !== pid)];
+  all.slice(HOMES_MAX).forEach((h) => { try { localStorage.removeItem(`lgb.thumb.${h.pid}`); } catch { /* 괜찮다 */ } });
+  writeStore(HOMES_KEY, all.slice(0, HOMES_MAX));
 };
-export const forgetHome = (pid) => { if (!pid || lastHome()?.pid === pid) writeStore(HOME_KEY, null); };
+export const forgetHome = (pid) => {
+  if (!pid || lastHome()?.pid === pid) writeStore(HOME_KEY, null);
+  if (pid) writeStore(HOMES_KEY, localHomes().filter((h) => h.pid !== pid));
+  if (pid) { try { localStorage.removeItem(THUMB_KEY(pid)); } catch { /* 괜찮다 */ } }
+};
+// 집 미리보기 사진 (이 브라우저에만 둔다). 자리가 모자라면 그냥 넘어간다
+const THUMB_KEY = (pid) => `lgb.thumb.${pid}`;
+export const homeThumb = (pid) => { try { const v = localStorage.getItem(THUMB_KEY(pid)); return v && v.startsWith("data:image/jpeg") ? v : null; } catch { return null; } };
+export const saveHomeThumb = (pid, url) => { try { localStorage.setItem(THUMB_KEY(pid), url); } catch { /* 저장 못 해도 괜찮다 */ } };
+// 샘플 집은 한 번 만들면 같은 집을 다시 연다 (누를 때마다 새 집이 생기지 않게)
+const SAMPLES_KEY = "lgb.samples";
+export const sampleHome = (name) => { const m = readStore(SAMPLES_KEY); return m && m[name] && typeof m[name].pid === "string" ? m[name] : null; };
+export const rememberSample = (name, home) => writeStore(SAMPLES_KEY, { ...(readStore(SAMPLES_KEY) || {}), [name]: home });
 export const homeHref = (h = lastHome()) => (h ? `#/c/${encodeURIComponent(h.pid)}${h.token ? `?t=${encodeURIComponent(h.token)}` : ""}` : "#/new");
 /** 집마다 보던 화면(보기·탭·살아 보기·카메라) */
 export const uiState = (pid) => readStore(UI_KEY(pid)) || {};

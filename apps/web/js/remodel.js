@@ -1,6 +1,6 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
 import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
-  rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
+  rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { gapNotes } from "./gapnote.js";
 import { buildWorld } from "./walk.js";
@@ -360,7 +360,11 @@ export async function customer(pid) {
     onDropSku: (sku, p) => placeAt(sku, p),
   });
   const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
-  cleanup.push(saveCamera, () => viewer.dispose()); // 화면을 떠나기 전에 카메라부터 적어 둔다
+  // 첫 화면 ‘최근에 만든 집’ 카드에 쓸 미리보기. 3D가 다 뜬 뒤와 화면을 떠날 때 찍는다
+  let thumbT = 0;
+  const saveThumb = () => { try { if (project && room && !viewer.walking()) saveHomeThumb(pid, viewer.thumb()); } catch { /* 미리보기는 없어도 된다 */ } };
+  const thumbSoon = () => { clearTimeout(thumbT); thumbT = setTimeout(saveThumb, 4000); };
+  cleanup.push(() => clearTimeout(thumbT), saveThumb, saveCamera, () => viewer.dispose()); // 화면을 떠나기 전에 미리보기와 카메라부터 적어 둔다
   window.addEventListener("pagehide", saveCamera);
   cleanup.push(() => window.removeEventListener("pagehide", saveCamera));
   const restoredCam = viewer.setCamera(saved.cam);
@@ -1542,7 +1546,9 @@ export async function customer(pid) {
     if (wb) wb.onclick = guard(async () => { for (const w of walls) await put(`/api/projects/${pid}/walls/${w}/hidden`, { hidden: false }); await refresh(true); });
     const rb = document.getElementById("restore");
     if (rb) rb.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: false }); await refresh(true); });
-    document.getElementById("furn").hidden = room.objects.length === 0;
+    const furnEl = document.getElementById("furn");
+    if (!furnEl) return; // 화면을 떠난 뒤 늦게 온 응답
+    furnEl.hidden = room.objects.length === 0;
     drawFurnX();
   };
   // 실사로 보기: 지금 3D 시점 + LG 제품 마스크 → 서버의 이미지 AI가 벽·바닥·빛만 사진처럼 (제품은 3D 그대로)
@@ -2001,6 +2007,7 @@ export async function customer(pid) {
     if (!force && v === version) return;
     const got = await Promise.all([api(`/api/projects/${pid}`), api(`/api/projects/${pid}/room`), api(`/api/projects/${pid}/zones`)]);
     if (seen !== editSeq) return; // 저장이 끝나면 다시 읽는다
+    if (!studio.isConnected) return; // 화면을 떠난 뒤 늦게 온 응답은 그리지 않는다
     version = v;
     [project, room, zones] = got;
     if (selPl && !project.scene_state.placements.some((q) => q.placement_id === selPl)) selPl = null;
@@ -2019,6 +2026,7 @@ export async function customer(pid) {
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
     const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    thumbSoon();
     if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 휠 누르고 끌기 이동 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };

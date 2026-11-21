@@ -387,18 +387,24 @@ def list_requests(_: dict = TECH, s: Service = S):
 
 @app.post("/api/projects", status_code=201)
 async def upload_scan(file: UploadFile = File(...), request_id: Optional[str] = Form(None),
-                      scanned_by: str = Form("technician"), u: Optional[dict] = ME_OPT, s: Service = S):
+                      scanned_by: str = Form("technician"), name: Optional[str] = Form(None),
+                      u: Optional[dict] = ME_OPT, s: Service = S):
     data = await file.read()
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "파일이 너무 큽니다")
     if not data:
         raise HTTPException(422, "빈 파일")
-    return s.create_project_from_usdz(data, file.filename or "room.usdz", request_id or None, scanned_by, user=u)
+    return s.create_project_from_usdz(data, file.filename or "room.usdz", request_id or None, scanned_by, user=u, name=name)
 
 
 @app.get("/api/projects")
-def list_projects(s: Service = S):
-    return s.list_projects()
+def list_projects(u: Optional[dict] = ME_OPT, s: Service = S):
+    return s.visible_projects(u)
+
+
+@app.delete("/api/projects/{pid}", status_code=204)
+def delete_project(pid: str, t: Optional[str] = None, u: Optional[dict] = ME_OPT, s: Service = S):
+    s.delete_project(pid, u, t)
 
 
 @app.get("/api/projects/{pid}")
@@ -804,7 +810,7 @@ def catalog(category: Optional[str] = None, zone: Optional[str] = None, q: Optio
     return [p.model_dump() for p in s.catalog.search(category, zone, q)]
 
 
-SAMPLES = {"synthetic_room.usdz", "ugscan_2026-11-18.usdz"}
+SAMPLES = {"synthetic_room.usdz", "apt_living_kitchen.usdz", "ugscan_2026-11-18.usdz"}
 
 
 @app.get("/api/samples/{name}")

@@ -1,10 +1,18 @@
 // 화면: 내 집 스캔(첫 화면), 방문 스캔 신청, 기사 화면
-import { $app, cleanup, esc, mm, api, apiUrl, post, put, toast, guard, lastHome, homeHref } from "./core.js";
+import { $app, cleanup, esc, mm, api, apiUrl, post, put, toast, guard, localHomes, forgetHome, sampleHome, rememberSample, currentUser, homeThumb } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { planView } from "./plan.js";
 
+// 눌러서 바로 쓰는 샘플 집. 가상 예시는 ‘예시’, 실제 스캔은 ‘실제 스캔’으로 적는다.
+const SAMPLE_HOMES = [
+  { file: "apt_living_kitchen.usdz", name: "거실과 주방이 이어진 집", tag: "예시" },
+  { file: "synthetic_room.usdz", name: "주방 겸 거실 원룸", tag: "예시" },
+  { file: "ugscan_2026-11-18.usdz", name: "아이폰으로 스캔한 강의실", tag: "실제 스캔" },
+];
+const ICON_SCAN = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M12 7.5 16 9.8v4.4L12 16.5 8 14.2V9.8zM12 12v4.5M8 9.8l4 2.2 4-2.2"/></svg>`;
+const ICON_PLAN = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M4 11h7V4M11 15v5M15 11h5"/></svg>`;
+
 export async function selfScan() {
-  const last = lastHome();
   $app.innerHTML = `
     <section class="hero" aria-labelledby="heroH">
       <picture class="hero-bg">
@@ -17,68 +25,129 @@ export async function selfScan() {
           <h1 id="heroH">스캔한 우리 집에<br>LG 빌트인을 미리.</h1>
           <p class="lede">아이폰으로 찍은 집이 그대로 3D가 됩니다. 냉장고와 식기세척기를 원하는 자리에 놓아 보고,
             들어가는지, 문이 열리는지, 볕과 와이파이, 다니는 길까지 살기 전에 확인하세요.</p>
-          <div class="cta">
-            <button class="primary lg" id="sample">샘플 집으로 체험하기</button>
-            <button class="ghost lg" id="pick">내 스캔 파일 올리기</button>
-          </div>
-          ${last ? `<a class="resume" id="resume" href="${esc(homeHref(last))}"><span><b>꾸미던 집 이어서 꾸미기</b>
-            <span class="muted">${esc(last.pid)} · 놓은 제품과 보던 화면이 그대로 있어요</span></span></a>` : ""}
         </div>
-        <div class="hero-dock">
-          <ol class="steps">
-            <li><b>스캔</b><span>UGScan 앱 RoomPlan 모드로 방을 천천히 한 바퀴</span></li>
-            <li><b>올리기</b><span>USDZ로 내보내 여기에 끌어다 놓기</span></li>
-            <li><b>놓아 보기</b><span>LG 제품을 골라 3D 바닥에 놓기</span></li>
-          </ol>
-          <div class="upload">
-            <div class="drop big" id="drop" role="button" tabindex="0" aria-label="USDZ 파일 선택">
-              <b>USDZ 파일을 끌어다 놓거나 눌러서 선택</b><span class="muted">UGScan · RoomPlan 내보내기</span>
-              <input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
-            <label class="fp-pick"><span>도면 함께 올리기 <em>선택</em></span><input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf"></label>
-            <a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a>
-          </div>
+        <div class="start">
+          <section class="start-box" aria-labelledby="upH">
+            <h2 id="upH">내 집 스캔 올리기</h2>
+            <div class="slots">
+              ${slotHtml("scan", ICON_SCAN, "스캔 파일", "필수", "USDZ · UGScan 앱에서 내보낸 파일", ".usdz,.usd,.usda,.usdc")}
+              ${slotHtml("plan", ICON_PLAN, "도면", "선택", "이미지나 PDF · 있으면 더 정확해요", ".png,.jpg,.jpeg,.webp,.pdf")}
+            </div>
+            <div class="start-foot"><a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a>
+              <button class="primary" id="go" disabled>3D로 만들기</button></div>
+          </section>
+          <section class="start-box" aria-labelledby="smH">
+            <h2 id="smH">샘플 집으로 시작하기</h2>
+            <div class="samples">${SAMPLE_HOMES.map((h, i) => `
+              <button class="sample" data-sample="${i}"><span class="sample-img"><img src="img/samples/${esc(h.file.replace(/\.usdz$/, ""))}.webp" alt="" loading="lazy" decoding="async" draggable="false"><em>${esc(h.tag)}</em></span>
+                <b>${esc(h.name)}</b></button>`).join("")}</div>
+          </section>
         </div>
       </div>
-      <p class="hero-cap">실제 LGE.COM 치수로 만든 3D 모델을 Blender로 렌더한 장면이에요</p>
     </section>
     <section class="recent" aria-labelledby="recentH">
       <h2 id="recentH">최근에 만든 집</h2>
       <ul class="list" id="projects"><li class="muted">불러오는 중…</li></ul>
     </section>`;
-  const drop = document.getElementById("drop"), file = document.getElementById("file");
-  const send = guard(async (blob, name) => {
-    drop.innerHTML = "<b>집을 3D로 만드는 중…</b><br><span class='muted'>벽·문·창·가구를 읽고 있어요</span>";
+
+  // ---- 올리기: 스캔 파일(필수)과 도면(선택)을 칸을 나눠 받는다 ----
+  const picked = { scan: null, plan: null };
+  const go = document.getElementById("go");
+  const OK = { scan: /\.(usdz|usd|usda|usdc)$/i, plan: /\.(png|jpe?g|webp|pdf)$/i };
+  const setSlot = (kind, f) => {
+    if (f && !OK[kind].test(f.name)) { toast(kind === "scan" ? "USDZ 파일을 올려 주세요" : "도면은 이미지나 PDF로 올려 주세요", true); return; }
+    picked[kind] = f || null;
+    const el = document.querySelector(`[data-slot="${kind}"]`);
+    el.classList.toggle("has", !!f);
+    el.querySelector(".slot-name").textContent = f ? f.name : "";
+    el.querySelector(".slot-file").hidden = !f;
+    if (!f) el.querySelector("input").value = "";
+    go.disabled = !picked.scan;
+  };
+  document.querySelectorAll("[data-slot]").forEach((el) => {
+    const kind = el.dataset.slot, input = el.querySelector("input");
+    el.onclick = (e) => { if (!e.target.closest(".slot-x")) input.click(); };
+    el.onkeydown = (e) => { if ((e.key === "Enter" || e.key === " ") && e.target === el) { e.preventDefault(); input.click(); } };
+    input.onclick = (e) => e.stopPropagation();
+    input.onchange = () => input.files[0] && setSlot(kind, input.files[0]);
+    el.querySelector(".slot-x").onclick = () => setSlot(kind, null);
+    el.ondragover = (e) => { e.preventDefault(); el.classList.add("over"); };
+    el.ondragleave = () => el.classList.remove("over");
+    el.ondrop = (e) => { e.preventDefault(); el.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) setSlot(kind, f); };
+  });
+  const create = async (blob, filename, name) => {
     const fd = new FormData();
-    fd.append("file", blob, name);
+    fd.append("file", blob, filename);
     fd.append("scanned_by", "customer");
+    if (name) fd.append("name", name);
+    return api("/api/projects", { method: "POST", body: fd });
+  };
+  const openHome = (p) => { location.hash = `#/c/${p.project_id}?t=${p.share_token}`; };
+  go.onclick = guard(async () => {
+    if (!picked.scan) return;
+    go.disabled = true; go.textContent = "집을 3D로 만드는 중…";
     try {
-      const p = await api("/api/projects", { method: "POST", body: fd });
-      const fp = document.getElementById("fp").files[0];
-      if (fp) await uploadFloorplan(p.project_id, fp);
-      location.hash = `#/c/${p.project_id}?t=${p.share_token}`;
-    } catch (e) { drop.innerHTML = "<b>다시 시도해 주세요</b><br><span class='muted'>USDZ 파일인지 확인해 주세요</span>"; throw e; }
+      const p = await create(picked.scan, picked.scan.name);
+      if (picked.plan) await uploadFloorplan(p.project_id, picked.plan);
+      openHome(p);
+    } catch (e) { go.disabled = false; go.textContent = "3D로 만들기"; throw e; }
   });
-  drop.onclick = () => file.click();
-  document.getElementById("pick").onclick = () => file.click();
-  drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); file.click(); } };
-  file.onchange = () => file.files[0] && send(file.files[0], file.files[0].name);
-  drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
-  drop.ondragleave = () => drop.classList.remove("over");
-  drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); const f = e.dataTransfer.files[0]; if (f) send(f, f.name); };
-  document.getElementById("sample").onclick = guard(async () => {
-    const b = await (await fetch(apiUrl("/api/samples/ugscan_2026-11-18.usdz"))).blob();
-    send(b, "ugscan_2026-11-18.usdz");
-  });
-  let ps;
-  try { ps = await api("/api/projects"); }
-  catch (e) { document.getElementById("projects").innerHTML = `<li class="muted">목록을 못 불러왔어요: ${esc(e.message)} (서버 명령창의 오류를 확인하세요)</li>`; return; }
-  document.getElementById("projects").innerHTML = ps.length ? ps.slice().reverse().slice(0, 6).map((p) => `
-    <li><a class="proj" href="#/c/${esc(p.project_id)}?t=${esc(p.share_token)}">
-      <b>${esc(p.project_id)}</b>
-      <span class="muted">${p.scan.scanned_by === "customer" ? "셀프 스캔" : "기사 스캔"}</span>
-      <span class="muted">제품 ${p.scene_state.placements.length}개</span>
-      <span class="go">열기</span></a></li>`).join("")
-    : `<li class="muted">아직 없어요. 샘플 집으로 먼저 체험해 보세요.</li>`;
+
+  // ---- 샘플 집: 처음 누르면 만들고, 다음부터는 같은 집을 연다 ----
+  document.querySelectorAll("[data-sample]").forEach((b) => (b.onclick = guard(async () => {
+    const h = SAMPLE_HOMES[+b.dataset.sample], had = sampleHome(h.file);
+    b.disabled = true; b.classList.add("busy");
+    try {
+      if (had) {
+        const p = await api(`/api/projects/${had.pid}`).catch(() => null);
+        if (p) { openHome(p); return; }
+      }
+      const blob = await (await fetch(apiUrl(`/api/samples/${h.file}`))).blob();
+      const p = await create(blob, h.file, h.name);
+      rememberSample(h.file, { pid: p.project_id, token: p.share_token });
+      openHome(p);
+    } finally { b.disabled = false; b.classList.remove("busy"); }
+  })));
+
+  // ---- 최근에 만든 집: 내 계정의 집과 이 브라우저에서 만든 집만 ----
+  const box = document.getElementById("projects");
+  const tokens = Object.fromEntries(localHomes().map((h) => [h.pid, h.token]));
+  const [mine, local] = await Promise.all([
+    currentUser() ? api("/api/me/projects").catch(() => []) : [],
+    Promise.all(localHomes().map((h) => api(`/api/projects/${h.pid}`).catch(() => { forgetHome(h.pid); return null; }))),
+  ]);
+  const seen = new Set();
+  const homes = [...local.filter(Boolean), ...mine.slice().reverse()].filter((p) => !seen.has(p.project_id) && seen.add(p.project_id)).slice(0, 8);
+  const render = () => {
+    box.innerHTML = homes.length ? homes.map((p) => `
+      <li class="proj"><a href="#/c/${esc(p.project_id)}?t=${esc(p.share_token)}">
+          <span class="sample-img">${homeThumb(p.project_id) ? `<img src="${homeThumb(p.project_id)}" alt="" draggable="false">` : ICON_SCAN}</span>
+          <b>${esc(p.name || "우리 집")}</b></a>
+        <button class="proj-del" data-del="${esc(p.project_id)}" aria-label="${esc(p.name || "우리 집")} 지우기" title="지우기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></li>`).join("")
+      : `<li class="muted">아직 없어요. 스캔 파일을 올리거나 샘플 집을 눌러 보세요.</li>`;
+    box.querySelectorAll("[data-del]").forEach((b) => (b.onclick = guard(async () => {
+      if (!b.classList.contains("ask")) { // 한 번 더 눌러야 지운다
+        b.classList.add("ask"); b.textContent = "지울까요?";
+        setTimeout(() => { if (b.isConnected) render(); }, 4000);
+        return;
+      }
+      const pid = b.dataset.del, t = tokens[pid] || homes.find((p) => p.project_id === pid)?.share_token || "";
+      await api(`/api/projects/${pid}?t=${encodeURIComponent(t)}`, { method: "DELETE" });
+      forgetHome(pid);
+      homes.splice(homes.findIndex((p) => p.project_id === pid), 1);
+      render();
+      toast("집을 지웠어요");
+    })));
+  };
+  render();
+}
+
+function slotHtml(kind, icon, title, need, hint, accept) {
+  return `<div class="slot" data-slot="${kind}" role="button" tabindex="0" aria-label="${title} 올리기 (${need})">
+    ${icon}<span class="slot-t"><b>${title}</b><em class="${need === "필수" ? "need" : ""}">${need}</em></span>
+    <span class="slot-hint">${hint}</span>
+    <span class="slot-file" hidden><span class="slot-name"></span><button class="slot-x" type="button" aria-label="${title} 빼기" title="빼기">×</button></span>
+    <input type="file" id="${kind === "scan" ? "file" : "fp"}" accept="${accept}" hidden></div>`;
 }
 
 // ---------- 화면: 방문 스캔 신청 (선택) ----------

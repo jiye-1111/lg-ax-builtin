@@ -10,6 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 import re
 import secrets
+import shutil
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -38,6 +39,9 @@ from .store import Store
 KST = timezone(timedelta(hours=9))
 HEX_RE = re.compile(r"^#[0-9A-Fa-f]{6}$")
 MATERIAL_TARGETS = ("wall", "floor", "door", "window", "object")
+
+
+HOME_NAME_MAX = 40
 
 
 class NotFound(KeyError):
@@ -179,13 +183,18 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     # ---- F2·F4 스캔 등록 ----
     def create_project_from_usdz(self, data: bytes, filename: str = "room.usdz", request_id: str | None = None,
-                                 scanned_by: str = "technician", user: dict | None = None) -> dict:
+                                 scanned_by: str = "technician", user: dict | None = None,
+                                 name: str | None = None) -> dict:
         from worker.runner import process_scan  # 지연 import: pxr 로딩 비용
 
         if request_id:
             self.get_request(request_id)
         if scanned_by not in ("technician", "customer"):
             raise Invalid("scanned_by는 technician 또는 customer")
+        name = (name or "").strip()
+        if len(name) > HOME_NAME_MAX:
+            raise Invalid(f"집 이름은 {HOME_NAME_MAX}자까지 쓸 수 있어요")
+        name = name or Path(filename).stem.strip()[:HOME_NAME_MAX] or None  # 이름을 안 주면 올린 파일 이름
         pid = self.db.next_id("p")
         d = self.pdir(pid)
         (d / "scan").mkdir(parents=True, exist_ok=True)
@@ -199,7 +208,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         except Exception as e:  # 변환 실패 이유를 화면에 그대로 보여 준다
             raise Invalid(f"스캔 변환 실패: {e}") from e
         proj = {
-            "project_id": pid, "request_id": request_id, "created_at": now(), "status": "scanned",
+            "project_id": pid, "name": name, "request_id": request_id, "created_at": now(), "status": "scanned",
             "scan": {"source": "ugscan_roomplan_usdz", "usdz": str(usdz.relative_to(self.root)),
                      "room_json": str((d / "scan" / "room.json").relative_to(self.root)), "scanned_by": scanned_by},
             "scene": {"glb": None, "png": None, "engine": None},
@@ -217,6 +226,26 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def list_projects(self) -> list[dict]:
         return self.db.list("project")
+
+    def visible_projects(self, user: dict | None) -> list[dict]:
+        """웹 목록용. 기사·관리자는 전부, 고객은 내 집만, 로그인 안 했으면 아무것도 안 보인다."""
+        if is_approved_tech(user):
+            return self.list_projects()
+        return self.my_projects(user) if user else []
+
+    def delete_project(self, pid: str, user: dict | None, share_token: str | None = None) -> None:
+        """집 지우기. 주인 있는 집은 주인·관리자만, 주인 없는 집은 고객 링크를 가진 사람만."""
+        p = self.get_project(pid)
+        if p.get("owner_id"):
+            if not user or not (user["role"] == "admin" or user["user_id"] == p["owner_id"]):
+                raise Forbidden("이 집을 지울 권한이 없습니다")
+        elif not (user and user["role"] == "admin") and not secrets.compare_digest(str(share_token or ""), str(p["share_token"])):
+            raise Forbidden("이 집의 고객 링크가 아닙니다")
+        for kind, key in (("save", "save_id"), ("zone", "zone_id")):
+            for x in self.db.list(kind, parent=pid):
+                self.db.delete(kind, x[key])
+        self.db.delete("project", pid)
+        shutil.rmtree(self.pdir(pid), ignore_errors=True)
 
     # ---- 내 집 · 저장 ----
     def my_projects(self, user: dict) -> list[dict]:

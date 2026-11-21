@@ -28,6 +28,7 @@ const emoji = /\p{Extended_Pictographic}/u;
   // 실제 UGScan 스캔으로 집 만들기
   await page.goto(BASE + "/#/");
   await page.setInputFiles("#file", path.join(ROOT, "data/samples/ugscan_2026-11-18.usdz"));
+  await page.click("#go");
   await page.waitForFunction(() => location.hash.startsWith("#/c/"), null, { timeout: 60000 });
   const pid = page.url().split("#/c/")[1].split("?")[0];
   await page.waitForSelector("#lib .prod");

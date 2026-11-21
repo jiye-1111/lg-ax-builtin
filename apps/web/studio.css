@@ -106,9 +106,7 @@
 @media (max-width: 900px) { .side .order-bar { padding-right: 92px; } .bot-btn .bot-tip { display: none; } }
 
 /* ==== 정정 목업 (2026-11-20): 위는 3단계만, 3D 위·아래 조작, 오른쪽은 탭 없이 제품 카드 ==== */
-/* 리모델링 화면에서는 위 메뉴 링크를 숨겨 머리를 비운다 (브랜드·로그인만) */
-body[data-route="c"] .top nav { display: none; }
-body[data-route="c"] .top .acct { margin-left: auto; }
+.top .acct { margin-left: auto; }
 
 .studio-head { gap: 12px; }
 
@@ -519,8 +517,7 @@ button.primary:hover, .btn.primary:hover { background: var(--lg-deep); border-co
 button.ghost:hover, .btn.ghost:hover { background: var(--warm-grey); border-color: var(--line); }
 /* 눌린 상태·고른 칩은 모두 레드 */
 .chip.on, .icon-btn.on, .furn-btn.on, .toolbar .furn-btn.on, #walk.on, #keysBtn.on, #beforeBtn[aria-pressed="true"],
-.live-bar .sims .furn-btn.on, .lib-tabs [data-tab].on, .opt-steps .on, .main-steps .on,
-body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj .go {
+.live-bar .sims .furn-btn.on, .lib-tabs [data-tab].on, .opt-steps .on, .main-steps .on {
   background: var(--lg); color: #fff; border-color: var(--lg);
 }
 .chip.on .muted, .chip.on small, .opt-steps .on small, .opt-steps .on .n { color: rgba(255, 255, 255, .8); }
@@ -628,7 +625,7 @@ body[data-route="r"] [data-nav="r"], body[data-route="t"] [data-nav="t"], .proj 
 
 /* ===== 왼쪽 제품 탐색 다시 짜기 (2026-11-21): 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 =====
    3D가 화면의 약 79%, 제품 탐색이 약 21%. 패널은 접을 수 있다 */
-.studio:not(.app) { grid-template-columns: clamp(288px, 21vw, 348px) minmax(0, 1fr); }
+.studio:not(.app) { grid-template-columns: clamp(320px, 27vw, 400px) minmax(0, 1fr); }
 .studio:not(.app).lib-folded { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "stage"; }
 .studio:not(.app).lib-folded .lib { display: none; }
 .lib-fold { grid-area: stage; align-self: center; justify-self: start; z-index: 8; width: 22px; height: 56px; padding: 0; margin-left: -18px;
