@@ -9,11 +9,14 @@ import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
 import { optionSteps, priceScale } from "./options.js";
+import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, parseManwon, wonText } from "./filters.js";
 import { startTour, tourSeen } from "./tour.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
+const MAX_DOTS = 5; // 카드에 보이는 색 동그라미 수 (나머지는 상세 창에서)
+const CATS_CLIP_PX = 72; // 품목 칩 두 줄 높이 (studio.css .cat-chips.clip과 같은 값)
 
 export async function customer(pid) {
   const token = new URLSearchParams(location.hash.split("?")[1] || "").get("t");
@@ -33,36 +36,48 @@ export async function customer(pid) {
 
       <aside class="lib" data-panel="lib" aria-label="공간 꾸미기 라이브러리">
         <div class="lib-side">
-          <nav class="lib-tabs" id="libTabs" role="tablist" aria-label="라이브러리 종류">
+          <!-- 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 순서 -->
+          <nav class="lib-tabs" id="libTabs" role="tablist" aria-label="카테고리">
             <button role="tab" data-tab="all">전체</button><button role="tab" data-tab="lg">LG 가전</button><button role="tab" data-tab="furniture">가구</button><button role="tab" data-tab="storage">수납</button><button role="tab" data-tab="decor">소품</button></nav>
           <section class="decor-lib" id="decorLib" aria-label="벽체·가구·수납·소품"></section>
-          <div class="lib-head lg-part"><h2>LG 가전</h2><span class="muted" id="libCount"></span>
-            <select id="sortBy" aria-label="정렬"><option value="">추천순</option><option value="price">낮은 가격순</option><option value="size">작은 크기순</option></select>
+          <div class="lib-head lg-part"><h2>LG 가전</h2>
             <button class="primary small app-only" id="orderMini" hidden>구매·설치 신청</button>
             <button class="ghost small app-only" id="libMore" aria-expanded="false">전체 보기</button></div>
           <input id="q" class="lg-part" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
-          <!-- 기본으로는 종류·설치 유형·크기만. 나머지는 상세 필터 안에 -->
-          <div class="main-filter lg-part">
-            <div class="chips" id="cats" aria-label="가전 종류"></div>
-            <ol class="opt-steps main-steps" id="mainSteps" aria-label="설치 유형"></ol>
-            <div class="filters" aria-label="크기 필터">
-              <select id="fW" aria-label="폭"><option value="">폭 전체</option><option value="0-650">폭 650 mm 이하</option><option value="650-850">폭 650~850 mm</option><option value="850-99999">폭 850 mm 이상</option></select>
-              <select id="fH" aria-label="높이"><option value="">높이 전체</option><option value="0-900">높이 900 mm 이하</option><option value="900-1800">높이 900~1,800 mm</option><option value="1800-99999">높이 1,800 mm 이상</option></select>
-            </div>
-            <div class="budget" id="budget" hidden aria-label="가격 범위">
-              <div class="budget-head"><span>가격</span><b id="budgetOut"></b></div>
-              <div class="budget-rail"><input type="range" id="pLo" aria-label="최저 가격"><input type="range" id="pHi" aria-label="최고 가격"></div>
-            </div>
-          </div>
-          <details class="more-filter lg-part" id="moreFilter"><summary>상세 필터 <span class="muted" id="filterOn"></span></summary>
-            <div class="ask" id="ask" aria-label="공간 용도"></div>
-            <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
-            <button class="small ghost reset-filter" id="resetFilter">필터 초기화</button>
+          <details class="fbox lg-part" id="filterBox" open>
+            <summary><span class="fbox-t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>필터</span><span class="fbox-n" id="filterN" hidden></span><span class="fbox-arrow" aria-hidden="true"></span></summary>
+            <section class="fsec" aria-labelledby="fInstall"><h3 id="fInstall">설치 방식</h3>
+              <div class="seg2" id="installSeg" role="group" aria-label="설치 방식"></div></section>
+            <section class="fsec" aria-labelledby="fCat"><h3 id="fCat">품목</h3>
+              <div class="ask" id="ask" aria-label="공간 용도"></div>
+              <div class="chips cat-chips" id="cats" aria-label="가전 종류"></div>
+              <button class="linklike cats-more" id="catsMore" aria-expanded="false" hidden>품목 더 보기</button></section>
+            <section class="fsec budget" id="budget" hidden aria-labelledby="fPrice"><h3 id="fPrice">가격 범위</h3>
+              <div class="budget-io">
+                <label><span>최소 가격</span><span class="won-in"><input id="pLoIn" type="text" inputmode="numeric" autocomplete="off" aria-label="최소 가격 (만 원)"><i>만원</i></span></label>
+                <label><span>최대 가격</span><span class="won-in"><input id="pHiIn" type="text" inputmode="numeric" autocomplete="off" aria-label="최대 가격 (만 원)"><i id="pHiUnit">만원</i></span></label>
+              </div>
+              <div class="budget-rail" id="budgetRail"><input type="range" id="pLo" aria-label="최저 가격"><input type="range" id="pHi" aria-label="최고 가격"></div>
+            </section>
+            <details class="more-filter fsec" id="moreFilter"><summary><h3>상세 필터</h3><span class="fbox-n ok" id="filterOn" hidden></span><span class="fbox-arrow" aria-hidden="true"></span></summary>
+              <div class="fsub"><h4>크기</h4>
+                <div class="filters" aria-label="크기 필터">
+                  <select id="fW" aria-label="폭"><option value="">폭 전체</option>${SIZE_W.map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+                  <select id="fH" aria-label="높이"><option value="">높이 전체</option>${SIZE_H.map(([k, v]) => `<option value="${k}">${v}</option>`).join("")}</select>
+                </div></div>
+              <ol class="opt-steps" id="steps" aria-label="옵션을 차례로 골라 좁히기"></ol>
+              <p class="hint-sm steps-hint" id="stepsHint" hidden>품목을 고르면 색상·용량·도어 같은 조건을 더 고를 수 있어요.</p>
+            </details>
+            <div class="fact"><button class="linklike" id="resetFilter">필터 초기화</button><button class="primary" id="applyFilter">적용하기</button></div>
           </details>
+          <div class="applied lg-part" id="applied" aria-label="적용된 필터" hidden></div>
           <section class="sugg" id="sugg" aria-label="이 집에 들어가는 제품" hidden></section>
+          <div class="list-head lg-part"><span id="libCount"></span>
+            <select id="sortBy" aria-label="정렬"><option value="">추천순</option><option value="price">낮은 가격순</option><option value="size">작은 크기순</option></select></div>
         </div>
         <ul class="list lg-part" id="lib" aria-label="LG 제품 목록. 누른 뒤 3D 바닥을 누르면 놓여요"></ul>
       </aside>
+      <button class="lib-fold" id="libFold" aria-expanded="true" aria-label="제품 패널 접기" title="제품 패널 접기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
 
       <section class="stage" aria-label="우리 집">
         <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
@@ -139,6 +154,7 @@ export async function customer(pid) {
           <div class="act-bar" id="actBar" role="toolbar" aria-label="고른 제품 조작" hidden></div>
           <p class="need-tag" id="needTag" hidden><i aria-hidden="true"></i>점선 안은 제품과 문을 여는 데 필요한 공간이에요</p>
           <div class="sheet" id="simctl"></div>
+          <button class="sheet-fold" id="simFold" aria-expanded="true" aria-controls="simctl">정보 접기</button>
         </div>
       </section>
 
@@ -169,12 +185,30 @@ export async function customer(pid) {
   function placeSlots() {
     const app = studio.classList.contains("app");
     const sugg = document.getElementById("sugg"), mini = document.getElementById("minimap");
-    if (app) { studio.querySelector(".lib-side").append(sugg); studio.querySelector(".canvas").append(mini); }
+    if (app) { studio.querySelector(".list-head").before(sugg); studio.querySelector(".canvas").append(mini); }
     else { document.getElementById("suggSlot").append(sugg); studio.querySelector(".canvas").append(mini); } // 지예: 평면도는 3D 화면 구석에 작은 지도처럼
   }
   appMq.addEventListener("change", syncApp);
   cleanup.push(() => appMq.removeEventListener("change", syncApp));
   libMore.onclick = () => openLib(!studio.classList.contains("lib-open"));
+  // 제품 패널 접기: 3D를 화면 가득 넓게 쓰고 싶을 때 (접은 상태는 기억해 둔다)
+  const libFold = document.getElementById("libFold");
+  const foldLib = (on) => {
+    studio.classList.toggle("lib-folded", on);
+    const label = on ? "제품 패널 펼치기" : "제품 패널 접기";
+    libFold.setAttribute("aria-expanded", !on); libFold.setAttribute("aria-label", label); libFold.title = label;
+    saveUiState(pid, { libFolded: on });
+  };
+  libFold.onclick = () => foldLib(!studio.classList.contains("lib-folded"));
+  // 3D 아래 채광·와이파이·동선 정보 칸도 접어 둘 수 있다
+  const simFold = document.getElementById("simFold");
+  simFold.onclick = () => {
+    const on = !studio.classList.contains("sim-folded");
+    studio.classList.toggle("sim-folded", on);
+    simFold.textContent = on ? "정보 펼치기" : "정보 접기";
+    simFold.setAttribute("aria-expanded", !on);
+  };
+  if (saved.libFolded) foldLib(true);
   studio.addEventListener("click", (e) => { if (e.target === studio) openLib(false); }); // 서랍 바깥 어두운 곳
   document.getElementById("q").addEventListener("focus", () => { if (studio.classList.contains("app")) openLib(true); });
   // 큰 화면이 아닌 쪽(평면 또는 3D)은 오른쪽 패널 아래 미니맵으로 옮겨서 시야를 가리지 않게 한다
@@ -406,6 +440,7 @@ export async function customer(pid) {
     document.querySelectorAll("#libTabs [data-tab]").forEach((b) => { const on = b.dataset.tab === t; b.classList.toggle("on", on); b.setAttribute("aria-selected", on); });
     saveUiState(pid, { libTab: t });
     renderDecorLib();
+    if (t === "lg") syncCatsMore(); // 탭이 가려져 있을 때는 칩 높이를 잴 수 없다
   };
   document.querySelectorAll("#libTabs [data-tab]").forEach((b) => (b.onclick = () => setLibTab(b.dataset.tab)));
   // 고른 꾸미기 가구: 위치·회전·크기 조절·주변 간격만 (가격·출처 같은 제품 정보는 없다)
@@ -415,8 +450,7 @@ export async function customer(pid) {
   const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
   const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || !catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
   const USES = Object.keys(USE).filter((k) => catsFor(k).length);
-  let use = USES.includes(saved.use) ? saved.use : null; // null: 아직 안 고름, "": 전체 보기
-  if (saved.use === "") use = "";
+  let use = USES.includes(saved.use) ? saved.use : ""; // "": 용도를 안 골랐으면 전체
   let sel = saved.sel && typeof saved.sel === "object" ? saved.sel : {};
   if (!catsFor(use).includes(cat)) cat = "";
   const inScope = (c) => (cat ? c === cat : !use || catsFor(use).includes(c));
@@ -427,17 +461,28 @@ export async function customer(pid) {
     renderCats(); renderLib();
   };
   const renderCats = () => {
+    // 용도를 고르면 그 공간에 어울리는 품목만 남는다. 다시 누르면 전체로
     const ask = document.getElementById("ask");
-    ask.innerHTML = use == null
-      ? `<p class="ask-q">이 공간을 어떤 용도로 쓰실 건가요?</p><div class="chips">${USES.map((k) => `<button class="chip" data-use="${esc(k)}">${esc(USE[k])}</button>`).join("")}<button class="chip" data-use="">전체 보기</button></div>`
-      : `<p class="ask-a"><b>${esc(use ? USE[use] : "전체")}</b>${use ? "에 어울리는 가전" : " 가전"}<button class="linklike" id="useChange">용도 바꾸기</button></p>`;
-    ask.querySelectorAll("[data-use]").forEach((b) => (b.onclick = () => setScope({ use: b.dataset.use })));
-    const ch = document.getElementById("useChange");
-    if (ch) ch.onclick = () => setScope({ use: null });
-    document.getElementById("cats").innerHTML = use == null ? "" : [["", "전체"], ...catsFor(use).map((c) => [c, CATEGORY[c] || c])]
-      .map(([k, v]) => `<button class="chip ${cat === k ? "on" : ""}" data-cat="${esc(k)}">${esc(v)}</button>`).join("");
-    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => setScope({ cat: b.dataset.cat })));
+    ask.innerHTML = `<p class="ask-q">이 공간을 어떤 용도로 쓰실 건가요?</p><div class="chips use-chips">${USES.map((k) => `<button class="chip ${use === k ? "on" : ""}" data-use="${esc(k)}" aria-pressed="${use === k}">${esc(USE[k])}</button>`).join("")}</div>`;
+    ask.querySelectorAll("[data-use]").forEach((b) => (b.onclick = () => setScope({ use: use === b.dataset.use ? "" : b.dataset.use })));
+    document.getElementById("cats").innerHTML = catsFor(use || "").map((c) => `<button class="chip ${cat === c ? "on" : ""}" data-cat="${esc(c)}" aria-pressed="${cat === c}">${esc(CATEGORY[c] || c)}</button>`).join("");
+    document.querySelectorAll("[data-cat]").forEach((b) => (b.onclick = () => setScope({ cat: cat === b.dataset.cat ? "" : b.dataset.cat })));
+    syncCatsMore();
   };
+  // 품목이 많으면 두 줄만 보이고 나머지는 '품목 더 보기'로 (고른 품목이 가려져 있으면 펼쳐 둔다)
+  let catsOpen = false;
+  const syncCatsMore = () => {
+    const box = document.getElementById("cats"), more = document.getElementById("catsMore");
+    const on = box.querySelector(".chip.on");
+    box.classList.remove("clip");
+    const tall = box.scrollHeight > CATS_CLIP_PX + 8;
+    if (on && on.offsetTop - box.offsetTop > CATS_CLIP_PX - 8) catsOpen = true;
+    box.classList.toggle("clip", tall && !catsOpen);
+    more.hidden = !tall;
+    more.textContent = catsOpen ? "품목 접기" : "품목 더 보기";
+    more.setAttribute("aria-expanded", catsOpen);
+  };
+  document.getElementById("catsMore").onclick = () => { catsOpen = !catsOpen; syncCatsMore(); };
   // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
   const families = await api("/api/catalog/families");
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
@@ -458,15 +503,22 @@ export async function customer(pid) {
   const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
   const stepsHtml = (steps) => steps.map((st) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-l">${esc(st.label)}</span>
       <div class="chips">${st.values.map((v) => `<button class="chip ${st.picked === v.label ? "on" : ""}" data-step="${esc(st.key)}" data-val="${esc(v.label)}" aria-pressed="${st.picked === v.label}">${esc(v.label)} <i>${v.count}</i></button>`).join("")}</div></li>`).join("");
+  const pickStep = (key, val) => {
+    if (sel[key] === val) delete sel[key]; else sel[key] = val;
+    saveUiState(pid, { sel });
+    renderLib();
+  };
+  // 설치 방식(빌트인·일반)은 둘 중 하나를 고르는 버튼으로 늘 보이게, 나머지 옵션은 상세 필터 안에
+  const renderInstall = (variants) => {
+    const n = installCounts(variants), box = document.getElementById("installSeg");
+    box.innerHTML = ["빌트인", "일반"].map((k) => `<button data-install="${k}" aria-pressed="${sel.install === k}" class="${sel.install === k ? "on" : ""}" ${n[k] || sel.install === k ? "" : "disabled"}>${k} <span class="n">(${n[k].toLocaleString("ko-KR")})</span></button>`).join("");
+    box.querySelectorAll("[data-install]").forEach((b) => (b.onclick = () => pickStep("install", b.dataset.install)));
+  };
   const renderSteps = (steps) => {
-    // 설치 유형(빌트인·일반)은 늘 보이게, 나머지 옵션은 상세 필터 안에
-    document.getElementById("mainSteps").innerHTML = stepsHtml(steps.filter((st) => st.key === "install"));
-    document.getElementById("steps").innerHTML = stepsHtml(steps.filter((st) => st.key !== "install"));
-    document.querySelectorAll("#mainSteps [data-step], #steps [data-step]").forEach((b) => (b.onclick = () => {
-      if (sel[b.dataset.step] === b.dataset.val) delete sel[b.dataset.step]; else sel[b.dataset.step] = b.dataset.val;
-      saveUiState(pid, { sel });
-      renderLib();
-    }));
+    const rest = steps.filter((st) => st.key !== "install");
+    document.getElementById("steps").innerHTML = stepsHtml(rest);
+    document.getElementById("stepsHint").hidden = !!cat || rest.length > 0;
+    document.querySelectorAll("#steps [data-step]").forEach((b) => (b.onclick = () => pickStep(b.dataset.step, b.dataset.val)));
   };
   // 이 집에 들어가는 제품: 지금 목록 앞쪽 후보를 서버가 벽을 따라 놓아 보고(find_spot) 들어가는 것만 3개
   let recSkus = new Set(), suggItems = [], suggKey = "", suggTimer = 0, suggPool = [], suggReady = false;
@@ -491,7 +543,7 @@ export async function customer(pid) {
           <button class="chip" id="askBot">하우니에게 묻기</button></div>`;
     box.querySelectorAll("[data-sugg]").forEach((b) => (b.onclick = () => openDetail(b.dataset.sugg)));
     box.querySelectorAll("[data-splace]").forEach((b) => (b.onclick = () => { openLib(false); autoPlace(b.dataset.splace); }));
-    box.querySelectorAll("[data-scat]").forEach((b) => (b.onclick = () => { if (use == null) use = ""; setScope({ cat: b.dataset.scat }); }));
+    box.querySelectorAll("[data-scat]").forEach((b) => (b.onclick = () => setScope({ cat: b.dataset.scat })));
     box.querySelector("#askBot")?.addEventListener("click", () => openBot(true));
   };
   const scheduleSuggest = () => {
@@ -513,59 +565,101 @@ export async function customer(pid) {
       if (changed) renderLib();
     }, SUGG_WAIT_MS);
   };
-  const filterCount = () => Object.keys(sel).length + (budget ? 1 : 0) + (document.getElementById("fW").value ? 1 : 0) + (document.getElementById("fH").value ? 1 : 0);
-  document.getElementById("resetFilter").onclick = () => {
-    sel = {}; document.getElementById("fW").value = ""; document.getElementById("fH").value = ""; document.getElementById("q").value = ""; budget = null;
-    saveUiState(pid, { sel });
+  // ---- 필터 상태: 적용된 조건은 목록 위 칩으로 보여 주고, ×로 하나씩 뺀다 ----
+  const qEl = document.getElementById("q"), fWEl = document.getElementById("fW"), fHEl = document.getElementById("fH");
+  const filterBox = document.getElementById("filterBox");
+  const filterState = () => ({ cat, sel, budget, fW: fWEl.value, fH: fHEl.value, q: qEl.value.trim() });
+  const setFilterState = (st) => {
+    const catChanged = st.cat !== cat;
+    cat = st.cat; sel = st.sel; budget = st.budget; fWEl.value = st.fW; fHEl.value = st.fH; qEl.value = st.q;
+    saveUiState(pid, { cat, sel });
+    if (catChanged) renderCats();
     renderLib();
   };
-  // ---- 가격 범위: 지금 보이는 종류(예: 냉장고)의 최저가~최고가 사이에서 두 손잡이로 예산을 맞춘다 ----
-  let budget = null, budgetScope = ""; // budget: {lo, hi} (원), 범위 전체면 null
-  const pLo = document.getElementById("pLo"), pHi = document.getElementById("pHi"), budgetOut = document.getElementById("budgetOut");
-  const won = (v) => v >= 1e8 ? `${+(v / 1e8).toFixed(1)}억` : `${Math.round(v / 1e4).toLocaleString("ko-KR")}만`;
+  const renderApplied = () => {
+    const chips = appliedFilters(filterState(), { cat: CATEGORY }), box = document.getElementById("applied");
+    box.hidden = !chips.length;
+    box.innerHTML = chips.map((c) => `<button class="fchip" data-clear="${esc(c.key)}" aria-label="${esc(c.label)} 조건 빼기"><span>${esc(c.label)}</span><i aria-hidden="true">×</i></button>`).join("");
+    box.querySelectorAll("[data-clear]").forEach((b) => (b.onclick = () => setFilterState(clearFilter(filterState(), b.dataset.clear))));
+    const n = chips.length, fn = document.getElementById("filterN"), dn = detailCount(filterState()), fo = document.getElementById("filterOn");
+    fn.hidden = !n; fn.textContent = n;
+    fo.hidden = !dn; fo.textContent = `${dn}개 적용`;
+    document.getElementById("applyFilter").textContent = n ? `적용하기 (${n})` : "적용하기";
+    document.getElementById("resetFilter").disabled = !n;
+  };
+  document.getElementById("resetFilter").onclick = () => setFilterState({ cat: "", sel: {}, budget: null, fW: "", fH: "", q: "" });
+  // 적용하기: 필터 칸을 접고 고른 조건의 제품 목록을 바로 보여 준다 (조건은 고르는 대로 이미 반영돼 있다)
+  const openFilter = (on) => { filterBox.open = on; saveUiState(pid, { filterOpen: on }); };
+  document.getElementById("applyFilter").onclick = () => {
+    openFilter(false);
+    libAside.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  };
+  filterBox.addEventListener("toggle", () => { saveUiState(pid, { filterOpen: filterBox.open }); if (filterBox.open) syncCatsMore(); });
+  if (saved.filterOpen === false) filterBox.open = false;
+  // ---- 가격 범위: 지금 보이는 종류(예: 냉장고)의 실제 가격 범위 안에서 손잡이 두 개나 금액 입력으로 예산을 맞춘다 ----
+  let budget = null, budgetScope = "", scale = null; // budget: {lo, hi} (원), 범위 전체면 null. scale: 눈금 {lo, hi, step, open}
+  const pLo = document.getElementById("pLo"), pHi = document.getElementById("pHi"), pLoIn = document.getElementById("pLoIn"), pHiIn = document.getElementById("pHiIn");
+  const rail = document.getElementById("budgetRail");
+  const man = (v) => Math.round(v / 1e4).toLocaleString("ko-KR");
   const pricesOf = (f) => f.variants.filter((v) => typeof v.price_krw === "number" && (f.demo_only || sellable(v))).map((v) => v.price_krw);
-  // 눈금은 그 종류의 실제 판매가에 맞춘다. 한두 개뿐인 초고가(1억 원 TV 등)는 맨 오른쪽 "이상"에 넣는다 (options.js priceScale)
-  let scale = null;
-  const budgetText = (lo, hi) => `${won(lo)} ~ ${won(hi)}원${scale?.open && hi >= scale.hi ? " 이상" : ""}`;
+  const paintBudget = () => {
+    const lo = +pLo.value, hi = +pHi.value, span = scale.hi - scale.lo || 1;
+    rail.style.setProperty("--a", (lo - scale.lo) / span);
+    rail.style.setProperty("--b", (hi - scale.lo) / span);
+    if (document.activeElement !== pLoIn) pLoIn.value = man(lo);
+    if (document.activeElement !== pHiIn) pHiIn.value = man(hi);
+    document.getElementById("pHiUnit").textContent = scale.open && hi >= scale.hi ? "만원 이상" : "만원";
+    pLo.setAttribute("aria-valuetext", wonText(lo)); pHi.setAttribute("aria-valuetext", wonText(hi));
+  };
   const setupBudget = (list) => {
     const ps = list.flatMap(pricesOf), box = document.getElementById("budget");
     box.hidden = ps.length < 2;
     if (box.hidden) { budget = null; return; }
     scale = priceScale(ps);
-    const { lo, hi, step } = scale;
     const key = `${cat}|${use}`;
     if (key !== budgetScope) { budgetScope = key; budget = null; } // 종류가 바뀌면 그 종류의 전체 범위로
-    for (const r of [pLo, pHi]) Object.assign(r, { min: lo, max: hi, step });
-    pLo.value = budget ? Math.max(lo, budget.lo) : lo; pHi.value = budget ? Math.min(hi, budget.hi) : hi;
-    budgetOut.textContent = budgetText(+pLo.value, +pHi.value);
+    for (const r of [pLo, pHi]) Object.assign(r, { min: scale.lo, max: scale.hi, step: scale.step });
+    // 끝에 닿아 있던 손잡이는 범위가 바뀌어도 끝에 둔다 (그쪽은 제한이 없다는 뜻이니까)
+    pLo.value = budget && !budget.atMin ? Math.min(scale.hi, Math.max(scale.lo, budget.lo)) : scale.lo;
+    pHi.value = budget && !budget.atMax ? Math.max(scale.lo, Math.min(scale.hi, budget.hi)) : scale.hi;
     paintBudget();
   };
-  // 두 손잡이 사이를 칠한다 (0~1 위치를 CSS로 넘긴다)
-  const paintBudget = () => {
-    const span = +pHi.max - +pLo.min || 1, rail = pLo.parentElement;
-    rail.style.setProperty("--a", (+pLo.value - +pLo.min) / span);
-    rail.style.setProperty("--b", (+pHi.value - +pLo.min) / span);
-  };
-  const inBudget = (f) => !budget || pricesOf(f).some((v) => v >= budget.lo && v <= budget.hi);
-  const onBudget = (e) => {
-    let lo = +pLo.value, hi = +pHi.value;
-    if (lo > hi) { if (e.target === pLo) lo = hi; else hi = lo; pLo.value = lo; pHi.value = hi; }
-    // 오른쪽 끝까지 밀면 위로는 막지 않는다 (눈금 밖 초고가도 포함)
-    budget = lo <= +pLo.min && hi >= +pHi.max ? null : { lo, hi: hi >= +pHi.max ? Infinity : hi };
-    budgetOut.textContent = budgetText(lo, hi);
+  const inBudget = (f) => !budget || pricesOf(f).some((v) => (budget.atMin || v >= budget.lo) && (budget.atMax || v <= budget.hi));
+  let budgetTimer = 0;
+  const commitBudget = (lo, hi) => {
+    pLo.value = lo; pHi.value = hi;
+    budget = lo <= scale.lo && hi >= scale.hi ? null : { lo, hi, atMin: lo <= scale.lo, atMax: hi >= scale.hi };
     paintBudget();
     clearTimeout(budgetTimer); budgetTimer = setTimeout(renderLib, 120); // 끄는 동안은 숫자만, 손을 멈추면 목록
   };
-  let budgetTimer = 0;
+  const onBudget = (e) => {
+    let lo = +pLo.value, hi = +pHi.value;
+    if (lo > hi) { if (e.target === pLo) lo = hi; else hi = lo; }
+    commitBudget(lo, hi);
+  };
   pLo.oninput = onBudget; pHi.oninput = onBudget;
+  // 금액을 직접 넣기 (만 원). 범위를 벗어나면 가장 가까운 값으로 맞춘다
+  const onBudgetType = (e) => {
+    if (!scale) return;
+    const v = parseManwon(e.target.value, scale);
+    let lo = +pLo.value, hi = +pHi.value;
+    if (v != null) { if (e.target === pLoIn) lo = Math.min(v, hi); else hi = Math.max(v, lo); }
+    e.target.blur();
+    commitBudget(lo, hi);
+  };
+  for (const el of [pLoIn, pHiIn]) {
+    el.onchange = onBudgetType;
+    el.onfocus = () => el.select();
+  }
   const renderLib = () => {
     renderProgress();
-    const q = document.getElementById("q").value.trim().toLowerCase();
-    const fW = document.getElementById("fW").value, fH = document.getElementById("fH").value;
+    const q = qEl.value.trim().toLowerCase();
+    const fW = fWEl.value, fH = fHEl.value;
     const scope = shop.filter((f) => inScope(f.category));
     // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
     const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
     sel = narrowed.sel;
+    renderInstall(optionSteps(scope.flatMap((f) => f.variants), { ...sel, install: undefined }, cat ? null : ["install"]).remaining);
     renderSteps(narrowed.steps);
     const left = new Set(narrowed.remaining.map((v) => v.sku));
     scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
@@ -576,6 +670,11 @@ export async function customer(pid) {
       && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH));
     setupBudget(pre);
     const items = pre.filter(inBudget);
+    if (budget) items.forEach((f) => { // 카드에 보이는 대표 모델도 고른 가격 범위 안의 것으로
+      const ok = (v) => typeof v?.price_krw === "number" && (budget.atMin || v.price_krw >= budget.lo) && (budget.atMax || v.price_krw <= budget.hi);
+      const cur = f.variants.find((v) => v.sku === pick[f.family_id]) || f.variants[0];
+      if (!ok(cur)) { const v = f.variants.find((x) => left.has(x.sku) && ok(x)); if (v) pick[f.family_id] = v.sku; }
+    });
     suggPool = items.filter((f) => !f.demo_only && f.product_dims_mm?.w && f.product_dims_mm?.h && f.product_dims_mm?.d)
       .slice(0, SUGG_POOL).map((f) => pick[f.family_id] || f.variants[0].sku);
     scheduleSuggest();
@@ -584,9 +683,8 @@ export async function customer(pid) {
     const sizeOf = (f) => { const d = f.product_dims_mm || {}; return d.w && d.d ? d.w * d.d : Infinity; };
     items.sort((a, b) => a.demo_only - b.demo_only || (sortBy === "price" ? priceOf(a) - priceOf(b) : sortBy === "size" ? sizeOf(a) - sizeOf(b) : 0)
       || isRec(b) - isRec(a)); // 기본: 이 집에 들어가는 제품을 위로
-    const nf = filterCount();
-    document.getElementById("filterOn").textContent = nf ? `${nf}개 적용` : "";
-    document.getElementById("libCount").textContent = `${items.length}개 모델`;
+    renderApplied();
+    document.getElementById("libCount").innerHTML = `<b>${items.length.toLocaleString("ko-KR")}</b>개 모델`;
     document.getElementById("lib").innerHTML = items.map((f) => {
       const d = f.product_dims_mm || {}, sized = d.w && d.h && d.d;
       const sku = pick[f.family_id] || f.variants[0].sku, v = f.variants.find((x) => x.sku === sku);
@@ -594,11 +692,13 @@ export async function customer(pid) {
       return `<li class="prod ${f.variants.some((x) => x.sku === armed) ? "armed" : ""} ${sized ? "" : "nosize"}" draggable="${sized ? "true" : "false"}" data-sku="${esc(sku)}">
         <i class="dot tile thumb" style="--tint:${esc(v.hex || "#fff")}${v.thumb ? "" : `;background:${esc(v.hex || "#fff")}`}">${v.thumb ? `<img src="${esc(v.thumb)}" alt="${esc(f.name)} ${esc(finishLabel(v))}" loading="lazy" decoding="async" draggable="false">` : ""}<span>${esc(CATEGORY[f.category] || f.category)}</span></i>
         <div class="body"><div class="name">${esc(f.name)}</div>
+          ${f.demo_only ? "" : `<div class="model">${esc(sku)}</div>`}
           ${sized ? "" : `<div class="cat">치수 정보 없음</div>`}
           ${typeof v.price_krw === "number" ? `<div class="price">${v.price_krw.toLocaleString("ko-KR")}원</div>` : ""}
-          ${v.color ? `<div class="color-row"><span class="vk">색상</span>${many ? `<span class="variants" role="radiogroup" aria-label="색상 고르기">${dots.map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}</span>` : ""}</div>` : ""}
-          ${sized && !f.demo_only ? `<button class="primary small place-btn" data-place="${esc(sku)}">공간에 배치하기</button>` : ""}
-          ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div></li>`;
+          ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}</div>
+        <div class="card-foot">
+          ${v.color ? `<div class="color-row"><span class="vk">색상</span>${many ? `<span class="variants" role="radiogroup" aria-label="색상 고르기">${dots.slice(0, MAX_DOTS).map((x) => { const on = x.color === v.color && x.hex === v.hex; return `<button class="vsw ${on ? "on" : ""}" data-fam="${esc(f.family_id)}" data-pick="${esc(on ? sku : x.sku)}" title="${esc(finishLabel(x))}" aria-label="${esc(finishLabel(x))}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i></button>`; }).join("")}${dots.length > MAX_DOTS ? `<span class="more-dots" title="상세에서 색상 ${dots.length}가지를 모두 볼 수 있어요">+${dots.length - MAX_DOTS}</span>` : ""}</span>` : `<span class="one-color">${esc(v.color)}</span>`}</div>` : `<span></span>`}
+          ${sized && !f.demo_only ? `<button class="small place-btn" data-place="${esc(sku)}" aria-label="${esc(f.name)} 공간에 배치하기" title="공간에 배치하기">배치하기</button>` : ""}</div></li>`;
     }).join("") || `<li class="muted">해당 제품이 없습니다.</li>`;
     document.querySelectorAll("#lib [data-pick]").forEach((b) => {
       b.onclick = (e) => {
@@ -2011,7 +2111,7 @@ export async function customer(pid) {
     ] : [
       intro,
       { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인을 하나씩 해 나가면 차례로 체크돼요." },
-      { sel: ".lib-side", title: "제품 찾기", text: "이름으로 찾거나 종류를 눌러 좁혀요. 용량·색상 같은 조건은 '상세 필터'를 열면 나와요." },
+      { sel: ".lib-side", title: "제품 찾기", text: "설치 방식, 품목, 가격 범위 순서로 좁혀요. 색상·용량 같은 조건은 '상세 필터'에 있고, 고른 조건은 목록 위에 칩으로 보여요." },
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
       { sel: "#lib", title: "제품 목록", text: "제품을 누르면 상세가 열리고, '넣어 보기'를 누르면 3D에 놓을 수 있어요." },
       { sel: ".canvas", title: "우리 집 3D", text: "바닥을 누르면 제품이 놓여요. 놓은 제품을 누르면 아래에 이동·회전·자동 정렬·삭제 버튼이 나와요. 빈 곳을 끌면 시점이 돌아가요." },

@@ -89,9 +89,8 @@ def test_three_areas_layout_and_feedback():
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     account = (WEB / "js" / "account.js").read_text(encoding="utf-8")
     guide = (WEB / "js" / "guide.js").read_text(encoding="utf-8")
-    # 왼쪽: 기본 필터는 종류·설치 유형·크기·가격 범위, 카드는 사진·이름·가격·색과 '공간에 배치하기'
-    # (지예: 폭·높이·깊이는 카드에서 빼고 상세에만)
-    assert 'id="mainSteps"' in REMODEL and 'class="dims"' not in REMODEL and "공간에 배치하기" in REMODEL
+    # 왼쪽: 카드는 사진·이름·모델명·가격 / 색과 '공간에 배치하기' (지예: 폭·높이·깊이는 카드에서 빼고 상세에만)
+    assert 'class="dims"' not in REMODEL and "공간에 배치하기" in REMODEL and 'class="model"' in REMODEL and 'class="card-foot"' in REMODEL
     assert 'id="pLo"' in REMODEL and 'id="pHi"' in REMODEL and "setupBudget(pre)" in REMODEL
     # 가운데: 놓으면 그 자리로 시점 이동, 조작 메뉴는 고른 제품 위에 (상세 포함), 안 되면 이유와 고칠 방법
     assert "viewer.lookAt(r.placement.center_xz)" in REMODEL and 'actBtn("actInfo"' in REMODEL
@@ -180,3 +179,18 @@ def test_detail_color_chips_have_no_model_numbers():
 def test_haeuni_shows_life_picks_with_guide_link_and_combo_follow_up():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert 'd.type === "life"' in js and "LGE.COM 기준" in js and "categories: d.categories, life: d.life" in js
+
+
+def test_left_filter_order_and_wide_3d():
+    """지예: 왼쪽 필터를 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 순서로, 3D는 넓게."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    order = ['id="libTabs"', 'id="installSeg"', 'id="cats"', 'id="budget"', 'id="moreFilter"', 'id="resetFilter"', 'id="applyFilter"', 'id="applied"', 'id="lib"']
+    at = [REMODEL.index(x) for x in order]
+    assert at == sorted(at), order
+    # 가격은 최소·최대 금액을 보고 직접 넣을 수 있다. 눈금은 실제 가격에서 나온다
+    assert 'id="pLoIn"' in REMODEL and 'id="pHiIn"' in REMODEL and "priceScale(ps)" in REMODEL
+    # 적용된 조건은 칩으로 보이고 하나씩 뺄 수 있다
+    assert "appliedFilters(" in REMODEL and "clearFilter(" in REMODEL and "적용하기 (${n})" in REMODEL
+    # 3D 약 79% · 제품 탐색 약 21%, 패널과 아래 정보 칸은 접을 수 있다
+    assert "clamp(288px, 21vw, 348px)" in css and ".lib-folded" in css and 'id="libFold"' in REMODEL
+    assert 'id="simFold"' in REMODEL and ".sim-folded" in css
