@@ -158,10 +158,11 @@ const j = async (p) => (await fetch(BASE + p)).json();
 
   // 스캔 가구 한꺼번에 치우기 → 되돌리기
   await page.click("#furn");
+  await page.click("#furnAll");
   await wait(2500);
   pj = await project(pid);
   check("가구 모두 치우기", (pj.scene_state.hidden_objects || []).length === room.objects.length);
-  await page.click("#furn");
+  await page.click("#furnAll");
   await wait(2500);
   pj = await project(pid);
   check("가구 되돌리기", (pj.scene_state.hidden_objects || []).length === 0);

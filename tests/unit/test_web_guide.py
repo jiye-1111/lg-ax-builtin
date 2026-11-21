@@ -70,11 +70,11 @@ def test_selected_product_shows_needed_space_without_size_labels():
 
 def test_simple_layout_from_corrected_mockup():
     """지예: 탭·토글이 많아 지저분하다 → 오른쪽 탭 없음, 3D 위·아래 조작 버튼, 살아 보기는 버튼 하나."""
-    # 탭은 왼쪽 라이브러리(전체/LG 가전/가구/수납/소품) 하나뿐, 오른쪽은 탭 없음
-    assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 5
+    # 탭은 왼쪽 라이브러리(전체/LG 가전/가구/수납/소품/벽지·바닥) 하나뿐, 오른쪽은 탭 없음
+    assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 6
     assert 'id="guideBar"' not in REMODEL and 'data-view="split"' not in REMODEL
     for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
-               'id="finBtn"', 'id="extraBtn"', 'id="saveBtn"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
+               'data-tab="finish"', 'id="extraBtn"', 'id="saveBtn"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
         assert el in REMODEL, el
     # 조작은 서버 계산을 그대로: 자동 정렬, 알맞은 자리, 이 집에 들어가는 제품
     for path in ("/auto-align", "/auto-place", "/suggest"):
@@ -153,7 +153,8 @@ def test_toolbar_switches_and_one_button_toggles():
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     for k in ("daylight", "wifi", "flow"):
         assert f'class="simsw" data-sim="{k}" role="switch"' in REMODEL, k
-    assert "가구 모두 지우기" in REMODEL and 'id="beforeBtn" aria-pressed' in REMODEL
+    assert 'class="icon-btn" id="furn"' in REMODEL and 'class="icon-btn" id="beforeBtn"' in REMODEL
+    assert "가구 모두 지우기" not in REMODEL and "처음과 비교" not in REMODEL
     assert "#liveBtn, #liveBar, .studio #extraBtn { display: none !important; }" in css
     # 손에 든 물건은 마우스를 따라오고 누르면 놓인다 (가구·가전·가벽·공유기 모두)
     assert "const follow = (p) =>" in REMODEL and "arm(b.dataset.decor)" in REMODEL and "viewer.routerFollow(p)" in REMODEL
@@ -217,3 +218,23 @@ def test_left_filter_order_and_wide_3d():
     # 3D 약 79% · 제품 탐색 약 21%, 패널과 아래 정보 칸은 접을 수 있다
     assert "clamp(288px, 21vw, 348px)" in css and ".lib-folded" in css and 'id="libFold"' in REMODEL
     assert 'id="simFold"' in REMODEL and ".sim-folded" in css
+
+
+def test_finish_tab_shows_only_color_chips():
+    """지예: 벽지 파는 곳이 아니다 → 벽지·바닥은 왼쪽 탭에서 색깔만 고른다. 상표·품명·출처·말로 꾸미기 상자는 없다."""
+    assert 'data-tab="finish">벽지·바닥</button>' in REMODEL
+    for gone in ('id="finBtn"', 'id="finishPop"', "aiBoxHtml", "f.brand", "f.trend", "f.source_url", "2026 트렌드", "말로 꾸미기 <span"):
+        assert gone not in REMODEL, gone
+    assert 'class="fin-sw' in REMODEL and "/finishes`" in REMODEL
+
+
+def test_furniture_x_and_hold_to_compare():
+    """지예: 가구는 버튼을 켜면 가구마다 ✕가 뜨고, 처음 모습은 누르고 있는 동안만 보인다."""
+    assert 'id="furnX"' in REMODEL and "data-obj=" in REMODEL and 'id="furnAll"' in REMODEL
+    assert "beforeBtn.onpointerdown" in REMODEL and '"pointerup"' in REMODEL
+
+
+def test_walk_button_sits_on_the_3d_view():
+    """지예: 둘러보기 글자 버튼이 동떨어져 보인다 → 3D 구석의 사람 아이콘, 걷는 중에는 나가기."""
+    assert 'class="walk-btn" id="walk"' in REMODEL and "<span>나가기</span>" in REMODEL
+    assert '<button class="furn-btn" id="walk"' not in REMODEL
