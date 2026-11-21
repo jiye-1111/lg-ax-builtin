@@ -516,7 +516,6 @@ export async function customer(pid) {
   // 이 집에 들어가는 제품: 지금 목록 앞쪽 후보를 서버가 벽을 따라 놓아 보고(find_spot) 들어가는 것만 3개
   let recSkus = new Set(), suggItems = [], suggKey = "", suggTimer = 0, suggPool = [], suggReady = false;
   const isRec = (f) => f.variants.some((v) => recSkus.has(v.sku));
-  const BUDGET_STEP = 50000; // 가격 손잡이 간격 5만 원
   const SUGG_POOL = 30, SUGG_WAIT_MS = 1200; // 연달아 놓는 동안에는 기다렸다가 한 번만
   const renderSugg = () => {
     const box = document.getElementById("sugg");

@@ -550,17 +550,6 @@ body[data-route="c"] .top .acct { margin-left: auto; }
 .studio .side #mapSlot, .studio .side #suggSlot, .studio .side #plBox { display: none; }
 .lib .dims { display: none; }
 /* 가격 범위: 손잡이 두 개 (지금 보는 종류의 최저가 ~ 최고가) */
-.budget { margin-top: 8px; }
-.budget[hidden] { display: none; }
-.budget-head { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--t-xs); color: var(--graphite); }
-.budget-head b { color: var(--ink); font-size: 12.5px; }
-.budget-rail { position: relative; height: 26px; }
-.budget-rail::before { content: ""; position: absolute; left: 0; right: 0; top: 12px; height: 3px; border-radius: 2px; background: var(--line, #d9d4cb); }
-.budget-rail input[type=range] { position: absolute; inset: 0; width: 100%; margin: 0; background: none; pointer-events: none; -webkit-appearance: none; appearance: none; height: 26px; }
-.budget-rail input[type=range]::-webkit-slider-runnable-track { background: none; height: 26px; }
-.budget-rail input[type=range]::-moz-range-track { background: none; }
-.budget-rail input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 18px; height: 18px; margin-top: 4px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 3px rgba(0,0,0,.2); cursor: pointer; }
-.budget-rail input[type=range]::-moz-range-thumb { pointer-events: auto; width: 14px; height: 14px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); cursor: pointer; }
 /* 가구 크기 조절: 3D 메뉴 안에서 바로 */
 .act-bar .act-size { display: flex; align-items: center; gap: 8px; padding: 0 6px; font-size: 12.5px; font-weight: 600; }
 .act-bar .act-size input { width: 160px; margin: 0; }
@@ -748,7 +737,8 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .fsec .chip { padding: 5px 11px; font-size: 12.5px; background: var(--sheet); }
 .cats-more { margin-top: 6px; font-size: 12px; }
 
-/* ④ 가격 범위: 최소·최대 금액을 직접 보고 넣는다 */
+/* ④ 가격 범위: 최소·최대 금액을 직접 보고 넣는다. 손잡이 두 개, 줄은 손잡이 반지름만큼 안쪽에서 시작해 튀어나오지 않는다 */
+.budget[hidden] { display: none; }
 .fsec.budget { margin-top: 0; }
 .budget-io { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .budget-io label { display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; color: var(--graphite); min-width: 0; }
@@ -762,9 +752,10 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .budget-rail::before { left: 9px; right: 9px; background: var(--warm-grey); }
 .budget-rail::after { left: calc(9px + (100% - 18px) * var(--a)); width: calc((100% - 18px) * (var(--b) - var(--a))); background: var(--lg); }
 .budget-rail input[type=range] { position: absolute; inset: 0; z-index: 1; width: 100%; height: 28px; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; pointer-events: none; -webkit-appearance: none; appearance: none; }
-.budget-rail input[type=range]:focus { box-shadow: none; }
+.budget-rail input[type=range]:focus { border: 0; box-shadow: none; outline: none; }
 .budget-rail input[type=range]::-webkit-slider-runnable-track { background: none; height: 28px; }
-.budget-rail input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; width: 18px; height: 18px; margin-top: 5px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 3px rgba(0, 0, 0, .2); cursor: pointer; }
+.budget-rail input[type=range]::-moz-range-track { background: none; }
+.budget-rail input[type=range]::-webkit-slider-thumb { pointer-events: auto; -webkit-appearance: none; box-sizing: border-box; width: 18px; height: 18px; margin-top: 5px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); box-shadow: 0 1px 3px rgba(0, 0, 0, .2); cursor: pointer; }
 .budget-rail input[type=range]::-moz-range-thumb { pointer-events: auto; box-sizing: border-box; width: 18px; height: 18px; border-radius: 50%; background: #fff; border: 2px solid var(--lg); cursor: pointer; }
 .budget-rail input[type=range]:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--lg); outline-offset: 2px; }
 
@@ -841,3 +832,5 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .fsec #cats { margin-top: 2px; }
 .fact { position: sticky; bottom: -12px; z-index: 2; background: var(--sheet); border-radius: 0 0 14px 14px; }
 .fsec .chip.on, .fsec .use-chips .chip.on { background: var(--lg); border-color: var(--lg); color: #fff; }
+.studio.app .sugg-card .vv { white-space: nowrap; }
+.studio.app .sugg-card .nm { min-width: 0; }
