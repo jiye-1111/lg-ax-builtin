@@ -41,7 +41,7 @@ export function stepperHtml(steps) {
 
 // 판정 코드 → 검사 카드의 줄. 데이터가 있는 것만 검사한다.
 const GROUPS = [
-  { label: "놓을 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement"] },
+  { label: "놓을 공간", codes: ["dims_unknown", "outside_room", "hits_wall", "clearance_blocked", "tight", "overlaps_object", "overlaps_placement", "surface_overhang"] },
   { label: "제품 문 여는 공간", codes: ["front_blocked"] },
   { label: "통행 공간", codes: ["passage_narrow"] },
   // 아래는 걸릴 때만 줄을 보인다 (카드를 짧게)

@@ -331,6 +331,7 @@ def build(job):
     for pl in state.get("placements") or []:
         w_, h_, d_ = pl["size_m"]
         x, z = pl["center_xz"]
+        base = pl.get("base_m") or 0.0  # 가구 위에 올려 둔 높이
         yaw = pl["yaw_rad"] - math.pi / 2  # glb.py와 같은 90° 보정
         path = os.path.join(mdir, f"{pl['sku']}.glb") if mdir else None
         if path and os.path.exists(path):
@@ -343,10 +344,10 @@ def build(job):
                     if slot.material and slot.material.name.startswith("finish") and pl.get("hex"):
                         slot.material = slot.material.copy()
                         slot.material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = lin(pl["hex"])
-            root.location, root.rotation_euler = (x, -z, 0), (0, 0, -yaw)
+            root.location, root.rotation_euler = (x, -z, base), (0, 0, -yaw)
         else:
             mat = principled(f"p_{pl['sku']}", lin(pl.get("hex") or "#F4F4F2"), rough=0.35)
-            bevel(box(f"product_{pl['sku']}", Vector((x, -z, h_ / 2)), (w_, h_, d_), yaw, mat, coll), 0.01)
+            bevel(box(f"product_{pl['sku']}", Vector((x, -z, base + h_ / 2)), (w_, h_, d_), yaw, mat, coll), 0.01)
 
     # 천장: 카메라에는 안 보이고 그림자만 낸다. 해는 창으로만 들어온다
     if floor:

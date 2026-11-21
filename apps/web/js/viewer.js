@@ -21,6 +21,10 @@ const SELECT_HEX = 0x5b6370;
 const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 const SURFACE_MAX_M = 2.2; // 공유기를 올릴 수 있는 가장 높은 윗면 (선반 꼭대기까지). 서버 Service.SURFACE_MAX_M과 같게
 const NOT_SURFACE = new Set(["decor:wall", "decor:partition", "decor:rug", "decor:plant", "decor:lamp"]); // 서버 NOT_SURFACE와 같게
+// 작은 가전(전자레인지·정수기 등)을 올려 둘 수 있는 가구와 높이. 서버 Service.HOSTS, pose.SURFACE_MAX_M과 같게
+const PRODUCT_HOSTS = new Set(["decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:tvstand"]);
+const PRODUCT_SURFACE_MAX_M = 1.2;
+const SCANNED_TOPS = new Set(["table", "storage"]);
 const skuOf = (o) => { while (o && !o.userData?.sku) o = o.parent; return o?.userData?.sku; };
 const GHOST_NEAR_M = 0.8; // 미리 보기 상자가 카메라와 이만큼 가까우면 그리지 않는다
 // 바닥 텍스처용 SVG에는 페이지 CSS가 안 먹으므로 오버레이 스타일을 같이 넣는다 (style.css의 .plan 오버레이와 같은 색)
@@ -400,9 +404,31 @@ export function makeViewer(el, handlers = {}) {
     const hit = downRay.intersectObjects(products.children, true).find((h) => h.object.isMesh && h.point.y <= SURFACE_MAX_M && !NOT_SURFACE.has(skuOf(h.object)));
     return hit ? hit.point.y : 0;
   };
+  // 올려 두는 가전이 그 자리에서 올라설 윗면 높이 (없으면 바닥 0). 서버와 같은 규칙: 물건 가운데가 윗면 안에 있으면 올라간다
+  const tmpP = new THREE.Vector3();
+  const productTops = (skipId) => {
+    const out = [];
+    for (const p of last.list) {
+      if (!p.size_m || p.placement_id === skipId || !PRODUCT_HOSTS.has(p.sku) || p.size_m[1] > PRODUCT_SURFACE_MAX_M) continue;
+      const yaw = (p.yaw_rad ?? Math.PI / 2) - Math.PI / 2;
+      out.push({ has: ([x, z]) => {
+        const dx = x - p.center_xz[0], dz = z - p.center_xz[1];
+        return Math.abs(dx * Math.cos(yaw) + dz * Math.sin(yaw)) <= p.size_m[0] / 2 && Math.abs(-dx * Math.sin(yaw) + dz * Math.cos(yaw)) <= p.size_m[2] / 2;
+      }, top: p.size_m[1] });
+    }
+    model?.traverse((o) => { // 스캔한 탁자·수납장 (고르기용 단위 상자: 크기 = scale)
+      if (!o.isMesh || o.userData.kind !== "object" || o.userData.shared || !o.visible) return;
+      if (!SCANNED_TOPS.has(o.userData.category || objectCats[o.name])) return;
+      const top = o.position.y + o.scale.y / 2;
+      if (top <= PRODUCT_SURFACE_MAX_M) out.push({ has: ([x, z]) => { o.worldToLocal(tmpP.set(x, o.position.y, z)); return Math.abs(tmpP.x) <= 0.5 && Math.abs(tmpP.z) <= 0.5; }, top });
+    });
+    return out;
+  };
+  const productTopY = (xz, skipId) => productTops(skipId).reduce((m, t) => (t.top > m && t.has(xz) ? t.top : m), 0);
+  const topY = (surface, xz, skipId) => (surface === "router" ? surfaceY(xz) : surface === "product" ? productTopY(xz, skipId) : null);
   const placeHeld = () => {
     if (!held) return;
-    const top = held.kind === "router" ? surfaceY(held.xz) : null;
+    const top = topY(held.surface, held.xz, held.id);
     for (const { node, baseY } of held.nodes) {
       node.position.set(held.xz[0], (top ?? baseY) + held.lift, held.xz[1]);
       node.rotation.set(0, rotY(held.kind, held.yaw), 0);
@@ -472,9 +498,9 @@ export function makeViewer(el, handlers = {}) {
     plate.userData.verdictPlate = true;
     if (!decor || selected || preview || p.verdict === "no_fit") g.add(plate);
     // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
-    g.position.set(p.center_xz[0], 0, p.center_xz[1]);
+    g.position.set(p.center_xz[0], p.base_m || 0, p.center_xz[1]); // 가구 위에 올려 둔 것은 그 윗면 높이에
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
-    g.userData = { placementId: p.placement_id, sku: p.sku };
+    g.userData = { placementId: p.placement_id, sku: p.sku, surface: p.tabletop ? "product" : null };
     return g;
   };
   const clear = (grp) => {
@@ -510,14 +536,23 @@ export function makeViewer(el, handlers = {}) {
     const snap = (v) => Math.round(v / step) * step;
     return [snap(hit.x), snap(hit.z)];
   };
-  // 가구 윗면(책상·선반)을 가리키면 그 윗면 자리. 공유기처럼 위에 올려놓는 물건을 놓을 때만 쓴다
-  const surfacePoint = (e) => {
+  // 가구 윗면(책상·선반·식탁)을 가리키면 그 윗면 자리. 공유기·작은 가전처럼 위에 올려놓는 물건을 놓거나 옮길 때 쓴다
+  // surface: "router"(선반 꼭대기까지) | "product"(식탁·아일랜드·하부장 높이까지), skipId: 지금 들고 있는 것(자기 자신은 받침이 아니다)
+  const surfacePoint = (e, surface = "router", skipId = null) => {
     setNdc(e);
-    const hit = ray.intersectObjects(products.children, true).find((h) => h.object.isMesh && h.face && h.point.y <= SURFACE_MAX_M && !NOT_SURFACE.has(skuOf(h.object))
+    const max = surface === "product" ? PRODUCT_SURFACE_MAX_M : SURFACE_MAX_M;
+    const ok = (sku) => (surface === "product" ? PRODUCT_HOSTS.has(sku) : !NOT_SURFACE.has(sku));
+    const targets = products.children.filter((c) => c.userData.placementId !== skipId && ok(c.userData.sku));
+    if (surface === "product" && model) model.traverse((o) => {
+      if (o.isMesh && o.userData.kind === "object" && !o.userData.shared && o.visible && SCANNED_TOPS.has(o.userData.category || objectCats[o.name])) targets.push(o);
+    });
+    const hit = ray.intersectObjects(targets, true).find((h) => h.object.isMesh && h.face && h.point.y <= max + 0.01
       && tmp.copy(h.face.normal).transformDirection(h.object.matrixWorld).y > 0.7);
-    return hit ? [hit.point.x, hit.point.z] : floorPoint(e);
+    if (!hit) return floorPoint(e);
+    const snap = (v) => Math.round(v / 0.05) * 0.05;
+    return surface === "product" ? [snap(hit.point.x), snap(hit.point.z)] : [hit.point.x, hit.point.z];
   };
-  const pointFor = (e) => (handlers.onSurface?.() ? surfacePoint(e) : floorPoint(e));
+  const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
   const pick = (e) => {
     setNdc(e);
     const targets = [...products.children];
@@ -559,7 +594,7 @@ export function makeViewer(el, handlers = {}) {
       ctl.enabled = false;
       const g = products.children.find((c) => c.userData.placementId === hit.id);
       if (g) g.userData.dirty = true;
-      dragging = { id: hit.id, start: down.p, orig: g ? [g.position.x, g.position.z] : down.p, group: g, moved: false };
+      dragging = { id: hit.id, start: down.p, orig: g ? [g.position.x, g.position.z] : down.p, group: g, moved: false, surface: g?.userData.surface };
       renderer.domElement.setPointerCapture?.(e.pointerId);
     }
   };
@@ -576,22 +611,24 @@ export function makeViewer(el, handlers = {}) {
     }
     if (held && !held.dropping) {
       // 들고 있으면 커서를 따라온다: 10 cm 격자, Alt는 1 cm
-      const q = floorPoint(e, e.altKey ? 0.01 : 0.1);
+      // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
+      const q = held.surface ? surfacePoint(e, held.surface, held.id) : floorPoint(e, e.altKey ? 0.01 : 0.1);
       if (q) { held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]]; handlers.onHoldMove?.(held, held.xz); }
       return;
     }
     const p = floorPoint(e);
     if (!p) return;
     if (dragging && dragging.start) {
-      const c = [dragging.orig[0] + p[0] - dragging.start[0], dragging.orig[1] + p[1] - dragging.start[1]];
+      const c = dragging.surface ? surfacePoint(e, dragging.surface, dragging.id) || p
+        : [dragging.orig[0] + p[0] - dragging.start[0], dragging.orig[1] + p[1] - dragging.start[1]];
       if (!dragging.moved && Math.hypot(e.clientX - down.x, e.clientY - down.y) > CLICK_PX) dragging.moved = true;
       if (dragging.moved) {
-        dragging.group?.position.set(c[0], 0, c[1]);
+        dragging.group?.position.set(c[0], topY(dragging.surface, c, dragging.id) ?? 0, c[1]);
         handlers.onDragMove?.(dragging.id, c);
       }
       return;
     }
-    handlers.onHover?.(handlers.onSurface?.() ? surfacePoint(e) || p : p);
+    handlers.onHover?.(pointFor(e) || p);
   };
   const onUp = (e) => {
     if (walk) { look = null; return; }
@@ -601,7 +638,7 @@ export function makeViewer(el, handlers = {}) {
     if (dragging) {
       const g = dragging;
       dragging = null;
-      if (g.moved) { handlers.onDragEnd?.(g.id, [g.group?.position.x ?? 0, g.group?.position.z ?? 0]); return; }
+      if (g.moved) { handlers.onDragEnd?.(g.id, [g.group?.position.x ?? 0, g.group?.position.z ?? 0], g.surface === "product" ? g.group?.position.y : undefined); return; }
     }
     if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > CLICK_PX) return; // 카메라를 돌린 것
     if (d.held) { handlers.onHoldClick?.(held); return; }
@@ -694,7 +731,7 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku)]);
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku), p.base_m || 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }
         const g = productBox(p, { selected });
@@ -707,8 +744,9 @@ export function makeViewer(el, handlers = {}) {
       next.forEach((g) => { if (g.parent !== products) products.add(g); });
     },
     /** 고른 제품이 차지하는 공간(본체 + 문 여는 공간 + 이격)을 바닥에 점선으로. null이면 지운다. pts: 평면 좌표 [[x, y], …] */
-    setNeed(pts) {
+    setNeed(pts, baseY = 0) {
       clear(need);
+      need.position.y = baseY; // 가구 위에 올려 둔 것은 그 윗면에 그린다
       if (!pts?.length) return;
       const v = pts.map(([x, y]) => new THREE.Vector3(x, 0.012, y));
       const ln = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(v),
@@ -733,13 +771,15 @@ export function makeViewer(el, handlers = {}) {
       // 마우스를 따라갈 때는 같은 모양이면 자리·방향만 옮긴다 (매번 새로 만들면 버벅인다)
       const key = JSON.stringify([res.sku, res.size_m, res.verdict, res.hex, templates.has(res.sku)]);
       const cur = ghost.children[0];
+      // 올려 두는 가전은 서버 답을 기다리지 않고 지금 가리키는 윗면 높이로 바로 올린다
+      const gy = res.surface ? topY(res.surface, [gx, gz], null) : res.base_m || 0;
       if (cur && cur.userData.ghostKey === key) {
-        cur.position.set(gx, 0, gz);
+        cur.position.set(gx, gy, gz);
         cur.rotation.y = -((res.pose.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
         return;
       }
       clear(ghost);
-      ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex, sku: res.sku }, { preview: true }));
+      ghost.add(productBox({ center_xz: res.pose.center_xz, yaw_rad: res.pose.yaw_rad, size_m: res.size_m, verdict: res.verdict, hex: res.hex, sku: res.sku, base_m: gy }, { preview: true }));
       ghost.children[0].userData.ghostKey = key;
     },
     /** 끄는 동안 판정 색만 바꾼다 */
@@ -848,17 +888,19 @@ export function makeViewer(el, handlers = {}) {
       if (!nodes.length) return false;
       nodes.forEach((n) => { if (n.userData.placementId) n.userData.dirty = true; }); // 들어 옮긴 것은 다시 그릴 때 새로 만든다
       held = { ...item, nodes: nodes.map((n) => ({ node: n, baseY: n.position.y, orig: n.position.clone(), rot: n.rotation.y })),
-        lift: 0, dropping: false, grab: grabPoint ? [item.xz[0] - grabPoint[0], item.xz[1] - grabPoint[1]] : [0, 0] };
+        lift: 0, dropping: false,
+        // 윗면을 따라다니는 물건은 가운데를 잡은 것으로 본다 (바닥 점과 윗면 점이 섞이면 튄다)
+        grab: grabPoint && !item.surface ? [item.xz[0] - grabPoint[0], item.xz[1] - grabPoint[1]] : [0, 0] };
       if (grid) grid.visible = true;
       return true;
     },
-    held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw },
+    held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, y: held.nodes[0]?.node.position.y ?? 0 },
     moveHeld(dx, dz) { if (held) { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
     rotateHeld(dyaw) { if (held) { held.yaw += dyaw; handlers.onHoldMove?.(held, held.xz); } },
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;
-      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw };
+      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, baseY: held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
       held.dropping = true;
       const h = held;
       setTimeout(() => {

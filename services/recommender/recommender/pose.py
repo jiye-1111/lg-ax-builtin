@@ -42,6 +42,7 @@ LABELS = {
     "front_blocked": "앞쪽 문 열림 공간 부족",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
+    "surface_overhang": "올려 둔 가구 밖으로 나옴",
 }
 
 
@@ -64,12 +65,14 @@ class PoseResult:
     footprint: list[tuple[float, float]] = field(default_factory=list)
     required: list[tuple[float, float]] = field(default_factory=list)
     size_m: Optional[tuple[float, float, float]] = None
+    base_m: float = 0.0        # 바닥에서 제품 밑면까지 (가구 위에 올렸으면 그 윗면 높이)
+    on: Optional[str] = None   # 올려 둔 가구 (배치 id 또는 스캔 가구 id)
 
     def to_dict(self) -> dict:
         r4 = lambda pts: [[round(x, 4), round(y, 4)] for x, y in pts]  # noqa: E731
         return {"verdict": self.verdict.value, "label": self.verdict.label, "pose": self.pose.to_dict(),
                 "reasons": self.reasons, "footprint": r4(self.footprint), "required": r4(self.required),
-                "size_m": list(self.size_m) if self.size_m else None}
+                "size_m": list(self.size_m) if self.size_m else None, "base_m": round(self.base_m, 3), "on": self.on}
 
 
 # ---------- 사각형 ----------
@@ -151,6 +154,58 @@ def _clear(p: Product) -> tuple[float, float, float, bool]:
     return (c.side or 0) / 1000, (c.back or 0) / 1000, (c.top or 0) / 1000, unknown
 
 
+# ---------- 가구 위에 올려 두기 ----------
+# 식탁·아일랜드·하부장 같은 가구 윗면에 올려 쓰는 가전. 규칙은 docs/specs/fit-rules.md '가구 위에 올려 두기'
+TABLETOP = frozenset({"water_purifier", "microwave", "oven", "humidifier", "air_purifier", "plant_grower", "tv"})
+TABLETOP_MAX_MM = (700, 650, 700)  # 폭·높이·깊이가 이보다 작아야 올린다 (TV는 크기와 상관없이 거실장 위에)
+SURFACE_MAX_M = 1.2                # 이보다 높은 윗면에는 올리지 않는다 (손이 닿는 조리대·식탁 높이까지)
+
+
+def can_sit(p: Product) -> bool:
+    """가구 윗면에 올려 둘 수 있는 제품인지."""
+    d = p.product_dims_mm
+    if p.category not in TABLETOP or p.install_type == "built_in" or d.w is None or d.h is None or d.d is None:
+        return False
+    if p.category == "tv":
+        return True
+    if p.install_form in ("빌트인", "스탠드"):
+        return False
+    return d.w <= TABLETOP_MAX_MM[0] and d.h <= TABLETOP_MAX_MM[1] and d.d <= TABLETOP_MAX_MM[2]
+
+
+def _local(s: dict, p: g.Pt) -> g.Pt:
+    dx, dy = p[0] - s["center_xz"][0], p[1] - s["center_xz"][1]
+    c, n = math.cos(s["yaw_rad"]), math.sin(s["yaw_rad"])
+    return dx * c + dy * n, -dx * n + dy * c
+
+
+def on_surface(s: dict, p: g.Pt, tol: float = EPS) -> bool:
+    u, v = _local(s, p)
+    return abs(u) <= s["w"] / 2 + tol and abs(v) <= s["d"] / 2 + tol
+
+
+def surface_under(center: g.Pt, surfaces: Iterable[dict]) -> Optional[dict]:
+    """그 자리 아래의 윗면. surfaces: {id, center_xz, yaw_rad(폭 축 방향), w, d, top_m}. 겹치면 가장 높은 것."""
+    hits = [s for s in surfaces if on_surface(s, center)]
+    return max(hits, key=lambda s: s["top_m"]) if hits else None
+
+
+def settle_on(s: dict, center: g.Pt, yaw_rad: float, w: float, d: float) -> g.Pt:
+    """윗면 가장자리에 걸친 자리를 몸 전체가 올라오는 가장 가까운 자리로 당긴다. yaw_rad = 제품 정면 방향.
+    물건이 윗면보다 크면 그대로 돌려준다."""
+    pts = [_local(s, q) for q in rect(center, yaw_rad - math.pi / 2, w, d)]
+    cu, cv = _local(s, center)
+    eu, ev = max(abs(u - cu) for u, _ in pts), max(abs(v - cv) for _, v in pts)
+    if eu > s["w"] / 2 + EPS or ev > s["d"] / 2 + EPS:
+        return center
+    u = min(max(cu, -(s["w"] / 2 - eu)), s["w"] / 2 - eu)
+    v = min(max(cv, -(s["d"] / 2 - ev)), s["d"] / 2 - ev)
+    if abs(u - cu) < EPS and abs(v - cv) < EPS:
+        return center
+    c, n = math.cos(s["yaw_rad"]), math.sin(s["yaw_rad"])
+    return s["center_xz"][0] + u * c - v * n, s["center_xz"][1] + u * n + v * c
+
+
 # ---------- snap ----------
 def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Pose:
     """가까운 벽(FIT_SNAP_M 안)이 있으면 제품 등을 그 벽에 붙이고 앞쪽을 방 안으로 돌린다.
@@ -176,7 +231,9 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Po
 
 # ---------- 판정 ----------
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
-               others: Iterable[dict] = (), hidden: Iterable[str] = ()) -> PoseResult:
+               others: Iterable[dict] = (), hidden: Iterable[str] = (), host: Optional[dict] = None) -> PoseResult:
+    """host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
+    키가 그 윗면보다 낮은 바닥 물건은 걸리지 않는다. 윗면 밖으로 나오면 불가."""
     cfg = cfg or FitConfig()
     size = product_size(product)
     reasons: list[dict] = []
@@ -192,6 +249,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     w_m, h_m, d_m = size
     side, back, top, clear_unknown = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
+    base = float(host["top_m"]) if host else 0.0
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
@@ -210,17 +268,28 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("outside_room", Verdict.NO_FIT)
 
     hidden = set(hidden)  # 치운 가구 id + 철거한 벽 id
-    obstacles: list[tuple[str, str, list[g.Pt]]] = [("wall", w.wall_id, wall_rect(w)) for w in room.walls
-                                                     if w.wall_id not in hidden]
-    obstacles += [("object", o.object_id, rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d))
+    INF = float("inf")
+    # (종류, id, 바닥 사각형, 밑면 높이, 윗면 높이)
+    obstacles: list[tuple[str, str, list[g.Pt], float, float]] = [("wall", w.wall_id, wall_rect(w), 0.0, INF) for w in room.walls
+                                                                   if w.wall_id not in hidden]
+    obstacles += [("object", o.object_id, rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d),
+                   o.position[1] - o.bbox_m.h / 2, o.position[1] + o.bbox_m.h / 2)
                   for o in room.objects if o.object_id not in hidden]
     for o in others:
-        sw, _, sd = o["size_m"]
+        sw, sh, sd = o["size_m"]
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
-        obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd)))
+        lo = float(o.get("base_m") or 0.0)
+        obstacles.append(("placement", o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
+    host_id = host["id"] if host else None
+    # 올려 둔 가구 자신, 그리고 높이가 겹치지 않는 것(윗면보다 낮은 바닥 물건 등)은 뺀다
+    # (바닥에 놓을 때 스캔 가구는 높이를 따지지 않고 전처럼 다 본다: 스캔 높이는 믿기 어렵다)
+    obstacles = [ob for ob in obstacles if ob[1] != host_id
+                 and ((base <= EPS and ob[0] == "object") or (ob[4] > base + EPS and ob[3] < base + h_m - EPS))]
+    if host and not all(on_surface(host, q, 1e-4) for q in F):
+        add("surface_overhang", Verdict.NO_FIT, host_id)
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
-    for kind, ref, poly in obstacles:
+    for kind, ref, poly, _lo, _hi in obstacles:
         if overlaps(F, poly):
             add(hit_code[kind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
@@ -238,7 +307,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     # 천장: 가장 가까운 벽 높이
     if room.walls:
         wall, _ = _nearest_wall(room, c)
-        slack = _wall_height(wall) - (h_m + top)
+        slack = _wall_height(wall) - (base + h_m + top)
         if slack < -EPS:
             add("ceiling_low", Verdict.NO_FIT, wall.wall_id)
         elif slack < margin - EPS:
@@ -263,7 +332,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
                 add("door_blocked", Verdict.NO_FIT, op.opening_id)
             elif hi or ho:
                 add("door_swing_assumed", Verdict.CONDITIONAL, op.opening_id)
-        elif op.type == "window" and h_m > op.sill_m + EPS:
+        elif op.type == "window" and base + h_m > op.sill_m + EPS:
             band = [f.to_world(a, t), f.to_world(b, t), f.to_world(b, t + cfg.snap_m), f.to_world(a, t + cfg.snap_m)]
             if overlaps(R, band):
                 add("covers_window", Verdict.CONDITIONAL, op.opening_id)
@@ -284,7 +353,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     if cfg.scanned_max_conditional:
         add("scan_based", Verdict.CONDITIONAL)
     v = worst(verdicts) if verdicts else Verdict.FIT
-    return PoseResult(v, pose, reasons, F, R, (w_m, h_m, d_m))
+    return PoseResult(v, pose, reasons, F, R, (w_m, h_m, d_m), base, host_id)
 
 
 # ---------- 알맞은 자리 찾기 ----------

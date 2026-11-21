@@ -327,7 +327,8 @@ export async function customer(pid) {
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     canDrag: () => mode === "move" && !armed && !armedRouter && !armedMark,
-    onSurface: () => armedRouter, // 공유기는 책상·선반 윗면에도 놓인다
+    // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
+    onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
     onHover: (p) => { hovering = true; follow(p); },
     onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); },
     onClick: ({ hit, point }) => {
@@ -352,10 +353,11 @@ export async function customer(pid) {
       drag3d = id; selPl = id; selObj = null;
       preview({ sku: x.sku, center_xz: c, yaw_rad: x.yaw_rad, placement_id: id, ...sizeArgs(x) }, (r) => viewer.setDragVerdict(id, r.verdict));
     },
-    onDragEnd: (id, c) => {
+    onDragEnd: (id, c, baseY) => {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       drag3d = null;
       setTab("sel");
+      if (x && baseY !== undefined) x.base_m = baseY; // 저장 응답이 오기 전에도 올려 둔 높이 그대로
       if (x) patch(id, { center_xz: c, yaw_rad: x.yaw_rad });
     },
     onDropSku: (sku, p) => placeAt(sku, p),
@@ -369,6 +371,7 @@ export async function customer(pid) {
   const svg = document.getElementById("plan");
   let renderProgress = () => {}, setFlow = () => {}; // 3단계 진행 표시 (아래에서 채운다)
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
+  let tabletop = () => false; // 카탈로그를 받은 뒤 채운다
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   let sim = "", overlay = "", simState = { date: new Date().toISOString().slice(0, 10), time: "12:00", heat: false }, regions = null;
   const prodOf = (sku) => catalog.find((p) => p.sku === sku);
@@ -390,7 +393,9 @@ export async function customer(pid) {
   const setHint = (msg) => {
     renderAct();
     if (msg) { document.getElementById("hint").textContent = msg; return; }
-    document.getElementById("hint").innerHTML = armed ? `3D 바닥에서 놓을 자리를 누르거나, 아래 <b>알맞은 자리에 놓기</b>를 눌러 보세요` : HINT[mode];
+    document.getElementById("hint").innerHTML = armed ? (tabletop(armed)
+      ? `바닥이나 <b>식탁·아일랜드·하부장 위</b>를 누르면 그 자리에 놓여요. 아래 <b>알맞은 자리에 놓기</b>도 돼요`
+      : `3D 바닥에서 놓을 자리를 누르거나, 아래 <b>알맞은 자리에 놓기</b>를 눌러 보세요`) : HINT[mode];
     const u = document.getElementById("unarm");
     if (u) u.onclick = (e) => { e.preventDefault(); armed = null; ghost(null); setHint(); renderLib(); };
   };
@@ -481,6 +486,8 @@ export async function customer(pid) {
   // 같은 모델의 색·재질 다른 SKU는 한 줄로 묶고, 색·재질은 동그라미로 고른다
   const families = await api("/api/catalog/families");
   const familyOf = (sku) => families.find((f) => f.variants.some((v) => v.sku === sku));
+  const onTops = new Set(families.flatMap((f) => f.variants.filter((v) => v.tabletop).map((v) => v.sku)));
+  tabletop = (sku) => onTops.has(sku); // 가구 위에 올려 둘 수 있는 가전 (서버가 정한다)
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
   // 목록 카드의 색 동그라미는 색마다 하나만
@@ -797,7 +804,7 @@ export async function customer(pid) {
     const res = { pose: { center_xz, yaw_rad }, size_m, verdict };
     const g = document.getElementById("ghost");
     if (g && pv) g.innerHTML = placedSvg({ center_xz, yaw_rad, size_m, verdict }, pv.sw, false, true);
-    viewer.setGhost({ ...res, sku, hex: prodOf(sku)?.cmf_options[0]?.hex_approx });
+    viewer.setGhost({ ...res, sku, hex: prodOf(sku)?.cmf_options[0]?.hex_approx, surface: tabletop(sku) ? "product" : null });
   };
   const follow = (p) => {
     lastHover = p;
@@ -1029,18 +1036,20 @@ export async function customer(pid) {
   const poseOf = (hit) => {
     if (hit.type === "router") {
       const rt = project.scene_state.router;
-      return rt && { kind: "router", id: "router", xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0 };
+      return rt && { kind: "router", id: "router", xz: [...rt.center_xz], yaw: rt.yaw_rad ?? 0, surface: "router" };
     }
     if (hit.type === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === hit.id);
-      return x && { kind: "placement", id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad };
+      return x && { kind: "placement", id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, surface: x.tabletop ? "product" : null };
     }
     const o = objOf(hit.id);
     return o && { kind: "object", id: o.object_id, xz: [o.position[0], o.position[2]], yaw: o.yaw_rad };
   };
   const pickUp = (hit, point) => {
     const item = poseOf(hit);
-    if (item && viewer.hold(item, point)) setHint("들고 있어요: 놓을 곳을 누르세요 · R 돌리기(Shift 반대, Alt 15°) · 방향키 살짝 옮기기 · Esc 취소 · Delete 지우기");
+    if (item && viewer.hold(item, point)) setHint(item.surface === "product"
+      ? "들고 있어요: 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · 바닥을 누르면 내려놓기 · R 돌리기 · Esc 취소 · Delete 지우기"
+      : "들고 있어요: 놓을 곳을 누르세요 · R 돌리기(Shift 반대, Alt 15°) · 방향키 살짝 옮기기 · Esc 취소 · Delete 지우기");
   };
   // 저장 응답을 기다리지 않고 화면 상태부터 바꾼다 (바로 다시 집어도 새 자리에서 시작)
   let editSeq = 0; // 화면에서 바꾼 횟수: 읽는 도중 바뀌면 그 응답은 버리고 다시 읽는다
@@ -1051,7 +1060,7 @@ export async function customer(pid) {
       if (rt) { rt.center_xz = [...it.xz]; rt.yaw_rad = it.yaw; }
     } else if (it.kind === "placement") {
       const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
-      if (x) { x.center_xz = [...it.xz]; x.yaw_rad = it.yaw; }
+      if (x) { x.center_xz = [...it.xz]; x.yaw_rad = it.yaw; if (it.baseY !== undefined) x.base_m = it.baseY; }
     } else {
       const o = objOf(it.id);
       if (o) { o.position = [it.xz[0], o.position[1], it.xz[1]]; o.yaw_rad = it.yaw; }
@@ -1240,7 +1249,9 @@ export async function customer(pid) {
     const xz = held ? held.xz : x ? x.center_xz : o ? [o.position[0], o.position[2]] : null;
     if (!xz) { unNear(); return; }
     const top = x ? (x.size_m?.[1] ?? 1) : o ? o.bbox_m.h : 1;
-    const [sx, sy] = viewer.toScreen(xz, top), r = canvasEl.getBoundingClientRect();
+    // 가구 위에 올려 둔 것은 그 높이만큼 위에 (안 그러면 메뉴가 물건을 가려 놓을 자리를 못 누른다)
+    const base = held ? (held.kind === "placement" ? held.y : 0) : x ? x.base_m || 0 : 0;
+    const [sx, sy] = viewer.toScreen(xz, top + base), r = canvasEl.getBoundingClientRect();
     const w = actBar.offsetWidth, h = actBar.offsetHeight;
     const left = Math.min(Math.max(sx - r.left, w / 2 + 8), r.width - w / 2 - 8);
     const topPx = Math.min(Math.max(sy - r.top - h - 14, 8), r.height - h - 8);
@@ -1294,7 +1305,7 @@ export async function customer(pid) {
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); document.getElementById("szRange")?.focus(); });
-    document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint("옮길 자리를 누르세요 · Esc 취소"); };
+    document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
     document.getElementById("actRot").onclick = () => rotate(ROT_STEP);
     document.getElementById("actAlign")?.addEventListener("click", () => autoAlign(x.placement_id));
     document.getElementById("actDel").onclick = () => removeSelected();
@@ -1447,6 +1458,7 @@ export async function customer(pid) {
   const FIX = {
     hits_wall: "벽에서 조금 떼거나 '자동 정렬'을 눌러 보세요", outside_room: "방 안쪽으로 옮겨 주세요",
     overlaps_object: "가구를 옮기거나 '가구 치우기'로 치워 보세요", overlaps_placement: "다른 제품과 겹쳐요. 한쪽을 옮겨 주세요",
+    surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
     front_blocked: "문을 열 앞 공간이 막혀요. 앞을 비우거나 돌려 보세요", passage_narrow: "지나갈 길이 좁아져요. 벽 쪽으로 붙여 보세요",
     door_blocked: "방문이 열릴 자리를 막아요. 옆으로 옮겨 주세요", entry_narrow: "방문보다 제품이 커서 들여오기 어려워요",
     covers_window: "창을 가려요. 창이 없는 벽으로 옮겨 보세요", ceiling_low: "천장보다 높아요. 더 낮은 제품을 골라 보세요",
@@ -1741,7 +1753,7 @@ export async function customer(pid) {
   let needKey = "";
   const syncNeed = async () => {
     const x = project.scene_state.placements.find((q) => q.placement_id === selPl);
-    const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}` : "";
+    const key = x ? `${x.placement_id}|${x.sku}|${x.center_xz}|${x.yaw_rad}|${x.base_m || 0}` : "";
     if (key === needKey) return;
     needKey = key;
     // 가구·소품은 문 열 공간이 없으니 필요 공간 점선도 없다 (본체와 같아서 겹쳐 보이기만 한다)
@@ -1749,7 +1761,7 @@ export async function customer(pid) {
     try {
       const r = await post(`/api/projects/${pid}/pose-check`, { sku: x.sku, center_xz: x.center_xz, yaw_rad: x.yaw_rad, snap: false, placement_id: x.placement_id, size_m: x.size_m });
       if (needKey !== key) return;
-      viewer.setNeed(r.required);
+      viewer.setNeed(r.required, r.base_m || 0);
       document.getElementById("needTag").hidden = true; // 점선 범례 글은 띄우지 않는다 (화면을 가볍게)
     } catch { viewer.setNeed(null); }
   };

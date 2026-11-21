@@ -61,3 +61,29 @@ def test_best_spot_beats_corner():
     corner_worst = min(v for row in coverage(r, (0.3, 0.3), CFG, cell_m=0.5)["values"] for v in row if v is not None)
     assert worst > corner_worst
     assert 2 < spot[0] < 6  # 칸막이 근처 가운데 쪽이 유리
+
+
+# ---- 높이: 공유기를 가구 위에 올렸을 때 ----
+FRIDGE = [(3.0, 1.5), (3.8, 1.5), (3.8, 2.5), (3.0, 2.5)]  # 가는 길을 막는 냉장고 바닥 사각형
+
+
+def test_height_default_is_flat_like_before():
+    assert rssi_at(room(), (1, 2), (7, 2), CFG, tx_h=0.0, rx_h=0.0) == pytest.approx(rssi_at(room(), (1, 2), (7, 2), CFG))
+
+
+def test_height_difference_adds_distance():
+    flat = rssi_at(room(), (1, 2), (3, 2), CFG, tx_h=1.0, rx_h=1.0)
+    high = rssi_at(room(), (1, 2), (3, 2), CFG, tx_h=2.0, rx_h=0.0)
+    assert high < flat and high == pytest.approx(20 - 46.4 - 20 * math.log10(math.hypot(2, 2)))
+
+
+def test_router_above_a_fridge_is_not_blocked_by_it():
+    low = rssi_at(room(), (1, 2), (7, 2), CFG, blockers=[(FRIDGE, 1.8)], tx_h=0.75, rx_h=1.0)
+    high = rssi_at(room(), (1, 2), (7, 2), CFG, blockers=[(FRIDGE, 1.8)], tx_h=2.0, rx_h=2.0)
+    assert low == pytest.approx(rssi_at(room(), (1, 2), (7, 2), CFG, tx_h=0.75, rx_h=1.0) - CFG.metal_db)
+    assert high == pytest.approx(rssi_at(room(), (1, 2), (7, 2), CFG))
+
+
+def test_blockers_without_height_always_block():
+    assert rssi_at(room(), (1, 2), (7, 2), CFG, blockers=[FRIDGE], tx_h=2.0, rx_h=2.0) == pytest.approx(
+        rssi_at(room(), (1, 2), (7, 2), CFG) - CFG.metal_db)
