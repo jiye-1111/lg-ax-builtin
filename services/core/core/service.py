@@ -1133,6 +1133,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 raise Invalid(f"지역은 {', '.join(REGIONS)} 중 하나")
             site.update(region=region, **REGIONS[region])
             site.pop("address", None)
+            site.pop("approx", None)
+            site.pop("area", None)
             site.pop("axis_deg", None)
         if address is not None:
             from sim.geocode import GeocodeError, geocode
@@ -1142,7 +1144,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             except GeocodeError as e:
                 raise Invalid(str(e)) from e
             near = min(REGIONS, key=lambda k: (REGIONS[k]["lat"] - g["lat"]) ** 2 + (REGIONS[k]["lon"] - g["lon"]) ** 2)
-            site.update(region=near, lat=g["lat"], lon=g["lon"], address=g["address"], axis_deg=g["axis_deg"])
+            site.update(region=near, lat=g["lat"], lon=g["lon"], address=g["address"], axis_deg=g["axis_deg"], approx=g["approx"], area=g["area"])
             auto_north = True
         if auto_north and north_deg is None:
             est = estimate_north(self.get_room(pid), site.get("axis_deg"))
