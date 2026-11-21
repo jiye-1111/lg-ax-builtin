@@ -648,7 +648,13 @@ export function makeViewer(el, handlers = {}) {
       // 들고 있으면 커서를 따라온다: 10 cm 격자, Alt는 1 cm
       // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
       const q = held.surface ? surfacePoint(e, held.surface, held.id) : floorPoint(e, e.altKey ? 0.01 : 0.1);
-      if (q) { held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]]; handlers.onHoldMove?.(held, held.xz); }
+      if (q) {
+        held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]];
+        // 벽·가전 옆에 가까이 가면 착 붙는다 (Alt를 누르고 있으면 붙지 않는다)
+        const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.yaw);
+        if (sn) { held.xz = sn.xz; held.yaw = sn.yaw; }
+        handlers.onHoldMove?.(held, held.xz);
+      }
       return;
     }
     const p = floorPoint(e);
@@ -658,8 +664,12 @@ export function makeViewer(el, handlers = {}) {
         : [dragging.orig[0] + p[0] - dragging.start[0], dragging.orig[1] + p[1] - dragging.start[1]];
       if (!dragging.moved && Math.hypot(e.clientX - down.x, e.clientY - down.y) > CLICK_PX) dragging.moved = true;
       if (dragging.moved) {
-        dragging.group?.position.set(c[0], topY(dragging.surface, c, dragging.id) ?? 0, c[1]);
-        handlers.onDragMove?.(dragging.id, c);
+        const sn = !dragging.surface && !e.altKey && handlers.snap?.({ kind: "placement", id: dragging.id }, c, undefined);
+        const at = sn ? sn.xz : c;
+        dragging.yaw = sn ? sn.yaw : undefined;
+        if (sn && dragging.group) dragging.group.rotation.y = rotY("placement", sn.yaw);
+        dragging.group?.position.set(at[0], topY(dragging.surface, at, dragging.id) ?? 0, at[1]);
+        handlers.onDragMove?.(dragging.id, at, dragging.yaw);
       }
       return;
     }
@@ -673,7 +683,7 @@ export function makeViewer(el, handlers = {}) {
     if (dragging) {
       const g = dragging;
       dragging = null;
-      if (g.moved) { handlers.onDragEnd?.(g.id, [g.group?.position.x ?? 0, g.group?.position.z ?? 0], g.surface === "product" ? g.group?.position.y : undefined); return; }
+      if (g.moved) { handlers.onDragEnd?.(g.id, [g.group?.position.x ?? 0, g.group?.position.z ?? 0], g.surface === "product" ? g.group?.position.y : undefined, g.yaw); return; }
     }
     if (!d || Math.hypot(e.clientX - d.x, e.clientY - d.y) > CLICK_PX) return; // 카메라를 돌린 것
     if (d.held) { handlers.onHoldClick?.(held); return; }
@@ -948,7 +958,7 @@ export function makeViewer(el, handlers = {}) {
     },
     held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, y: held.nodes[0]?.node.position.y ?? 0 },
     moveHeld(dx, dz) { if (held) { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
-    rotateHeld(dyaw) { if (held) { held.yaw += dyaw; handlers.onHoldMove?.(held, held.xz); } },
+    rotateHeld(dyaw) { if (held) { held.yaw += dyaw; held.turned = true; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;

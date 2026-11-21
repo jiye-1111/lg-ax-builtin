@@ -17,6 +17,7 @@ from recommender.cmf import rank_cmf
 from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
+from recommender.gaps import fill_width, measure as measure_gaps
 from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, WALL_LIKE, can_sit, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.finder import Conditions, find_products
@@ -27,7 +28,7 @@ from . import config
 from .ai_products import chat_message, interpret_products
 from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
-from .decor import decor_product, is_decor, is_flat
+from .decor import MAX_MM as MAX_DECOR_MM, decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .service_combos import ComboMixin
 from .service_life import LifeMixin
@@ -677,6 +678,29 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return [x for x in p["scene_state"]["placements"]
                 if x.get("placement_id") != exclude and x.get("size_m") and not is_flat(x.get("sku"))]
 
+    def _gap_others(self, p: dict, exclude: str | None = None) -> list[dict]:
+        """틈을 잴 때 보는 다른 배치. 옆 가전이 요구하는 옆 여유(side_mm, LGE.COM 값)를 같이 넘긴다."""
+        out = []
+        for x in self._others(p, exclude):
+            side = None
+            if not is_decor(x.get("sku")):
+                try:
+                    side = self.catalog.get(x["sku"]).clearance_mm.side
+                except KeyError:
+                    side = None
+            out.append({**x, "side_mm": side or 0})
+        return out
+
+    def _gaps(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None, base: float) -> dict:
+        if is_flat(prod.sku):
+            return {}
+        others = self._gap_others(p, exclude)
+        if self._undersink(prod.sku):  # 하부장 안에 들어간 정수기: 그 하부장은 옆 틈이 아니다
+            others = [x for x in others if x.get("sku") not in self.CABINETS]
+        elif prod.sku in self.CABINETS:
+            others = [x for x in others if not self._undersink(x.get("sku"))]
+        return measure_gaps(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), base=base)
+
     def _pose(self, room: Room, prod: Product, center_xz, yaw_rad: float, snap: bool, p: dict | None = None) -> Pose:
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
@@ -821,7 +845,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id)
-        return self._judge(room, p, prod, pose, placement_id).to_dict()
+        r = self._judge(room, p, prod, pose, placement_id)
+        out = r.to_dict()
+        out["gaps"] = self._gaps(room, p, prod, pose, placement_id, r.base_m)
+        return out
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
                  color: str | None = None, wall_id: str | None = None, size_m=None) -> dict:
@@ -903,6 +930,24 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             raise Invalid("복사본을 놓을 빈자리가 없어요")
         return self.place_at(pid, x["sku"], list(best.pose.center_xz), best.pose.yaw_rad, snap=False, color=x.get("color"),
                              wall_id=best.pose.wall_id, size_m=size)
+
+    def fit_gap(self, pid: str, placement_id: str) -> dict:
+        """빈틈에 맞추기: 장·가벽의 폭을 양옆 벽·가전 사이에 꽉 차게 늘린다. 옆 가전이 요구하는 옆 여유는 남긴다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        x = self._find_placement(p, placement_id)
+        if not is_decor(x["sku"]) or is_flat(x["sku"]):
+            raise Invalid("빈틈에 맞추기는 장·가벽 같은 가구만 돼요")
+        prod = self._item(x["sku"], x.get("size_m"))
+        pose = Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id"))
+        found = fill_width(room, prod, pose, self.fit_cfg, others=self._gap_others(p, placement_id),
+                           hidden=self._blocked_off(p), base=float(x.get("base_m") or 0.0))
+        if found is None:
+            raise Invalid("양옆이 막힌 빈틈이 아니에요. 벽이나 가전 사이에 놓고 다시 눌러 보세요")
+        center, w = found
+        if w * 1000 > MAX_DECOR_MM:
+            raise Invalid("빈틈이 너무 넓어요. 벽이나 가전 가까이에 놓고 다시 눌러 보세요")
+        return self.move_placement(pid, placement_id, list(center), x["yaw_rad"], snap=False,
+                                   size_m=[w, x["size_m"][1], x["size_m"][2]])
 
     def set_wall_hidden(self, pid: str, wall_id: str, hidden: bool = True) -> dict:
         """벽 철거(가상): 스캔한 벽을 3D·판정에서 뺀다. 되돌리면 다시 세운다."""

@@ -569,6 +569,11 @@ def auto_align(pid: str, plid: str, s: Service = S):
     return s.auto_align(pid, plid)
 
 
+@app.post("/api/projects/{pid}/placements/{plid}/fit-gap")
+def fit_gap(pid: str, plid: str, s: Service = S):
+    return s.fit_gap(pid, plid)
+
+
 class SuggestIn(BaseModel):
     model_config = {"extra": "forbid"}
     skus: list[str] = Field(max_length=60)

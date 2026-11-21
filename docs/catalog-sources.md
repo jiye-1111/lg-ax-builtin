@@ -128,3 +128,13 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
 - 빌트인 정수기 5종 (WU523, WU923, WU823): "지름 28mm 타공 … 데코링 52mm 고정", "싱크볼 하판 … 가로 102mm, 세로 70mm 여유공간", "출수구와 본체 간의 거리는 최대 730mm", "벽 쪽으로 10mm, 옆 쪽으로 100mm 여유 공간", "원수로부터 5m 이내", "싱크대 55mm 타공"(하부장에 콘센트가 없을 때).
 - WU923AS·WU923ACB·WU823AS는 일반형으로 들어가 있었는데, 가이드가 빌트인 정수기(WU9*3/8*3/5*3)로 분류해서 `built_in`으로 고쳤다.
 - 가이드에 없는 값(스탠드의 옆·위, 빌트인의 위)은 null.
+
+## 2026-11-21 추가: 가구 크기 프리셋
+장롱·키큰장·하부장·서랍장의 크기 조절에 뜨는 칩은 실제 판매 제품의 공개 치수다 (`services/core/core/decor.py` `PRESETS`). 가구는 주문·가격과 상관없는 모양이라 치수만 쓴다. 2026-11-21 제품 페이지에서 확인.
+
+- IKEA PAX 옷장프레임 50x58x201 cm https://www.ikea.com/kr/ko/p/pax-wardrobe-frame-white-20355127/ , 75x35x201 cm https://www.ikea.com/kr/ko/p/pax-wardrobe-frame-white-00355133/ , 100x58x236 cm https://www.ikea.com/gb/en/p/pax-wardrobe-frame-white-80458207/ (한국 페이지를 못 찾아 영국 페이지로 확인)
+- IKEA METOD 키큰장 60x60x200 cm https://www.ikea.com/kr/ko/p/metod-high-cabinet-white-40270938/
+- IKEA METOD 하부장 40x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-20270883/ , 60x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-90270889/ , 80x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-10270893/ (40·80은 제품 이름의 치수)
+- IKEA MALM 4칸서랍장 80x48x100 cm https://www.ikea.com/kr/ko/p/malm-chest-of-4-drawers-white-20354646/ , 6칸서랍장 160x48x78 cm https://www.ikea.com/kr/ko/p/malm-chest-of-6-drawers-white-70354644/
+- 한샘·리바트 붙박이장은 폭을 집에 맞춰 주문하는 제품이라 고정 치수 칩으로 넣지 않았다. 폭·높이·깊이를 mm로 직접 적으면 된다.
+- 핏 앤 맥스 옆 4 mm는 카탈로그 값 그대로다. LG FIT&MAX Wiki(https://www.lge.co.kr/story/buying-guide/refrigerators-fit-max-wiki)도 좌우 최소 4 mm라고 적고 있다. 같은 글은 위 최소 15 mm라고 하는데 카탈로그에는 9 mm인 모델이 있어 확인이 필요하다 (값은 건드리지 않음).

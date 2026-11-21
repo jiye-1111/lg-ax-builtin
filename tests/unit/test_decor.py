@@ -41,6 +41,23 @@ def test_unknown_decor_raises():
         decor_product("decor:spaceship")
 
 
+def test_cabinet_kinds_for_builtin_planning():
+    for need in ("wardrobe", "tallcab", "basecab", "dresser", "storage"):
+        assert need in DECOR and DECOR[need]["group"] == "storage"
+
+
+def test_presets_are_real_products_with_source():
+    """크기 프리셋은 실제 판매 제품의 공개 치수만. 출처 주소가 있어야 한다."""
+    by = {i["sku"]: i for i in decor_items()}
+    for sku in ("decor:wardrobe", "decor:tallcab", "decor:basecab", "decor:dresser"):
+        ps = by[sku]["presets"]
+        assert ps, sku
+        for p in ps:
+            assert p["source_url"].startswith("https://www.ikea.com/") and p["label"]
+            assert set(p["size_mm"]) == {"w", "h", "d"} and all(v > 0 for v in p["size_mm"].values())
+    assert by["decor:sofa"]["presets"] == []
+
+
 def test_sink_and_door_are_in_the_library():
     assert DECOR["sink"]["group"] == "storage" and DECOR["sink"]["label"] == "싱크대"
     assert DECOR["door"]["group"] == "structure" and DECOR["door"]["label"] == "문"

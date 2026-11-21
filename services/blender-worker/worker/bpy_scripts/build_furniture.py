@@ -297,6 +297,31 @@ def basecab(w, h, d):
     part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.006)
 
 
+def wardrobe(w, h, d):
+    """장롱: 걸레받이 + 키 큰 여닫이문 2짝, 가운데에 긴 손잡이 (정면 +Z)"""
+    base, gap = 0.07, 0.003
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.05, 0, base, "ses", 0.003)
+    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    for i in range(2):
+        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
+        part(f"door{i}", "white", x0, x1, d / 2 - 0.02, d / 2, base + gap, h - gap, "sse", 0.003)
+        hx = x1 - 0.035 if i == 0 else x0 + 0.035
+        part(f"handle{i}", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, h * 0.42, h * 0.42 + 0.3, "ppe", 0.004)
+
+
+def tallcab(w, h, d):
+    """키큰장: 걸레받이 + 위아래 문 2짝 (냉장고 옆에 세우는 주방 장, 정면 +Z)"""
+    base, gap, split = 0.1, 0.003, 0.62
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
+    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    ym = base + (h - base) * split
+    part("door_low", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, base + gap, ym - gap, "sse", 0.003)
+    part("door_up", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, ym + gap, h - gap, "sse", 0.003)
+    hx = w / 2 - 0.04
+    part("handle_low", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym - 0.3, ym - 0.06, "epe", 0.004)
+    part("handle_up", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym + 0.06, ym + 0.3, "epe", 0.004)
+
+
 def bar(name: str, m: str, a: tuple[float, float, float], b: tuple[float, float, float], r: float, rig: str) -> None:
     """두 점(glTF 기준 x, y 높이, z 깊이)을 잇는 둥근 막대. 수전·문손잡이용."""
     from mathutils import Vector
@@ -401,6 +426,8 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "wall": ((2.0, 2.4, 0.1), wall),
     "dresser": ((0.8, 0.9, 0.45), dresser),
     "basecab": ((1.2, 0.85, 0.6), basecab),
+    "wardrobe": ((1.0, 2.36, 0.58), wardrobe),
+    "tallcab": ((0.6, 2.0, 0.6), tallcab),
     "sink": ((1.2, 0.88, 0.6), sink),
     "door": ((0.9, 2.1, 0.14), door),
 }
