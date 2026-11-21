@@ -65,3 +65,10 @@ test("설치 방식 개수: 빌트인 핏은 빌트인으로 센다", () => {
   const vs = [{ install_type: "built_in" }, { install_type: "built_in_look" }, { install_type: "freestanding" }, { install_type: null }];
   assert.deepEqual(installCounts(vs), { 빌트인: 2, 일반: 1 });
 });
+
+test("가격 칩: 한쪽 끝이 범위 끝에 닿아 있으면 이하·이상으로 짧게", () => {
+  const chip = (budget) => appliedFilters({ ...EMPTY, budget }, NAMES)[0].label;
+  assert.equal(chip({ lo: 200000, hi: 3000000, atMin: true }), "300만원 이하");
+  assert.equal(chip({ lo: 2000000, hi: 5100000, atMax: true }), "200만원 이상");
+  assert.equal(chip({ lo: 2000000, hi: 3000000 }), "200만 ~ 300만원");
+});
