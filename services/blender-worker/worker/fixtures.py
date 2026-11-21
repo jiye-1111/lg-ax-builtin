@@ -46,6 +46,29 @@ DEMO_ROOM = [
     BoxSpec("Object/Table/Table0", (3.4, 0.22, 2.0), (1.0, 0.45, 0.5), 0),
 ]
 
+# 거실과 주방이 이어진 집(가상): 7.8m × 4.6m. 주방 벽 z=0, 큰 창 x=7.8, 현관 쪽 문 z=4.6
+APT_LIVING_KITCHEN = [
+    BoxSpec("Architecture/Walls/Wall0", (3.9, H / 2, 0.0), (7.8, H, T), 0),
+    BoxSpec("Architecture/Walls/Wall1", (7.8, H / 2, 2.3), (4.6, H, T), 90),
+    BoxSpec("Architecture/Walls/Wall2", (3.9, H / 2, 4.6), (7.8, H, T), 180),
+    BoxSpec("Architecture/Walls/Wall3", (0.0, H / 2, 2.3), (4.6, H, T), 270),
+    BoxSpec("Architecture/Doors/Door0", (1.2, 1.05, 4.6), (0.9, 2.1, T), 180),
+    BoxSpec("Architecture/Windows/Window0", (7.8, 1.2, 2.3), (2.8, 2.0, T), 90),
+    BoxSpec("Architecture/Windows/Window1", (1.5, 1.45, 0.0), (1.0, 0.7, T), 0),
+    # 주방 하부장: 주방 벽 앞 x 0.1~2.5
+    BoxSpec("Object/Storage/Storage0", (1.3, 0.45, 0.32), (2.4, 0.9, 0.6), 0),
+    # 식탁과 의자
+    BoxSpec("Object/Table/Table0", (2.2, 0.37, 2.3), (1.4, 0.74, 0.8), 0),
+    BoxSpec("Object/Chair/Chair0", (1.8, 0.42, 1.6), (0.45, 0.84, 0.48), 0),
+    BoxSpec("Object/Chair/Chair1", (2.6, 0.42, 1.6), (0.45, 0.84, 0.48), 0),
+    BoxSpec("Object/Chair/Chair2", (1.8, 0.42, 3.0), (0.45, 0.84, 0.48), 180),
+    BoxSpec("Object/Chair/Chair3", (2.6, 0.42, 3.0), (0.45, 0.84, 0.48), 180),
+    # 거실: 소파와 낮은 탁자
+    BoxSpec("Object/Sofa/Sofa0", (5.6, 0.4, 3.95), (2.2, 0.8, 0.9), 180),
+    BoxSpec("Object/Table/Table1", (5.6, 0.2, 2.8), (1.1, 0.4, 0.6), 0),
+]
+ROOMS = {"synthetic_room": DEMO_ROOM, "apt_living_kitchen": APT_LIVING_KITCHEN}
+
 
 def _rot_y(p, deg):
     r = math.radians(deg)
@@ -100,4 +123,4 @@ def build_usdz(usdz_path: str | os.PathLike, **kw) -> Path:
 if __name__ == "__main__":
     import sys
     out = sys.argv[1] if len(sys.argv) > 1 else "data/samples/synthetic_room.usdz"
-    print(build_usdz(out))
+    print(build_usdz(out, boxes=ROOMS.get(Path(out).stem, DEMO_ROOM)))
