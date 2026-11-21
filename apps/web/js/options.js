@@ -64,3 +64,18 @@ export function optionSteps(variants, sel = {}, keys = null) {
   }
   return { steps, remaining, sel: kept };
 }
+
+/** 가격 손잡이 눈금: 그 종류에서 실제로 파는 가격(원) 목록 → { lo, hi, step, open }.
+ *  한두 개뿐인 초고가 때문에 눈금이 늘어지지 않게, 최고가가 95% 지점의 1.5배를 넘으면 95% 지점에서 끊고
+ *  맨 오른쪽을 "이상"(open)으로 둔다. 간격은 눈금이 60칸을 넘지 않는 가장 작은 단위. */
+const PRICE_STEPS = [10000, 50000, 100000, 200000, 500000, 1000000];
+export function priceScale(prices) {
+  const ps = prices.filter((v) => typeof v === "number").sort((a, b) => a - b);
+  const min = ps[0], max = ps[ps.length - 1];
+  const p95 = ps[Math.min(ps.length - 1, Math.floor(ps.length * 0.95))];
+  const top = max > p95 * 1.5 ? p95 : max;
+  const step = PRICE_STEPS.find((st) => (top - min) / st <= 60) ?? PRICE_STEPS[PRICE_STEPS.length - 1];
+  const lo = Math.floor(min / step) * step;
+  const hi = Math.max(Math.ceil(top / step) * step, lo + 2 * step);
+  return { lo, hi, step, open: hi < max };
+}
