@@ -8,7 +8,7 @@ import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.j
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 import { stepState, stepperHtml, fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
-import { optionSteps } from "./options.js";
+import { optionSteps, priceScale } from "./options.js";
 import { startTour, tourSeen } from "./tour.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
@@ -464,7 +464,6 @@ export async function customer(pid) {
   // 이 집에 들어가는 제품: 지금 목록 앞쪽 후보를 서버가 벽을 따라 놓아 보고(find_spot) 들어가는 것만 3개
   let recSkus = new Set(), suggItems = [], suggKey = "", suggTimer = 0, suggPool = [], suggReady = false;
   const isRec = (f) => f.variants.some((v) => recSkus.has(v.sku));
-  const BUDGET_STEP = 50000; // 가격 손잡이 간격 5만 원
   const SUGG_POOL = 30, SUGG_WAIT_MS = 1200; // 연달아 놓는 동안에는 기다렸다가 한 번만
   const renderSugg = () => {
     const box = document.getElementById("sugg");
@@ -518,23 +517,36 @@ export async function customer(pid) {
   const pLo = document.getElementById("pLo"), pHi = document.getElementById("pHi"), budgetOut = document.getElementById("budgetOut");
   const won = (v) => v >= 1e8 ? `${+(v / 1e8).toFixed(1)}억` : `${Math.round(v / 1e4).toLocaleString("ko-KR")}만`;
   const pricesOf = (f) => f.variants.filter((v) => typeof v.price_krw === "number" && (f.demo_only || sellable(v))).map((v) => v.price_krw);
+  // 눈금은 그 종류의 실제 판매가에 맞춘다. 한두 개뿐인 초고가(1억 원 TV 등)는 맨 오른쪽 "이상"에 넣는다 (options.js priceScale)
+  let scale = null;
+  const budgetText = (lo, hi) => `${won(lo)} ~ ${won(hi)}원${scale?.open && hi >= scale.hi ? " 이상" : ""}`;
   const setupBudget = (list) => {
     const ps = list.flatMap(pricesOf), box = document.getElementById("budget");
     box.hidden = ps.length < 2;
     if (box.hidden) { budget = null; return; }
-    const lo = Math.floor(Math.min(...ps) / BUDGET_STEP) * BUDGET_STEP, hi = Math.ceil(Math.max(...ps) / BUDGET_STEP) * BUDGET_STEP;
+    scale = priceScale(ps);
+    const { lo, hi, step } = scale;
     const key = `${cat}|${use}`;
     if (key !== budgetScope) { budgetScope = key; budget = null; } // 종류가 바뀌면 그 종류의 전체 범위로
-    for (const r of [pLo, pHi]) Object.assign(r, { min: lo, max: hi, step: BUDGET_STEP });
+    for (const r of [pLo, pHi]) Object.assign(r, { min: lo, max: hi, step });
     pLo.value = budget ? Math.max(lo, budget.lo) : lo; pHi.value = budget ? Math.min(hi, budget.hi) : hi;
-    budgetOut.textContent = `${won(+pLo.value)} ~ ${won(+pHi.value)}원`;
+    budgetOut.textContent = budgetText(+pLo.value, +pHi.value);
+    paintBudget();
+  };
+  // 두 손잡이 사이를 칠한다 (0~1 위치를 CSS로 넘긴다)
+  const paintBudget = () => {
+    const span = +pHi.max - +pLo.min || 1, rail = pLo.parentElement;
+    rail.style.setProperty("--a", (+pLo.value - +pLo.min) / span);
+    rail.style.setProperty("--b", (+pHi.value - +pLo.min) / span);
   };
   const inBudget = (f) => !budget || pricesOf(f).some((v) => v >= budget.lo && v <= budget.hi);
   const onBudget = (e) => {
     let lo = +pLo.value, hi = +pHi.value;
     if (lo > hi) { if (e.target === pLo) lo = hi; else hi = lo; pLo.value = lo; pHi.value = hi; }
-    budget = lo <= +pLo.min && hi >= +pHi.max ? null : { lo, hi };
-    budgetOut.textContent = `${won(lo)} ~ ${won(hi)}원`;
+    // 오른쪽 끝까지 밀면 위로는 막지 않는다 (눈금 밖 초고가도 포함)
+    budget = lo <= +pLo.min && hi >= +pHi.max ? null : { lo, hi: hi >= +pHi.max ? Infinity : hi };
+    budgetOut.textContent = budgetText(lo, hi);
+    paintBudget();
     clearTimeout(budgetTimer); budgetTimer = setTimeout(renderLib, 120); // 끄는 동안은 숫자만, 손을 멈추면 목록
   };
   let budgetTimer = 0;
