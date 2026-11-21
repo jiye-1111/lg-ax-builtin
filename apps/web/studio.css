@@ -833,7 +833,7 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .gap-tag b { font-weight: 700; }
 .gap-tag small { font-size: 10.5px; font-weight: 600; }
 .gap-tag.ok { border-color: var(--fit); color: var(--fit); background: var(--fit-bg); }
-.gap-tag.bad { border-color: var(--nofit); color: #fff; background: var(--nofit); }
+.gap-tag.bad { border-color: var(--nofit); color: #fff; background: var(--nofit); font-weight: 600; padding: 4px 10px; }
 .gap-tag small { margin-top: -1px; }
 .gap-tag:has(small) { border-radius: 12px; }
 
@@ -871,3 +871,9 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 @media (max-width: 1100px) { .walk-btn { left: 154px; } }
 .sim-line.warn { color: var(--lg-red, #A50034); }
 .sim-line + .sim-line, .facing + .sim-line { margin-top: 4px; }
+
+/* 물건 옆에 뜨는 조작 메뉴는 작게: 물건과 틈 숫자를 가리지 않는다 */
+.act-bar.near:not(.sizing) { gap: 0; padding: 4px; border-radius: 14px; }
+.act-bar.near:not(.sizing) .act { min-width: 46px; padding: 5px 6px; gap: 2px; font-size: 10.5px; }
+.act-bar.near:not(.sizing) .act .ic { width: 17px; height: 17px; }
+.act-bar.near.under::after { display: none; }
