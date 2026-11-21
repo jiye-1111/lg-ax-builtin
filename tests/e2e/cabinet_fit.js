@@ -64,9 +64,9 @@ const check = (name, ok, info = "") => {
   const [sx, sy] = await v3("toScreen", aim, 0);
   await page.mouse.move(sx - 30, sy - 10);
   await page.mouse.move(sx, sy, { steps: 4 });
-  await page.waitForFunction(() => [...document.querySelectorAll("#gapTags .gap-tag")].some((e) => e.textContent.trim().startsWith("옆 4 mm")), null, { timeout: 8000 }).catch(() => {});
+  await wait(1500);
   const tags = await page.$$eval("#gapTags .gap-tag", (els) => els.map((e) => e.textContent.trim()));
-  check("들고 있는 동안 옆 틈이 4 mm로 뜬다", tags.some((t) => t.startsWith("옆 4 mm")), tags.join(" | "));
+  check("잘 붙었으면 들고 있는 동안 숫자가 뜨지 않는다", tags.length === 0, tags.join(" | "));
   await shot("cabinet-snap-follow.png");
   await page.mouse.click(sx, sy);
   await wait(2500);
@@ -77,8 +77,8 @@ const check = (name, ok, info = "") => {
   const toFridge = g && [g.left, g.right].find((q) => q.ref === fr.placement_id);
   check("냉장고 옆에 설치 여유 4 mm를 남기고 붙었다", !!toFridge && Math.abs(toFridge.mm - 4) < 0.6 && toFridge.ok === true, toFridge ? `${toFridge.mm} mm` : "옆이 냉장고가 아님");
   check("냉장고는 여전히 설치할 수 있다", pls.find((x) => x.placement_id === fr.placement_id).verdict !== "no_fit");
-  const selTags = await page.$$eval("#gapTags .gap-tag", (els) => els.map((e) => [e.textContent.trim(), e.className]));
-  check("놓은 뒤에도 고른 장의 틈이 보인다 (여유 충분은 초록)", selTags.some(([t, c]) => t === "옆 4 mm" && c.includes("ok")), selTags.map((t) => t[0]).join(" | "));
+  const selTags = await page.$$eval("#gapTags .gap-tag", (els) => els.map((e) => e.textContent.trim()));
+  check("놓은 뒤에도 숫자 없이 깔끔하다", selTags.length === 0, selTags.join(" | "));
   await shot("cabinet-snapped.png");
 
   // 크기 조절: mm 입력

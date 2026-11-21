@@ -2,6 +2,7 @@
 import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState } from "./core.js";
 import { makeViewer } from "./viewer.js";
+import { gapNotes } from "./gapnote.js";
 import { buildWorld } from "./walk.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.js";
@@ -1272,31 +1273,20 @@ export async function customer(pid) {
   };
   // 제품 옆에 붙어 있던 메뉴를 3D 아래 가운데로 되돌린다. 자리(left/top)를 남겨 두면 들고 있을 때
   // 메뉴가 그 자리부터 아래까지 길게 늘어나 바닥 클릭을 가로채서 물건이 안 놓였다.
-  // ---- 남는 틈: 고르거나 들고 있는 물건의 옆·위·뒤 틈을 mm로 (빌트인은 이 숫자가 설치를 가른다) ----
-  // 필요한 값(LGE.COM 설치 여유)이 있는 틈은 초록/빨강, 없는 틈은 숫자만
+  // ---- 남는 틈: 숫자는 띄우지 않는다. 설치 여유가 모자란 곳에만 그 자리에 한 문장 (gapnote.js). 잘 들어가면 초록 테두리뿐 ----
   const gapBox = document.getElementById("gapTags");
   let gapInfo = null;
-  const gapMm = (v) => (v < 10 && Math.abs(v - Math.round(v)) > 0.05 ? v.toFixed(1) : String(Math.round(v)));
-  const GAP_SIDE_MAX = 2000, GAP_NEAR_MAX = 300;
   const showGaps = (r) => {
     const g = r?.gaps, size = r?.size_m;
     gapInfo = null;
-    if (g && size && g.left) {
-      const base = r.base_m || 0, c = r.pose.center_xz, tags = [];
-      const need = (q) => q.need_mm != null && q.need_mm > 0; // 0은 '필요 없음' (가구)
+    if (g && size) {
+      const base = r.base_m || 0, c = r.pose.center_xz;
       const mid = (ln) => [(ln[0][0] + ln[1][0]) / 2, (ln[0][1] + ln[1][1]) / 2];
-      for (const k of ["left", "right"]) {
-        const q = g[k];
-        if (q?.mm != null && q.line && q.mm <= GAP_SIDE_MAX && (q.mm > 0.5 || (need(q) && !q.ok))) tags.push({ q, word: "옆", xz: mid(q.line), y: base + Math.min(size[1] * 0.55, 1.0) });
-      }
-      const b = g.back;
-      if (b?.mm != null && b.line && (b.ok === false && need(b) || (b.mm > 0.5 && b.mm <= GAP_NEAR_MAX))) tags.push({ q: b, word: "뒤", xz: mid(b.line), y: base + size[1] });
-      const t = g.top;
-      if (t?.mm != null && (t.ok === false && need(t) || t.mm <= GAP_NEAR_MAX)) tags.push({ q: t, word: "위", xz: c, y: base + size[1] + Math.max(Math.min(t.mm / 2000, 0.25), 0) });
+      const tags = gapNotes(g).map((n) => ({ text: n.text, xz: n.line ? mid(n.line) : c,
+        y: base + (n.key === "top" ? size[1] + 0.1 : n.key === "back" ? size[1] : Math.min(size[1] * 0.55, 1.0)) }));
       if (tags.length) gapInfo = tags;
     }
-    gapBox.innerHTML = (gapInfo || []).map(({ q, word }) => `<span class="gap-tag ${!(q.need_mm > 0) ? "" : q.ok ? "ok" : "bad"}"><b>${word} ${gapMm(Math.max(q.mm, 0))} mm</b>${
-      q.need_mm > 0 && !q.ok ? `<small>${gapMm(q.need_mm)} mm 필요</small>` : ""}</span>`).join("");
+    gapBox.innerHTML = (gapInfo || []).map((t) => `<span class="gap-tag bad">${esc(t.text)}</span>`).join("");
   };
   const trackGaps = () => {
     const off = !gapInfo || walking || studio.dataset.view !== "3d";
@@ -1308,7 +1298,7 @@ export async function customer(pid) {
       el.style.transform = `translate(${Math.round(sx - r.left)}px, ${Math.round(sy - r.top)}px) translate(-50%, -50%)`;
     });
   };
-  const unNear = () => { if (actBar.classList.contains("near")) { actBar.classList.remove("near"); actBar.style.left = ""; actBar.style.top = ""; } };
+  const unNear = () => { if (actBar.classList.contains("near")) { actBar.classList.remove("near", "under"); actBar.style.left = ""; actBar.style.top = ""; } };
   const trackAct = () => {
     actRaf = requestAnimationFrame(trackAct);
     trackCam();
@@ -1327,8 +1317,12 @@ export async function customer(pid) {
     const [sx, sy] = viewer.toScreen(xz, top + base), r = canvasEl.getBoundingClientRect();
     const w = actBar.offsetWidth, h = actBar.offsetHeight;
     const left = Math.min(Math.max(sx - r.left, w / 2 + 8), r.width - w / 2 - 8);
-    const topPx = Math.min(Math.max(sy - r.top - h - 14, 8), r.height - h - 8);
+    // 위에 자리가 없으면(물건이 화면 위쪽에 있을 때) 물건을 덮지 않게 발밑으로 내린다
+    const above = sy - r.top - h - 14, below = viewer.toScreen(xz, base)[1] - r.top + 14;
+    const under = above < 8 && below + h <= r.height - 8;
+    const topPx = under ? below : Math.min(Math.max(above, 8), r.height - h - 8);
     actBar.classList.add("near");
+    actBar.classList.toggle("under", under);
     actBar.style.left = `${left}px`; actBar.style.top = `${topPx}px`;
   };
   actRaf = requestAnimationFrame(trackAct);
