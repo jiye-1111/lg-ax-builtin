@@ -38,8 +38,8 @@ def test_no_fake_checks_and_clear_cta():
 def test_selected_product_shows_needed_space_without_size_labels():
     viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
     # 놓을 때 3D에 치수 글자는 띄우지 않는다 (치수는 제품 카드·상세에서). 바닥에는 판정과 같은 계산으로 얻은 필요 공간
-    assert "dimLines" not in viewer and "dimLabel" not in viewer and "setNeed(pts)" in viewer
-    assert "viewer.setNeed(r.required)" in REMODEL and "pose-check" in REMODEL
+    assert "dimLines" not in viewer and "dimLabel" not in viewer and "setNeed(pts" in viewer
+    assert "viewer.setNeed(r.required" in REMODEL and "pose-check" in REMODEL
     assert 'id="needTag"' in REMODEL
 
 

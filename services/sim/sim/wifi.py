@@ -76,18 +76,36 @@ def _wall_loss(room: Room, a: Pt, b: Pt, cfg: WifiConfig) -> float:
     return loss
 
 
-def _blocker_loss(a: Pt, b: Pt, blockers: Iterable[Sequence[Pt]], cfg: WifiConfig) -> float:
+def _cross_t(a: Pt, b: Pt, c: Pt, d: Pt) -> Optional[float]:
+    """선분 ab와 cd가 교차하면 ab 위의 위치(0~1)."""
+    r = (b[0] - a[0], b[1] - a[1])
+    s = (d[0] - c[0], d[1] - c[1])
+    den = r[0] * s[1] - r[1] * s[0]
+    if abs(den) < 1e-12:
+        return None
+    q = (c[0] - a[0], c[1] - a[1])
+    t = (q[0] * s[1] - q[1] * s[0]) / den
+    u = (q[0] * r[1] - q[1] * r[0]) / den
+    return t if 1e-9 < t < 1 - 1e-9 and 0 <= u <= 1 else None
+
+
+def _blocker_loss(a: Pt, b: Pt, blockers: Iterable, cfg: WifiConfig, tx_h: float = 0.0, rx_h: float = 0.0) -> float:
+    """blockers: 바닥 사각형, 또는 (바닥 사각형, 윗면 높이). 높이가 있으면 신호가 그 위로 지나갈 때는 막지 않는다."""
     loss = 0.0
-    for poly in blockers:
-        if any(_cross(a, b, poly[i], poly[(i + 1) % len(poly)]) is not None for i in range(len(poly))):
+    for b_ in blockers:
+        poly, top = (b_[0], b_[1]) if len(b_) == 2 and not isinstance(b_[1], tuple) else (b_, None)
+        ts = [t for i in range(len(poly)) if (t := _cross_t(a, b, poly[i], poly[(i + 1) % len(poly)])) is not None]
+        if ts and (top is None or any(tx_h + t * (rx_h - tx_h) <= top for t in ts)):
             loss += cfg.metal_db
     return loss
 
 
-def rssi_at(room: Room, router: Pt, p: Pt, cfg: WifiConfig, blockers: Iterable[Sequence[Pt]] = ()) -> float:
-    d = max(1.0, math.hypot(p[0] - router[0], p[1] - router[1]))
+def rssi_at(room: Room, router: Pt, p: Pt, cfg: WifiConfig, blockers: Iterable = (),
+            tx_h: float = 0.0, rx_h: float = 0.0) -> float:
+    """tx_h: 공유기 높이(가구 위에 올렸으면 그 윗면), rx_h: 받는 쪽 높이. 둘 다 0이면 평면 거리."""
+    d = max(1.0, math.hypot(p[0] - router[0], p[1] - router[1], tx_h - rx_h))
     return (cfg.tx_dbm - cfg.pl0_db - 10 * cfg.n * math.log10(d)
-            - _wall_loss(room, router, p, cfg) - _blocker_loss(router, p, blockers, cfg))
+            - _wall_loss(room, router, p, cfg) - _blocker_loss(router, p, blockers, cfg, tx_h, rx_h))
 
 
 def _grid(room: Room, cell_m: float):
@@ -105,16 +123,17 @@ def grade(v: float, cfg: WifiConfig) -> str:
 
 
 def coverage(room: Room, router: Pt, cfg: WifiConfig, cell_m: float = 0.25,
-             blockers: Iterable[Sequence[Pt]] = (), points: Optional[dict[str, Pt]] = None) -> dict:
+             blockers: Iterable = (), points: Optional[dict[str, Pt]] = None,
+             tx_h: float = 0.0, rx_h: float = 0.0) -> dict:
     blockers = list(blockers)
     origin, nx, ny, centers, mask = _grid(room, cell_m)
-    values = [[round(rssi_at(room, router, c, cfg, blockers), 1) if m else None for c, m in zip(row, mrow)]
+    values = [[round(rssi_at(room, router, c, cfg, blockers, tx_h, rx_h), 1) if m else None for c, m in zip(row, mrow)]
               for row, mrow in zip(centers, mask)]
     flat = [v for row in values for v in row if v is not None]
     share = {k: 0.0 for k in ("good", "ok", "weak")}
     for v in flat:
         share[grade(v, cfg)] += 1 / len(flat)
-    pts = {k: round(rssi_at(room, router, c, cfg, blockers), 1) for k, c in (points or {}).items()}
+    pts = {k: round(rssi_at(room, router, c, cfg, blockers, tx_h, rx_h), 1) for k, c in (points or {}).items()}
     return {"origin": list(origin), "cell_m": cell_m, "nx": nx, "ny": ny, "values": values, "router": list(router),
             "share": share, "min_dbm": min(flat) if flat else None, "points": pts,
             "grades": {k: grade(v, cfg) for k, v in pts.items()}, "assumptions": cfg.assumptions()}

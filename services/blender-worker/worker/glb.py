@@ -75,7 +75,7 @@ def boxes_for_room(room: Room, state: dict | None = None) -> list[dict]:
     for pl in state.get("placements") or []:
         w_, h_, d_ = pl["size_m"]
         boxes.append({"name": f"product:{pl['sku']}", "kind": "product",
-                      "center": [pl["center_xz"][0], h_ / 2, pl["center_xz"][1]], "size": [w_, h_, d_],
+                      "center": [pl["center_xz"][0], (pl.get("base_m") or 0.0) + h_ / 2, pl["center_xz"][1]], "size": [w_, h_, d_],
                       # placement yaw는 벽 안쪽 법선 방향 → 제품 정면 축과 맞추기 위해 90° 보정
                       "yaw": pl["yaw_rad"] - math.pi / 2, "color": pl.get("hex") or colors["product"]})
     return boxes

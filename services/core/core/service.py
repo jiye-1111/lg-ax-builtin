@@ -17,7 +17,7 @@ from recommender.cmf import rank_cmf
 from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
-from recommender.pose import Pose, check_pose, find_spot, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, can_sit, settle_on, surface_under, Pose, check_pose, find_spot, snap_to_wall
 from sim.regions import REGIONS
 from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
@@ -94,6 +94,7 @@ class Catalog:
             photos = config.ROOT / "apps" / "web" / "img" / "products"
             for f in self._families:
                 for v in f["variants"]:
+                    v["tabletop"] = can_sit(self.get(v["sku"]))  # 식탁·아일랜드 위에 올려 둘 수 있는 가전
                     v["thumb"] = f"img/products/{v['sku']}.webp" if (photos / f"{v['sku']}.webp").exists() else None
         return self._families
 
@@ -687,6 +688,14 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
         return snap_to_wall(room, prod, pose, self.fit_cfg)
 
+    def _settle(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None) -> Pose:
+        """올려 두는 가전이 윗면 가장자리에 걸치면 다 올라오는 자리로 당긴다."""
+        size = can_sit(prod) and prod.product_dims_mm
+        host = surface_under(pose.center_xz, self._surfaces(room, p, exclude)) if size else None
+        if not host:
+            return pose
+        return Pose(settle_on(host, pose.center_xz, pose.yaw_rad, size.w / 1000, size.d / 1000), pose.yaw_rad, pose.wall_id)
+
     CABINETS = frozenset({"decor:basecab", "decor:island"})
 
     def _undersink(self, sku: str | None) -> bool:
@@ -708,7 +717,50 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             others = [x for x in others if x.get("sku") not in self.CABINETS]
         elif prod.sku in self.CABINETS:
             others = [x for x in others if not self._undersink(x.get("sku"))]
-        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p))
+        host = surface_under(pose.center_xz, self._surfaces(room, p, exclude)) if can_sit(prod) else None
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host)
+
+    # 작은 가전을 올려 둘 수 있는 가구 (윗면이 SURFACE_MAX_M 이하일 때). 스캔 가구는 탁자·수납장
+    HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:tvstand"})
+
+    def _surfaces(self, room: Room, p: dict, exclude: str | None = None) -> list[dict]:
+        """올려 둘 수 있는 윗면 목록 (놓은 가구 + 스캔한 탁자·수납장). yaw_rad는 폭 축 방향."""
+        out = []
+        for x in p["scene_state"].get("placements", []):
+            if x.get("sku") not in self.HOSTS or not x.get("size_m") or x.get("placement_id") == exclude:
+                continue
+            w, h, d = x["size_m"]
+            if h <= PRODUCT_SURFACE_MAX_M:
+                out.append({"id": x["placement_id"], "center_xz": tuple(x["center_xz"]),
+                            "yaw_rad": x.get("yaw_rad", math.pi / 2) - math.pi / 2, "w": w, "d": d, "top_m": float(h)})
+        hidden = set(self._blocked_off(p))
+        for o in room.objects:
+            top = o.position[1] + o.bbox_m.h / 2
+            if o.category in self.SURFACE_SCANNED and o.object_id not in hidden and top <= PRODUCT_SURFACE_MAX_M:
+                out.append({"id": o.object_id, "center_xz": (o.position[0], o.position[2]), "yaw_rad": o.yaw_rad,
+                            "w": o.bbox_m.w, "d": o.bbox_m.d, "top_m": round(top, 3)})
+        return out
+
+    @staticmethod
+    def _seat(x: dict, r) -> None:
+        """판정 결과의 높이를 배치에 적는다 (웹 3D·렌더·와이파이가 이 값을 쓴다)."""
+        x["verdict"], x["reasons"] = r.verdict.value, r.reasons
+        x["base_m"], x["on"] = round(r.base_m, 3), r.on
+
+    def _on_top(self, room: Room, p: dict, prod: Product, exclude: str | None = None):
+        """올려 두는 가전: 놓여 있는 가구 윗면에서 빈자리를 찾는다 (넓은 윗면부터, 가운데에서 가까운 곳). 없으면 None."""
+        if not can_sit(prod):
+            return None
+        for s in sorted(self._surfaces(room, p, exclude), key=lambda q: -q["w"] * q["d"]):
+            ux, uz = math.cos(s["yaw_rad"]), math.sin(s["yaw_rad"])
+            n = max(0, int(s["w"] / 2 / 0.1))
+            for i in sorted(range(-n, n + 1), key=abs):
+                c = (s["center_xz"][0] + ux * i * 0.1, s["center_xz"][1] + uz * i * 0.1)
+                for yaw in (s["yaw_rad"] + math.pi / 2, s["yaw_rad"] - math.pi / 2):
+                    r = self._judge(room, p, prod, Pose(c, yaw), exclude)
+                    if r.on and r.verdict.value != "no_fit":
+                        return r
+        return None
 
     def _add_sink_cabinet(self, room: Room, p: dict, x: dict) -> None:
         """빌트인 정수기를 하부장 없이 놓으면 그 자리에 주방 하부장(600 x 850 x 600)을 같이 놓는다."""
@@ -734,6 +786,11 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
+        # 먼저 높이부터: 받치던 가구가 빠졌으면 바닥으로 내려온 것으로 보고 서로 판정한다
+        for x in p["scene_state"]["placements"]:
+            if x.get("on") and not x.get("zone_id"):
+                host = surface_under(tuple(x["center_xz"]), self._surfaces(room, p, x["placement_id"]))
+                x["base_m"], x["on"] = (host["top_m"], host["id"]) if host else (0.0, None)
         for x in p["scene_state"]["placements"]:
             if x.get("zone_id"):
                 continue
@@ -742,19 +799,21 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             except KeyError:
                 continue
             r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"])
-            x["verdict"], x["reasons"] = r.verdict.value, r.reasons
+            self._seat(x, r)
+            x["tabletop"] = can_sit(prod)
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
                    placement_id: str | None = None, size_m=None) -> dict:
         """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
-        return self._judge(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id).to_dict()
+        pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id)
+        return self._judge(room, p, prod, pose, placement_id).to_dict()
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
                  color: str | None = None, wall_id: str | None = None, size_m=None) -> dict:
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         opt = self._color_option(prod, color)
-        pose = self._pose(room, prod, center_xz, yaw_rad, snap, p)
+        pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p))
         if wall_id and not pose.wall_id:
             pose = Pose(pose.center_xz, pose.yaw_rad, wall_id)
         r = self._judge(room, p, prod, pose)
@@ -763,7 +822,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         x = {"placement_id": self.db.next_id("pl"), "sku": sku, "zone_id": None,
              "center_xz": list(pose.center_xz), "yaw_rad": pose.yaw_rad, "size_m": list(r.size_m),
              "wall_id": pose.wall_id, "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
-             "verdict": r.verdict.value, "reasons": r.reasons}
+             "verdict": r.verdict.value, "reasons": r.reasons, "base_m": round(r.base_m, 3), "on": r.on,
+             "tabletop": can_sit(prod)}
         if is_decor(sku):
             x["kind"] = "decor"  # 꾸미기 가구: 주문·설치 신청에 넣지 않는다
         p["scene_state"]["placements"].append(x)
@@ -799,7 +859,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
     def auto_place(self, pid: str, sku: str, color: str | None = None, size_m=None) -> dict:
         """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다 (러그는 방 가운데). 어디에도 안 들어가면 Invalid."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
-        r = self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
+        r = self._on_top(room, p, prod) or self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color,
@@ -908,6 +968,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if center_xz is not None or yaw_rad is not None:
             pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
+            pose = self._settle(room, p, prod, pose, placement_id)
+            self._carry(p, x, pose)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
             x["zone_id"] = None  # 옮긴 순간부터 자유 배치
             if self._undersink(x["sku"]):  # 같이 놓은 하부장도 따라온다
@@ -919,6 +981,19 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         out["placement"] = self._find_placement(out_p := self.get_project(pid), placement_id)
         out["scene_state"] = out_p["scene_state"]
         return out
+
+    @staticmethod
+    def _carry(p: dict, host: dict, pose: Pose) -> None:
+        """식탁·아일랜드를 옮기거나 돌리면 그 위에 올려 둔 것도 같이 간다."""
+        turn = pose.yaw_rad - host["yaw_rad"]
+        c, n = math.cos(turn), math.sin(turn)
+        for y in p["scene_state"]["placements"]:
+            if y.get("on") != host["placement_id"]:
+                continue
+            dx, dz = y["center_xz"][0] - host["center_xz"][0], y["center_xz"][1] - host["center_xz"][1]
+            y["center_xz"] = [pose.center_xz[0] + dx * c - dz * n, pose.center_xz[1] + dx * n + dz * c]
+            y["yaw_rad"] = y["yaw_rad"] + turn
+            y["wall_id"] = None
 
     def delete_placement(self, pid: str, placement_id: str) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
@@ -1110,7 +1185,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             if cfg is None:
                 items[k]["wifi"] = {"status": "unknown", "grade": None, "dbm": None, "label": "공유기 자리를 정하면 알려 드려요"}
             else:
-                v = rssi_at(room, tuple(rt["center_xz"]), tuple(x["center_xz"]), cfg, blockers=self._metal_blockers(p, exclude=k))
+                # 공유기 높이(올려 둔 가구 윗면)와 제품 가운데 높이 사이로 잰다
+                mid = (x.get("base_m") or 0.0) + (x["size_m"][1] / 2 if x.get("size_m") else 0.0)
+                v = rssi_at(room, tuple(rt["center_xz"]), tuple(x["center_xz"]), cfg, blockers=self._metal_blockers(p, exclude=k),
+                            tx_h=float(rt.get("height_m") or 0.0), rx_h=mid)
                 g = grade(v, cfg)
                 items[k]["wifi"] = {"status": "warn" if g == "weak" else "ok", "grade": g, "dbm": round(v, 1),
                                     "label": {"good": "연결이 잘 돼요", "ok": "연결돼요", "weak": "신호가 약해요"}[g]}
@@ -1118,6 +1196,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     # ---- 살아 보기: 와이파이 (S7) ----
     METAL = ("refrigerator", "kimchi_refrigerator")
+    WIFI_RX_M = 1.0
 
     def _metal_blockers(self, p: dict, exclude: str | None = None) -> list:
         from recommender.pose import rect
@@ -1131,7 +1210,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             except KeyError:
                 continue
             if cat in self.METAL and x.get("size_m"):
-                out.append(rect(tuple(x["center_xz"]), x["yaw_rad"] - _m.pi / 2, x["size_m"][0], x["size_m"][2]))
+                out.append((rect(tuple(x["center_xz"]), x["yaw_rad"] - _m.pi / 2, x["size_m"][0], x["size_m"][2]),
+                            (x.get("base_m") or 0.0) + x["size_m"][1]))
         return out
 
     def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None) -> dict:
@@ -1167,8 +1247,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 continue
             w, h, d = x["size_m"]
             # 놓은 제품은 폭 방향이 yaw - 90° (웹 3D·동선과 같은 규칙)
-            if h <= self.SURFACE_MAX_M and inside(x["center_xz"], x.get("yaw_rad", math.pi / 2) - math.pi / 2, w, d):
-                tops.append(float(h))
+            top = float(x.get("base_m") or 0.0) + h  # 식탁 위에 올려 둔 가전이면 그 가전 윗면
+            if top <= self.SURFACE_MAX_M and inside(x["center_xz"], x.get("yaw_rad", math.pi / 2) - math.pi / 2, w, d):
+                tops.append(top)
         hidden = set(p["scene_state"].get("hidden_objects") or [])
         poses = p["scene_state"].get("object_poses") or {}  # 지금 저장하려는 자리 (DB의 옛 자리 말고)
         for o in self._load_room(p["project_id"]).objects:
@@ -1189,7 +1270,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             raise Invalid("와이파이를 보려면 먼저 평면도에 공유기를 놓으세요 (또는 추천 자리 찾기)")
         cfg = WifiConfig.from_env(band or rt.get("band", "5"))
         room = self._standing(self.get_room(pid), p)
-        g = coverage(room, tuple(rt["center_xz"]), cfg, blockers=self._metal_blockers(p))
+        # 받는 쪽은 손에 든 기기 높이(1 m)로 본다. 공유기를 선반 위에 올리면 냉장고 너머로도 닿는다
+        g = coverage(room, tuple(rt["center_xz"]), cfg, blockers=self._metal_blockers(p),
+                     tx_h=float(rt.get("height_m") or 0.0), rx_h=self.WIFI_RX_M)
+        g["router_height_m"] = float(rt.get("height_m") or 0.0)
         from sim.daylight import _inside
         zones = []
         for z in self.list_zones(pid):
