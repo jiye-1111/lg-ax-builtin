@@ -1868,7 +1868,7 @@ export async function customer(pid) {
     setOverlay("");
     const main = (d.facings || [])[0];
     // 적은 곳을 지도에서 못 찾아 동네까지만 찾았으면 어디 기준인지 한 줄로 알려 준다
-    const near = project.site?.approx ? `<p class="sim-line">${esc(String(project.site.address || "").split(",")[0])} 근처 기준이에요</p>` : "";
+    const near = project.site?.approx ? `<p class="sim-line">${esc(project.site.area || String(project.site.address || "").split(",")[0])} 근처 기준이에요</p>` : "";
     box.innerHTML = (main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "") + near;
   };
   // 채광: 주소만 넣으면 어느 향인지 한 줄로 알려 준다. 해가 하루 동안 어떻게 움직이는지는 '하루 재생'으로 본다
