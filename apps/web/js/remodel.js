@@ -663,6 +663,11 @@ export async function customer(pid) {
       && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH));
     setupBudget(pre);
     const items = pre.filter(inBudget);
+    if (budget) items.forEach((f) => { // 카드에 보이는 대표 모델도 고른 가격 범위 안의 것으로
+      const ok = (v) => typeof v?.price_krw === "number" && (budget.atMin || v.price_krw >= budget.lo) && (budget.atMax || v.price_krw <= budget.hi);
+      const cur = f.variants.find((v) => v.sku === pick[f.family_id]) || f.variants[0];
+      if (!ok(cur)) { const v = f.variants.find((x) => left.has(x.sku) && ok(x)); if (v) pick[f.family_id] = v.sku; }
+    });
     suggPool = items.filter((f) => !f.demo_only && f.product_dims_mm?.w && f.product_dims_mm?.h && f.product_dims_mm?.d)
       .slice(0, SUGG_POOL).map((f) => pick[f.family_id] || f.variants[0].sku);
     scheduleSuggest();
@@ -2094,7 +2099,7 @@ export async function customer(pid) {
     ] : [
       intro,
       { sel: "#progress", title: "진행 단계", text: "공간 확인 → 제품 고르기 → 설치 확인을 하나씩 해 나가면 차례로 체크돼요." },
-      { sel: ".lib-side", title: "제품 찾기", text: "이름으로 찾거나 종류를 눌러 좁혀요. 용량·색상 같은 조건은 '상세 필터'를 열면 나와요." },
+      { sel: ".lib-side", title: "제품 찾기", text: "설치 방식, 품목, 가격 범위 순서로 좁혀요. 색상·용량 같은 조건은 '상세 필터'에 있고, 고른 조건은 목록 위에 칩으로 보여요." },
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
       { sel: "#lib", title: "제품 목록", text: "제품을 누르면 상세가 열리고, '넣어 보기'를 누르면 3D에 놓을 수 있어요." },
       { sel: ".canvas", title: "우리 집 3D", text: "바닥을 누르면 제품이 놓여요. 놓은 제품을 누르면 아래에 이동·회전·자동 정렬·삭제 버튼이 나와요. 빈 곳을 끌면 시점이 돌아가요." },
