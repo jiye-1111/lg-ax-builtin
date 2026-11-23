@@ -216,7 +216,7 @@ def test_left_filter_order_and_wide_3d():
     # 적용된 조건은 칩으로 보이고 하나씩 뺄 수 있다
     assert "appliedFilters(" in REMODEL and "clearFilter(" in REMODEL and "적용하기 (${n})" in REMODEL
     # 3D 약 79% · 제품 탐색 약 21%, 패널과 아래 정보 칸은 접을 수 있다
-    assert "clamp(320px, 27vw, 400px)" in css and ".lib-folded" in css and 'id="libFold"' in REMODEL
+    assert "clamp(288px, 20vw, 340px)" in css and ".lib-folded" in css and 'id="libFold"' in REMODEL
     assert 'id="simFold"' in REMODEL and ".sim-folded" in css
 
 

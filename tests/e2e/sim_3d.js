@@ -50,7 +50,7 @@ const emoji = /\p{Extended_Pictographic}/u;
   let ri = await v3("routerInfo");
   const r0 = pj.scene_state.router.center_xz;
   check("공유기 3D 모델이 놓은 자리에 있음", ri.visible && Math.hypot(ri.pos[0] - r0[0], ri.pos[1] - r0[1]) < 0.01, JSON.stringify(ri));
-  check("와이파이 화면에 그림 문자 없음", !emoji.test(await page.$eval("#overlay", (e) => e.innerHTML)) && !emoji.test(await page.textContent("#simres")));
+  check("와이파이 화면에 그림 문자 없음", !emoji.test(await page.$eval("#overlay", (e) => e.innerHTML)) && !emoji.test(await page.textContent("#simctl")));
   await page.screenshot({ path: path.join(OUT, "wifi-router-3d.png") });
   // 3D에서 공유기를 눌러 집고, R로 돌리고, 1.5 m 옮겨 내려놓기
   const before = await page.$eval("#overlay", (e) => e.innerHTML);
@@ -96,7 +96,12 @@ const emoji = /\p{Extended_Pictographic}/u;
   const w2 = await v3("walkersInfo");
   check("사람 3D 모델이 동선을 걷는다", w1.length >= 1 && w2.some((w, i) => Math.hypot(w.pos[0] - w1[i].pos[0], w.pos[1] - w1[i].pos[1]) > 0.5), JSON.stringify([w1, w2]));
   check("동선 화면에 그림 문자 없음", !emoji.test(await page.$eval("#overlay", (e) => e.innerHTML)));
-  check("공유기는 와이파이 화면에서만", !(await v3("routerInfo")).visible);
+  // 와이파이와 동선은 같이 켤 수 있다. 와이파이를 꺼야 공유기가 사라진다.
+  if (await page.$eval('[data-sim="wifi"]', (b) => b.classList.contains("on") || b.getAttribute("aria-pressed") === "true" || b.getAttribute("aria-checked") === "true")) {
+    await page.click('[data-sim="wifi"]');
+    await wait(800);
+  }
+  check("와이파이를 끄면 공유기도 사라짐", !(await v3("routerInfo")).visible);
   // 걷는 사람 가까이서 한 장
   await page.screenshot({ path: path.join(OUT, "flow-walker-3d.png") });
   await page.click('[data-sim="flow"]');

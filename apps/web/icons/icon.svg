@@ -1,6 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#F7F5F1"/>
-  <path d="M136 120 V376 H392" fill="none" stroke="#1D1C1A" stroke-width="36" stroke-linecap="square"/>
-  <rect x="178" y="262" width="96" height="96" rx="12" fill="#A50034"/>
-  <rect x="290" y="262" width="80" height="96" rx="12" fill="none" stroke="#1D1C1A" stroke-width="14" stroke-dasharray="20 14" opacity=".55"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#BE0A41"/>
+      <stop offset="1" stop-color="#86002A"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <!-- 뒤: 디지털 트윈 (선으로만 그린 집) -->
+  <path d="M206 232 L318 136 L430 232 V372 H206 Z" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="18" stroke-linejoin="round"/>
+  <!-- 앞: 우리 집 -->
+  <path d="M82 268 L206 162 L330 268 V398 a14 14 0 0 1 -14 14 H96 a14 14 0 0 1 -14 -14 Z" fill="#fff"/>
+  <path d="M176 412 V326 a12 12 0 0 1 12 -12 h36 a12 12 0 0 1 12 12 V412 Z" fill="#A50034"/>
 </svg>
