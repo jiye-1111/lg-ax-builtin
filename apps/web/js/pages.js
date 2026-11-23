@@ -93,7 +93,9 @@ export async function selfScan() {
         go.textContent = "도면을 읽는 중… 1분쯤 걸려요";
         const fd = new FormData();
         fd.append("file", picked.plan, picked.plan.name);
-        openHome(await api("/api/projects/from-plan", { method: "POST", body: fd }));
+        const made = await api("/api/projects/from-plan", { method: "POST", body: fd });
+        if (made.scan.scale_from === "door_width") toast(ROUGH_SCALE);
+        openHome(made);
         return;
       }
       go.textContent = "집을 3D로 만드는 중…";
@@ -164,6 +166,8 @@ const SLOT_NOTE = {
   plan: "도면에서 벽과 문, 창을 읽어 집을 만들어요. 가구는 비어 있어요.",
   both: "스캔으로 집을 만들고, 벽 길이를 도면 치수로 맞춰요.",
 };
+
+const ROUGH_SCALE = "도면에 치수가 없어서 방문 폭을 90cm로 보고 크기를 어림했어요";
 
 // 도면을 올린 뒤 무슨 일이 있었는지 한 문장
 export function planResult(fp) {
@@ -306,7 +310,7 @@ export function floorplanBox(el, pid, project, onChange) {
   el.innerHTML = fp ? `
       <div class="row"><b>${esc(fp.name)}</b><span class="spacer"></span>
         <a class="btn ghost small" href="${url}" target="_blank" rel="noopener">크게 보기</a><button class="small ghost" id="fpDel">삭제</button></div>
-      ${project.scan?.source === "floorplan_image" ? `<p class="hint-sm">이 도면을 읽어서 만든 집이에요.</p>` : fp.applied || fp.note ? `<p class="hint-sm">${esc(planResult(fp))}</p>` : ""}
+      ${project.scan?.source === "floorplan_image" ? `<p class="hint-sm">이 도면을 읽어서 만든 집이에요.${project.scan.scale_from === "door_width" ? ` ${ROUGH_SCALE}.` : ""}</p>` : fp.applied || fp.note ? `<p class="hint-sm">${esc(planResult(fp))}</p>` : ""}
       ${fp.content_type.startsWith("image/") ? `<img class="floorplan" src="${url}" alt="도면">` : `<p class="muted">PDF 도면이 첨부되어 있습니다.</p>`}`
     : `<label class="drop" style="display:block;cursor:pointer">도면 이미지·PDF 올리기<input type="file" id="fpFile" accept=".png,.jpg,.jpeg,.webp,.pdf" hidden></label>`;
   const input = el.querySelector("#fpFile");

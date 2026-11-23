@@ -174,6 +174,7 @@ def test_plan_alone_makes_a_home(client):
     assert r.status_code == 201, r.text
     p = r.json()
     assert p["name"] == "우리집" and p["scan"]["source"] == "floorplan_image" and p["scan"]["usdz"] is None
+    assert p["scan"]["scale_from"] == "dimensions"
     assert p["floorplan"]["name"] == "우리집.png" and p["scene"]["glb"]
     room = client.get(f"/api/projects/{p['project_id']}/room").json()
     assert [w["scanned"]["length_m"] for w in room["walls"]] == [5.2, 3.6, 5.2, 3.6]
