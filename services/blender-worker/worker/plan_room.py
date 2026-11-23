@@ -29,6 +29,9 @@ MIN_MATCH_WALL_M = 1.0
 SAME_M = 0.005
 
 
+REVIEW_KEEP_WALLS, REVIEW_SIZE_DRIFT = 0.8, 0.2  # 다시 본 결과를 받아들이는 한계: 벽 수, 집 크기 변화
+
+
 class PlanWall(BaseModel):
     x1: float
     y1: float
@@ -73,6 +76,28 @@ def _snap(values: list[float]) -> dict[float, float]:
         group.append(v)
     out.update({g: sum(group) / len(group) for g in group})
     return out
+
+
+def _span(plan: PlanRead) -> tuple[float, float]:
+    xs = [v for w in plan.walls for v in (w.x1, w.x2)]
+    ys = [v for w in plan.walls for v in (w.y1, w.y2)]
+    return max(xs) - min(xs), max(ys) - min(ys)
+
+
+def better_reading(first: PlanRead, second: PlanRead | None) -> PlanRead:
+    """다시 보고 고친 결과(second)를 쓸지 정한다. 집 크기가 크게 달라졌거나 벽이 많이 줄었으면 처음 것을 쓴다."""
+    if second is None or not second.readable or second.scale_from == "none" or not second.walls:
+        return first
+    if len(second.walls) < REVIEW_KEEP_WALLS * len(first.walls):
+        return first
+    a, b = _span(first), _span(second)
+    if any(p <= 0 or abs(q - p) / p > REVIEW_SIZE_DRIFT for p, q in zip(a, b)):
+        return first
+    try:
+        room_from_plan(second)
+    except ValueError:
+        return first
+    return second
 
 
 def room_from_plan(plan: PlanRead) -> Room:

@@ -68,3 +68,68 @@ def test_without_a_key_it_says_to_use_a_scan(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     with pytest.raises(PlanReadError, match="스캔"):
         read_plan(b"x", "image/png")
+
+
+# ---- 한 번 더 보기: 읽은 결과를 그림으로 다시 그려 도면과 같이 보여 주고, 빠진 것을 채운 결과를 받는다 ----
+def box(w=6000, d=4000, **kw):
+    pts = [(0, 0), (w, 0), (w, d), (0, d)]
+    return PlanRead(readable=True, scale_from="dimensions",
+                    walls=[PlanWall(x1=a[0], y1=a[1], x2=b[0], y2=b[1]) for a, b in zip(pts, pts[1:] + pts[:1])], **kw)
+
+
+class TwoAnswers:
+    """첫 번째는 처음 읽은 것, 두 번째는 다시 보고 고친 것"""
+
+    def __init__(self, first, second):
+        self.calls, self._answers = [], [first, second]
+        self.chat = SimpleNamespace(completions=SimpleNamespace(parse=self._parse))
+
+    def _parse(self, **kw):
+        self.calls.append(kw)
+        a = self._answers[len(self.calls) - 1]
+        if isinstance(a, Exception):
+            raise a
+        return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(parsed=a, refusal=None))])
+
+
+def test_second_look_gets_the_plan_the_sketch_and_the_first_reading():
+    from worker.plan_room import PlanOpening
+
+    better = box(openings=[PlanOpening(type="window", wall=0, offset_mm=1000, width_mm=1500)])
+    c = TwoAnswers(box(), better)
+    assert read_plan(b"\x89PNG", "image/png", "a.png", client=c, provider="openai") == better
+    parts = c.calls[1]["messages"][1]["content"]
+    assert [p["type"] for p in parts] == ["image_url", "image_url", "text"]
+    assert parts[1]["image_url"]["url"].startswith("data:image/png;base64,")
+    assert '"walls"' in parts[2]["text"]
+
+
+def test_a_worse_second_look_is_thrown_away():
+    first = box()
+    for bad in (PlanRead(readable=False, scale_from="none"), box(w=600), box(w=12000),
+                PlanRead(readable=True, scale_from="dimensions", walls=first.walls[:1]), RuntimeError("timeout"), None):
+        c = TwoAnswers(first, bad)
+        assert read_plan(b"x", "image/png", client=c, provider="openai") == first
+
+
+def test_second_look_can_be_turned_off(monkeypatch):
+    monkeypatch.setenv("PLAN_AI_REVIEW", "0")
+    c = TwoAnswers(box(), box(w=6100))
+    assert read_plan(b"x", "image/png", client=c, provider="openai") == box() and len(c.calls) == 1
+
+
+def test_unreadable_first_look_is_not_checked_again():
+    c = TwoAnswers(PlanRead(readable=False, reason="사진이에요", scale_from="none"), box())
+    assert read_plan(b"x", "image/png", client=c, provider="openai").readable is False and len(c.calls) == 1
+
+
+def test_sketch_is_a_png_with_every_wall():
+    from io import BytesIO
+
+    from PIL import Image
+
+    from core.plan_read import plan_sketch
+
+    im = Image.open(BytesIO(plan_sketch(box())))
+    assert im.format == "PNG" and min(im.size) >= 400
+    assert im.convert("L").getextrema()[0] < 60  # 벽 선이 그려져 있다

@@ -6,10 +6,11 @@ API 키는 서버 .env에만 둔다 (ANTHROPIC_API_KEY가 있으면 Claude, OPEN
 from __future__ import annotations
 
 import base64
+import io
 import logging
 import os
 
-from worker.plan_room import PlanRead
+from worker.plan_room import PlanRead, better_reading
 
 from .ai_style import MODEL, OPENAI_MODEL, openai_extra, pick_provider
 
@@ -54,36 +55,97 @@ def _image_parts(data: bytes, content_type: str, filename: str, provider: str) -
     return [part, {"type": "text", "text": ASK}]
 
 
+REVIEW = """두 번째 그림은 방금 이 도면에서 옮겨 적은 결과를 다시 그린 것이다. 검은 선과 숫자는 벽과 그 번호, 파란 선은 창, 주황 선은 문이다. 아래 JSON이 그 결과다.
+원래 도면과 하나씩 견줘 보고, 고친 전체 결과를 같은 형식으로 다시 적는다.
+- 도면에는 있는데 빠진 벽(비스듬한 벽, 밖으로 튀어나온 부분 포함), 창, 문을 더한다. 바깥벽에 난 창은 하나도 빠뜨리지 않는다.
+- 도면에 없는데 적힌 것은 뺀다. 위치나 길이가 눈에 띄게 다른 것은 고친다.
+- 맞는 것은 좌표를 그대로 둔다. 좌표 원점과 크기 기준(scale_from)은 바꾸지 않는다.
+- 벽을 더하거나 빼면 문과 창의 wall 번호를 새 목록 순서에 맞게 다시 매긴다."""
+SKETCH_PX = 1000
+SKETCH_COLORS = {"door": (230, 126, 34), "window": (41, 128, 185), "sliding_door": (41, 128, 185)}
+
+
+def plan_sketch(plan: PlanRead) -> bytes:
+    """읽은 벽·문·창을 다시 그린 그림(PNG). AI가 원래 도면과 견줘 볼 수 있게 벽 번호를 적는다."""
+    from PIL import Image, ImageDraw
+
+    xs = [v for w in plan.walls for v in (w.x1, w.x2)]
+    ys = [v for w in plan.walls for v in (w.y1, w.y2)]
+    x0, y0, span = min(xs), min(ys), max(max(xs) - min(xs), max(ys) - min(ys), 1.0)
+    k, pad = (SKETCH_PX - 120) / span, 60
+
+    def px(x: float, y: float) -> tuple[float, float]:
+        return (x - x0) * k + pad, (y - y0) * k + pad
+
+    im = Image.new("RGB", (int((max(xs) - x0) * k) + 2 * pad, int((max(ys) - y0) * k) + 2 * pad), "white")
+    d = ImageDraw.Draw(im)
+    for w in plan.walls:
+        d.line([px(w.x1, w.y1), px(w.x2, w.y2)], fill=(20, 20, 20), width=7 if w.exterior else 4)
+    for o in plan.openings:
+        if not 0 <= o.wall < len(plan.walls):
+            continue
+        w = plan.walls[o.wall]
+        L = ((w.x2 - w.x1) ** 2 + (w.y2 - w.y1) ** 2) ** 0.5 or 1.0
+        ux, uy = (w.x2 - w.x1) / L, (w.y2 - w.y1) / L
+        a, b = o.offset_mm, o.offset_mm + o.width_mm
+        d.line([px(w.x1 + ux * a, w.y1 + uy * a), px(w.x1 + ux * b, w.y1 + uy * b)], fill=SKETCH_COLORS[o.type], width=11)
+    for i, w in enumerate(plan.walls):
+        cx, cy = px((w.x1 + w.x2) / 2, (w.y1 + w.y2) / 2)
+        d.rectangle([cx - 11, cy - 8, cx + 11, cy + 8], fill="white")
+        d.text((cx, cy), str(i), fill=(200, 0, 0), anchor="mm")
+    out = io.BytesIO()
+    im.save(out, "PNG")
+    return out.getvalue()
+
+
+def _ask(client, provider: str, system: str, content: list[dict]) -> PlanRead | None:
+    if provider == "openai":
+        r = client.chat.completions.parse(
+            model=PLAN_OPENAI_MODEL,
+            messages=[{"role": "system", "content": system}, {"role": "user", "content": content}],
+            response_format=PlanRead,
+            **({"reasoning_effort": os.getenv("PLAN_AI_OPENAI_EFFORT", "medium")} if openai_extra(PLAN_OPENAI_MODEL) else {}),
+        )
+        msg = r.choices[0].message
+        return None if getattr(msg, "refusal", None) else msg.parsed
+    r = client.beta.messages.parse(
+        model=PLAN_MODEL, max_tokens=8000, system=system,
+        messages=[{"role": "user", "content": content}], output_format=PlanRead,
+    )
+    return None if r.stop_reason == "refusal" else getattr(r, "parsed_output", None)
+
+
+def _review(client, provider: str, plan_parts: list[dict], first: PlanRead) -> PlanRead:
+    """읽은 결과를 그림으로 다시 그려 도면과 같이 보여 주고 고친 결과를 받는다. 받아들일지는 코드가 정한다."""
+    try:
+        sketch = _image_parts(plan_sketch(first), "image/png", "sketch.png", provider)[0]
+        text = {"type": "text", "text": REVIEW + "\n\n" + first.model_dump_json()}
+        second = _ask(client, provider, SYSTEM, [plan_parts[0], sketch, text])
+    except Exception as e:  # noqa: BLE001 - 다시 보기는 덤이다: 실패하면 처음 읽은 것을 그대로 쓴다
+        log.warning("도면 다시 보기 실패 (%s): %s", provider, e)
+        return first
+    return better_reading(first, second)
+
+
 def read_plan(data: bytes, content_type: str, filename: str = "floorplan", client=None, provider: str | None = None) -> PlanRead:
     provider = provider or pick_provider()
     if provider is None:
         raise PlanReadError("도면을 읽는 기능이 아직 켜져 있지 않아요. 스캔 파일로 만들어 주세요")
     content = _image_parts(data, content_type, filename, provider)
     try:
-        if provider == "openai":
-            if client is None:
+        if client is None:
+            if provider == "openai":
                 import openai
                 client = openai.OpenAI(timeout=TIMEOUT_S, max_retries=1)
-            r = client.chat.completions.parse(
-                model=PLAN_OPENAI_MODEL,
-                messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": content}],
-                response_format=PlanRead,
-                **({"reasoning_effort": os.getenv("PLAN_AI_OPENAI_EFFORT", "medium")} if openai_extra(PLAN_OPENAI_MODEL) else {}),
-            )
-            msg = r.choices[0].message
-            out = None if getattr(msg, "refusal", None) else msg.parsed
-        else:
-            if client is None:
+            else:
                 import anthropic
                 client = anthropic.Anthropic(timeout=TIMEOUT_S, max_retries=1)
-            r = client.beta.messages.parse(
-                model=PLAN_MODEL, max_tokens=8000, system=SYSTEM,
-                messages=[{"role": "user", "content": content}], output_format=PlanRead,
-            )
-            out = None if r.stop_reason == "refusal" else getattr(r, "parsed_output", None)
+        out = _ask(client, provider, SYSTEM, content)
     except Exception as e:
         log.warning("도면 읽기 실패 (%s): %s", provider, e)
         raise PlanReadError("도면을 읽다가 멈췄어요. 잠시 뒤에 다시 올려 주세요") from e
     if out is None:
         raise PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요")
+    if out.readable and out.walls and (os.getenv("PLAN_AI_REVIEW") or "1") == "1":
+        out = _review(client, provider, content, out)
     return out
