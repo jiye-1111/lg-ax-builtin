@@ -850,8 +850,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                         return r
         return None
 
+    OFF_WALL_STEP_M = 0.05
+
     def _off_wall(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None) -> Pose:
-        """벽에 붙여 둔 제품을 돌려서 모서리가 벽에 박히면, 박힌 벽에서 필요한 만큼만(5 cm씩, 1 m까지) 방 안쪽으로 뗀다."""
+        """벽에 붙여 둔 제품을 돌려서 모서리가 벽에 박히면, 박힌 벽에서 필요한 만큼만(5 cm씩) 방 안쪽으로 뗀다."""
         from recommender.pose import _inward
 
         def hit(q: Pose) -> list[str]:
@@ -863,8 +865,11 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         nx = sum(_inward(room, room.wall(w)).v_axis[0] for w in walls)
         nz = sum(_inward(room, room.wall(w)).v_axis[1] for w in walls)
         n = math.hypot(nx, nz) or 1.0
-        for k in range(1, 21):
-            q = Pose((pose.center_xz[0] + nx / n * 0.05 * k, pose.center_xz[1] + nz / n * 0.05 * k), pose.yaw_rad, None)
+        dims = prod.product_dims_mm
+        reach = max(1.0, max(dims.w or 0, dims.d or 0) / 2000 + 0.1)  # 긴 장을 돌리면 길이의 절반만큼은 떼야 한다
+        for k in range(1, math.ceil(reach / self.OFF_WALL_STEP_M) + 1):
+            d = self.OFF_WALL_STEP_M * k
+            q = Pose((pose.center_xz[0] + nx / n * d, pose.center_xz[1] + nz / n * d), pose.yaw_rad, None)
             if not hit(q):
                 return q
         return pose

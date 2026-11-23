@@ -32,7 +32,7 @@ const check = (name, ok, info = "") => {
   const press = (sel) => page.$eval(sel, (el) => el.click());
   const loaded = async () => { // 다시 열고 놓은 물건이 3D에 다 올라올 때까지
     await page.reload();
-    await page.waitForSelector("#decorLib [data-decor]", { state: "attached", timeout: 60000 });
+    await page.waitForSelector("#libTabs", { state: "attached", timeout: 60000 }); // 처음 탭은 LG 가전이라 가구 타일을 기다리지 않는다
     await wait(4000);
   };
   const shot = async (name) => { if (SHOTS) await page.screenshot({ path: path.join(SHOTS, name) }); };

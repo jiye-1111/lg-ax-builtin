@@ -104,18 +104,24 @@ export function step(p, d, world) {
   return [x, z];
 }
 
-/** 처음 서는 자리: 방 가운데에서 가까운 빈 곳 */
+const ROOMY = [0.8, 0.5, RADIUS]; // 처음 설 때 둘레에 두고 싶은 빈 거리 (m): 넓은 곳부터 찾고, 없으면 좁혀 간다
+const SPAWN_GRID = 0.2;
+
+/** 처음 서는 자리: 둘레가 트인 곳 가운데 방 가운데에서 가장 가까운 곳 (가구·제품 코앞에 서지 않는다) */
 export function spawnPoint(world) {
   const [x0, y0, x1, y1] = world.bounds;
   const c = [(x0 + x1) / 2, (y0 + y1) / 2];
-  if (!isBlocked(c, world)) return c;
-  let best = null, bd = Infinity;
-  for (let x = x0 + 0.2; x < x1; x += 0.2) {
-    for (let y = y0 + 0.2; y < y1; y += 0.2) {
-      if (isBlocked([x, y], world)) continue;
-      const d = Math.hypot(x - c[0], y - c[1]);
-      if (d < bd) { bd = d; best = [x, y]; }
+  for (const r of ROOMY) {
+    if (!isBlocked(c, world, r)) return c;
+    let best = null, bd = Infinity;
+    for (let x = x0 + SPAWN_GRID; x < x1; x += SPAWN_GRID) {
+      for (let y = y0 + SPAWN_GRID; y < y1; y += SPAWN_GRID) {
+        if (isBlocked([x, y], world, r)) continue;
+        const d = Math.hypot(x - c[0], y - c[1]);
+        if (d < bd) { bd = d; best = [x, y]; }
+      }
     }
+    if (best) return best;
   }
-  return best || c;
+  return c;
 }

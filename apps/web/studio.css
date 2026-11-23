@@ -917,3 +917,8 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .order-all b { font-size: 20px; }
 .facing.guess { font-weight: 400; color: var(--graphite); }
 .hint-sm.warn { color: var(--lg); font-weight: 600; }
+
+/* 실사 사진은 3D 위의 다른 버튼·패널보다 위에 뜨고, 저장·닫기는 위쪽에 둔다 (아래쪽은 하우니와 구매 버튼 자리) */
+.canvas .render-shot { z-index: 9; }
+.render-shot .render-act { order: -1; }
+.stage:has(.render-shot:not([hidden])) ~ .side { visibility: hidden; }

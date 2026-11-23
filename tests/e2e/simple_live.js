@@ -61,7 +61,7 @@ const post = send("POST"), put = send("PUT");
   await page.click('[data-sim="daylight"]');
   await page.waitForSelector(".sim-res .facing", { timeout: 20000 });
   let text = await sheet();
-  check("채광: 주소 한 칸과 어느 향인지 한 줄", !!(await page.$("#addr")) && /향 집이에요/.test(text) && (await page.locator('#simctl input[type="search"]').count()) === 1, text.replace(/\s+/g, " "));
+  check("채광: 주소 한 칸과 방향 안내 한 줄 (주소를 넣기 전에는 단정하지 않는다)", !!(await page.$("#addr")) && /주소를 넣으면 실제 방향으로/.test(text) && (await page.locator('#simctl input[type="search"]').count()) === 1, text.replace(/\s+/g, " "));
   // 하루 재생 대신 시간 바: 끌면 그 시각으로 바뀐다
   const t0 = await page.textContent("#sunNow");
   await page.$eval("#sunTime", (el) => { el.value = String(+el.min + 60); el.dispatchEvent(new Event("input", { bubbles: true })); });

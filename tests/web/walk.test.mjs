@@ -90,3 +90,12 @@ test("시작 자리는 방 안의 빈 곳", () => {
   const crowded = buildWorld({ ...ROOM, objects: [{ object_id: "big", category: "table", position: [2, 0.4, 1.5], bbox_m: { w: 1.5, h: 0.8, d: 1.2 }, yaw_rad: 0 }] }, [], []);
   assert.equal(isBlocked(spawnPoint(crowded), crowded), false); // 가운데가 막혀 있으면 옆 빈 곳
 });
+
+test("시작 자리는 가구·제품 코앞이 아니라 둘레가 트인 곳 (첫 화면이 냉장고 옆면으로 가득 차지 않게)", () => {
+  // 가운데 바로 옆에 키 큰 제품이 있다: 가운데는 비어 있지만 25 cm 앞이 제품
+  const fridge = { placement_id: "p1", center_xz: [2.75, 1.5], yaw_rad: 0, size_m: [0.9, 1.8, 0.7] };
+  const w = buildWorld({ ...ROOM, objects: [] }, [fridge], []);
+  const s = spawnPoint(w);
+  assert.equal(isBlocked(s, w), false);
+  assert.equal(isBlocked(s, w, 0.6), false, `제품·벽에서 0.6 m 안: ${s}`);
+});

@@ -1599,7 +1599,7 @@ export async function customer(pid) {
   };
   document.getElementById("render").onclick = guard(async (e) => {
     const b = e.currentTarget;
-    if (walking) setWalking(false);
+    // 걸어 보는 중이면 그 눈높이 장면 그대로 찍는다 (예전에는 위에서 본 모습으로 돌아가 버렸다)
     viewer.cancelHold(); armed = null; ghost(null);
     const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
     const shot = viewer.snapshot();
