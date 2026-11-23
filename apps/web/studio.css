@@ -624,7 +624,7 @@ button.ghost:hover, .btn.ghost:hover { background: var(--warm-grey); border-colo
 
 /* ===== 왼쪽 제품 탐색 다시 짜기 (2026-11-21): 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 =====
    3D가 화면의 약 79%, 제품 탐색이 약 21%. 패널은 접을 수 있다 */
-.studio:not(.app) { grid-template-columns: clamp(320px, 27vw, 400px) minmax(0, 1fr); }
+.studio:not(.app) { grid-template-columns: clamp(288px, 20vw, 340px) minmax(0, 1fr); } /* 3D가 화면의 79%쯤 */
 .studio:not(.app).lib-folded { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "stage"; }
 .studio:not(.app).lib-folded .lib { display: none; }
 .lib-fold { grid-area: stage; align-self: center; justify-self: start; z-index: 8; width: 22px; height: 56px; padding: 0; margin-left: -18px;
@@ -922,3 +922,15 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 .canvas .render-shot { z-index: 9; }
 .render-shot .render-act { order: -1; }
 .stage:has(.render-shot:not([hidden])) ~ .side { visibility: hidden; }
+
+/* 실사를 만드는 동안: 3D 위 가운데에 끝날 때까지 남는 표시 */
+.render-wait { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 9; margin: 0; display: flex; align-items: center; gap: 10px; padding: 10px 18px; border-radius: 999px; background: var(--sheet); box-shadow: var(--shadow-float); font-size: 14px; font-weight: 600; white-space: nowrap; }
+.render-wait[hidden] { display: none; }
+.render-wait i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line); border-top-color: var(--lg); animation: render-spin .9s linear infinite; }
+@keyframes render-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .render-wait i { animation: none; } }
+@media (max-width: 560px) { .render-wait { font-size: 12.5px; padding: 8px 12px; } }
+
+/* 휴대폰: 구매 신청 창은 위 머리줄 아래에서 시작하고(제목·닫기가 가려지지 않게), 상세·신청 창이 열려 있는 동안 하우니 버튼은 숨긴다 */
+@media (max-width: 900px) { .order-sheet { top: calc(var(--topbar) + 8px); } }
+body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display: none; }

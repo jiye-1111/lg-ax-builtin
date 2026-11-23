@@ -108,3 +108,10 @@ def test_product_detail_has_no_verdict_or_spec_notes():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert 'id="pdVerdict"' not in js and "넣어 보면 알려" not in js
     assert "설치 사양 근거" not in js and "확인 안 됨" not in js and "색상 표기 없음" not in js
+
+
+def test_logo_goes_to_start_screen_without_demo_tag():
+    """지예: 왼쪽 위 로고를 누르면 시작 화면으로, '시연' 글자는 뺀다."""
+    html = (WEB / "index.html").read_text(encoding="utf-8")
+    assert 'class="brand" href="#/new"' in html
+    assert ">시연<" not in html

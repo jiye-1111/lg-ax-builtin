@@ -139,6 +139,7 @@ export async function customer(pid) {
             <p class="hint-sm">평면의 벽 번호를 보고, 잰 값만 넣으면 됩니다.</p>
             <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
           </section>
+          <p class="render-wait" id="renderWait" role="status" hidden><i aria-hidden="true"></i>실사 사진을 만들고 있어요. 30초쯤 걸려요.</p>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="실사 이미지">
             <figcaption id="renderCap" class="hint-sm"></figcaption>
             <span class="render-act"><a class="ghost small btn" id="renderSave" download="우리집-실사.png">저장</a><button class="ghost small" id="renderClose">닫기</button></span></figure>
@@ -1606,14 +1607,15 @@ export async function customer(pid) {
     selPl = keepSel; draw();
     const label = b.querySelector("span");
     b.disabled = true; b.classList.add("busy"); label.textContent = "만드는 중";
-    toast("실사로 만드는 중이에요 (30초쯤)");
+    const waitEl = document.getElementById("renderWait"); // 잠깐 뜨는 알림 대신 끝날 때까지 화면에 남긴다
+    waitEl.hidden = false;
     try {
       const r = await post(`/api/projects/${pid}/photoreal`, shot);
       showShot(apiUrl(r.url), "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
     } catch (err) {
       if (err.status !== 503 && err.status !== 429) throw err;
       toast(err.message, true);
-    } finally { b.disabled = false; b.classList.remove("busy"); label.textContent = "실사"; }
+    } finally { waitEl.hidden = true; b.disabled = false; b.classList.remove("busy"); label.textContent = "실사"; }
   });
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
 
