@@ -13,6 +13,8 @@ from typing import Iterable
 
 from core.models import Room
 
+from .outline import floor_outline, is_rectangle
+
 DEFAULT_COLORS = {
     "wall": "#EDEBE7", "floor": "#C9B8A0", "door": "#8A6A4F", "window": "#9EC9E6",
     "opening": "#DDDDDD", "object": "#B9BEC4", "product": "#F4F4F2",
@@ -49,6 +51,9 @@ def boxes_for_room(room: Room, state: dict | None = None) -> list[dict]:
     zs = [p[1] for w in room.walls for p in (w.start, w.end)] or [0]
     boxes.append({"name": "floor", "kind": "floor", "center": [(min(xs) + max(xs)) / 2, -0.01, (min(zs) + max(zs)) / 2],
                   "size": [max(xs) - min(xs), 0.02, max(zs) - min(zs)], "yaw": 0.0, "color": colors["floor"]})
+    outline = floor_outline(room.walls)
+    if outline and not is_rectangle(outline):  # 꺾인 집: 상자는 그대로 두고 바닥이 따라갈 선을 같이 준다
+        boxes[0]["outline"] = [[round(x, 3), round(z, 3)] for x, z in outline]
     for w in room.walls:
         dx, dz = w.end[0] - w.start[0], w.end[1] - w.start[1]
         L = math.hypot(dx, dz)
@@ -108,7 +113,8 @@ def write_glb(boxes: Iterable[dict], out: str | Path) -> Path:
                                                           "material": mat_index[key]}]})
         nodes.append({"name": b["name"], "mesh": len(meshes) - 1, "translation": [float(c) for c in b["center"]],
                       "rotation": _quat_y(b["yaw"]), "scale": [max(float(s), 1e-4) for s in b["size"]],
-                      "extras": {"kind": b["kind"], **({"category": b["category"]} if b.get("category") else {})}})
+                      "extras": {"kind": b["kind"], **({"category": b["category"]} if b.get("category") else {}),
+                                 **({"outline": b["outline"]} if b.get("outline") else {})}})
     gltf = {
         "asset": {"version": "2.0", "generator": "lg-ax-builtin glb fallback"},
         "scene": 0, "scenes": [{"nodes": list(range(len(nodes)))}], "nodes": nodes, "meshes": meshes,

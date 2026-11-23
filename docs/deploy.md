@@ -47,6 +47,29 @@ bash ~/apps/lg-ax-builtin/deploy/update-server.sh
 
 확인: https://api-housetwin.13-238-79-150.sslip.io/api/health 가 `{"ok":true,...}`
 
+### 서버에서 Blender 쓰기
+
+실사 버튼은 이미지 AI가 먼저 그리고, AI를 못 쓰거나 10분 한도를 넘기면 서버의 Blender가 보던 시점 그대로 그린다.
+도면으로 만든 집도 같다. 화면 없이 돌아가므로 서버에 모니터나 GPU가 없어도 된다.
+
+```bash
+sudo snap install blender --classic
+sudo apt-get install -y libxi6 libxxf86vm1 libxfixes3 libxrender1 libgl1 libsm6 libxkbcommon0 libegl1
+/snap/bin/blender -b --version
+```
+
+`.env`에 아래 값을 넣고 `sudo systemctl restart lgb-api`. `/api/health`의 `blender`에 경로가 나오면 켜진 것이다.
+
+```
+BLENDER_BIN=/snap/bin/blender
+USE_BLENDER=1
+BLENDER_WIDTH=960
+BLENDER_SAMPLES=16
+```
+
+메모리 2GB 서버에서 기본 크기(1600px, 64샘플)로 돌리면 메모리가 모자라 중간에 꺼진다. 위처럼 줄여서 쓴다.
+렌더는 한 번에 하나만 돌고, 도는 동안에도 웹 요청이 밀리지 않게 우선순위를 낮춰 실행한다.
+
 ## 2. 웹 (Cloudflare Pages)
 
 GitHub 연결로 만들었고, main에 push하면 자동 배포된다.

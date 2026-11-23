@@ -200,3 +200,72 @@ def test_tour_photo_rejects_odd_spot_names(c, pid):
     for bad in ["../x", "a/b", "", "x" * 80, "a b"]:
         assert c.post(f"/api/projects/{pid}/photoreal", json={**body, "spot": bad}).status_code == 422, bad
     assert c.get(f"/api/projects/{pid}/photoreal/spots/..%2Fphotoreal.png").status_code in (404, 422)
+
+
+# ---- 이미지 AI를 못 쓸 때는 서버의 Blender가 같은 시점으로 그린다 ----
+CAM = {"pos": [8.0, 6.0, 9.0], "target": [3.5, 1.0, 5.0], "fov": 45}
+
+
+@pytest.fixture
+def blender(monkeypatch):
+    import json
+    import subprocess
+
+    from worker import runner
+
+    jobs = []
+
+    def run(cmd, **kw):
+        job = json.loads(open(cmd[cmd.index("--job") + 1], encoding="utf-8").read())
+        jobs.append(job)
+        Image.new("RGB", (48, 32), (90, 120, 150)).save(job["out_png"], "PNG")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(runner, "blender_bin", lambda: "blender")
+    monkeypatch.setattr(runner.subprocess, "run", run)
+    monkeypatch.setenv("USE_BLENDER", "1")
+    return jobs
+
+
+def test_without_an_image_key_blender_draws_the_same_view(c, svc, pid, monkeypatch, blender):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    svc.image_client = None
+    view, mask = view_and_mask()
+    r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask), "camera": CAM})
+    assert r.status_code == 200, r.text
+    assert r.json()["model"] == "blender"
+    assert blender[0]["camera"] == CAM and any(b["kind"] == "wall" for b in blender[0]["boxes"])
+    got = Image.open(io.BytesIO(c.get(r.json()["url"]).content)).convert("RGB")
+    assert got.getpixel((5, 5)) == (90, 120, 150)
+
+
+def test_over_the_ai_limit_blender_takes_over(c, svc, pid, blender):
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask), "camera": CAM}
+    got = [c.post(f"/api/projects/{pid}/photoreal", json=body).json().get("model") for _ in range(4)]
+    assert got[3] == "blender" and "blender" not in got[:3]
+
+
+def test_no_blender_keeps_the_old_answers(c, svc, pid, monkeypatch):
+    monkeypatch.setenv("USE_BLENDER", "0")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    svc.image_client = None
+    view, mask = view_and_mask()
+    r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask), "camera": CAM})
+    assert r.status_code == 503
+
+
+def test_camera_must_be_plain_numbers(c, pid):
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask)}
+    for cam in ({"pos": [1, 2], "target": [0, 0, 0], "fov": 45}, {"pos": [1, 2, 3], "target": [0, 0, 0], "fov": 400},
+                {"pos": [1, 2, 1e9], "target": [0, 0, 0], "fov": 45}):
+        assert c.post(f"/api/projects/{pid}/photoreal", json={**body, "camera": cam}).status_code == 422
+
+
+def test_tour_stop_also_falls_back_to_blender(c, svc, pid, monkeypatch, blender):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    svc.image_client = None
+    view, mask = view_and_mask()
+    r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask), "camera": CAM, "spot": "stop_1"})
+    assert r.status_code == 200 and r.json()["model"] == "blender" and "/spots/stop_1.png" in r.json()["url"]

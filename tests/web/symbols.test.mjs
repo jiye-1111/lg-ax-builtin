@@ -41,3 +41,12 @@ test("벽 순서가 뒤섞여 있어도 방 테두리를 한 바퀴로 잇는다
   assert.deepEqual(roomOutline(mixed), [[0, 0], [8, 0], [8, 5], [0, 5]]);
   assert.equal(roomOutline([w([0, 0], [8, 0]), w([8, 0], [8, 5]), w([3, 3], [4, 4])]), null);
 });
+
+test("방을 나누는 안쪽 벽이 있어도, 꺾인 집이어도 바깥벽을 따라 바닥 모양을 찾는다", async () => {
+  const { roomOutline } = await import("../../apps/web/js/symbols.js");
+  const w = (a, b) => ({ start: a, end: b });
+  const pts = [[0, 0], [8, 0], [8, 4], [5, 4], [5, 7], [0, 7]];
+  const outer = pts.map((p, i) => w(p, pts[(i + 1) % pts.length]));
+  const inner = [w([3, 0], [3, 4]), w([3, 4], [5, 4]), w([0, 5], [2, 5])];
+  assert.deepEqual(roomOutline([...inner, ...outer.reverse()]), pts);
+});

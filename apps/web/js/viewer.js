@@ -1145,6 +1145,12 @@ export function makeViewer(el, handlers = {}) {
       const f = new THREE.Vector3().subVectors(ctl.target, cam.position).setY(0).normalize();
       return { fwd: [f.x, f.z], right: [-f.z, f.x] };
     },
+    /** 지금 시점 (서버의 Blender가 같은 자리에서 그릴 때 쓴다). fov는 세로 화각(도) */
+    cameraPose() {
+      const r3 = (v) => v.toArray().map((n) => Math.round(n * 1000) / 1000);
+      const dir = cam.getWorldDirection(new THREE.Vector3());
+      return { pos: r3(cam.position), target: r3(cam.position.clone().add(dir)), fov: cam.fov };
+    },
     /** 실사로 보기: 지금 시점을 1536x1024로 찍고, 같은 시점에서 LG 제품만 흰색인 마스크도 찍는다.
      *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다. */
     snapshot(W = 1536, H = 1024) {

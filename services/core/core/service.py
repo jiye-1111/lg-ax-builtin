@@ -1650,9 +1650,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 sun = sun_light(s, when)
         return self._rebuild(pid, render=True, sun=sun)
 
-    def _rebuild(self, pid: str, render: bool = False, sun: dict | None = None) -> dict:
-        from worker.runner import build_scene
-
+    def _scene_inputs(self, pid: str, sun: dict | None = None):
+        """지금 집 모습: (방, 스캔 파일, 장면 상태). 치운 가구와 철거한 벽은 빠져 있다"""
         p = self.get_project(pid)
         room = self.get_room(pid)
         hidden = set(p["scene_state"].get("hidden_objects") or [])
@@ -1663,6 +1662,12 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
         if sun:
             state["sun"] = sun
+        return room, usdz, state
+
+    def _rebuild(self, pid: str, render: bool = False, sun: dict | None = None) -> dict:
+        from worker.runner import build_scene
+
+        room, usdz, state = self._scene_inputs(pid, sun)
         res = build_scene(room, usdz, state, self.pdir(pid) / "scene", render=render)
         p = self.db.get("project", pid)
         p["scene"] = {"glb": str(res["glb"].relative_to(self.root)),
