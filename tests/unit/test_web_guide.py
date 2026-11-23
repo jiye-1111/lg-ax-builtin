@@ -271,8 +271,22 @@ def test_walk_tour_bar():
 def test_walk_plan_is_calm():
     """지예: 걸어 보기 도면이 알록달록하면 안 된다. 문·창·제품 테두리는 베이지 계열, 빨강은 선 곳에만."""
     css = (WEB / "studio.css").read_text(encoding="utf-8")
-    for sel in (".door", ".window", ".zone", ".placed:not(.v-no_fit) rect"):
+    for sel in (".zone", ".placed:not(.v-no_fit) rect"):
         assert f".studio.walking .minimap .plan {sel}" in css, sel
+    # 문·창은 어느 도면에서나 색 없이: 벽을 비운 자리 + 유리 선, 문 열리는 호
+    base = (WEB / "style.css").read_text(encoding="utf-8")
+    assert ".plan .door, .plan .window { stroke: #fdfbf8" in base
+    assert "#c99a6b" not in base and "#86bde3" not in base
+
+
+def test_plan_draws_furniture_as_symbols():
+    """지예: 네모만 있는 도면은 성의 없어 보인다. 가구는 평면도 기호로, 들를 곳 점은 빨간 테두리 없이."""
+    plan = (WEB / "js" / "plan.js").read_text(encoding="utf-8")
+    assert "furnitureSymbol(" in plan and 'class="swing"' in plan and 'class="floor"' in plan
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    dot = css.split(".plan .stop-dot {")[1].split("}")[0]
+    assert "#a50034" not in dot
+    assert "radialGradient" in REMODEL and "viewFan" in REMODEL
 
 
 def test_minimap_buttons_match_the_other_buttons():

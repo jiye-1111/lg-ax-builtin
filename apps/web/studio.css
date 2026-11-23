@@ -969,7 +969,7 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .wt-line button.on { color: var(--ink, #1f1b18); font-weight: 700; }
 .wt-line button:hover { color: var(--ink, #1f1b18); }
 .wt-line button:focus-visible, .wt-play:focus-visible { outline: 2px solid #a50034; outline-offset: 3px; border-radius: 8px; }
-.plan .stop-dot { fill: #fff; stroke: #a50034; stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.plan .stop-dot { fill: #b9ae9e; stroke: #fdfbf8; stroke-width: 1.5px; vector-effect: non-scaling-stroke; pointer-events: none; }
 .studio.walking .canvas .minimap { cursor: pointer; }
 .studio.walking .canvas .hint { display: none; } /* 안내는 줄 하나면 충분하다 */
 .studio.walking:not(.app) .side { visibility: hidden; } /* 걸어 보는 동안은 합계 칸을 접어 둘러보기 줄에 자리를 준다 */
@@ -1006,12 +1006,14 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 /* 걸어 보기의 큰 도면은 차분하게: 벽은 먹색, 나머지는 베이지·흰색, 빨강은 지금 선 곳과 들를 곳에만 */
 .studio.walking .minimap .plan .grid line { stroke-opacity: .45; }
 .studio.walking .minimap .plan .wall.measured { stroke: var(--ink); }
-.studio.walking .minimap .plan .door { stroke: #cfc6b9; }
-.studio.walking .minimap .plan .window { stroke: #f6f3ee; }
 .studio.walking .minimap .plan .zone { fill: none; stroke: none; }
 .studio.walking .minimap .plan .placed:not(.v-no_fit) rect { stroke: #a39a8d; }
 .studio.walking .minimap .plan .placed.sel:not(.v-no_fit) rect { stroke: #a39a8d; }
 .studio.walking .minimap .plan :is(.scale, .compass) { display: none; }
+.studio.walking .minimap .plan .placed.furn:not(.v-no_fit) > rect { stroke: transparent; }
+.studio.walking .minimap .plan .placed .sym :is(rect, circle) { stroke: #8f867a; }
+.studio.walking .minimap .plan .placed .sym .ln { stroke: #b3aa9c; }
+.studio.walking .minimap .plan .placed.built rect { stroke: var(--ink); }
 /* 휴대폰: 걸어 보기 안내는 위쪽 스위치 줄 아래에 둔다 */
 .studio.app .walk-hud { top: 76px !important; white-space: nowrap; }
 /* 작은 도면 위 버튼(크게, 평면도 보기)도 다른 버튼처럼 흰 바탕에 짙은 글씨 */
