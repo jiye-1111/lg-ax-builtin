@@ -1,0 +1,461 @@
+{
+ "note": "전달받은 모델 묶음에서 가져온 제품. 색은 모델에 들어 있어서 finish 재질이 없다. LG 공식 3D가 아니고 세부 모양과 색은 사진을 보고 맞춘 것이다",
+ "models": {
+  "DUE6BGE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE6-150",
+   "handoff_sku": "DUE6BGE.AKOR",
+   "color": "네이처 베이지",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "BEI3ANHLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "BEI3AN",
+   "handoff_sku": "BEI3ANHLE.AKOR",
+   "color": "조작부 미스트 에센스 화이트 · 조리부 화이트",
+   "datum": "counter_contact_center",
+   "y0_mm": -55,
+   "revision": "support-review-r1-20261123"
+  },
+  "MLJ39EW": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MLJ39",
+   "handoff_sku": "MLJ39EW.CKOR",
+   "color": "도어 미스트 베이지 · 본체 블랙",
+   "datum": "support_plane_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW23BDI": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW23-mirror",
+   "handoff_sku": "MW23BDI.CKOR",
+   "color": "블랙",
+   "datum": "support_plane_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW23GDI": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW23-mirror",
+   "handoff_sku": "MW23GDI.CKOR",
+   "color": "화이트 외함 · 검정 글라스 전면",
+   "datum": "support_plane_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW23FDI": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW23-mirror",
+   "handoff_sku": "MW23FDI.CKOR",
+   "color": "크리스탈 베이지 외함 · 검정 글라스 전면",
+   "datum": "support_plane_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW23WDI": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW23-window",
+   "handoff_sku": "MW23WDI.CKOR",
+   "color": "화이트",
+   "datum": "support_plane_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "B053S14": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B053-batch03",
+   "handoff_sku": "B053S14.AKOR",
+   "color": "퓨어",
+   "datum": "floor_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "B182W13": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B182-batch03",
+   "handoff_sku": "B182W13.AKOR",
+   "color": "화이트",
+   "datum": "floor_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "W0082GLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "W0082-batch04",
+   "handoff_sku": "W0082GLE.AKOR",
+   "color": "크림 라벤더",
+   "datum": "floor_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "BEI3ABWLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "BEI3AB-batch05",
+   "handoff_sku": "BEI3ABWLE.AKOR",
+   "color": "웜 화이트",
+   "datum": "countertop_contact_plane_center",
+   "y0_mm": -55,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW20CDN": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW20-batch06",
+   "handoff_sku": "MW20CDN.CKOR",
+   "color": "블랙",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW20GDN": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW20-batch06",
+   "handoff_sku": "MW20GDN.CKOR",
+   "color": "화이트",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MW30EDN": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW30-batch06",
+   "handoff_sku": "MW30EDN.CKOR",
+   "color": "화이트",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "BEI3HKBLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "BEI3HK-batch07",
+   "handoff_sku": "BEI3HKBLE.AKOR",
+   "color": "화이트 / 조작부 미스트 베이지",
+   "datum": "countertop_contact_plane_center",
+   "y0_mm": -55,
+   "revision": "support-review-r1-20261123"
+  },
+  "MWJ20EDN": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MWJ20-batch07",
+   "handoff_sku": "MWJ20EDN.CKOR",
+   "color": "크리스탈 베이지 / 외관 스킨 베이지",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "MWJ23PI": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MWJ23I-batch07",
+   "handoff_sku": "MWJ23PI.CKOR",
+   "color": "크리스탈 핑크 / 외관 미스트 베이지",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "support-review-r1-20261123"
+  },
+  "BEI3HRBLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "BEI3HR-batch08",
+   "handoff_sku": "BEI3HRBLE.AKOR",
+   "color": "블랙 / 세라믹 글라스",
+   "datum": "countertop_contact_plane_center",
+   "y0_mm": -55,
+   "revision": "support-review-r1-20261123"
+  },
+  "BEI3HSBLE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "BEI3HS-batch08",
+   "handoff_sku": "BEI3HSBLE.AKOR",
+   "color": "블랙 / 세라믹 글라스",
+   "datum": "countertop_contact_plane_center",
+   "y0_mm": -55,
+   "revision": "support-review-r1-20261123"
+  },
+  "MWJ25E": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MWJ25-batch08",
+   "handoff_sku": "MWJ25E.CKOR",
+   "color": "크리스탈 베이지 / 외관 스킨 베이지",
+   "datum": "support_surface_bottom_center",
+   "y0_mm": 0,
+   "revision": "MWJ25-r2"
+  },
+  "B245W22": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B245-batch09",
+   "handoff_sku": "B245W22.AKOR",
+   "color": "화이트",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch09"
+  },
+  "MW25B": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW25-batch09",
+   "handoff_sku": "MW25B.CKOR",
+   "color": "블랙",
+   "datum": "support_surface_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch09"
+  },
+  "DUE5BGE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE5-batch10",
+   "handoff_sku": "DUE5BGE.AKOR",
+   "color": "네이처 베이지",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch10"
+  },
+  "DUE5BGHE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE5-batch10",
+   "handoff_sku": "DUE5BGHE.AKOR",
+   "color": "네이처 베이지",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch10"
+  },
+  "MW22CA": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "MW22-batch10",
+   "handoff_sku": "MW22CA.CKOR",
+   "color": "블랙",
+   "datum": "support_surface_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch10"
+  },
+  "DUE6GLHE": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE6H-batch11",
+   "handoff_sku": "DUE6GLHE.AKOR",
+   "color": "솔리드그린",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch11"
+  },
+  "B312W31": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B312-batch11",
+   "handoff_sku": "B312W31.AKOR",
+   "color": "화이트",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch11"
+  },
+  "B312DS31": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B312-batch11",
+   "handoff_sku": "B312DS31.AKOR",
+   "color": "다크 그라파이트",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch11"
+  },
+  "DUE6BG": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE6Legacy-batch12",
+   "handoff_sku": "DUE6BG.AKOR",
+   "color": "네이처 베이지",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch12"
+  },
+  "DUE6BGH": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "DUE6Legacy-batch12",
+   "handoff_sku": "DUE6BGH.AKOR",
+   "color": "네이처 베이지",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch12"
+  },
+  "B332S34": {
+   "package_id": "LG-HANDOFF-01",
+   "family_id": "B332-batch12",
+   "handoff_sku": "B332S34.AKOR",
+   "color": "퓨어",
+   "datum": "floor_center",
+   "y0_mm": 0,
+   "revision": "color-library-batch12"
+  }
+ },
+ "not_in_catalog": [
+  {
+   "sku": "DUE6GLE.AKOR",
+   "family_id": "DUE6-150",
+   "label": "디오스 식기세척기 · 걸레받이 150mm",
+   "color": "솔리드 그린",
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gle"
+  },
+  {
+   "sku": "BEI3ANBLE.AKOR",
+   "family_id": "BEI3AN",
+   "label": "디오스 인덕션 · 3구 · 빌트인",
+   "color": "조작부 미스트 베이지 · 조리부 화이트",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anble"
+  },
+  {
+   "sku": "BEI3ANPLE.AKOR",
+   "family_id": "BEI3AN",
+   "label": "디오스 인덕션 · 3구 · 빌트인",
+   "color": "조작부 미스트 핑크 · 조리부 화이트",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anple"
+  },
+  {
+   "sku": "MLJ39CW.CKOR",
+   "family_id": "MLJ39",
+   "label": "디오스 광파오븐 · 일반 설치",
+   "color": "도어 미스트 클레이 브라운 · 본체 블랙",
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39cw"
+  },
+  {
+   "sku": "BEI3GQK.AKOR1",
+   "family_id": "BEI3GQK-builtin",
+   "label": "인덕션 3구 · 블랙 · 케이스 없는 빌트인",
+   "color": "블랙",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3gqk"
+  },
+  {
+   "sku": "B053W14.AKOR",
+   "family_id": "B053-batch03",
+   "label": "일반 냉장고 43L · B053",
+   "color": "슈퍼화이트",
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b053w14"
+  },
+  {
+   "sku": "B182DS13.AKOR",
+   "family_id": "B182-batch03",
+   "label": "일반 냉장고 189L · B182",
+   "color": "다크 그라파이트",
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b182ds13"
+  },
+  {
+   "sku": "M-X0140ABSB.ASM",
+   "family_id": "MX0140-batch03",
+   "label": "천장 매입형 공기청정기 · M-X0140ABSB",
+   "color": "공식 색상명 미공개 · 사진상 백색",
+   "source_url": "https://www.lge.co.kr/product/system-air-purifier/m-x0140absb"
+  },
+  {
+   "sku": "W0082GBE.AKOR",
+   "family_id": "W0082-batch04",
+   "label": "와인셀러 8병 · W0082",
+   "color": "베이지",
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gbe"
+  },
+  {
+   "sku": "W0082GPE.AKOR",
+   "family_id": "W0082-batch04",
+   "label": "와인셀러 8병 · W0082",
+   "color": "핑크",
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gpe"
+  },
+  {
+   "sku": "W0082GCB.AKOR",
+   "family_id": "W0082-batch04",
+   "label": "와인셀러 8병 · W0082",
+   "color": "클레이 브라운",
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gcb"
+  },
+  {
+   "sku": "W0082GTB.AKOR",
+   "family_id": "W0082-batch04",
+   "label": "와인셀러 8병 · W0082",
+   "color": "클레이 민트",
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gtb"
+  },
+  {
+   "sku": "BEI3ABBLE.AKOR",
+   "family_id": "BEI3AB-batch05",
+   "label": "모노라인 3구 인덕션 · BEI3AB",
+   "color": "크리스탈 베이지",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abble"
+  },
+  {
+   "sku": "B124W14.AKOR",
+   "family_id": "B124W-batch06",
+   "label": "일반 2도어 냉장고 · B124W14",
+   "color": "화이트",
+   "source_url": "https://www.lge.co.kr/product/care-solutions/refrigerators/b124w14?subscCategoryKeyId=253744"
+  },
+  {
+   "sku": "MW30BDN.CKOR",
+   "family_id": "MW30-batch06",
+   "label": "일반 전자레인지 30L · MW30",
+   "color": "블랙",
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30bdn"
+  },
+  {
+   "sku": "BEI3HKHLE.AKOR",
+   "family_id": "BEI3HK-batch07",
+   "label": "빌트인 3구 인덕션 · BEI3HK",
+   "color": "화이트 / 조작부 미스트 에센스 화이트",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkhle"
+  },
+  {
+   "sku": "BEI3HKSLE.AKOR",
+   "family_id": "BEI3HK-batch07",
+   "label": "빌트인 3구 인덕션 · BEI3HK",
+   "color": "화이트 / 조작부 미스트 크림 스카이",
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hksle"
+  },
+  {
+   "sku": "MWJ23EI.CKOR",
+   "family_id": "MWJ23I-batch07",
+   "label": "일반 오브제 전자레인지 23L · MWJ23I",
+   "color": "크리스탈 베이지 / 외관 미스트 베이지",
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23ei"
+  },
+  {
+   "sku": "MWJ25P.CKOR",
+   "family_id": "MWJ25-batch08",
+   "label": "일반 오브제 전자레인지 25L · MWJ25",
+   "color": "크리스탈 핑크 / 외관 스킨 베이지",
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25p"
+  },
+  {
+   "sku": "B245DS22.AKOR",
+   "family_id": "B245-batch09",
+   "label": "일반냉장고 · 2도어 241L",
+   "color": "다크 그라파이트",
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b245ds22"
+  },
+  {
+   "sku": "MW22EA.CKOR",
+   "family_id": "MW22-batch10",
+   "label": "전자레인지 · 22L · 터치 조작",
+   "color": "화이트",
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ea"
+  },
+  {
+   "sku": "DUE6BGHE.AKOR",
+   "family_id": "DUE6H-batch11",
+   "label": "빌트인 식기세척기 · 14인용 · 글라이드 레일",
+   "color": "네이처 베이지",
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bghe"
+  },
+  {
+   "sku": "B312S31.AKOR",
+   "family_id": "B312-batch11",
+   "label": "일반냉장고 · 2도어 · 317L",
+   "color": "퓨어",
+   "source_url": "https://www.lge.co.kr/product/care-solutions/refrigerators/b312s31?subscCategoryKeyId=241821"
+  },
+  {
+   "sku": "DUE6GL.AKOR",
+   "family_id": "DUE6Legacy-batch12",
+   "label": "빌트인 식기세척기 · 14인용 · 색상/레일 구성",
+   "color": "솔리드그린",
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gl"
+  },
+  {
+   "sku": "B332W34.AKOR",
+   "family_id": "B332-batch12",
+   "label": "일반냉장고 · 2도어 · 335L",
+   "color": "화이트",
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b332w34"
+  }
+ ]
+}

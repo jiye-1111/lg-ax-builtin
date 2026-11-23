@@ -138,3 +138,12 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
 - IKEA MALM 4칸서랍장 80x48x100 cm https://www.ikea.com/kr/ko/p/malm-chest-of-4-drawers-white-20354646/ , 6칸서랍장 160x48x78 cm https://www.ikea.com/kr/ko/p/malm-chest-of-6-drawers-white-70354644/
 - 한샘·리바트 붙박이장은 폭을 집에 맞춰 주문하는 제품이라 고정 치수 칩으로 넣지 않았다. 폭·높이·깊이를 mm로 직접 적으면 된다.
 - 핏 앤 맥스 옆 4 mm는 카탈로그 값 그대로다. LG FIT&MAX Wiki(https://www.lge.co.kr/story/buying-guide/refrigerators-fit-max-wiki)도 좌우 최소 4 mm라고 적고 있다. 같은 글은 위 최소 15 mm라고 하는데 카탈로그에는 9 mm인 모델이 있어 확인이 필요하다 (값은 건드리지 않음).
+
+## 전달받은 3D 모델 묶음 (LG-HANDOFF-01, 2026-11-23)
+
+- 56개 모델(28개 제품군) 가운데 우리 카탈로그에 있는 31개의 3D 모델과 목록 사진을 이 묶음 것으로 바꿨다. 목록은 `apps/web/models/products/handoff.json`.
+- 카탈로그 값(치수·색 이름·가격)은 그대로다. 묶음의 치수는 31개 모두 카탈로그와 같았다.
+- 나머지 25개는 카탈로그에 없는 모델이라 넣지 않았다(`handoff.json`의 `not_in_catalog`). 넣으려면 LGE.COM에서 값과 판매 여부를 먼저 확인해야 한다.
+- 묶음은 LG 공식 3D가 아니다. 겉 치수는 공식 값이고 세부 모양과 색은 사진을 보고 맞춘 것이라고 묶음 안내서에 적혀 있다.
+- 옮기는 방법: `node tools/catalog/import_lg_handoff.mjs <압축 푼 폴더>`. 제품군 파일 하나에 든 색을 모델명별 파일로 풀고, 조각을 재질별로 합치고, 삼각형이 4만 5천 개를 넘으면 줄인다. 인덕션은 상판에 닿는 면이 원점이라 55 mm가 상판 아래로 들어간다.
+- 묶음에 든 설치 계약(integration/contracts)과 판정 엔진은 아직 연결하지 않았다. 판정은 지금처럼 `docs/specs/fit-rules.md` 규칙으로 한다.

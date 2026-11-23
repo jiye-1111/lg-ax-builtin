@@ -58,7 +58,31 @@ def test_model_matches_catalog_dims(prod, index):
     for k in ("w", "h", "d"):
         assert abs(b[k] - dims[k]) <= TOL_MM, f"{prod['sku']} {k}: 모델 {b[k]:.1f} / 카탈로그 {dims[k]}"
     # 바닥 가운데가 원점: 화면에서 center_xz에 그대로 놓는다
-    assert abs(b["y0"]) <= 1 and abs(b["cx"]) <= TOL_MM and abs(b["cz"]) <= TOL_MM
+    y0 = handoff().get(prod["sku"], {}).get("y0_mm", 0)  # 전달본 인덕션은 상판 아래로 들어가는 만큼 내려가 있다
+    assert abs(b["y0"] - y0) <= 1 and abs(b["cx"]) <= TOL_MM and abs(b["cz"]) <= TOL_MM
+
+
+def handoff() -> dict:
+    """전달받은 모델 묶음에서 가져온 제품. 색이 모델에 들어 있고 원점은 전달본 기준이다."""
+    p = MODELS / "handoff.json"
+    return json.loads(p.read_text(encoding="utf-8"))["models"] if p.exists() else {}
+
+
+def test_handoff_models_keep_their_datum_and_colour():
+    """전달본 모델: 색 변형 확장은 풀어서 저장하고, 인덕션은 상판에 닿는 면이 0이라 55 mm가 아래로 들어간다."""
+    models = handoff()
+    assert len(models) >= 31
+    by_sku = {p["sku"]: p for p in CATALOG}
+    for sku, info in models.items():
+        gltf = read_glb(MODELS / f"{sku}.glb")
+        assert "KHR_materials_variants" not in gltf.get("extensionsUsed", []), sku
+        names = {m["name"] for m in gltf["materials"]}
+        assert not names & {"finish", "glass"}, f"{sku}: 화면이 덧칠하는 재질 이름과 겹친다"
+        b = bbox_mm(gltf)
+        assert abs(b["y0"] - info["y0_mm"]) <= 1
+        assert (info["y0_mm"] == -55) == ("counter" in info["datum"]), sku
+        assert by_sku[sku]["category"] == "cooktop" if info["y0_mm"] else True
+        assert (ROOT / "apps/web/img/products" / f"{sku}.webp").exists()
 
 
 def companions() -> dict:
@@ -69,6 +93,8 @@ def companions() -> dict:
 @pytest.mark.parametrize("prod", CATALOG, ids=[p["sku"] for p in CATALOG])
 def test_model_has_recolorable_finish(prod, index):
     """색 동그라미로 바꿀 finish 재질이 본체나 같이 놓이는 부품(companions.json) 중 하나에 있어야 한다."""
+    if prod["sku"] in handoff():
+        pytest.skip("전달본 모델은 색이 모델에 들어 있다")
     files = [index["models"][prod["sku"]]["file"]]
     if prod["sku"] in companions():
         files.append(companions()[prod["sku"]]["file"])
