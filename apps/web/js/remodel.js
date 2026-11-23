@@ -4,6 +4,7 @@ import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GR
 import { makeViewer } from "./viewer.js";
 import { gapNotes } from "./gapnote.js";
 import { buildWorld } from "./walk.js";
+import { tourStops, findPath, lookYaw, nearestStop, nearFree } from "./stops.js";
 import { planView, placedSvg } from "./plan.js";
 import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
@@ -140,6 +141,11 @@ export async function customer(pid) {
             <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
           </section>
           <p class="render-wait" id="renderWait" role="status" hidden><i aria-hidden="true"></i>실사 사진을 만들고 있어요. 30초쯤 걸려요.</p>
+          <nav class="walk-tour" id="walkTour" aria-label="둘러보기" hidden>
+            <div class="wt-head"><b id="wtName" aria-live="polite"></b>
+              <button type="button" class="wt-play" id="wtPlay" aria-pressed="false"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path class="wt-go" d="M8 5.5v13l10.5-6.500z"/><path class="wt-halt" d="M8 6v12M16 6v12"/></svg><span>한 번에 둘러보기</span></button></div>
+            <ol class="wt-line" id="wtLine"></ol>
+          </nav>
           <figure class="render-shot" id="renderBox" hidden><img id="renderImg" alt="실사 이미지">
             <figcaption id="renderCap" class="hint-sm"></figcaption>
             <span class="render-act"><a class="ghost small btn" id="renderSave" download="우리집-실사.png">저장</a><button class="ghost small" id="renderClose">닫기</button></span></figure>
@@ -289,21 +295,89 @@ export async function customer(pid) {
   // ---- 1인칭 둘러보기: 눈높이에서 걸어 보기. 켜져 있는 동안 집어 들기·배치·건축 키는 꺼진다 ----
   let walking = false;
   const walkWorld = () => buildWorld(room, project.scene_state.placements, project.scene_state.hidden_objects);
+  // 둘러보기 줄: 현관·창 앞·가구 앞·놓은 가전 앞을 차례로. 누르면 걸어서 가고, '한 번에 둘러보기'는 끝까지 이어서 간다
+  const TOUR_STAY_MS = 2200; // 한 곳에서 머무는 시간
+  const TOUR_DECOR = new Set(["decor:sofa", "decor:bed", "decor:sink", "decor:island"]);
+  const tourBar = document.getElementById("walkTour"), wtLine = document.getElementById("wtLine"), wtPlay = document.getElementById("wtPlay");
+  let stops = [], stopAt = -1, touring = false, tourTimer = 0;
+  const stopNames = { objects: OBJ, placement: (x) => (isDecor(x.sku) ? (TOUR_DECOR.has(x.sku) ? decorOf(x.sku)?.name : null) : CATEGORY[prodOf(x.sku)?.category]) || null };
+  const markStop = (i) => {
+    stopAt = i;
+    wtLine.querySelectorAll("button").forEach((b, j) => {
+      b.classList.toggle("on", j === i); b.classList.toggle("done", i >= 0 && j < i);
+      if (j === i) { b.setAttribute("aria-current", "step"); b.scrollIntoView?.({ block: "nearest", inline: "nearest" }); } else b.removeAttribute("aria-current");
+    });
+    wtLine.style.setProperty("--p", i > 0 && stops.length > 1 ? i / (stops.length - 1) : 0);
+    document.getElementById("wtName").textContent = i >= 0 ? stops[i].name : "걸어 보는 중";
+  };
+  const drawStopDots = () => {
+    const g = document.getElementById("stopDots");
+    if (g && pv) g.innerHTML = walking ? stops.map((x) => `<circle class="stop-dot" cx="${x.pos[0]}" cy="${x.pos[1]}" r="${pv.sw(3.5)}"/>`).join("") : "";
+  };
+  const loadStops = () => {
+    const was = stops[stopAt]?.id;
+    stops = tourStops(room, project.scene_state.placements, project.scene_state.hidden_objects, walkWorld(), stopNames);
+    wtLine.innerHTML = stops.map((x, i) => `<li><button type="button" data-stop="${i}"><i aria-hidden="true"></i><span>${esc(x.name)}</span></button></li>`).join("");
+    markStop(stops.findIndex((x) => x.id === was));
+    drawStopDots();
+  };
+  const setTouring = (on) => {
+    touring = !!on;
+    clearTimeout(tourTimer);
+    wtPlay.classList.toggle("on", touring); wtPlay.setAttribute("aria-pressed", touring);
+    wtPlay.querySelector("span").textContent = touring ? "멈추기" : "한 번에 둘러보기";
+  };
+  const herePos = () => { const w = viewer.walkInfo(); return [w.pos[0], w.pos[2]]; };
+  const goStop = (i, then) => {
+    const x = stops[i];
+    if (!x || !walking) return;
+    const path = findPath(herePos(), x.pos, walkWorld());
+    const arrive = () => { markStop(i); then?.(); };
+    if (path) viewer.walkTo(path, x.yaw, arrive, x.pitch);
+    else { viewer.walkPlace(x.pos, x.yaw, x.pitch); arrive(); } // 걸어서 갈 길이 없으면 바로 그 자리로
+  };
+  const tourNext = (i) => {
+    if (!touring || !walking) return;
+    if (i >= stops.length) { setTouring(false); return; }
+    goStop(i, () => { tourTimer = setTimeout(() => tourNext(i + 1), TOUR_STAY_MS); });
+  };
+  wtLine.onclick = (e) => { const b = e.target.closest("[data-stop]"); if (!b) return; setTouring(false); goStop(+b.dataset.stop); };
+  wtPlay.onclick = () => {
+    if (touring) { viewer.walkStop(); setTouring(false); return; }
+    setTouring(true);
+    tourNext(stopAt < 0 || stopAt >= stops.length - 1 ? 0 : stopAt + 1);
+  };
   const setWalking = (on) => {
     walking = !!(on && room && viewer);
+    setTouring(false);
     if (walking) {
       if (studio.dataset.view === "plan") setView("3d");
       armed = null; ghost(null); renderLib();
       viewer.setWalk(walkWorld());
-    } else viewer?.setWalk(null);
+      loadStops();
+      if (stops[0]) { viewer.walkPlace(stops[0].pos, stops[0].yaw, stops[0].pitch); markStop(0); } // 현관에서 시작
+    } else { viewer?.setWalk(null); stops = []; stopAt = -1; }
+    tourBar.hidden = !walking;
+    drawStopDots();
     const b = document.getElementById("walk");
     b.classList.toggle("on", walking);
     studio.classList.toggle("walking", walking);
     b.setAttribute("aria-pressed", walking);
     const top = document.getElementById("viewTop"); top.classList.toggle("on", !walking); top.setAttribute("aria-pressed", !walking);
     setHint();
-    if (walking) document.getElementById("hint").textContent = "둘러보기: 화면을 누르면 마우스로 둘러봐요 · W A S D 걷기 · Shift 빠르게 · Esc 마우스 풀기 · 벽·가구·제품은 못 지나가요";
+    if (walking) document.getElementById("hint").textContent = "둘러보기: 아래에서 가고 싶은 곳을 누르면 걸어가요 · 직접 걸으려면 W A S D · 화면을 누르면 마우스로 둘러봐요 · Esc 마우스 풀기";
   };
+  // 작은 도면을 누르면 그 자리로 걸어간다
+  minimap.addEventListener("pointerdown", (e) => {
+    if (!walking || !pv || e.target.closest("#miniGrow")) return;
+    e.stopPropagation(); e.preventDefault();
+    const world = walkWorld(), from = herePos(), to = nearFree(pv.toWorld(e), world); // 가구 위를 눌렀으면 그 옆으로
+    if (!to) return;
+    const path = findPath(from, to, world);
+    if (!path) return;
+    setTouring(false);
+    viewer.walkTo(path, lookYaw(from, to));
+  }, true);
   document.getElementById("walk").onclick = () => setWalking(true);
   document.getElementById("viewTop").onclick = () => setWalking(false);
   // 살아 보기: 버튼 하나로 들어가서 둘러보기·채광·와이파이·동선을 고른다 (켜고 끄는 토글 줄은 이 안에만)
@@ -323,6 +397,7 @@ export async function customer(pid) {
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     // 고른 제품만 끌어서 옮긴다. 안 고른 제품 위에서 끌면 화면이 돌아간다 (실수로 밀리지 않게)
+    onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
     canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl,
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
     onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
@@ -1297,6 +1372,14 @@ export async function customer(pid) {
   const trackCam = () => {
     const m = document.getElementById("camMark"), d = document.getElementById("camDot");
     if (!m || !viewer || studio.dataset.view !== "3d") return;
+    if (walking) { // 걸어 보기: 지금 선 자리에서 보는 쪽으로 부채꼴, 들를 곳 가까이 가면 줄에도 표시
+      const w = viewer.walkInfo(), x = w.pos[0], z = w.pos[2], a = Math.atan2(-Math.cos(w.yaw), -Math.sin(w.yaw)), L = 1.6, half = 0.5;
+      camSeen = "";
+      m.setAttribute("points", `${x},${z} ${x + L * Math.cos(a - half)},${z + L * Math.sin(a - half)} ${x + L * Math.cos(a + half)},${z + L * Math.sin(a + half)}`);
+      d.setAttribute("cx", x); d.setAttribute("cy", z);
+      if (!w.gliding) { const n = nearestStop(stops, [x, z]); if (n !== stopAt) markStop(n); }
+      return;
+    }
     const c = viewer.camera(), key = `${c.pos}|${c.target}`;
     if (key === camSeen && m.getAttribute("points") !== "0,0 0,0 0,0") return;
     camSeen = key;
@@ -1751,7 +1834,8 @@ export async function customer(pid) {
     pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: simOn("daylight") ? project.site?.north_deg ?? 0 : null });
     drawDraft();
-    svg.insertAdjacentHTML("beforeend", `<polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="stroke-width:${pv.sw(1.5)}px"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
+    svg.insertAdjacentHTML("beforeend", `<g id="stopDots"></g><polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="stroke-width:${pv.sw(1.5)}px"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
+    drawStopDots();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
     syncNeed();
   };
@@ -2076,7 +2160,7 @@ export async function customer(pid) {
     const n = project.scene_state.placements.length;
     document.getElementById("sub").textContent = n ? `놓은 제품 ${n}개` : "제품을 골라 우리 집에 놓아 보세요";
     draw();
-    if (walking) viewer.setWalk(walkWorld()); // 옮긴 제품·치운 가구로 충돌을 다시
+    if (walking) { viewer.setWalk(walkWorld()); loadStops(); } // 옮긴 제품·치운 가구로 충돌과 들를 곳을 다시
     if (simOn("daylight") && resOf("daylight")) guard(runDaylight)();
     if (simOn("wifi") && resOf("wifi")) guard(runWifi)();
     if (simOn("flow") && resOf("flow")) guard(runFlow)();

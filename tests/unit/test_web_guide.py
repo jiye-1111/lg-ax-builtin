@@ -250,3 +250,14 @@ def test_live_modes_stack_and_time_bar():
     assert 'id="sunTime"' in REMODEL and "하루 재생" not in REMODEL and 'id="splay"' not in REMODEL
     # 고른 제품만 끌어서 옮긴다 (실수로 밀리지 않게)
     assert "id === selPl" in REMODEL
+
+
+def test_walk_tour_bar():
+    """지예: 걸어 보기를 들를 곳을 따라 둘러보는 식으로. 줄에서 곳을 누르면 걸어가고 한 번에 둘러볼 수도 있다."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    sw = (WEB / "sw.js").read_text(encoding="utf-8")
+    assert 'id="walkTour"' in REMODEL and 'id="wtLine"' in REMODEL and "한 번에 둘러보기" in REMODEL
+    assert "tourStops(" in REMODEL and "findPath(" in REMODEL
+    assert "walkTo(" in viewer and "onWalkStop" in viewer
+    assert ".walk-tour" in css and "./js/stops.js" in sw
