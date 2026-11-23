@@ -417,7 +417,7 @@
 .side .minimap .pip-swap { top: auto; bottom: 8px; right: 8px; }
 .mini-grow { position: absolute; top: 8px; right: 8px; z-index: 4; padding: 4px 12px; font-size: 12px; border-radius: 999px; background: rgba(29, 28, 26, .78); color: #fff; border: 0; }
 .studio.app .mini-grow { display: none; }
-.plan .cam-mark { fill: rgba(165, 0, 52, .16); stroke: #a50034; pointer-events: none; }
+.plan .cam-mark { pointer-events: none; }
 .plan .cam-dot { fill: #a50034; pointer-events: none; }
 .studio[data-view="plan"] .plan .cam-mark, .studio[data-view="plan"] .plan .cam-dot { display: none; }
 
