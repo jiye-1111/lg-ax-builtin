@@ -157,7 +157,7 @@ def read_plan(data: bytes, content_type: str, filename: str = "floorplan", clien
         raise PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요")
     if out.readable and out.walls and os.getenv("PLAN_AI_REVIEW") == "1":
         out = _review(client, provider, content, out)
-    if out.readable and out.walls and (os.getenv("PLAN_AI_TILES") or "1") == "1" and content_type != "application/pdf":
+    if out.readable and out.walls and os.getenv("PLAN_AI_TILES") == "1" and content_type != "application/pdf":
         from .plan_tiles import read_tiles
 
         out = read_tiles(data, out, client, provider)
