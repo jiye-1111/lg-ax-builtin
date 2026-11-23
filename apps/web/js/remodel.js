@@ -15,6 +15,7 @@ import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
 import { coloursFor, lookOf, runOf } from "./furncolors.js";
+import { straighten, snapStart } from "./wallsnap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
@@ -128,7 +129,7 @@ export async function customer(pid) {
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
-            <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li>화면을 끌어서 둘러보기</li></ul>
+            <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 둘러보기 (화면을 끌어도 돼요)</li></ul>
             <h4>저장 (로그인하면)</h4>
             <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
@@ -421,7 +422,7 @@ export async function customer(pid) {
     b.setAttribute("aria-pressed", walking);
     const top = document.getElementById("viewTop"); top.classList.toggle("on", !walking); top.setAttribute("aria-pressed", !walking);
     setHint();
-    if (walking) document.getElementById("hint").textContent = "둘러보기: 아래에서 가고 싶은 곳을 누르면 걸어가요 · 직접 걸으려면 W A S D · 화면을 끌어서 둘러봐요";
+    if (walking) document.getElementById("hint").textContent = "둘러보기: 아래에서 가고 싶은 곳을 누르면 걸어가요 · 직접 걸으려면 W A S D · 둘러보려면 방향키나 화면 끌기";
   };
   // 작은 도면을 누르면 그 자리로 걸어간다
   minimap.addEventListener("pointerdown", (e) => {
@@ -994,6 +995,13 @@ export async function customer(pid) {
     if (g && pv) g.innerHTML = placedSvg({ center_xz, yaw_rad, size_m, verdict }, pv.sw, false, true);
     viewer.setGhost({ ...res, sku, hex: prodOf(sku)?.cmf_options[0]?.hex_approx, surface: tabletop(sku) ? "product" : null });
   };
+  // 벽을 그리는 동안 Shift를 누르고 있으면 기존 벽과 나란하거나 직각으로, 가까운 벽에 딱 붙게 맞춘다
+  let shiftDown = false;
+  const standingWalls = () => { const gone = new Set(project.scene_state.hidden_walls || []); return room.walls.filter((w) => !gone.has(w.wall_id)); };
+  const wallAt = (p) => (!shiftDown || !wallDraw ? p : wallDraw.start ? straighten(wallDraw.start, p, standingWalls()) : snapStart(p, standingWalls()));
+  const onShift = (e) => { if (e.key !== "Shift" || shiftDown === (e.type === "keydown")) return; shiftDown = e.type === "keydown"; if (wallDraw && lastHover) follow(lastHover); };
+  document.addEventListener("keydown", onShift); document.addEventListener("keyup", onShift);
+  cleanup.push(() => { document.removeEventListener("keydown", onShift); document.removeEventListener("keyup", onShift); });
   const follow = (p) => {
     lastHover = p;
     if (armedRouter && !armed) { viewer.routerFollow(p); return; }
@@ -1001,6 +1009,7 @@ export async function customer(pid) {
     if (mode !== "move" || wallPicking) return;
     if (wallDraw) { // 가벽: 시작점 전에는 기둥 하나, 시작점을 찍은 뒤에는 시작점부터 마우스까지 벽
       const a = wallDraw.start;
+      p = wallAt(p);
       if (!a) { showFollow(p, Math.PI / 2, [WALL_T, WALL_H, WALL_T], "fit", "decor:wall"); return; }
       const len = Math.hypot(p[0] - a[0], p[1] - a[1]), ang = Math.atan2(p[1] - a[1], p[0] - a[0]);
       showFollow([(a[0] + p[0]) / 2, (a[1] + p[1]) / 2], ang + Math.PI / 2, [Math.max(len, WALL_T), WALL_H, WALL_T], len < WALL_MIN ? "no_fit" : "fit", "decor:wall");
@@ -1172,7 +1181,7 @@ export async function customer(pid) {
       guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (simOn("wifi")) await wifiCtl(); })();
       return true;
     }
-    if (wallDraw) { wallPoint(p); return true; }
+    if (wallDraw) { wallPoint(wallAt(p)); return true; }
     if (armed) { placeAt(armed, p); return true; }
     return false;
   };
@@ -1309,21 +1318,25 @@ export async function customer(pid) {
     const d = (deg * Math.PI) / 180;
     if (viewer.held()) viewer.rotateHeld(d); else nudgeSelected(0, 0, d);
   };
+  const CAM_KEYS = ["w", "a", "s", "d", "q", "e"];
+  const onKeyUp = (e) => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; if (CAM_KEYS.includes(k)) viewer?.camKey(k, false); };
+  const camKeysOff = () => viewer?.camKeysOff();
+  document.addEventListener("keyup", onKeyUp);
+  window.addEventListener("blur", camKeysOff);
+  cleanup.push(() => { document.removeEventListener("keyup", onKeyUp); window.removeEventListener("blur", camKeysOff); });
   const onKey = (e) => {
     if (["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
     if (viewer.walking()) return; // 둘러보기 중에는 걷기 키만 (뷰어가 받는다)
     const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+    if (k === "z" && (e.ctrlKey || e.metaKey) && !e.shiftKey && wallDraw?.start) { // 그리던 벽의 시작점만 되돌린다 (앞서 한 일까지 되돌리지 않게)
+      e.preventDefault(); wallDraw = {}; setHint("벽을 세울 시작점을 바닥에서 누르세요 · Esc 취소"); if (lastHover) follow(lastHover); return;
+    }
     if (k === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (k === "y" && e.ctrlKey) { e.preventDefault(); redo(); return; }
     if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
-    const PAN = 0.3;
-    if (in3d && !e.ctrlKey && !e.metaKey) {
-      const cam = { w: [0, PAN], s: [0, -PAN], a: [-PAN, 0], d: [PAN, 0] }[k];
-      if (cam) { viewer.panCamera(...cam); e.preventDefault(); return; }
-      if (k === "q" || k === "e") { viewer.orbitCamera(k === "q" ? -15 : 15); e.preventDefault(); return; }
-    }
+    if (in3d && !e.ctrlKey && !e.metaKey && CAM_KEYS.includes(k)) { viewer.camKey(k, true); e.preventDefault(); return; } // 누르고 있는 동안 움직인다
     if (armed && (k === "r" || k === "." || k === ",")) { // 들고 있는 물건 돌리기
       armedYaw += (k === "," || e.shiftKey ? -1 : 1) * (e.altKey ? ROT_FINE : ROT_STEP);
       armedTurned = true; // 직접 돌린 방향은 벽이 다시 돌려놓지 않는다
@@ -1396,12 +1409,12 @@ export async function customer(pid) {
   const WALL_H = 2.4, WALL_T = 0.1, WALL_MIN = 0.3;
   const setWallDraw = (on) => {
     wallDraw = on ? {} : null;
-    if (on) { selPl = null; selObj = null; armed = null; ghost(null); renderInspector(); setHint("벽을 세울 시작점을 바닥에서 누르세요 · Esc 취소"); }
+    if (on) { selPl = null; selObj = null; armed = null; ghost(null); renderInspector(); setHint("벽을 세울 시작점을 바닥에서 누르세요 · Shift를 누르고 있으면 벽에 딱 붙어요 · Esc 취소"); }
     else setHint();
     renderDecorLib();
   };
   wallPoint = guard(async (p) => {
-    if (!wallDraw.start) { wallDraw.start = p; setHint("끝점을 누르세요 · Esc 취소"); return; }
+    if (!wallDraw.start) { wallDraw.start = p; setHint("끝점을 누르세요 · Shift를 누르고 있으면 반듯하게 맞춰져요 · Ctrl+Z 시작점 다시 · Esc 취소"); return; }
     const [a, b] = [wallDraw.start, p], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
     if (len < WALL_MIN) { toast("벽이 너무 짧아요. 30 cm 넘게 떨어진 곳을 눌러 주세요", true); return; }
     const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
@@ -1434,13 +1447,21 @@ export async function customer(pid) {
   let actRaf = 0;
   // 도면 위에 지금 3D에서 보고 있는 방향을 부채꼴로
   let camSeen = "";
+  // 보는 쪽으로 퍼지는 시야: 선 자리에서 진하고 멀어질수록 옅어진다 (테두리 선 없이)
+  const FAN_M = 2.6, FAN_HALF = 0.55, FAN_STEPS = 8;
+  const viewFan = (x, z, a) => {
+    const g = document.getElementById("camFade");
+    if (g) { g.setAttribute("cx", x); g.setAttribute("cy", z); g.setAttribute("r", FAN_M); }
+    const arc = Array.from({ length: FAN_STEPS + 1 }, (_, i) => { const t = a - FAN_HALF + (2 * FAN_HALF * i) / FAN_STEPS; return `${x + FAN_M * Math.cos(t)},${z + FAN_M * Math.sin(t)}`; });
+    return `${x},${z} ${arc.join(" ")}`;
+  };
   const trackCam = () => {
     const m = document.getElementById("camMark"), d = document.getElementById("camDot");
     if (!m || !viewer || studio.dataset.view !== "3d") return;
     if (walking) { // 걸어 보기: 지금 선 자리에서 보는 쪽으로 부채꼴, 들를 곳 가까이 가면 줄에도 표시
-      const w = viewer.walkInfo(), x = w.pos[0], z = w.pos[2], a = Math.atan2(-Math.cos(w.yaw), -Math.sin(w.yaw)), L = 1.6, half = 0.5;
+      const w = viewer.walkInfo(), x = w.pos[0], z = w.pos[2], a = Math.atan2(-Math.cos(w.yaw), -Math.sin(w.yaw));
       camSeen = "";
-      m.setAttribute("points", `${x},${z} ${x + L * Math.cos(a - half)},${z + L * Math.sin(a - half)} ${x + L * Math.cos(a + half)},${z + L * Math.sin(a + half)}`);
+      m.setAttribute("points", viewFan(x, z, a));
       d.setAttribute("cx", x); d.setAttribute("cy", z);
       if (!w.gliding) { const n = nearestStop(stops, [x, z]); if (n !== stopAt) markStop(n); }
       if (photoOn) { // 들르는 곳에 그 방향 그대로 서 있을 때만 실사. 움직이거나 고개를 돌리면 3D로 돌아간다
@@ -1455,9 +1476,9 @@ export async function customer(pid) {
     camSeen = key;
     // 궤도 시점은 카메라가 방 밖에 있으니, 보는 곳 바로 앞에 꼭짓점을 두고 보는 쪽으로 부채꼴을 편다
     const [cx, , cz] = c.pos, [tx, , tz] = c.target;
-    const a = Math.atan2(tz - cz, tx - cx), L = 1.6, half = 0.5;
-    const px = tx - Math.cos(a) * L * 0.7, pz = tz - Math.sin(a) * L * 0.7;
-    m.setAttribute("points", `${px},${pz} ${px + L * Math.cos(a - half)},${pz + L * Math.sin(a - half)} ${px + L * Math.cos(a + half)},${pz + L * Math.sin(a + half)}`);
+    const a = Math.atan2(tz - cz, tx - cx);
+    const px = tx - Math.cos(a) * 1.1, pz = tz - Math.sin(a) * 1.1;
+    m.setAttribute("points", viewFan(px, pz, a));
     d.setAttribute("cx", px); d.setAttribute("cy", pz);
   };
   // 제품 옆에 붙어 있던 메뉴를 3D 아래 가운데로 되돌린다. 자리(left/top)를 남겨 두면 들고 있을 때
@@ -1947,7 +1968,7 @@ export async function customer(pid) {
     pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: simOn("daylight") ? project.site?.north_deg ?? 0 : null });
     drawDraft();
-    svg.insertAdjacentHTML("beforeend", `<g id="stopDots"></g><polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="stroke-width:${pv.sw(1.5)}px"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
+    svg.insertAdjacentHTML("beforeend", `<g id="stopDots"></g><defs><radialGradient id="camFade" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1"><stop offset="0" stop-color="#a50034" stop-opacity=".5"/><stop offset=".55" stop-color="#a50034" stop-opacity=".2"/><stop offset="1" stop-color="#a50034" stop-opacity="0"/></radialGradient></defs><polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="fill:url(#camFade);stroke:none"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
     drawStopDots();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
     syncNeed();

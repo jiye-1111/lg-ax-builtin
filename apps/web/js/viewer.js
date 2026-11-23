@@ -4,6 +4,7 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { lookRadPerPx } from "./walk.js";
+import { wantVelocity, ease, isMoving } from "./camkeys.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
 import { lookYaw } from "./stops.js";
@@ -217,10 +218,14 @@ export function makeViewer(el, handlers = {}) {
   // 눈높이 1.6 m에서 WASD로 걷고, 화면을 끌어서 둘러본다(끄는 동안만 천천히 돈다). 벽·가구·제품은 못 지나간다.
   const plc = new PointerLockControls(cam, renderer.domElement);
   plc.pointerSpeed = 0.8;
+  let camKeys = {}, camVel = [0, 0, 0]; // 키보드로 화면 움직이기 (누르고 있는 동안)
   let camGlide = null; // 새로 놓은 제품 쪽으로 시점을 부드럽게 옮길 때
   let walk = null, lastT = performance.now(), stepSunFn = null; // 해 보간 함수는 아래 '해'에서 채운다
   const euler = new THREE.Euler(0, 0, 0, "YXZ");
-  const KEYS = { KeyW: "f", ArrowUp: "f", KeyS: "b", ArrowDown: "b", KeyA: "l", ArrowLeft: "l", KeyD: "r", ArrowRight: "r" };
+  // W A S D로 걷고, 방향키로 고개를 돌린다
+  const KEYS = { KeyW: "f", KeyS: "b", KeyA: "l", KeyD: "r", ArrowLeft: "tl", ArrowRight: "tr", ArrowUp: "tu", ArrowDown: "td" };
+  const TURN_RAD_S = 1.5, NOD_RAD_S = 0.8;
+  let lookVel = [0, 0, 0];
   const onWalkKey = (e) => {
     if (!walk || ["INPUT", "TEXTAREA", "SELECT"].includes(document.activeElement?.tagName)) return;
     const k = KEYS[e.code];
@@ -243,7 +248,7 @@ export function makeViewer(el, handlers = {}) {
   // 손으로 쓰는 화면에는 키보드 안내를 보이지 않는다
   const touchOnly = globalThis.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
   walkHud.innerHTML = touchOnly ? "화면을 끌어서 둘러봐요"
-    : "화면을 끌어서 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게";
+    : "<b>W A S D</b> 걷기 · <b>방향키</b> 둘러보기 · <b>Shift</b> 빠르게<br>화면을 끌어서 둘러봐도 돼요";
   const cross = document.createElement("div");
   cross.hidden = true;
   Object.assign(cross.style, { position: "absolute", left: "50%", top: "50%", width: "6px", height: "6px", margin: "-3px 0 0 -3px",
@@ -280,6 +285,14 @@ export function makeViewer(el, handlers = {}) {
   const walkTick = (dt) => {
     if (walk.glide) { glideTick(dt); return; }
     euler.setFromQuaternion(cam.quaternion);
+    const k = walk.keys;
+    lookVel = ease(lookVel, [((k.tl ? 1 : 0) - (k.tr ? 1 : 0)) * TURN_RAD_S, ((k.tu ? 1 : 0) - (k.td ? 1 : 0)) * NOD_RAD_S, 0], dt);
+    if (Math.abs(lookVel[0]) > 0.002 || Math.abs(lookVel[1]) > 0.002) {
+      euler.y += lookVel[0] * dt;
+      euler.x = Math.max(-1.4, Math.min(1.4, euler.x + lookVel[1] * dt));
+      euler.z = 0;
+      cam.quaternion.setFromEuler(euler);
+    }
     const d = moveVector(euler.y, walk.keys, walk.keys.run ? RUN : WALK, dt);
     if (d[0] || d[1]) {
       const p = step([cam.position.x, cam.position.z], d, walk.world);
@@ -332,6 +345,8 @@ export function makeViewer(el, handlers = {}) {
         ctl.target.lerp(camGlide.target, k); cam.position.lerp(camGlide.pos, k);
         if (ctl.target.distanceTo(camGlide.target) < 0.01) camGlide = null;
       }
+      camVel = ease(camVel, wantVelocity(camKeys), dt);
+      if (isMoving(camVel)) { api.panCamera(camVel[0] * dt, camVel[1] * dt); api.orbitCamera(camVel[2] * dt); }
       ctl.update();
       cutaway();
     }
@@ -1075,6 +1090,9 @@ export function makeViewer(el, handlers = {}) {
       if (held?.kind === "placement") api.setDragVerdict(held.id, verdict);
     },
     /** 키보드 카메라: 화면 기준 앞뒤·좌우로 이동, 대상 둘레로 돌기 */
+    /** 화면 움직이는 키를 눌렀다·뗐다 (w a s d q e). 누르고 있는 동안 부드럽게 움직인다 */
+    camKey(k, on) { camKeys = { ...camKeys, [k]: !!on }; if (on) camGlide = null; },
+    camKeysOff() { camKeys = {}; },
     panCamera(right, fwd) {
       const f = new THREE.Vector3().subVectors(ctl.target, cam.position).setY(0).normalize();
       const r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0, 1, 0));
