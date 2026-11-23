@@ -146,6 +146,6 @@ def read_plan(data: bytes, content_type: str, filename: str = "floorplan", clien
         raise PlanReadError("도면을 읽다가 멈췄어요. 잠시 뒤에 다시 올려 주세요") from e
     if out is None:
         raise PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요")
-    if out.readable and out.walls and (os.getenv("PLAN_AI_REVIEW") or "1") == "1":
+    if out.readable and out.walls and os.getenv("PLAN_AI_REVIEW") == "1":
         out = _review(client, provider, content, out)
     return out
