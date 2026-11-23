@@ -84,8 +84,9 @@ def test_built_in_dishwasher_stands_right_next_to_the_counter(c):
     assert r.status_code == 200, r.text
     x = r.json()["placement"]
     room = c.get(f"/api/projects/{pid}/room").json()
-    o1 = next(o for o in room["objects"] if o["object_id"] == "o1")
-    gap = math.dist(x["center_xz"], (o1["position"][0], o1["position"][2])) - o1["bbox_m"]["w"] / 2 - x["size_m"][0] / 2
+    counters = [o for o in room["objects"] if o["category"] == "storage"]  # 하부장 여러 칸 중 가장 가까운 칸
+    gap = min(math.dist(x["center_xz"], (o["position"][0], o["position"][2])) - o["bbox_m"]["w"] / 2 - x["size_m"][0] / 2
+              for o in counters)
     assert gap < 0.25, f"싱크대에서 {gap:.2f} m 떨어져 있다"
 
 

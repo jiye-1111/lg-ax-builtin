@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from .cmf import DE_SCALE, W_COLOR, W_MATERIAL, delta_e2000, hex_to_lab, material_keywords
 
@@ -63,8 +63,15 @@ class Finish(BaseModel):
     spec: dict = Field(default_factory=dict)
     tones: list[Tone]
     tone_basis: Literal["official", "approx"]
-    source_url: str
-    source_checked_at: str
+    source_url: Optional[str] = None
+    source_checked_at: Optional[str] = None
+    generic: bool = False  # 상표 없는 색상표 (실제 제품이 아니라 색만 고르는 도장 색)
+
+    @model_validator(mode="after")
+    def _real_products_need_a_source(self) -> "Finish":
+        if not self.generic and not (self.source_url and self.source_checked_at and self.brand):
+            raise ValueError(f"실제 제품은 상표와 출처가 있어야 함: {self.id}")
+        return self
 
     def tone(self, hex_: Optional[str] = None) -> Tone:
         if hex_ is None:

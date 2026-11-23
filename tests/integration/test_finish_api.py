@@ -33,7 +33,7 @@ def test_list_finishes(ctx):
     c, _ = ctx
     r = c.get("/api/finishes").json()
     assert {f["kind"] for f in r["finishes"]} == {"wall", "floor"}
-    assert all(f["source_url"] for f in r["finishes"])
+    assert all(f["source_url"] for f in r["finishes"] if not f.get("generic"))
 
 
 def test_apply_finish_sets_color_and_id(ctx):

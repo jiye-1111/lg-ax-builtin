@@ -77,6 +77,6 @@ def test_delete_needs_owner_or_link(client):
 
 
 def test_sample_homes_are_served(client):
-    for name in ("synthetic_room.usdz", "apt_living_kitchen.usdz", "ugscan_2026-11-18.usdz"):
+    for name in ("synthetic_room.usdz", "apt_living_kitchen.usdz", "studio_living.usdz", "ugscan_2026-11-18.usdz"):
         assert client.get(f"/api/samples/{name}").status_code == 200, name
     assert client.get("/api/samples/nope.usdz").status_code == 404

@@ -92,9 +92,9 @@ export async function customer(pid) {
           <button class="furn-btn" id="extraBtn" aria-expanded="false" aria-controls="extraPop" title="도면을 올리거나 줄자로 잰 벽 길이를 넣어요">도면·실측</button>
           <span class="spacer"></span>
           <div class="icon-row" role="group" aria-label="되돌리기">
-            <button class="icon-btn" id="undo" data-l="되돌리기" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
-            <button class="icon-btn" id="redo" data-l="다시" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
-            <button class="icon-btn" id="furn" data-l="가구 치우기" aria-pressed="false" aria-label="가구 치우기" title="가구 치우기: 가구마다 뜨는 ✕를 눌러요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a2 2 0 0 1 2-2h4M4 12h9a2 2 0 0 1 2 2v3H4zM5 17v2M14 17v2"/><path d="m16 4 5 5M21 4l-5 5"/></svg></button>
+            <button class="icon-btn" id="undo" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
+            <button class="icon-btn" id="redo" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+            <button class="icon-btn" id="furn" data-l="가구 치우기" aria-pressed="false" aria-label="가구 치우기" title="가구 치우기: 가구나 창문에 마우스를 올리면 뜨는 ✕를 눌러요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a2 2 0 0 1 2-2h4M4 12h9a2 2 0 0 1 2 2v3H4zM5 17v2M14 17v2"/><path d="m16 4 5 5M21 4l-5 5"/></svg></button>
             <button class="icon-btn" id="beforeBtn" data-l="처음 모습" aria-pressed="false" aria-label="처음 모습 보기" title="누르고 있는 동안 처음 모습을 보여 줘요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/><path d="m7.5 10-2 2 2 2M16.5 10l2 2-2 2"/></svg></button>
             <button class="icon-btn" id="fullBtn" data-l="전체 화면" aria-label="전체 화면" title="전체 화면"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
             <button class="icon-btn" id="tourBtn" data-l="안내" aria-label="화면 안내 다시 보기" title="화면 안내 다시 보기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
@@ -449,6 +449,7 @@ export async function customer(pid) {
   // 3D 안에서 바로 놓기·옮기기·고르기 (plans/virtual-remodel.md S10)
   let drag3d = null, hovering = false; // hovering: 마우스가 3D 위에 있는지 (버튼 위로 나가면 늦게 온 미리 보기를 버린다)
   let wallPicking = false, removeWall = () => {}; // 벽 철거: 3D에서 벽을 눌러 고르는 중 (아래에서 채운다)
+  let furnPick = false, furnHover = () => {}; // 가구 치우기: 마우스가 올라간 가구·창에만 ✕ (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     // 고른 제품만 끌어서 옮긴다. 안 고른 제품 위에서 끌면 화면이 돌아간다 (실수로 밀리지 않게)
@@ -457,6 +458,8 @@ export async function customer(pid) {
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
     onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
     onHover: (p) => { hovering = true; follow(p); },
+    wantHoverHit: () => furnPick,
+    onHoverHit: (h) => furnHover(h),
     onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
@@ -1076,6 +1079,11 @@ export async function customer(pid) {
       if (step.pose) await put(`/api/projects/${pid}/objects/${id}/pose`, step.pose);
       else await api(`/api/projects/${pid}/objects/${id}/pose`, { method: "DELETE" });
       return { kind: "objPose", id, pose: had && o ? { center_xz: [o.position[0], o.position[2]], yaw_rad: o.yaw_rad } : null };
+    }
+    if (step.kind === "winHide" || step.kind === "winShow") {
+      const on = step.kind === "winHide";
+      await put(`/api/projects/${pid}/openings/${step.id}/hidden`, { hidden: on });
+      return { kind: on ? "winShow" : "winHide", id: step.id };
     }
     if (step.kind === "wallHide" || step.kind === "wallShow") {
       const on = step.kind === "wallHide";
@@ -1724,6 +1732,10 @@ export async function customer(pid) {
     if (gone.length) document.getElementById("pls").insertAdjacentHTML("beforeend", `<li class="muted" style="font-size:12px">치운 기존 가구 ${gone.length}개 <span class="spacer"></span><button class="small ghost" id="restore">모두 되돌리기</button></li>`);
     const walls = project.scene_state.hidden_walls || [];
     if (walls.length) document.getElementById("pls").insertAdjacentHTML("beforeend", `<li class="muted" style="font-size:12px">철거한 벽 ${walls.length}개 <span class="spacer"></span><button class="small ghost" id="wallBack">모두 다시 세우기</button></li>`);
+    const wins = project.scene_state.hidden_openings || [];
+    if (wins.length) document.getElementById("pls").insertAdjacentHTML("beforeend", `<li class="muted" style="font-size:12px">없앤 창문 ${wins.length}개 <span class="spacer"></span><button class="small ghost" id="winBack">모두 되돌리기</button></li>`);
+    const nb = document.getElementById("winBack");
+    if (nb) nb.onclick = guard(async () => { for (const w of wins) await put(`/api/projects/${pid}/openings/${w}/hidden`, { hidden: false }); await refresh(true); });
     const wb = document.getElementById("wallBack");
     if (wb) wb.onclick = guard(async () => { for (const w of walls) await put(`/api/projects/${pid}/walls/${w}/hidden`, { hidden: false }); await refresh(true); });
     const rb = document.getElementById("restore");
@@ -2078,35 +2090,71 @@ export async function customer(pid) {
     if (armedRouter) { armed = null; mode = "move"; syncMode(); }
     await runWifi();
   };
-  // ---- 가구 치우기: 버튼을 켜면 스캔 가구마다 ✕가 뜨고, 누르면 그 가구만 치운다 ----
+  // ---- 가구 치우기: 버튼을 켜고 가구나 창문에 마우스를 올리면 그것에만 ✕가 뜬다. 누르면 치운다 ----
+  // (터치 화면은 올려 둘 마우스가 없어서 전부 띄운다)
   const X_SVG = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>`;
   const furnBtn = document.getElementById("furn"), furnX = document.getElementById("furnX"), furnAll = document.getElementById("furnAll");
-  let furnPick = false, furnShown = [];
+  const HOVERS = globalThis.matchMedia?.("(hover: hover)").matches ?? true, X_LINGER_MS = 700;
+  let furnShown = [], furnHot = null, furnCool = 0;
+  const winTop = (op) => {
+    const w = room.walls.find((x) => x.wall_id === op.wall_id);
+    if (!w) return null;
+    const L = Math.hypot(w.end[0] - w.start[0], w.end[1] - w.start[1]) || 1, u = (op.offset_m + op.width_m / 2) / L;
+    return [w.start[0] + (w.end[0] - w.start[0]) * u, op.sill_m + op.height_m, w.start[1] + (w.end[1] - w.start[1]) * u];
+  };
+  const clearables = () => {
+    const gone = project.scene_state.hidden_objects || [], shut = project.scene_state.hidden_openings || [];
+    return [...room.objects.filter((o) => !gone.includes(o.object_id)).map((o) => ({ type: "object", id: o.object_id, top: [o.position[0], o.position[1] * 2, o.position[2]] })),
+      ...room.openings.filter((o) => o.type === "window" && !shut.includes(o.opening_id)).map((o) => ({ type: "window", id: o.opening_id, top: winTop(o) })).filter((x) => x.top)];
+  };
+  const coolDown = () => { clearTimeout(furnCool); furnCool = setTimeout(() => { furnHot = null; drawFurnX(); }, X_LINGER_MS); };
   function drawFurnX() {
-    const gone = project.scene_state.hidden_objects || [];
-    furnShown = furnPick ? room.objects.filter((o) => !gone.includes(o.object_id)) : [];
-    furnX.innerHTML = furnShown.map((o) => `<button class="flow-x" data-obj="${esc(o.object_id)}" title="이 가구 치우기" aria-label="가구 치우기">${X_SVG}</button>`).join("");
-    furnX.querySelectorAll("[data-obj]").forEach((b) => (b.onclick = guard(async (e) => {
-      e.stopPropagation();
-      b.disabled = true;
-      remember({ kind: "objShow", id: b.dataset.obj });
-      await put(`/api/projects/${pid}/objects/${b.dataset.obj}/hidden`, { hidden: true });
-      if (selObj === b.dataset.obj) selObj = null;
-      await refresh(true);
-    })));
-    const allGone = room.objects.length > 0 && !furnShown.length;
+    const all = furnPick ? clearables() : [];
+    if (furnHot && !all.some((x) => x.id === furnHot.id)) furnHot = null;
+    furnShown = HOVERS ? (furnHot ? [furnHot] : []) : all;
+    furnX.innerHTML = furnShown.map((x) => { const t = x.type === "window" ? "창문 없애기" : "가구 치우기";
+      return `<button class="flow-x soft" data-id="${esc(x.id)}" data-type="${x.type}" title="${t}" aria-label="${t}">${X_SVG}</button>`; }).join("");
+    furnX.querySelectorAll("button").forEach((b) => {
+      b.onmouseenter = () => clearTimeout(furnCool);
+      b.onmouseleave = coolDown;
+      b.onclick = guard(async (e) => {
+        e.stopPropagation();
+        b.disabled = true;
+        const id = b.dataset.id, win = b.dataset.type === "window";
+        remember({ kind: win ? "winShow" : "objShow", id });
+        await put(`/api/projects/${pid}/${win ? "openings" : "objects"}/${id}/hidden`, { hidden: true });
+        if (selObj === id) selObj = null;
+        furnHot = null;
+        await refresh(true);
+        if (win) toast("창문을 없앴어요. 되돌리기로 다시 살릴 수 있어요");
+      });
+    });
+    const allGone = room.objects.length > 0 && !all.some((x) => x.type === "object");
     furnAll.hidden = !furnPick || studio.dataset.view !== "3d";
     furnAll.textContent = allGone ? "모두 되돌리기" : "모두 치우기";
     furnAll.onclick = guard(async () => { await put(`/api/projects/${pid}/objects/hidden`, { hidden: !allGone }); await refresh(true); });
+    trackFurnX();
   }
-  furnBtn.onclick = () => { furnPick = !furnPick; furnBtn.classList.toggle("on", furnPick); furnBtn.setAttribute("aria-pressed", furnPick); drawFurnX(); };
+  furnHover = (h) => {
+    if (!h) { if (furnHot) coolDown(); return; }
+    clearTimeout(furnCool);
+    if (furnHot?.id === h.id) return;
+    furnHot = h;
+    drawFurnX();
+  };
+  furnBtn.onclick = () => {
+    furnPick = !furnPick; furnHot = null;
+    furnBtn.classList.toggle("on", furnPick); furnBtn.setAttribute("aria-pressed", furnPick);
+    if (furnPick && HOVERS) toast("치울 가구나 창문에 마우스를 올리면 ✕가 떠요");
+    drawFurnX();
+  };
   trackFurnX = () => {
     if (!furnShown.length) return;
     const r = canvasEl.getBoundingClientRect();
-    furnShown.forEach((o, i) => {
+    furnShown.forEach((x, i) => {
       const b = furnX.children[i];
       if (!b) return;
-      const [sx, sy] = viewer.toScreen([o.position[0], o.position[2]], o.position[1] * 2);
+      const [sx, sy] = viewer.toScreen([x.top[0], x.top[2]], x.top[1]);
       b.style.transform = `translate(${Math.round(sx - r.left)}px, ${Math.round(sy - r.top)}px)`;
     });
   };

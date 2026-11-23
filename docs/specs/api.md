@@ -87,7 +87,8 @@
 | PATCH | `/api/projects/{pid}/placements/{plid}` | 옮기기·돌리기·색 |
 | DELETE | `/api/projects/{pid}/placements/{plid}` | 빼기 |
 | PUT | `/api/projects/{pid}/objects/{oid}/hidden` | `{hidden}` 기존 가구 치우기 |
-| GET | `/api/samples/{name}` | 샘플 스캔 (`synthetic_room.usdz`, `ugscan_2026-11-18.usdz`) |
+| GET | `/api/samples/{name}` | 샘플 스캔 (`apt_living_kitchen.usdz`, `studio_living.usdz`, `synthetic_room.usdz`, `ugscan_2026-11-18.usdz`) |
+| PUT | `/api/projects/{pid}/openings/{oid}/hidden` | 스캔한 창문 없애기·되돌리기 (`{hidden}`). 문은 안 된다 |
 
 ## 도면 (선택)
 | 메서드 | 경로 | 설명 |

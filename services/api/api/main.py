@@ -570,6 +570,11 @@ def hide_wall(pid: str, wid: str, body: HiddenIn, s: Service = S):
     return s.set_wall_hidden(pid, wid, body.hidden)
 
 
+@app.put("/api/projects/{pid}/openings/{oid}/hidden")
+def hide_opening(pid: str, oid: str, body: HiddenIn, s: Service = S):
+    return s.set_opening_hidden(pid, oid, body.hidden)
+
+
 @app.post("/api/projects/{pid}/placements/{plid}/auto-align")
 def auto_align(pid: str, plid: str, s: Service = S):
     return s.auto_align(pid, plid)
@@ -824,7 +829,7 @@ def catalog(category: Optional[str] = None, zone: Optional[str] = None, q: Optio
     return [p.model_dump() for p in s.catalog.search(category, zone, q)]
 
 
-SAMPLES = {"synthetic_room.usdz", "apt_living_kitchen.usdz", "ugscan_2026-11-18.usdz"}
+SAMPLES = {"synthetic_room.usdz", "apt_living_kitchen.usdz", "studio_living.usdz", "ugscan_2026-11-18.usdz"}
 
 
 @app.get("/api/samples/{name}")

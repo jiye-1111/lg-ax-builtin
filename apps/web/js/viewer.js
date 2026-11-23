@@ -14,7 +14,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
-import { dressRoom, furnish, shadowShell, furnitureTemplate, fitFurniture } from "./room3d.js";
+import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 // 고른 것도 판정 색 그대로 (빨강 = 안 들어감으로 읽히므로 선택·필요 공간에 LG 레드를 쓰지 않는다)
@@ -42,6 +42,7 @@ const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walk
 const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
 const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
 const MAX_WALKERS = 4;
+const GLAZED = new Set(["decor:window", "decor:glassdoor"]); // 벽에 다는 창: 그 자리 벽을 뚫고 유리는 비치게
 const DOOR_SKU = "decor:door", DOOR_JAMB_M = 0.045, DOOR_OPEN_RAD = (78 * Math.PI) / 180; // 문틀 폭은 build_furniture.py door와 같게
 
 // 제품 모델: 한 번 받아 두고 배치마다 복제한다 (화면을 바꿔도 다시 받지 않는다)
@@ -112,7 +113,7 @@ export function makeViewer(el, handlers = {}) {
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
   sun.shadow.bias = -0.0003;
-  sun.shadow.normalBias = 0.015;
+  sun.shadow.normalBias = 0.04; // 둥근 쿠션 면에 줄무늬(그림자 얼룩)가 생기지 않게
   scene.add(sun, sun.target);
   const cam = new THREE.PerspectiveCamera(45, 1, 0.05, 200);
 
@@ -324,6 +325,21 @@ export function makeViewer(el, handlers = {}) {
   // ---------- 해 ----------
   // realSun: null이면 보기 좋은 기본 해(카메라 왼쪽 위). 있으면 {direction:[x,y,z](해 쪽), color, intensity(0~1), up}
   let realSun = null, shell = null, roomR = 8;
+  // 새로 단 창·유리문 자리: 벽을 뚫고, 볕도 그리로 든다
+  const glazedSpots = (list) => (list || []).filter((p) => GLAZED.has(p.sku) && p.size_m)
+    .map((p) => ({ x: p.center_xz[0], y: (p.base_m || 0) + p.size_m[1] / 2, z: p.center_xz[1], w: p.size_m[0], h: p.size_m[1] }));
+  let spotKey = "";
+  const openWalls = (list, force = false) => {
+    if (!model) return;
+    const spots = glazedSpots(list), key = JSON.stringify(spots);
+    if (!force && key === spotKey) return;
+    spotKey = key;
+    cutWalls(model, spots);
+    if (shell) { model.remove(shell); shell.traverse((o) => o.geometry?.dispose()); }
+    shell = shadowShell(model, spots);
+    shell.visible = !!realSun;
+    model.add(shell);
+  };
   const roomC = new THREE.Vector3();
   // 해는 목표(goal)로 바로 바뀌지 않고 매 프레임 조금씩 다가간다(약 0.2초 시정수).
   // 시간 슬라이더를 움직이거나 하루를 재생해도 방향·색·세기·하늘빛이 끊김 없이 이어진다.
@@ -524,6 +540,10 @@ export function makeViewer(el, handlers = {}) {
         o.receiveShadow = true;
         o.userData.placementId = p.placement_id;
         if (tmpl.decor) o.material = o.material.clone(), o.userData.ownMaterial = true;
+        if (o.material.name === "glass") { // 창 유리
+          Object.assign(o.material, { transparent: true, opacity: 0.22, roughness: 0.04, depthWrite: false, envMapIntensity: 1.2 });
+          o.castShadow = false;
+        }
         const isFinish = o.material.name === "finish";
         if (preview || (isFinish && p.hex)) {
           o.material = o.material.clone();
@@ -641,6 +661,14 @@ export function makeViewer(el, handlers = {}) {
     if (o.userData.placementId) return { type: "placement", id: o.userData.placementId };
     return { type: "object", id: o.name };
   };
+  // 치우기에서 마우스가 올라간 스캔 가구·창. top = ✕를 띄울 자리(위쪽 가운데)
+  const hoverHit = (e) => {
+    setNdc(e);
+    const targets = [];
+    model?.traverse((o) => { if (o.isMesh && o.visible && !o.userData.shared && (o.userData?.kind === "object" || o.userData?.kind === "window")) targets.push(o); });
+    const o = ray.intersectObjects(targets, false)[0]?.object;
+    return o ? { type: o.userData.kind, id: o.name, top: [o.position.x, o.position.y + o.scale.y / 2, o.position.z] } : null;
+  };
   let down = null, dragging = null;
   let wallPick = false; // 벽 철거: 벽을 눌러 고르는 중
   let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
@@ -707,6 +735,7 @@ export function makeViewer(el, handlers = {}) {
       return;
     }
     handlers.onHover?.(pointFor(e) || p);
+    if (handlers.wantHoverHit?.()) handlers.onHoverHit?.(hoverHit(e));
   };
   const onUp = (e) => {
     if (walk) { look = null; return; }
@@ -787,8 +816,8 @@ export function makeViewer(el, handlers = {}) {
           if (o.isMesh && (kind === "wall" || kind === "door" || kind === "window")) walls.push(o);
           if (kind === "product") o.visible = false; // 제품은 화면에서 직접 그린다
         });
-        shell = shadowShell(model); // dressRoom이 창 크기를 바꾸기 전에 구멍 자리를 잡는다
-        model.add(shell);
+        shell = null;
+        openWalls(last.list, true); // 창 자리 벽을 뚫고 그림자용 벽을 만든다 (dressRoom이 창 두께를 바꾸기 전에)
         walls.push(...dressRoom(model, finishSet));
         const mine = model;
         furnish(model, () => alive && model === mine, (id) => objectCats[id]);
@@ -801,6 +830,7 @@ export function makeViewer(el, handlers = {}) {
     /** 놓은 제품을 다시 그린다. 끌고 있는 중이면 건너뛴다. */
     setPlacements(list, selectedId) {
       last = { ...last, list, selectedId };
+      openWalls(list);
       if (dragging || (held?.kind === "placement" && !held.dropping)) return;
       // 바뀐 것만 다시 만든다. 놓을 때마다 전부 새로 만들면 가구가 많을수록 버벅인다
       const keep = new Map();

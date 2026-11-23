@@ -266,10 +266,14 @@ def snap_door(segments: Iterable[tuple[g.Pt, g.Pt]], pose: Pose, width_m: float,
 
 
 # ---------- 판정 ----------
-MOUNTED = frozenset({"decor_door"})  # 벽에 겹쳐 다는 것 (문)
+MOUNTED = frozenset({"decor_door", "decor_window", "decor_glassdoor"})  # 벽에 겹쳐 다는 것 (문·창)
+MOUNT_SKUS = frozenset({"decor:door", "decor:window", "decor:glassdoor"})
+WINDOW_SKU = "decor:window"
+SILL_M = {"decor_window": 0.9}  # 창문은 바닥에서 이만큼 띄워 단다
 WALL_LIKE = frozenset({"decor:wall", "decor:partition"})  # 문을 달 수 있는 배치
 DOOR_SKU = "decor:door"
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
+WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
 
 
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
@@ -291,7 +295,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     w_m, h_m, d_m = size
     side, back, top, clear_unknown = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
-    base = float(host["top_m"]) if host else 0.0
+    base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
@@ -320,8 +324,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
                   for o in room.objects if o.object_id not in hidden]
     wall_like = product.sku in WALL_LIKE
     for o in others:
-        if wall_like and o.get("sku") == DOOR_SKU:
-            continue  # 이 벽에 달린 문은 겹침으로 보지 않는다
+        if o.get("sku") == WINDOW_SKU or (wall_like and o.get("sku") in MOUNT_SKUS):
+            continue  # 벽 속에 든 창, 이 벽에 달린 문은 겹침으로 보지 않는다
         sw, sh, sd = o["size_m"]
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
         lo = float(o.get("base_m") or 0.0)
@@ -354,7 +358,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         elif P is not None and passage_ref is None and overlaps(P, poly):
             passage_ref = ref
     if mounted and not on_wall:
-        add("not_on_wall", Verdict.NO_FIT)
+        add("not_on_wall", Verdict.NO_FIT, label=None if product.sku == DOOR_SKU else WINDOW_OFF_WALL_LABEL)
     if passage_ref is not None and not any(r["code"] == "front_blocked" for r in reasons):
         add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
             label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")
