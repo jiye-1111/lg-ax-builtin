@@ -102,7 +102,7 @@ export async function selfScan() {
         const p = await api(`/api/projects/${had.pid}`).catch(() => null);
         if (p) { openHome(p); return; }
       }
-      const blob = await (await fetch(apiUrl(`/api/samples/${h.file}`))).blob();
+      const blob = await (await fetch(apiUrl(`/api/samples/${h.file}`), { cache: "no-cache" })).blob(); // 샘플을 고친 뒤에 예전 파일이 뜨지 않게
       const p = await create(blob, h.file, h.name);
       rememberSample(h.file, { pid: p.project_id, token: p.share_token });
       openHome(p);
