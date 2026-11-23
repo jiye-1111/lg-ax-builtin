@@ -293,6 +293,16 @@ function finishMaterial(finish, color, w, h, extra = {}) {
     roughness: ROUGH[finish.texture] ?? 0.9, envMapIntensity: finish.texture === "stone" ? 0.6 : 0.3, ...extra });
 }
 
+/** 바닥 모양 [[x, z], ...] → 눕히면 그 자리에 오는 면. 무늬는 네모 바닥과 같은 크기로 깔린다 */
+export function outlineGeometry(outline) {
+  const geo = new THREE.ShapeGeometry(new THREE.Shape(outline.map(([x, z]) => new THREE.Vector2(x, -z))));
+  const xs = outline.map((p) => p[0]), zs = outline.map((p) => p[1]);
+  const x0 = Math.min(...xs), z0 = Math.min(...zs), w = Math.max(...xs) - x0 || 1, d = Math.max(...zs) - z0 || 1;
+  const pos = geo.attributes.position, uv = geo.attributes.uv;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, (pos.getX(i) - x0) / w, (-pos.getY(i) - z0) / d);
+  return geo;
+}
+
 /** 바닥 마루, 벽 걸레받이, 창 유리·창틀, 문 나무·문틀. 반환: 컷어웨이(앞쪽 벽 흐리게)에 넣을 메시들
  *  finishes = { wall?: 마감재, floor?: 마감재 } (data/finishes의 항목) */
 export function dressRoom(model, finishes = {}) {
@@ -310,9 +320,11 @@ export function dressRoom(model, finishes = {}) {
         tex.repeat.set(s.x / PLANK_M, s.z / PLANK_M);
         mat = new THREE.MeshStandardMaterial({ color: o.material.color, map: tex, roughness: 0.62, envMapIntensity: 0.35 });
       }
-      const floor = new THREE.Mesh(new THREE.PlaneGeometry(s.x, s.z), mat);
+      const outline = o.userData.outline; // 꺾인 집은 바깥벽을 따라 깐다 (서버 worker/outline.py)
+      const floor = new THREE.Mesh(outline ? outlineGeometry(outline) : new THREE.PlaneGeometry(s.x, s.z), mat);
       floor.rotation.x = -Math.PI / 2;
-      floor.position.set(o.position.x, 0.0005, o.position.z);
+      if (outline) floor.position.y = 0.0005;
+      else floor.position.set(o.position.x, 0.0005, o.position.z);
       floor.receiveShadow = true;
       floor.userData.kind = "floor";
       o.material.visible = false;

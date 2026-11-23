@@ -69,16 +69,53 @@ export function furnitureSymbol(kind, w, d) {
 }
 
 /** 벽을 끝점끼리 이어 방 테두리를 만든다. 한 바퀴로 이어지지 않으면 null (바닥을 잘못 칠하지 않게) */
-export function roomOutline(walls, tol = 0.05) {
-  if (walls.length < 3) return null;
-  const near = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]) <= tol;
-  const left = walls.slice(1), pts = [walls[0].start, walls[0].end];
-  while (left.length) {
-    const tip = pts[pts.length - 1];
-    const i = left.findIndex((w) => near(w.start, tip) || near(w.end, tip));
-    if (i < 0) return null;
-    const [w] = left.splice(i, 1);
-    pts.push(near(w.start, tip) ? w.end : w.start);
+export function roomOutline(walls, tol = 0.15) {
+  // 서버 worker/outline.py와 같은 규칙: 벽 끝을 모서리로 묶고, 중간에 붙은 벽에서 나누고, 떠 있는 벽을 뗀 뒤 바깥을 한 바퀴 돈다
+  const nodes = [];
+  const nid = (p) => {
+    const i = nodes.findIndex((q) => Math.hypot(p[0] - q[0], p[1] - q[1]) <= tol);
+    return i >= 0 ? i : nodes.push([p[0], p[1]]) - 1;
+  };
+  const raw = walls.map((w) => [nid(w.start), nid(w.end)]);
+  const adj = new Map();
+  const link = (u, v) => { if (u === v) return; for (const [x, y] of [[u, v], [v, u]]) (adj.get(x) || adj.set(x, new Set()).get(x)).add(y); };
+  for (const [a, b] of raw) {
+    if (a === b) continue;
+    const [ax, ay] = nodes[a], dx = nodes[b][0] - ax, dy = nodes[b][1] - ay, L2 = dx * dx + dy * dy;
+    const on = [];
+    nodes.forEach(([cx, cy], c) => {
+      if (c === a || c === b) return;
+      const t = ((cx - ax) * dx + (cy - ay) * dy) / L2;
+      if (t > 0 && t < 1 && Math.hypot(ax + t * dx - cx, ay + t * dy - cy) <= tol) on.push([t, c]);
+    });
+    const chain = [a, ...on.sort((p, q) => p[0] - q[0]).map((x) => x[1]), b];
+    chain.slice(1).forEach((v, i) => link(chain[i], v));
   }
-  return near(pts[0], pts[pts.length - 1]) ? pts.slice(0, -1) : null;
+  const loose = [...adj].filter(([, nb]) => nb.size < 2).map(([n]) => n);
+  while (loose.length) {
+    const n = loose.pop();
+    for (const m of adj.get(n) || []) { adj.get(m).delete(n); if (adj.get(m).size < 2) loose.push(m); }
+    adj.delete(n);
+  }
+  if (adj.size < 3) return null;
+  const start = [...adj.keys()].sort((p, q) => nodes[p][0] - nodes[q][0] || nodes[p][1] - nodes[q][1])[0];
+  const turn = (v, back) => [...adj.get(v)].map((w) => {
+    const a = (Math.atan2(nodes[w][1] - nodes[v][1], nodes[w][0] - nodes[v][0]) - back) % (2 * Math.PI);
+    return [(a + 2 * Math.PI) % (2 * Math.PI) || 2 * Math.PI, w];
+  }).sort((p, q) => p[0] - q[0])[0][1];
+  const first = turn(start, Math.PI), path = [start];
+  let v = start, nxt = first, closed = false;
+  const edges = [...adj.values()].reduce((n, nb) => n + nb.size, 0) / 2;
+  for (let i = 0; i < 4 * edges + 4 && !closed; i++) {
+    const back = Math.atan2(nodes[v][1] - nodes[nxt][1], nodes[v][0] - nodes[nxt][0]);
+    [v, nxt] = [nxt, turn(nxt, back)];
+    if (v === start && nxt === first) closed = true;
+    else path.push(v);
+  }
+  if (!closed || new Set(path).size !== path.length) return null;
+  const pts = path.map((i) => nodes[i]);
+  const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
+  const out = pts.filter((p, i) => Math.abs(cross(pts[(i - 1 + pts.length) % pts.length], p, pts[(i + 1) % pts.length])) > 1e-6);
+  const area = Math.abs(out.reduce((a, p, i) => a + p[0] * out[(i + 1) % out.length][1] - out[(i + 1) % out.length][0] * p[1], 0)) / 2;
+  return out.length >= 3 && area >= 1 ? out : null;
 }

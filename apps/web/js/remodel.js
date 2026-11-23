@@ -1831,7 +1831,7 @@ export async function customer(pid) {
   const takeShot = () => {
     viewer.cancelHold(); armed = null; ghost(null);
     const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
-    const shot = viewer.snapshot();
+    const shot = { ...viewer.snapshot(), camera: viewer.cameraPose() };
     selPl = keepSel; draw();
     return shot;
   };
@@ -1854,7 +1854,8 @@ export async function customer(pid) {
     waitEl.hidden = false;
     try {
       const r = await post(`/api/projects/${pid}/photoreal`, shot);
-      showShot(apiUrl(r.url), "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
+      showShot(apiUrl(r.url), r.model === "blender" ? "지금 집과 놓은 제품을 치수 그대로 빛을 계산해 그린 이미지예요."
+        : "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
     } catch (err) {
       if (err.status !== 503 && err.status !== 429) throw err;
       toast(err.message, true);

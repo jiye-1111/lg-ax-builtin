@@ -84,3 +84,16 @@ def test_blender_failure_falls_back_to_python_render(monkeypatch, tmp_path):
     assert res["engine"] == "fallback"
     assert res["png"].exists() and res["png"].read_bytes()[:4] == b"\x89PNG"
     assert "boom" in (tmp_path / "scene" / "blender.log").read_text(encoding="utf-8")
+
+
+def test_plan_made_home_without_scan_file_also_renders_with_blender(fake_blender, tmp_path):
+    calls, _ = fake_blender
+    res = runner.build_scene(ROOM, None, STATE, tmp_path / "scene", render=True)
+    assert res["engine"] == "blender" and len(calls) == 1
+
+
+def test_blender_stays_off_when_the_server_says_so(fake_blender, monkeypatch, tmp_path):
+    calls, usdz = fake_blender
+    monkeypatch.setenv("USE_BLENDER", "0")
+    res = runner.build_scene(ROOM, usdz, STATE, tmp_path / "scene", render=True)
+    assert res["engine"] == "fallback" and calls == []

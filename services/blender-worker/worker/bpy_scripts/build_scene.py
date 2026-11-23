@@ -6,6 +6,7 @@ job.json (runner.build_scene이 만든다)
     models_dir:    제품 모델 폴더 (build_products.py 결과, <sku>.glb)
     furniture_dir: 스캔 가구 모델 폴더 (build_furniture.py 결과, index.json + <종류>.glb)
     out_png, out_blend, engine(CYCLES 기본 | EEVEE, .env BLENDER_ENGINE)
+    camera:        (선택) 웹에서 보던 시점 {pos, target, fov}. 없으면 방 전체가 들어오는 자리에서 내려다본다
 
 웹 3D 파일(scene.glb)은 여기서 만들지 않는다. 웹이 쓰는 노드 규칙은 glb.py 하나만 지킨다.
 
@@ -26,6 +27,7 @@ from mathutils import Vector
 
 VIEW_DIR = Vector((-0.45, -0.7, 0.85)).normalized()  # 카메라가 방을 내려다보는 방향 (Blender Z-up)
 BASEBOARD_H, FRAME_W, CUT_WALL_H = 0.08, 0.05, 0.14
+BACKDROP = "#E7DFD3"  # 웹 3D 바탕과 같은 따뜻한 베이지
 
 
 def args():
@@ -79,6 +81,21 @@ def paint(hex_):
     return m
 
 
+def wall_top(hex_):
+    """벽 윗면: 그늘과 상관없이 벽 색으로 보인다"""
+    key = ("wall_top", hex_)
+    if key not in _MATS:
+        m = bpy.data.materials.new("wall_top")
+        m.use_nodes = True
+        nt = m.node_tree
+        em = nt.nodes.new("ShaderNodeEmission")
+        em.inputs["Color"].default_value = lin(hex_)
+        em.inputs["Strength"].default_value = 0.75
+        nt.links.new(em.outputs["Emission"], nt.nodes["Material Output"].inputs["Surface"])
+        _MATS[key] = m
+    return _MATS[key]
+
+
 def wood_floor(hex_):
     """마루: 판 무늬(벽돌 텍스처) × 나뭇결(웨이브) × 바닥 색. 판 이음은 살짝 패이게."""
     m = bpy.data.materials.new("floor_wood")
@@ -102,13 +119,13 @@ def wood_floor(hex_):
     L.new(co.outputs["Object"], brick.inputs["Vector"])
     wave = nt.nodes.new("ShaderNodeTexWave")
     wave.wave_type, wave.bands_direction = "BANDS", "X"
-    wave.inputs["Scale"].default_value = 3.0
-    wave.inputs["Distortion"].default_value = 6.0
+    wave.inputs["Scale"].default_value = 14.0
+    wave.inputs["Distortion"].default_value = 2.5
     wave.inputs["Detail"].default_value = 3.0
     L.new(co.outputs["Object"], wave.inputs["Vector"])
     grain = nt.nodes.new("ShaderNodeMix")
     grain.data_type, grain.blend_type = "RGBA", "MULTIPLY"
-    grain.inputs["Factor"].default_value = 0.22
+    grain.inputs["Factor"].default_value = 0.12
     sock = lambda socks, ident: next(s for s in socks if s.identifier == ident)  # noqa: E731  (A/B는 종류별로 여럿)
     L.new(brick.outputs["Color"], sock(grain.inputs, "A_Color"))
     L.new(wave.outputs["Color"], sock(grain.inputs, "B_Color"))
@@ -224,15 +241,33 @@ def build(job):
     center = gl_to_bl(floor["center"]) if floor else Vector()
     center.z = 0
 
+    ceiling_h = max((b["size"][1] for b in walls.values()), default=2.4)
+    view, inside = VIEW_DIR, False
+    if job.get("camera") and floor:  # 웹에서 보던 자리: 집 안이면 벽을 자르지 않고 천장도 보인다
+        eye = gl_to_bl(job["camera"]["pos"])
+        w, _, d = floor["size"]
+        inside = abs(eye.x - center.x) < w / 2 and abs(eye.y - center.y) < d / 2 and eye.z < ceiling_h
+        view = eye - center
+
     def faces_camera(b):
         off = gl_to_bl(b["center"]) - center
         off.z = 0
-        cam = Vector((VIEW_DIR.x, VIEW_DIR.y, 0)).normalized()
-        return off.length > 1e-6 and off.normalized().dot(cam) > 0.35
+        cam = Vector((view.x, view.y, 0))
+        return off.length > 1e-6 and cam.length > 1e-6 and off.normalized().dot(cam.normalized()) > 0.35
 
-    front = {n for n, b in walls.items() if faces_camera(b)}
+    front = set() if inside else {n for n, b in walls.items() if faces_camera(b)}
 
-    if floor:
+    if floor and floor.get("outline"):  # 꺾인 집: 바깥벽을 따라 깐다
+        pts = [(x, -z, 0.0) for x, z in floor["outline"]]
+        if sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(pts, pts[1:] + pts[:1])) < 0:
+            pts.reverse()  # 면이 위를 보게
+        me = bpy.data.meshes.new("floor")
+        me.from_pydata(pts, [], [list(range(len(pts)))])
+        me.update()
+        fl = bpy.data.objects.new("floor", me)
+        coll.objects.link(fl)
+        fl.data.materials.append(wood_floor(floor["color"]))
+    elif floor:
         w, _, d = floor["size"]
         bpy.ops.mesh.primitive_plane_add(size=1, location=(center.x, center.y, 0))
         fl = bpy.context.active_object
@@ -243,7 +278,6 @@ def build(job):
 
     # 벽과 개구부: 개구부가 속한 벽을 위치로 찾는다 (가장 가깝고 같은 방향)
     wall_obs = {}
-    ceiling_h = max((b["size"][1] for b in walls.values()), default=2.4)
     for n, b in walls.items():
         w_, h_, t_ = b["size"]
         if n in front:  # 카메라 쪽 벽은 낮게 보이고, 그림자는 원래 높이로 (창으로만 볕이 든다)
@@ -255,11 +289,18 @@ def build(job):
             c2.z = CUT_WALL_H + (h_ - CUT_WALL_H) / 2 + 0.002
             ob = box(n, c2, (w_, h_ - CUT_WALL_H - 0.004, t_ * 0.6), b["yaw"], None, coll)
             ob.visible_camera = ob.visible_diffuse = ob.visible_glossy = ob.visible_transmission = False
+            cap_c = gl_to_bl(b["center"])
+            cap_c.z = CUT_WALL_H + 0.0006
+            box(f"{n}_top", cap_c, (w_, 0.001, t_), b["yaw"], wall_top(b["color"]), coll)
         else:
             ob = box(n, gl_to_bl(b["center"]), (w_, h_, t_), b["yaw"], paint(b["color"]), coll)
             bb_c = gl_to_bl(b["center"])
             bb_c.z = BASEBOARD_H / 2
             box(f"{n}_baseboard", bb_c, (w_, BASEBOARD_H, t_ + 0.024), b["yaw"], M["trim"], coll)
+            if not inside:  # 위에서 보면 천장 그늘로 벽 윗면이 까맣게 나온다: 벽 색으로 덮는다
+                top_c = gl_to_bl(b["center"])
+                top_c.z = h_ + 0.002
+                box(f"{n}_top", top_c, (w_, 0.004, t_), b["yaw"], wall_top(b["color"]), coll)
         wall_obs[n] = ob
 
     def host_wall(o):
@@ -307,7 +348,7 @@ def build(job):
         elif o["kind"] == "door":
             box(f"{o['name']}_leaf", gl_to_bl(o["center"]) + rot @ local(0, -F / 2), (w_ - 2 * F, h_ - F, 0.04),
                 o["yaw"], M["door"], coll)
-        piece(f"{o['name']}_top", (w_, F, depth), 0, h_ / 2 - F / 2, M["trim"])
+        piece(f"{o['name']}_top", (w_ - 2 * F, F, depth), 0, h_ / 2 - F / 2, M["trim"])  # 옆 틀과 겹치면 모서리가 까맣게 나온다
         piece(f"{o['name']}_l", (F, h_, depth), -w_ / 2 + F / 2, 0, M["trim"])
         piece(f"{o['name']}_r", (F, h_, depth), w_ / 2 - F / 2, 0, M["trim"])
 
@@ -352,13 +393,15 @@ def build(job):
     # 천장: 카메라에는 안 보이고 그림자만 낸다. 해는 창으로만 들어온다
     if floor:
         w, _, d = floor["size"]
-        ceil = box("ceiling", Vector((center.x, center.y, ceiling_h + 0.05)), (w + 0.4, 0.1, d + 0.4), 0.0, None, coll)
-        ceil.visible_camera = ceil.visible_glossy = ceil.visible_transmission = False
+        ceil = box("ceiling", Vector((center.x, center.y, ceiling_h + 0.05)), (w + 0.4, 0.1, d + 0.4), 0.0,
+                   paint("#F4F3EF") if inside else None, coll)
+        if not inside:
+            ceil.visible_camera = ceil.visible_glossy = ceil.visible_transmission = False
 
-    return center, floor, ceiling_h
+    return center, floor, ceiling_h, inside
 
 
-def light_and_camera(center, floor, ceiling_h=2.4, sun_job=None):
+def light_and_camera(center, floor, ceiling_h=2.4, sun_job=None, view=None, inside=False):
     sc = bpy.context.scene
     w, _, d = floor["size"] if floor else (6, 0, 6)
     extent = math.hypot(w, d)
@@ -380,6 +423,15 @@ def light_and_camera(center, floor, ceiling_h=2.4, sun_job=None):
     nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
     bg.inputs["Strength"].default_value = 0.55
     nt.nodes.remove(grad)
+    if view and not inside:  # 밖에서 내려다볼 때 집 둘레는 웹 화면과 같은 바탕색으로 (빛은 하늘 그대로)
+        back = nt.nodes.new("ShaderNodeBackground")
+        back.inputs["Color"].default_value = lin(BACKDROP)
+        path = nt.nodes.new("ShaderNodeLightPath")
+        mix = nt.nodes.new("ShaderNodeMixShader")
+        nt.links.new(path.outputs["Is Camera Ray"], mix.inputs["Fac"])
+        nt.links.new(bg.outputs["Background"], mix.inputs[1])
+        nt.links.new(back.outputs["Background"], mix.inputs[2])
+        nt.links.new(mix.outputs["Shader"], nt.nodes["World Output"].inputs["Surface"])
 
     # 해: 채광과 같은 해(날짜·시각·위치·북쪽)가 오면 그 방향·색·세기, 없으면 보기 좋은 기본 해
     sun = bpy.data.objects.new("LGT-sun", bpy.data.lights.new("LGT-sun", "SUN"))
@@ -421,7 +473,18 @@ def light_and_camera(center, floor, ceiling_h=2.4, sun_job=None):
         for sx in (-1, 1):
             for sy in (-1, 1):
                 pts += [center.x + sx * w / 2, center.y + sy * d / 2, z]
-    sc.render.resolution_x, sc.render.resolution_y = 1600, 900
+    rw = int(os.getenv("BLENDER_WIDTH") or 1600)  # 작은 서버는 줄여서 쓴다 (.env)
+    sc.render.resolution_x, sc.render.resolution_y = rw, rw * 9 // 16
+    if view:  # 웹 화면(3:2)과 같은 자리·방향·화각
+        sc.render.resolution_y = rw * 2 // 3
+        eye, target = gl_to_bl(view["pos"]), gl_to_bl(view["target"])
+        cam.location = eye
+        if (target - eye).length > 1e-6:
+            cam.rotation_euler = (eye - target).to_track_quat("Z", "Y").to_euler()
+        cam.data.sensor_fit = "VERTICAL"
+        cam.data.angle_y = math.radians(view["fov"])
+        cam.data.clip_start, cam.data.clip_end = 0.05, extent * 10
+        return
     bpy.context.view_layer.update()
     loc, _ = cam.camera_fit_coords(bpy.context.evaluated_depsgraph_get(), pts)
     cam.location = Vector(loc) + VIEW_DIR * extent * 0.02
@@ -465,9 +528,11 @@ def render_settings(engine):
 
 def main():
     job = args()
-    center, floor, ceiling_h = build(job)
-    light_and_camera(center, floor, ceiling_h, job.get("sun"))
+    center, floor, ceiling_h, inside = build(job)
+    light_and_camera(center, floor, ceiling_h, job.get("sun"), job.get("camera"), inside)
     render_settings(job.get("engine"))
+    if job.get("camera") and not inside:
+        bpy.context.scene.view_settings.exposure = 0.15  # 지붕 없이 내려다보는 그림은 조금 밝게
     if job.get("out_png"):
         bpy.context.scene.render.filepath = job["out_png"]
         bpy.ops.render.render(write_still=True)

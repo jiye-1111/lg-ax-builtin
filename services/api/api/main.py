@@ -6,7 +6,7 @@ import os
 import time
 from collections import defaultdict, deque
 from functools import lru_cache
-from typing import Literal, Optional
+from typing import Annotated, Literal, Optional
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
 from fastapi.concurrency import run_in_threadpool
@@ -731,15 +731,26 @@ def render(pid: str, body: Optional[RenderBody] = None, s: Service = S):
     return s.render(pid, body.date if body else None, body.time if body else None)
 
 
+Coord = Annotated[float, Field(ge=-1000, le=1000)]
+
+
+class ViewCamera(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    pos: Annotated[list[Coord], Field(min_length=3, max_length=3)]     # 웹 3D 좌표 (m, Y가 위)
+    target: Annotated[list[Coord], Field(min_length=3, max_length=3)]
+    fov: float = Field(ge=10, le=120)                                   # 세로 화각 (도)
+
+
 class PhotorealIn(BaseModel):
     image: str = Field(max_length=12_000_000)  # 지금 3D 화면 (data URL)
     mask: str = Field(max_length=12_000_000)   # 같은 시점, LG 제품만 흰색
     spot: Optional[str] = Field(None, pattern=r"^[A-Za-z0-9_:-]{1,60}$")  # 둘러보기에서 들르는 곳 (곳마다 한 장씩 남긴다)
+    camera: Optional[ViewCamera] = None  # 지금 시점. 이미지 AI를 못 쓸 때 서버의 Blender가 같은 자리에서 그린다
 
 
 @app.post("/api/projects/{pid}/photoreal")
 def photoreal(pid: str, body: PhotorealIn, s: Service = S):
-    return s.photoreal(pid, body.image, body.mask, body.spot)
+    return s.photoreal(pid, body.image, body.mask, body.spot, body.camera.model_dump() if body.camera else None)
 
 
 @app.get("/api/projects/{pid}/photoreal/spots")
