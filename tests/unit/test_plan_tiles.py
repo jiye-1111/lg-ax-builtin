@@ -66,7 +66,7 @@ class Answers:
 
 
 def test_tiles_add_what_the_first_look_missed(monkeypatch):
-    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    monkeypatch.setenv("PLAN_AI_TILES", "1")
     # 조각마다 조각 좌표로 창 하나를 답한다. 위쪽 벽 위에 오는 조각 것만 붙는다
     c = Answers(plan(), TileRead(openings=[TileOpening(type="window", x1=300, y1=0, x2=500, y2=0)]))
     out = read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
@@ -76,31 +76,31 @@ def test_tiles_add_what_the_first_look_missed(monkeypatch):
 
 
 def test_failed_tiles_keep_the_first_reading(monkeypatch):
-    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    monkeypatch.setenv("PLAN_AI_TILES", "1")
     c = Answers(plan(), RuntimeError("timeout"))
     assert read_plan(drawing(), "image/png", "a.png", client=c, provider="openai") == plan()
 
 
-def test_tiles_can_be_turned_off_and_skip_pdf(monkeypatch):
-    monkeypatch.setenv("PLAN_AI_TILES", "0")
+def test_tiles_are_off_unless_the_server_turns_them_on_and_skip_pdf(monkeypatch):
+    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
     c = Answers(plan(), TileRead())
     read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
     assert len(c.calls) == 1
-    monkeypatch.delenv("PLAN_AI_TILES")
+    monkeypatch.setenv("PLAN_AI_TILES", "1")
     c = Answers(plan(), TileRead())
     read_plan(b"%PDF-1.4", "application/pdf", "a.pdf", client=c, provider="openai")
     assert len(c.calls) == 1
 
 
 def test_tiles_are_skipped_when_printed_dimensions_disagree_with_the_picture(monkeypatch):
-    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    monkeypatch.setenv("PLAN_AI_TILES", "1")
     c = Answers(plan(w=14000, d=3000), TileRead())  # 그림은 7:4.6인데 치수로 읽은 집은 14:3
     read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
     assert len(c.calls) == 1
 
 
 def test_estimated_size_is_reshaped_to_the_picture_then_tiles_run(monkeypatch):
-    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    monkeypatch.setenv("PLAN_AI_TILES", "1")
     first = plan(w=14000, d=3000).model_copy(update={"scale_from": "door_width"})
     c = Answers(first, TileRead())
     out = read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
