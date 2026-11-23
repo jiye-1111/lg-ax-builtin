@@ -261,3 +261,10 @@ def test_walk_tour_bar():
     assert "tourStops(" in REMODEL and "findPath(" in REMODEL
     assert "walkTo(" in viewer and "onWalkStop" in viewer
     assert ".walk-tour" in css and "./js/stops.js" in sw
+
+
+def test_walk_plan_is_calm():
+    """지예: 걸어 보기 도면이 알록달록하면 안 된다. 문·창·제품 테두리는 베이지 계열, 빨강은 선 곳에만."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    for sel in (".door", ".window", ".zone", ".placed:not(.v-no_fit) rect"):
+        assert f".studio.walking .minimap .plan {sel}" in css, sel
