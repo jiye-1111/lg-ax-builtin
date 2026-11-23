@@ -247,14 +247,16 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             raise Invalid(f"집 이름은 {HOME_NAME_MAX}자까지 쓸 수 있어요")
         name = name or Path(filename).stem.strip()[:HOME_NAME_MAX] or None
         try:
-            room = room_from_plan((reader or self.plan_reader or read_plan)(data, self.FLOORPLAN_TYPES[ext], Path(filename).name))
+            plan = (reader or self.plan_reader or read_plan)(data, self.FLOORPLAN_TYPES[ext], Path(filename).name)
+            room = room_from_plan(plan)
         except (PlanReadError, ValueError) as e:
             raise Invalid(str(e)) from e
         pid = self.db.next_id("p")
         d = self.pdir(pid)
         (d / "scan").mkdir(parents=True, exist_ok=True)
         (d / "scan" / "room.json").write_text(room.model_dump_json(indent=1), encoding="utf-8")
-        scan = {"source": "floorplan_image", "usdz": None,
+        # scale_from: dimensions(도면 치수) | door_width(치수가 없어 방문 폭 90 cm로 어림)
+        scan = {"source": "floorplan_image", "usdz": None, "scale_from": plan.scale_from,
                 "room_json": str((d / "scan" / "room.json").relative_to(self.root)), "scanned_by": "customer"}
         self.db.put("project", pid, self._new_project(pid, name, scan, user))
         self.set_floorplan(pid, data, filename)  # 읽은 도면은 그대로 붙여 둔다 (도면·실측 창에서 다시 볼 수 있게)
