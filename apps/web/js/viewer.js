@@ -300,6 +300,26 @@ export function makeViewer(el, handlers = {}) {
     }
   };
 
+  let down = null, dragging = null;
+  // 내장 그래픽처럼 느린 PC에서는 곱게 그린 한 장이 오래 걸려 둘러볼 때 뚝뚝 끊긴다.
+  // 움직이는 동안에는 후처리(접촉 그림자)를 쉬고 가볍게 그리다가, 멈추면 다시 곱게 그린다. 빠른 PC는 늘 곱게 그린다.
+  const SLOW_FRAME_MS = 28, SETTLE_MS = 220;
+  const seenPos = new THREE.Vector3(), seenQuat = new THREE.Quaternion();
+  let fullMs = 0, lastBusy = 0, prevFull = false, liteFrames = 0;
+  const renderFrame = (now, dtMs) => {
+    if (prevFull) fullMs = fullMs ? fullMs * 0.8 + dtMs * 0.2 : dtMs; // 곱게 그린 다음 장까지 걸린 시간
+    const moves = !!held || !!dragging || (walkers.length > 0 && !walkersPaused);
+    if (moves || !cam.position.equals(seenPos) || !cam.quaternion.equals(seenQuat)) lastBusy = now;
+    seenPos.copy(cam.position); seenQuat.copy(cam.quaternion);
+    const lite = now - lastBusy < SETTLE_MS && fullMs > SLOW_FRAME_MS;
+    prevFull = !lite;
+    if (!lite) { renderer.shadowMap.autoUpdate = true; composer.render(); return; }
+    liteFrames += 1;
+    renderer.shadowMap.autoUpdate = moves; // 시점만 움직일 때는 그림자를 다시 만들 필요가 없다
+    renderer.setRenderTarget(null);
+    renderer.render(scene, cam);
+  };
+
   (function loop() {
     if (!alive) return;
     // 느린 PC에서도 걷는 빠르기가 같게 (한 번에 길게 가도 walk.step이 잘게 나눠 벽을 안 뚫는다)
@@ -321,7 +341,7 @@ export function makeViewer(el, handlers = {}) {
     stepWalkers(dt);
     if (starter.visible) starterMixer?.update(dt);
     stepSunFn?.(dt);
-    composer.render();
+    renderFrame(now, dt * 1000);
     requestAnimationFrame(loop);
   })();
   // ---------- 해 ----------
@@ -672,7 +692,6 @@ export function makeViewer(el, handlers = {}) {
     const o = ray.intersectObjects(targets, false)[0]?.object;
     return o ? { type: o.userData.kind, id: o.name, top: [o.position.x, o.position.y + o.scale.y / 2, o.position.z] } : null;
   };
-  let down = null, dragging = null;
   let wallPick = false; // 벽 철거: 벽을 눌러 고르는 중
   let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
   const onDown = (e) => {
@@ -1237,6 +1256,8 @@ export function makeViewer(el, handlers = {}) {
     },
     walkStop() { stopGlide(); },
     /** 지금 선 자리 (E2E 확인용) */
+    /** 그리기 상태 (점검용): 곱게 그린 한 장에 걸리는 시간(ms), 가볍게 그린 장 수 */
+    renderInfo() { return { fullMs: Math.round(fullMs), liteFrames }; },
     walkInfo() {
       if (!walk) return null;
       euler.setFromQuaternion(cam.quaternion);
