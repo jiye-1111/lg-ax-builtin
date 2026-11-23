@@ -52,7 +52,7 @@ test("현관에서는 방 안쪽을, 가전 앞에서는 가전을, 창 앞에�
   const fr = stops.find((s) => s.name === "냉장고 앞");
   assert.ok(fr.pos[0] > FRIDGE.center_xz[0] + 0.8 && fwd(fr)[0] < -0.9, "냉장고 정면에서 냉장고를 본다");
   const win = stops.find((s) => s.name === "창 앞");
-  assert.ok(win.pos[0] > 4.5 && fwd(win)[0] > 0.9, "큰 창(오른쪽 벽) 앞에서 밖을 본다");
+  assert.ok(win.pos[0] > 3.9 && fwd(win)[0] > 0.9, "큰 창(오른쪽 벽) 앞에서 밖을 본다");
 });
 
 test("가전을 안 놓았거나 가구를 치우면 그 곳은 빠진다", () => {

@@ -163,3 +163,40 @@ def test_ai_picture_that_zoomed_in_is_scaled_back_before_products_go_on():
     assert score > photoreal.ALIGN_MIN
     diff = np.abs(np.asarray(fixed, dtype=int) - np.asarray(view, dtype=int)).mean()
     assert diff < 6
+
+
+# ---- 둘러보기에서 들르는 곳마다 실사 한 장씩 ----
+def test_tour_photo_is_kept_per_spot_with_the_scene_version(c, svc, pid):
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask)}
+    assert c.get(f"/api/projects/{pid}/photoreal/spots").json() == {"spots": {}}
+    a = c.post(f"/api/projects/{pid}/photoreal", json={**body, "spot": "door"})
+    b = c.post(f"/api/projects/{pid}/photoreal", json={**body, "spot": "pl:pl_ab12"})
+    assert a.status_code == 200 and b.status_code == 200 and a.json()["url"] != b.json()["url"]
+    for r in (a, b):
+        img = c.get(r.json()["url"])
+        assert img.status_code == 200 and Image.open(io.BytesIO(img.content)).size == (W, H)
+    spots = c.get(f"/api/projects/{pid}/photoreal/spots").json()["spots"]
+    version = c.get(f"/api/projects/{pid}").json()["version"]
+    assert set(spots) == {"door", "pl:pl_ab12"}
+    assert spots["door"] == {"url": a.json()["url"], "version": version}
+    # 한 장짜리 실사는 그대로 따로 남는다
+    one = c.post(f"/api/projects/{pid}/photoreal", json=body).json()["url"]
+    assert "photoreal.png" in one and one not in {v["url"] for v in spots.values()}
+
+
+def test_tour_photos_have_their_own_limit(c, svc, pid):
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask)}
+    codes = [c.post(f"/api/projects/{pid}/photoreal", json={**body, "spot": f"s{i}"}).status_code for i in range(13)]
+    assert codes[:12] == [200] * 12 and codes[12] == 429
+    # 둘러보기를 다 써도 한 장짜리는 따로 센다
+    assert c.post(f"/api/projects/{pid}/photoreal", json=body).status_code == 200
+
+
+def test_tour_photo_rejects_odd_spot_names(c, pid):
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask)}
+    for bad in ["../x", "a/b", "", "x" * 80, "a b"]:
+        assert c.post(f"/api/projects/{pid}/photoreal", json={**body, "spot": bad}).status_code == 422, bad
+    assert c.get(f"/api/projects/{pid}/photoreal/spots/..%2Fphotoreal.png").status_code in (404, 422)

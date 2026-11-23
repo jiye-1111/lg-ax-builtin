@@ -7,7 +7,7 @@ import { smoothPath } from "./walker.js";
 const MAX_STOPS = 8;
 const BODY = RADIUS + 0.1;        // 서는 자리 둘레에 두는 빈 거리 (m)
 const DOOR_IN = 0.9;              // 문에서 안으로 들어와 서는 거리
-const WINDOW_IN = 0.8;            // 창에서 떨어져 서는 거리
+const WINDOW_IN = 1.8;            // 창에서 떨어져 서는 거리 (창틀이 다 보이게)
 const VIEW_GAPS = [2.2, 1.6, 1.2, 0.9, 0.6]; // 가구·가전을 볼 때 떨어져 서는 거리: 넉넉한 곳부터
 const APART = 0.8;                // 들를 곳끼리 이보다 가까우면 하나만 남긴다
 const NEAR_STOP = 1.0;            // 이 안에 서 있으면 그 곳에 있는 것으로 본다
