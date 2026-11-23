@@ -153,6 +153,7 @@ export function makeViewer(el, handlers = {}) {
   overlay.rotation.x = -Math.PI / 2;
   overlay.position.y = 0.004;
   overlay.visible = false;
+  let overlayTurn = 0;
   overlay.renderOrder = 1;
   scene.add(overlay);
   const products = new THREE.Group();
@@ -919,12 +920,14 @@ export function makeViewer(el, handlers = {}) {
     routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], yaw: +(-routerG.rotation.y).toFixed(3) }; },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
     setOverlay(inner, box) {
+      const turn = ++overlayTurn; // 그림은 늦게 뜬다: 그 사이 지우거나 새로 그렸으면 늦게 온 것은 버린다 (끈 동선이 다시 뜨던 문제)
       if (!inner || !box) { overlay.visible = false; return; }
       const [x0, y0, w, h] = box;
       const px = 1024, k = px / Math.max(w, h);
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${Math.round(w * k)}" height="${Math.round(h * k)}" viewBox="${x0} ${y0} ${w} ${h}"><style>${OVERLAY_CSS}</style>${inner}</svg>`;
       const img = new Image();
       img.onload = () => {
+        if (turn !== overlayTurn) return;
         const cv = document.createElement("canvas");
         cv.width = img.width; cv.height = img.height;
         cv.getContext("2d").drawImage(img, 0, 0);
