@@ -98,19 +98,19 @@ def plan_sketch(plan: PlanRead) -> bytes:
     return out.getvalue()
 
 
-def _ask(client, provider: str, system: str, content: list[dict]) -> PlanRead | None:
+def _ask(client, provider: str, system: str, content: list[dict], schema=PlanRead):
     if provider == "openai":
         r = client.chat.completions.parse(
             model=PLAN_OPENAI_MODEL,
             messages=[{"role": "system", "content": system}, {"role": "user", "content": content}],
-            response_format=PlanRead,
+            response_format=schema,
             **({"reasoning_effort": os.getenv("PLAN_AI_OPENAI_EFFORT", "medium")} if openai_extra(PLAN_OPENAI_MODEL) else {}),
         )
         msg = r.choices[0].message
         return None if getattr(msg, "refusal", None) else msg.parsed
     r = client.beta.messages.parse(
         model=PLAN_MODEL, max_tokens=8000, system=system,
-        messages=[{"role": "user", "content": content}], output_format=PlanRead,
+        messages=[{"role": "user", "content": content}], output_format=schema,
     )
     return None if r.stop_reason == "refusal" else getattr(r, "parsed_output", None)
 
@@ -148,4 +148,8 @@ def read_plan(data: bytes, content_type: str, filename: str = "floorplan", clien
         raise PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요")
     if out.readable and out.walls and os.getenv("PLAN_AI_REVIEW") == "1":
         out = _review(client, provider, content, out)
+    if out.readable and out.walls and (os.getenv("PLAN_AI_TILES") or "1") == "1" and content_type != "application/pdf":
+        from .plan_tiles import read_tiles
+
+        out = read_tiles(data, out, client, provider)
     return out

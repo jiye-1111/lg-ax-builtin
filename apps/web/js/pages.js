@@ -90,7 +90,7 @@ export async function selfScan() {
     go.disabled = true;
     try {
       if (!picked.scan) { // 도면만: 도면에서 벽·문·창을 읽어 집을 만든다
-        go.textContent = "도면을 읽는 중… 1분쯤 걸려요";
+        go.textContent = "도면을 읽는 중… 2분쯤 걸려요";
         const fd = new FormData();
         fd.append("file", picked.plan, picked.plan.name);
         const made = await api("/api/projects/from-plan", { method: "POST", body: fd });
@@ -101,7 +101,7 @@ export async function selfScan() {
       go.textContent = "집을 3D로 만드는 중…";
       const p = await create(picked.scan, picked.scan.name);
       if (picked.plan) {
-        go.textContent = "도면 치수로 맞추는 중… 1분쯤 걸려요";
+        go.textContent = "도면 치수로 맞추는 중… 2분쯤 걸려요";
         // 도면에서 탈이 나도 스캔으로 만든 집은 그대로 연다
         const done = await uploadFloorplan(p.project_id, picked.plan).catch((e) => ({ floorplan: { note: e.message } }));
         toast(planResult(done.floorplan), !done.floorplan?.applied);
@@ -315,7 +315,7 @@ export function floorplanBox(el, pid, project, onChange) {
     : `<label class="drop" style="display:block;cursor:pointer">도면 이미지·PDF 올리기<input type="file" id="fpFile" accept=".png,.jpg,.jpeg,.webp,.pdf" hidden></label>`;
   const input = el.querySelector("#fpFile");
   if (input) input.onchange = guard(async () => { if (input.files[0]) {
-    el.querySelector(".drop").firstChild.textContent = "도면을 읽는 중… 1분쯤 걸려요";
+    el.querySelector(".drop").firstChild.textContent = "도면을 읽는 중… 2분쯤 걸려요";
     const done = await uploadFloorplan(pid, input.files[0]);
     toast(planResult(done.floorplan), !!done.floorplan?.note); onChange();
   } });
