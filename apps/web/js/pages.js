@@ -28,11 +28,12 @@ export async function selfScan() {
         </div>
         <div class="start">
           <section class="start-box" aria-labelledby="upH">
-            <h2 id="upH">내 집 스캔 올리기</h2>
+            <h2 id="upH">내 집 올리기</h2>
             <div class="slots">
-              ${slotHtml("scan", ICON_SCAN, "스캔 파일", "필수", "USDZ · UGScan 앱에서 내보낸 파일", ".usdz,.usd,.usda,.usdc")}
-              ${slotHtml("plan", ICON_PLAN, "도면", "선택", "이미지나 PDF · 있으면 더 정확해요", ".png,.jpg,.jpeg,.webp,.pdf")}
+              ${slotHtml("scan", ICON_SCAN, "스캔 파일", "", "USDZ · UGScan 앱에서 내보낸 파일", ".usdz,.usd,.usda,.usdc")}
+              ${slotHtml("plan", ICON_PLAN, "도면", "", "이미지나 PDF · 치수가 적힌 평면도", ".png,.jpg,.jpeg,.webp,.pdf")}
             </div>
+            <p class="slots-note" id="slotsNote">${SLOT_NOTE.none}</p>
             <div class="start-foot"><a class="quiet" href="#/r">스캔이 어렵다면 기사 방문 신청</a>
               <button class="primary" id="go" disabled>3D로 만들기</button></div>
           </section>
@@ -62,7 +63,8 @@ export async function selfScan() {
     el.querySelector(".slot-name").textContent = f ? f.name : "";
     el.querySelector(".slot-file").hidden = !f;
     if (!f) el.querySelector("input").value = "";
-    go.disabled = !picked.scan;
+    go.disabled = !picked.scan && !picked.plan;
+    document.getElementById("slotsNote").textContent = SLOT_NOTE[picked.scan ? (picked.plan ? "both" : "scan") : picked.plan ? "plan" : "none"];
   };
   document.querySelectorAll("[data-slot]").forEach((el) => {
     const kind = el.dataset.slot, input = el.querySelector("input");
@@ -84,11 +86,24 @@ export async function selfScan() {
   };
   const openHome = (p) => { location.hash = `#/c/${p.project_id}?t=${p.share_token}`; };
   go.onclick = guard(async () => {
-    if (!picked.scan) return;
-    go.disabled = true; go.textContent = "집을 3D로 만드는 중…";
+    if (!picked.scan && !picked.plan) return;
+    go.disabled = true;
     try {
+      if (!picked.scan) { // 도면만: 도면에서 벽·문·창을 읽어 집을 만든다
+        go.textContent = "도면을 읽는 중… 1분쯤 걸려요";
+        const fd = new FormData();
+        fd.append("file", picked.plan, picked.plan.name);
+        openHome(await api("/api/projects/from-plan", { method: "POST", body: fd }));
+        return;
+      }
+      go.textContent = "집을 3D로 만드는 중…";
       const p = await create(picked.scan, picked.scan.name);
-      if (picked.plan) await uploadFloorplan(p.project_id, picked.plan);
+      if (picked.plan) {
+        go.textContent = "도면 치수로 맞추는 중… 1분쯤 걸려요";
+        // 도면에서 탈이 나도 스캔으로 만든 집은 그대로 연다
+        const done = await uploadFloorplan(p.project_id, picked.plan).catch((e) => ({ floorplan: { note: e.message } }));
+        toast(planResult(done.floorplan), !done.floorplan?.applied);
+      }
       openHome(p);
     } catch (e) { go.disabled = false; go.textContent = "3D로 만들기"; throw e; }
   });
@@ -142,9 +157,24 @@ export async function selfScan() {
   render();
 }
 
+// 무엇을 올렸는지에 따라 무슨 일이 일어나는지 한 줄로
+const SLOT_NOTE = {
+  none: "둘 중 하나만 있어도 돼요. 같이 올리면 스캔한 벽 길이를 도면 치수로 맞춰요.",
+  scan: "스캔으로 집을 만들어요. 도면도 올리면 벽 길이를 도면 치수로 맞춰요.",
+  plan: "도면에서 벽과 문, 창을 읽어 집을 만들어요. 가구는 비어 있어요.",
+  both: "스캔으로 집을 만들고, 벽 길이를 도면 치수로 맞춰요.",
+};
+
+// 도면을 올린 뒤 무슨 일이 있었는지 한 문장
+export function planResult(fp) {
+  if (!fp) return "도면을 첨부했어요";
+  if (fp.applied) return fp.applied.walls.length ? `벽 ${fp.applied.walls.length}곳을 도면 치수로 맞췄어요` : "도면과 스캔한 벽 길이가 이미 같아요";
+  return fp.note ? `도면은 붙여 뒀어요. ${fp.note}` : "도면을 첨부했어요";
+}
+
 function slotHtml(kind, icon, title, need, hint, accept) {
-  return `<div class="slot" data-slot="${kind}" role="button" tabindex="0" aria-label="${title} 올리기 (${need})">
-    ${icon}<span class="slot-t"><b>${title}</b><em class="${need === "필수" ? "need" : ""}">${need}</em></span>
+  return `<div class="slot" data-slot="${kind}" role="button" tabindex="0" aria-label="${title} 올리기">
+    ${icon}<span class="slot-t"><b>${title}</b>${need ? `<em>${need}</em>` : ""}</span>
     <span class="slot-hint">${hint}</span>
     <span class="slot-file" hidden><span class="slot-name"></span><button class="slot-x" type="button" aria-label="${title} 빼기" title="빼기">×</button></span>
     <input type="file" id="${kind === "scan" ? "file" : "fp"}" accept="${accept}" hidden></div>`;
@@ -237,12 +267,12 @@ export function installRequestBox(el, pid, project, onDone) {
 }
 
 // ---------- 공용: 벽 실측 표 · 도면 ----------
-export const BY = { technician: "기사", customer: "고객" };
+export const BY = { technician: "기사", customer: "고객", floorplan: "도면" };
 
 export function wallTable(tbody, pid, room, { by, sel, onChange }) {
   tbody.innerHTML = room.walls.map((w) => `
     <tr data-row="${w.wall_id}" ${sel === w.wall_id ? 'style="background:var(--lg-soft)"' : ""}>
-      <td><b>${w.wall_id}</b>${w.measured?.by ? ` <span class="badge src">${BY[w.measured.by] || esc(w.measured.by)} 실측</span>` : ""}</td>
+      <td><b>${w.wall_id}</b>${w.measured?.by ? ` <span class="badge src">${w.measured.by === "floorplan" ? "도면 치수" : `${BY[w.measured.by] || esc(w.measured.by)} 실측`}</span>` : ""}</td>
       <td class="mono">${w.scanned.length_m.toFixed(3)}</td><td class="mono">${w.scanned.height_m.toFixed(3)}</td>
       <td><input class="mono" name="length_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.length_m ?? ""}"></td>
       <td><input class="mono" name="height_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.height_m ?? ""}"></td>
@@ -276,10 +306,15 @@ export function floorplanBox(el, pid, project, onChange) {
   el.innerHTML = fp ? `
       <div class="row"><b>${esc(fp.name)}</b><span class="spacer"></span>
         <a class="btn ghost small" href="${url}" target="_blank" rel="noopener">크게 보기</a><button class="small ghost" id="fpDel">삭제</button></div>
+      ${project.scan?.source === "floorplan_image" ? `<p class="hint-sm">이 도면을 읽어서 만든 집이에요.</p>` : fp.applied || fp.note ? `<p class="hint-sm">${esc(planResult(fp))}</p>` : ""}
       ${fp.content_type.startsWith("image/") ? `<img class="floorplan" src="${url}" alt="도면">` : `<p class="muted">PDF 도면이 첨부되어 있습니다.</p>`}`
-    : `<label class="drop" style="display:block;cursor:pointer">도면 이미지·PDF 선택 (선택 사항)<input type="file" id="fpFile" accept=".png,.jpg,.jpeg,.webp,.pdf" hidden></label>`;
+    : `<label class="drop" style="display:block;cursor:pointer">도면 이미지·PDF 올리기<input type="file" id="fpFile" accept=".png,.jpg,.jpeg,.webp,.pdf" hidden></label>`;
   const input = el.querySelector("#fpFile");
-  if (input) input.onchange = guard(async () => { if (input.files[0]) { await uploadFloorplan(pid, input.files[0]); toast("도면을 첨부했습니다"); onChange(); } });
+  if (input) input.onchange = guard(async () => { if (input.files[0]) {
+    el.querySelector(".drop").firstChild.textContent = "도면을 읽는 중… 1분쯤 걸려요";
+    const done = await uploadFloorplan(pid, input.files[0]);
+    toast(planResult(done.floorplan), !!done.floorplan?.note); onChange();
+  } });
   const del = el.querySelector("#fpDel");
   if (del) del.onclick = guard(async () => { await api(`/api/projects/${pid}/floorplan`, { method: "DELETE" }); onChange(); });
 }
@@ -297,7 +332,7 @@ export async function technicianHome() {
       <select id="by"><option value="technician">서비스센터 기사</option><option value="customer">고객 셀프 스캔 (L1)</option></select>
       <label>USDZ 파일</label>
       <div class="drop" id="drop">파일을 끌어다 놓거나 <u>선택</u>하세요<input type="file" id="file" accept=".usdz,.usd,.usda,.usdc" hidden></div>
-      <label>도면 (선택) — 있으면 함께 첨부, 판정에는 쓰지 않고 참고용으로 보여 줍니다</label>
+      <label>도면 (선택) — 같이 올리면 스캔한 벽 길이를 도면 치수로 맞춥니다</label>
       <input type="file" id="fp" accept=".png,.jpg,.jpeg,.webp,.pdf">
       <div class="row" style="margin-top:12px">
         <a class="muted" href="${apiUrl("/api/samples/synthetic_room.usdz")}">합성 샘플 USDZ 받기</a>

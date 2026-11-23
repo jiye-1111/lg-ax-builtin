@@ -805,6 +805,7 @@ table.techs td { vertical-align: middle; }
 .slot-t em { font-style: normal; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; color: var(--graphite); background: var(--drafting); }
 .slot-t em.need { color: #fff; background: var(--lg); }
 .slot-hint { font-size: var(--t-xs); color: var(--graphite); line-height: 1.45; }
+.slots-note { margin: 10px 2px 0; font-size: var(--t-xs); color: var(--graphite); line-height: 1.5; }
 .slot.has .slot-hint { display: none; }
 .slot-file { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 3px 4px 3px 10px; border-radius: 999px; background: var(--drafting); font-size: var(--t-xs); }
 .slot-file[hidden] { display: none; }

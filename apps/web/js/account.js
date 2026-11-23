@@ -144,7 +144,7 @@ export async function myHomes() {
   box.innerHTML = ps.length ? ps.slice().reverse().map((p) => `
     <li><a href="#/c/${esc(p.project_id)}?t=${esc(p.share_token)}">
       <b>${esc(p.style?.prompt || "스캔한 집")} <small class="muted">${esc(p.project_id)}</small></b>
-      <span>${p.scan.scanned_by === "customer" ? "셀프 스캔" : "기사 방문 스캔"} · 제품 ${p.scene_state.placements.length}개${p.updated_at ? ` · ${timeKo(p.updated_at)} 수정` : ""}</span>
+      <span>${p.scan.source === "floorplan_image" ? "도면으로 만든 집" : p.scan.scanned_by === "customer" ? "셀프 스캔" : "기사 방문 스캔"} · 제품 ${p.scene_state.placements.length}개${p.updated_at ? ` · ${timeKo(p.updated_at)} 수정` : ""}</span>
       <span class="go">이어서 꾸미기</span></a></li>`).join("")
     : `<li class="empty">아직 저장한 집이 없어요. 스캔을 올리거나, 꾸미던 집 화면에서 저장을 누르면 여기에 모여요.</li>`;
 }
