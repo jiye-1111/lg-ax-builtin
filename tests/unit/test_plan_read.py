@@ -138,3 +138,13 @@ def test_sketch_is_a_png_with_every_wall():
     im = Image.open(BytesIO(plan_sketch(box())))
     assert im.format == "PNG" and min(im.size) >= 400
     assert im.convert("L").getextrema()[0] < 60  # 벽 선이 그려져 있다
+
+
+def test_asking_about_the_scale_gets_a_go_ahead_and_one_more_try(monkeypatch):
+    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    asks = PlanRead(readable=False, scale_from="none",
+                    reason="치수 숫자가 보이지 않아요. 문 하나를 900mm로 가정해도 괜찮을지 확인해 주세요.")
+    c = TwoAnswers(asks, box().model_copy(update={"scale_from": "door_width"}))
+    out = read_plan(b"x", "application/pdf", client=c, provider="openai")
+    assert out.readable and len(c.calls) == 2
+    assert "900" in c.calls[1]["messages"][1]["content"][-1]["text"]

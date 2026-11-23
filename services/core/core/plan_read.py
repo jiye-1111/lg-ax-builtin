@@ -38,6 +38,8 @@ SYSTEM = """집 평면도 한 장을 보고 벽, 문, 창의 위치를 mm 좌표
 
 평면도가 아니거나 너무 흐려서 벽을 알아볼 수 없으면 readable=false로 하고 reason에 한국어 한 문장으로 이유를 쓴다."""
 ASK = "이 도면의 벽, 문, 창을 옮겨 적어 주세요."
+GO_ON = "네, 치수가 없으면 문 폭을 900 mm로 어림해서 그대로 옮겨 적어 주세요. 다시 묻지 말고 끝까지 적어 주세요."
+_SCALE_WORDS = ("치수", "스케일", "축척", "문 폭", "900")
 
 
 class PlanReadError(Exception):
@@ -144,6 +146,13 @@ def read_plan(data: bytes, content_type: str, filename: str = "floorplan", clien
     except Exception as e:
         log.warning("도면 읽기 실패 (%s): %s", provider, e)
         raise PlanReadError("도면을 읽다가 멈췄어요. 잠시 뒤에 다시 올려 주세요") from e
+    if out is not None and not out.readable and any(w in (out.reason or "") for w in _SCALE_WORDS):
+        # 읽을 수는 있는데 크기를 어림해도 되는지 되묻는 경우다. 된다고 답하고 한 번 더 받는다.
+        try:
+            out = _ask(client, provider, SYSTEM, content[:-1] + [{"type": "text", "text": ASK + " " + GO_ON}])
+        except Exception as e:  # noqa: BLE001
+            log.warning("도면 다시 읽기 실패 (%s): %s", provider, e)
+            raise PlanReadError("도면을 읽다가 멈췄어요. 잠시 뒤에 다시 올려 주세요") from e
     if out is None:
         raise PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요")
     if out.readable and out.walls and os.getenv("PLAN_AI_REVIEW") == "1":
