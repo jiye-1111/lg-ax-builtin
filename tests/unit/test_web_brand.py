@@ -115,3 +115,9 @@ def test_logo_goes_to_start_screen_without_demo_tag():
     html = (WEB / "index.html").read_text(encoding="utf-8")
     assert 'class="brand" href="#/new"' in html
     assert ">시연<" not in html
+
+
+def test_sample_home_is_always_fetched_fresh():
+    """샘플 집을 고친 뒤에도 브라우저에 남은 예전 파일로 집이 만들어지지 않게 한다."""
+    pages = (WEB / "js" / "pages.js").read_text(encoding="utf-8")
+    assert 'fetch(apiUrl(`/api/samples/${h.file}`), { cache: "no-cache" })' in pages
