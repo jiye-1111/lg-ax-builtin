@@ -126,3 +126,8 @@ export function spawnPoint(world) {
   }
   return c;
 }
+
+/** 화면에 보이는 것보다 얼마나 천천히 돌지. 1이면 화면 높이만큼 끌 때 세로 시야각만큼 돈다. */
+export const LOOK_RATIO = 0.4;
+/** 둘러보기에서 화면을 끌 때 1픽셀에 도는 각도(rad). 화면 크기에 맞춰 정해서 큰 화면에서도 휙 돌지 않는다. */
+export const lookRadPerPx = (fovDeg, heightPx) => (LOOK_RATIO * fovDeg * Math.PI) / 180 / Math.max(1, heightPx);

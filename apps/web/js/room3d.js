@@ -3,11 +3,11 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { finishTexture, tileMeters, BUMP, ROUGH } from "./finishes.js";
+import { paintParts, lookOf } from "./furncolors.js";
 
 const FURN_DIR = "models/furniture/";
 const PLANK_M = 2.4;          // 바닥 무늬 한 장이 덮는 길이 (m)
 const BASEBOARD_H = 0.08;
-const COUNTER_MAX_M = 1.0; // 이보다 낮은 스캔 수납장은 하부장으로 본다
 const FRAME_W = 0.05;
 
 // ---------- 스캔 가구 모델 ----------
@@ -50,7 +50,18 @@ export function fitFurniture(tmpl, ref, size) {
 }
 
 /** 스캔 가구 상자를 모델로 바꾼다. 상자는 안 보이게 두고 고르기(raycast)에만 쓴다. */
-export function furnish(model, isCurrent, categoryOf = () => null) {
+/** 고른 색을 가구의 칠할 부분(천·문짝·나무)에 입힌다. 재질은 가구마다 따로 쓴다 */
+export function tintFurniture(group, look, hex) {
+  const parts = paintParts(look);
+  if (!hex || !parts.length) return;
+  group.traverse((o) => {
+    if (!o.isMesh || !parts.includes(o.material.name)) return;
+    if (!o.userData.ownMaterial) { o.material = o.material.clone(); o.userData.ownMaterial = true; }
+    o.material.color.set(hex);
+  });
+}
+
+export function furnish(model, isCurrent, categoryOf = () => null, colorOf = () => null) {
   const boxes = [];
   model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object") boxes.push(o); });
   for (const box of boxes) {
@@ -58,12 +69,13 @@ export function furnish(model, isCurrent, categoryOf = () => null) {
     const cat = box.userData.category || categoryOf(box.name);
     if (!cat) continue;
     // 허리 높이 수납장은 주방 하부장이다: 상판 있는 하부장 모델로 그린다
-    const look = cat === "storage" && box.scale.y <= COUNTER_MAX_M ? "basecab" : cat;
+    const look = lookOf(cat, box.scale.y);
     furnitureTemplate(look).then((t) => {
       if (!t || !isCurrent()) return;
       const fitted = fitFurniture(t.scene, t.ref, box.scale);
       fitted.position.set(box.position.x, box.position.y - box.scale.y / 2, box.position.z);
       fitted.quaternion.copy(box.quaternion);
+      tintFurniture(fitted, look, colorOf(box.name));
       fitted.traverse((o) => { if (o.isMesh) { o.userData.kind = "object"; o.name = box.name; } });
       fitted.userData.objectId = box.name; // 집어 들 때 상자와 같이 움직인다
       box.material.visible = false;   // 그리지는 않고 고르기에만

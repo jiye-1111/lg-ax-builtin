@@ -331,6 +331,7 @@ class MoveIn(BaseModel):
     snap: bool = True
     color: Optional[str] = None
     sku: Optional[str] = Field(None, description="같은 모델의 다른 색·재질 SKU")
+    hex: Optional[str] = Field(None, pattern=r"^(#[0-9A-Fa-f]{6})?$", description="꾸미기 가구 색. 빈 글자면 원래 색으로")
     size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
 
 
@@ -570,6 +571,16 @@ def hide_wall(pid: str, wid: str, body: HiddenIn, s: Service = S):
     return s.set_wall_hidden(pid, wid, body.hidden)
 
 
+class ObjectColorIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    hex: Optional[str] = Field(None, pattern=r"^#[0-9A-Fa-f]{6}$", description="없으면 원래 색으로")
+
+
+@app.put("/api/projects/{pid}/objects/{oid}/color")
+def color_object(pid: str, oid: str, body: ObjectColorIn, s: Service = S):
+    return s.set_object_color(pid, oid, body.hex)
+
+
 @app.put("/api/projects/{pid}/openings/{oid}/hidden")
 def hide_opening(pid: str, oid: str, body: HiddenIn, s: Service = S):
     return s.set_opening_hidden(pid, oid, body.hidden)
@@ -603,7 +614,7 @@ def pose_check(pid: str, body: PoseIn, s: Service = S):
 
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
-    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m)
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m, body.hex)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")

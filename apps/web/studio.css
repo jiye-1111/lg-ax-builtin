@@ -1020,3 +1020,13 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 /* 되돌리기·다시는 화살표만 (글자 없이도 아는 모양) */
 .toolbar :is(#undo, #redo) { width: 38px; min-width: 38px; height: 46px; }
 .studio.app .toolbar :is(#undo, #redo) { width: 34px; min-width: 34px; height: 34px; }
+/* 가구 색 고르기: 3D 메뉴가 색 점 한 줄로 바뀐다 */
+.act-bar.colouring { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px 10px; border-radius: 16px; }
+.act-bar.colouring.near::after { display: none; }
+.act-bar .cl-row { display: flex; gap: 8px; justify-content: center; }
+.act-bar .cl-dot { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 1px solid rgba(60, 48, 30, .18); background: var(--c); cursor: pointer; transition: transform .12s; }
+.act-bar .cl-dot:hover { transform: scale(1.12); }
+.act-bar .cl-dot.on { outline: 2px solid var(--ink, #1f1b18); outline-offset: 2px; }
+.act-bar .cl-foot { display: flex; align-items: center; gap: 6px; }
+.act-bar .cl-name { font-size: 12.5px; font-weight: 600; color: var(--ink, #1f1b18); padding-left: 2px; }
+@media (max-width: 560px) { .act-bar .cl-row { flex-wrap: wrap; } .act-bar .cl-dot { width: 34px; height: 34px; } }

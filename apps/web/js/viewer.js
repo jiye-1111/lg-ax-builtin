@@ -3,6 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { lookRadPerPx } from "./walk.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
 import { lookYaw } from "./stops.js";
@@ -14,7 +15,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
-import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture } from "./room3d.js";
+import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 // 고른 것도 판정 색 그대로 (빨강 = 안 들어감으로 읽히므로 선택·필요 공간에 LG 레드를 쓰지 않는다)
@@ -147,6 +148,7 @@ export function makeViewer(el, handlers = {}) {
   ctl.screenSpacePanning = false; // 바닥과 나란히 움직여 시점이 바닥 아래로 빠지지 않게
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
+  let objectColors = {};         // 스캔 가구 id → 고른 색
   let model = null, framed = false, keepCam = false, alive = true, walls = [], center = new THREE.Vector3();
   const tmp = new THREE.Vector3(), toCam = new THREE.Vector3();
 
@@ -212,7 +214,7 @@ export function makeViewer(el, handlers = {}) {
   ro.observe(el);
   resize();
   // ---------- 1인칭 둘러보기 ----------
-  // 눈높이 1.6 m에서 WASD로 걷고, 화면을 누르면 마우스로 둘러본다(Esc로 풀림). 벽·가구·제품은 못 지나간다.
+  // 눈높이 1.6 m에서 WASD로 걷고, 화면을 끌어서 둘러본다(끄는 동안만 천천히 돈다). 벽·가구·제품은 못 지나간다.
   const plc = new PointerLockControls(cam, renderer.domElement);
   plc.pointerSpeed = 0.8;
   let camGlide = null; // 새로 놓은 제품 쪽으로 시점을 부드럽게 옮길 때
@@ -241,7 +243,7 @@ export function makeViewer(el, handlers = {}) {
   // 손으로 쓰는 화면에는 키보드 안내를 보이지 않는다
   const touchOnly = globalThis.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
   walkHud.innerHTML = touchOnly ? "화면을 끌어서 둘러봐요"
-    : "화면을 누르면 마우스로 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게 · <b>Esc</b> 마우스 풀기";
+    : "화면을 끌어서 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게";
   const cross = document.createElement("div");
   cross.hidden = true;
   Object.assign(cross.style, { position: "absolute", left: "50%", top: "50%", width: "6px", height: "6px", margin: "-3px 0 0 -3px",
@@ -552,6 +554,7 @@ export function makeViewer(el, handlers = {}) {
           if (preview) Object.assign(o.material, { transparent: true, opacity: 0.5, depthWrite: false });
         }
       });
+      if (tmpl.decor && p.hex && !preview) tintFurniture(m, p.sku.slice(p.sku.indexOf(":") + 1), p.hex); // 고른 가구 색
       g.add(m);
       if (p.sku === DOOR_SKU) g.add(...doorExtras(m, p, { selected, preview }));
     } else {
@@ -677,8 +680,10 @@ export function makeViewer(el, handlers = {}) {
       e.stopPropagation(); // 둘러보기에서는 고르기·집어 들기·배치 없음
       stopGlide();
       walkHud.hidden = true;
-      if (e.pointerType === "mouse" && !plc.isLocked) plc.lock();
-      else if (!plc.isLocked) look = { x: e.clientX, y: e.clientY };
+      // 마우스를 잠그지 않는다: 누른 채 끄는 동안만, 마우스가 가는 쪽으로 천천히 돈다
+      look = { x: e.clientX, y: e.clientY };
+      renderer.domElement.setPointerCapture?.(e.pointerId);
+      renderer.domElement.style.cursor = "grabbing";
       return;
     }
     if (e.button !== undefined && e.button !== 0) return;
@@ -698,8 +703,9 @@ export function makeViewer(el, handlers = {}) {
     if (walk) {
       if (look) {
         euler.setFromQuaternion(cam.quaternion);
-        euler.y -= (e.clientX - look.x) * 0.005;
-        euler.x = Math.max(-1.4, Math.min(1.4, euler.x - (e.clientY - look.y) * 0.005));
+        const perPx = lookRadPerPx(cam.fov, renderer.domElement.clientHeight); // 끈 만큼만 돈다
+        euler.y -= (e.clientX - look.x) * perPx; // 마우스가 가는 쪽을 본다
+        euler.x = Math.max(-1.4, Math.min(1.4, euler.x - (e.clientY - look.y) * perPx));
         cam.quaternion.setFromEuler(euler);
         look = { x: e.clientX, y: e.clientY };
       }
@@ -738,7 +744,7 @@ export function makeViewer(el, handlers = {}) {
     if (handlers.wantHoverHit?.()) handlers.onHoverHit?.(hoverHit(e));
   };
   const onUp = (e) => {
-    if (walk) { look = null; return; }
+    if (walk) { look = null; renderer.domElement.style.cursor = "grab"; return; }
     const d = down;
     down = null;
     ctl.enabled = true;
@@ -820,7 +826,7 @@ export function makeViewer(el, handlers = {}) {
         openWalls(last.list, true); // 창 자리 벽을 뚫고 그림자용 벽을 만든다 (dressRoom이 창 두께를 바꾸기 전에)
         walls.push(...dressRoom(model, finishSet));
         const mine = model;
-        furnish(model, () => alive && model === mine, (id) => objectCats[id]);
+        furnish(model, () => alive && model === mine, (id) => objectCats[id], (id) => objectColors[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) { frame(keepCam); framed = true; }
@@ -1129,7 +1135,7 @@ export function makeViewer(el, handlers = {}) {
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
     /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
     setFinishes(f) { finishSet = f || {}; },
-    setObjects(objects) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); },
+    setObjects(objects, colors) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); objectColors = colors || {}; },
     /** 화면에 그린 것 세기 (E2E 확인용) */
     stats() {
       let furniture = 0;

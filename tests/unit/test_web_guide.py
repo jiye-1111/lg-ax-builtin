@@ -280,3 +280,13 @@ def test_minimap_buttons_match_the_other_buttons():
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     rule = css.split("\n.minimap :is(.mini-grow, .pip-swap) {")[1].split("}")[0]
     assert "rgba(255, 255, 255" in rule and "var(--ink" in rule
+
+
+def test_scene_reloads_when_a_window_is_removed_or_furniture_recoloured():
+    """창을 없애거나 스캔 가구 색을 바꾸면 3D를 다시 읽어야 화면에 바로 보인다."""
+    key = REMODEL.split("const sceneKey = ")[1].split("\n")[0]
+    assert "hidden_openings" in key and "object_colors" in key
+
+
+def test_furniture_colour_is_picked_from_the_3d_menu():
+    assert 'actBtn("actColor", "color", "색")' in REMODEL and 'class="cl-dot' in REMODEL

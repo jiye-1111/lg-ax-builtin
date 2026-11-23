@@ -99,3 +99,11 @@ test("시작 자리는 가구·제품 코앞이 아니라 둘레가 트인 곳 (
   assert.equal(isBlocked(s, w), false);
   assert.equal(isBlocked(s, w, 0.6), false, `제품·벽에서 0.6 m 안: ${s}`);
 });
+
+test("둘러보기: 화면을 끝에서 끝까지 끌어도 시야각의 절반도 안 돈다 (휙 돌지 않는다)", async () => {
+  const { lookRadPerPx, LOOK_RATIO } = await import("../../apps/web/js/walk.js");
+  assert.ok(Math.abs(lookRadPerPx(60, 600) * 600 - LOOK_RATIO * Math.PI / 3) < 1e-9);
+  assert.ok(LOOK_RATIO < 0.5);
+  assert.ok(lookRadPerPx(70, 420) < 0.0016, "마우스를 잠그던 예전(픽셀당 0.0016)보다 천천히");
+  assert.ok(Number.isFinite(lookRadPerPx(60, 0)));
+});

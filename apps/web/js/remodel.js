@@ -14,6 +14,7 @@ import { optionSteps, priceScale } from "./options.js";
 import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, matchesQuery, parseManwon, wonText } from "./filters.js";
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
+import { coloursFor, lookOf, runOf } from "./furncolors.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
@@ -127,7 +128,7 @@ export async function customer(pid) {
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
-            <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>Esc</kbd> 마우스 풀기</li></ul>
+            <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li>화면을 끌어서 둘러보기</li></ul>
             <h4>저장 (로그인하면)</h4>
             <ul class="keys"><li><kbd>Ctrl</kbd><kbd>S</kbd> 지금 상태 저장 (맥 <kbd>⌘</kbd><kbd>S</kbd>) · 10초마다 자동 저장</li></ul>
           </div>
@@ -420,7 +421,7 @@ export async function customer(pid) {
     b.setAttribute("aria-pressed", walking);
     const top = document.getElementById("viewTop"); top.classList.toggle("on", !walking); top.setAttribute("aria-pressed", !walking);
     setHint();
-    if (walking) document.getElementById("hint").textContent = "둘러보기: 아래에서 가고 싶은 곳을 누르면 걸어가요 · 직접 걸으려면 W A S D · 화면을 누르면 마우스로 둘러봐요 · Esc 마우스 풀기";
+    if (walking) document.getElementById("hint").textContent = "둘러보기: 아래에서 가고 싶은 곳을 누르면 걸어가요 · 직접 걸으려면 W A S D · 화면을 끌어서 둘러봐요";
   };
   // 작은 도면을 누르면 그 자리로 걸어간다
   minimap.addEventListener("pointerdown", (e) => {
@@ -1426,6 +1427,7 @@ export async function customer(pid) {
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
     size: '<path d="M4 9V4h5M20 15v5h-5M4 4l7 7M20 20l-7-7"/>',
+    color: '<path d="M12 3.5c3 3.6 5.5 6.4 5.5 9.6a5.5 5.5 0 0 1-11 0c0-3.2 2.5-6 5.5-9.6z"/>',
     fill: '<path d="M4 4v16M20 4v16M8 12h8M8 12l3-3M8 12l3 3M16 12l-3-3M16 12l-3 3"/>',
   };
   // 조작 메뉴는 고른 제품 바로 위에 따라붙는다 (큰 화면). 앱 배치는 아래 고정
@@ -1543,6 +1545,26 @@ export async function customer(pid) {
     actBar.querySelectorAll("[data-preset]").forEach((b) => (b.onclick = () => apply(presets[+b.dataset.preset].size_mm)));
     document.getElementById("szDone").onclick = () => { sizing = null; renderAct(); };
   };
+  // 색 고르기: 3D 메뉴가 색 점 줄로 바뀐다. 누르면 바로 입혀진다 (놓은 가구도, 스캔한 가구도)
+  let colouring = null;
+  const paintOf = (x, o) => (x ? x.sku.slice(x.sku.indexOf(":") + 1) : o ? lookOf(o.category, o.bbox_m.h) : null);
+  const colourBar = (x, o) => {
+    const list = coloursFor(paintOf(x, o));
+    const cur = (x ? x.hex : (project.scene_state.object_colors || {})[o.object_id]) || null;
+    actBar.classList.add("colouring");
+    actBar.innerHTML = `<div class="cl-row" role="radiogroup" aria-label="가구 색">${list.map((c) =>
+      `<button class="cl-dot${cur === c.hex ? " on" : ""}" data-hex="${c.hex}" role="radio" aria-checked="${cur === c.hex}" aria-label="${esc(c.name)}" title="${esc(c.name)}" style="--c:${c.hex}"></button>`).join("")}</div>
+      <div class="cl-foot"><span class="cl-name">${esc(list.find((c) => c.hex === cur)?.name || "원래 색")}</span><span class="spacer"></span>
+        ${cur ? `<button class="ghost small" id="clReset">원래 색으로</button>` : ""}<button class="primary small" id="clDone">완료</button></div>`;
+    const apply = guard(async (hex) => {
+      if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: hex || "" }) });
+      else for (const oid of runOf(room.objects, o.object_id)) await put(`/api/projects/${pid}/objects/${oid}/color`, { hex: hex || null }); // 붙어 있는 한 줄은 같이
+      await refresh(true);
+    });
+    actBar.querySelectorAll("[data-hex]").forEach((b) => (b.onclick = () => apply(b.dataset.hex)));
+    document.getElementById("clReset")?.addEventListener("click", () => apply(null));
+    document.getElementById("clDone").onclick = () => { colouring = null; renderAct(); };
+  };
   // 빈틈에 맞추기: 장·가벽을 양옆 벽·가전 사이에 꽉 차게 (가전이 요구하는 옆 여유는 남긴다)
   const fitGap = guard(async (plid) => {
     rememberPlacement(plid);
@@ -1564,7 +1586,7 @@ export async function customer(pid) {
       const why = doorShut ? "앞에 문짝만큼 비워 주세요. R로 돌리면 반대쪽으로 열려요" : r ? `${r.label} · ${FIX[r.code] || "다른 자리로 옮겨 보세요"}` : "";
       fitBadge.innerHTML = `<b>${esc(head)}</b>${why ? `<span>${esc(why)}</span>` : ""}`;
     }
-    actBar.classList.remove("sizing");
+    actBar.classList.remove("sizing", "colouring");
     if (walking) { actBar.hidden = true; return; }
     if (armed) {
       actBar.hidden = false;
@@ -1576,15 +1598,21 @@ export async function customer(pid) {
     }
     const target = x ? { type: "placement", id: x.placement_id } : selObj ? { type: "object", id: selObj } : null;
     actBar.hidden = !target;
-    if (!target) { sizing = null; return; }
+    if (!target) { sizing = null; colouring = null; return; }
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku);
+    const obj = !x && room.objects.find((q) => q.object_id === selObj);
+    const paintable = (deco || obj) && coloursFor(paintOf(deco ? x : null, obj)).length > 0;
+    if (paintable && colouring === target.id) { colourBar(deco ? x : null, obj); return; }
+    if (colouring !== target.id) colouring = null;
     actBar.innerHTML = actBtn("actMove", "move", "이동") + actBtn("actRot", "rotate", "회전")
+      + (paintable ? actBtn("actColor", "color", "색") : "")
       + (deco ? actBtn("actSize", "size", "크기 조절") + (canFill(x.sku) ? actBtn("actFill", "fill", "빈틈 맞춤") : "") : x ? actBtn("actAlign", "align", "벽에 붙이기") : "")
       + (x ? actBtn("actCopy", "copy", "복사") : "") + (x && !deco ? actBtn("actInfo", "info", "상세") : "") + actBtn("actDel", "del", "삭제", "danger");
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); actBar.querySelector("[data-dim]")?.select(); });
+    document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; renderAct(); });
     document.getElementById("actFill")?.addEventListener("click", () => fitGap(x.placement_id));
     document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
     document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
@@ -2292,9 +2320,9 @@ export async function customer(pid) {
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
-    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.hidden_openings, project.scene_state.object_colors, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
     thumbSoon();
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects, project.scene_state.object_colors); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 휠 누르고 끌기 이동 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();
