@@ -934,3 +934,38 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 /* 휴대폰: 구매 신청 창은 위 머리줄 아래에서 시작하고(제목·닫기가 가려지지 않게), 상세·신청 창이 열려 있는 동안 하우니 버튼은 숨긴다 */
 @media (max-width: 900px) { .order-sheet { top: calc(var(--topbar) + 8px); } }
 body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display: none; }
+
+/* 걸어 보기의 둘러보기 줄: 들를 곳을 한 줄로, 지나온 곳까지 빨간 선. 3D 가운데를 가리지 않게 아래에 낮게 */
+.canvas .walk-tour { position: absolute; left: 224px; right: 92px; bottom: 12px; z-index: 5; max-width: 720px; margin: 0 auto; padding: 12px 18px 10px;
+  background: rgba(255, 255, 255, .94); border-radius: 16px; box-shadow: 0 6px 24px rgba(60, 40, 30, .14); backdrop-filter: blur(6px); }
+.walk-tour[hidden] { display: none; }
+.wt-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.wt-head b { font-size: 17px; font-weight: 700; color: var(--ink, #1f1b18); }
+.wt-play { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px 0 10px; border: 0; border-radius: 999px; background: #a50034; color: #fff; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.wt-play .ic { width: 16px; height: 16px; fill: currentColor; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; }
+.wt-play .wt-halt, .wt-play.on .wt-go { display: none; }
+.wt-play.on .wt-halt { display: inline; }
+.wt-play.on { background: #fff; color: #a50034; box-shadow: inset 0 0 0 1.5px #a50034; }
+.wt-line { --p: 0; position: relative; display: flex; justify-content: space-between; gap: 4px; margin: 0; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.wt-line::before, .wt-line::after { content: ""; position: absolute; left: 7px; top: 6px; height: 2px; border-radius: 2px; }
+.wt-line::before { right: 7px; background: #e6dfd6; }
+.wt-line::after { width: calc((100% - 14px) * var(--p)); background: #a50034; transition: width .5s ease; }
+.wt-line li { position: relative; z-index: 1; flex: 0 0 auto; }
+.wt-line li:first-child button { align-items: flex-start; }
+.wt-line li:last-child button { align-items: flex-end; }
+.wt-line button { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 0 2px; border: 0; background: none; font: inherit; font-size: 12.5px; color: #8a8179; cursor: pointer; white-space: nowrap; }
+.wt-line button i { width: 14px; height: 14px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #d9d0c5; transition: box-shadow .2s, background .2s; }
+.wt-line button.done i { box-shadow: inset 0 0 0 2px #a50034; }
+.wt-line button.on i { background: #a50034; box-shadow: 0 0 0 4px rgba(165, 0, 52, .16); }
+.wt-line button.on { color: var(--ink, #1f1b18); font-weight: 700; }
+.wt-line button:hover { color: var(--ink, #1f1b18); }
+.wt-line button:focus-visible, .wt-play:focus-visible { outline: 2px solid #a50034; outline-offset: 3px; border-radius: 8px; }
+.plan .stop-dot { fill: #fff; stroke: #a50034; stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.studio.walking .canvas .minimap { cursor: pointer; }
+.studio.walking .canvas .hint { display: none; } /* 안내는 줄 하나면 충분하다 */
+.studio.walking:not(.app) .side { visibility: hidden; } /* 걸어 보는 동안은 합계 칸을 접어 둘러보기 줄에 자리를 준다 */
+.studio.app .canvas .walk-tour { left: 96px; right: 8px; bottom: 8px; padding: 8px 12px 6px; }
+.studio.app .wt-head { margin-bottom: 8px; }
+.studio.app .wt-head b { font-size: 15px; }
+.studio.app .wt-play { height: 30px; font-size: 12.5px; }
+.studio.app .wt-line { gap: 14px; }

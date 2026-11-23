@@ -5,6 +5,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { PointerLockControls } from "three/addons/controls/PointerLockControls.js";
 import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
+import { lookYaw } from "./stops.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -223,6 +224,7 @@ export function makeViewer(el, handlers = {}) {
     if (e.key === "Shift") walk.keys.run = e.type === "keydown";
     if (!k) return;
     walk.keys[k] = e.type === "keydown";
+    if (e.type === "keydown") stopGlide(); // 직접 걸으면 데려다주던 걸음은 멈춘다
     walkHud.hidden = true; // 걷기 시작하면 안내는 접는다
     e.preventDefault();
     e.stopImmediatePropagation(); // 건축 모드 키(WASD 카메라·R 돌리기)와 겹치지 않게
@@ -232,7 +234,7 @@ export function makeViewer(el, handlers = {}) {
   const walkHud = document.createElement("div");
   walkHud.className = "walk-hud";
   walkHud.hidden = true;
-  Object.assign(walkHud.style, { position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)",
+  Object.assign(walkHud.style, { position: "absolute", left: "50%", top: "16px", transform: "translateX(-50%)",
     background: "rgba(20,22,26,.72)", color: "#fff", padding: "10px 14px", borderRadius: "10px", font: "13px/1.5 sans-serif",
     pointerEvents: "none", textAlign: "center", zIndex: 3 });
   walkHud.innerHTML = "화면을 누르면 마우스로 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게 · <b>Esc</b> 마우스 풀기";
@@ -244,7 +246,33 @@ export function makeViewer(el, handlers = {}) {
   el.append(walkHud, cross);
   plc.addEventListener("lock", () => { walkHud.hidden = true; cross.hidden = false; });
   plc.addEventListener("unlock", () => { if (walk) { walkHud.hidden = false; cross.hidden = true; } walk && (walk.keys = {}); });
+  // 들를 곳까지 데려다주기: 길을 따라 걸으면서 가는 쪽을 보고, 다 와서는 그곳에서 볼 방향으로 돈다
+  const GLIDE_SPEED = 1.5, GLIDE_TURN = 3.5, GLIDE_AHEAD_M = 0.6, GLIDE_FACE_M = 0.7, GLIDE_PITCH = -0.06;
+  const stopGlide = () => { if (walk?.glide) { walk.glide = null; handlers.onWalkStop?.(); } };
+  const glideTick = (dt) => {
+    const g = walk.glide;
+    euler.setFromQuaternion(cam.quaternion);
+    let want = g.yaw;
+    if (g.s < g.len) {
+      const left = g.len - g.s;
+      const v = GLIDE_SPEED * Math.max(0.2, Math.min(1, (g.s + 0.1) / 0.5, (left + 0.05) / 0.6)); // 천천히 떠나고 천천히 선다
+      g.s = Math.min(g.len, g.s + v * dt);
+      const p = poseAt(g.path, g.s).xz;
+      cam.position.set(p[0], EYE_H, p[1]);
+      if (left > GLIDE_FACE_M) {
+        const a = poseAt(g.path, Math.min(g.len, g.s + GLIDE_AHEAD_M)).xz;
+        if (Math.hypot(a[0] - p[0], a[1] - p[1]) > 0.05) want = lookYaw(p, a);
+      }
+    }
+    const k = Math.min(1, dt * GLIDE_TURN), off = Math.atan2(Math.sin(want - euler.y), Math.cos(want - euler.y));
+    euler.y += off * k;
+    euler.x += (g.pitch - euler.x) * k;
+    euler.z = 0;
+    cam.quaternion.setFromEuler(euler);
+    if (g.s >= g.len && Math.abs(off) < 0.03 && Math.abs(g.pitch - euler.x) < 0.03) { walk.glide = null; g.done?.(); }
+  };
   const walkTick = (dt) => {
+    if (walk.glide) { glideTick(dt); return; }
     euler.setFromQuaternion(cam.quaternion);
     const d = moveVector(euler.y, walk.keys, walk.keys.run ? RUN : WALK, dt);
     if (d[0] || d[1]) {
@@ -616,6 +644,7 @@ export function makeViewer(el, handlers = {}) {
   const onDown = (e) => {
     if (walk) {
       e.stopPropagation(); // 둘러보기에서는 고르기·집어 들기·배치 없음
+      stopGlide();
       walkHud.hidden = true;
       if (e.pointerType === "mouse" && !plc.isLocked) plc.lock();
       else if (!plc.isLocked) look = { x: e.clientX, y: e.clientY };
@@ -1149,11 +1178,30 @@ export function makeViewer(el, handlers = {}) {
       return !!walk;
     },
     walking() { return !!walk; },
+    /** 걸어 보기에서 길(평면 점들)을 따라 걸어가 yaw 쪽을 보고 선다. 다 오면 done. 길이 없으면 그 자리에서 돌기만 */
+    walkTo(path, yaw, done, pitch = GLIDE_PITCH) {
+      if (!walk) return false;
+      if (plc.isLocked) plc.unlock();
+      const pts = path?.length ? path : [[cam.position.x, cam.position.z]];
+      walk.glide = { path: pts, len: pathLength(pts), s: 0, yaw, pitch, done };
+      walk.keys = {};
+      walkHud.hidden = true;
+      return true;
+    },
+    /** 걸어 보기에서 그 자리에 바로 선다 (처음 들어갈 때) */
+    walkPlace(pos, yaw, pitch = GLIDE_PITCH) {
+      if (!walk) return false;
+      walk.glide = null;
+      cam.position.set(pos[0], EYE_H, pos[1]);
+      cam.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, "YXZ"));
+      return true;
+    },
+    walkStop() { stopGlide(); },
     /** 지금 선 자리 (E2E 확인용) */
     walkInfo() {
       if (!walk) return null;
       euler.setFromQuaternion(cam.quaternion);
-      return { pos: cam.position.toArray().map((v) => +v.toFixed(3)), yaw: +euler.y.toFixed(3), locked: plc.isLocked,
+      return { pos: cam.position.toArray().map((v) => +v.toFixed(3)), yaw: +euler.y.toFixed(3), locked: plc.isLocked, gliding: !!walk.glide,
         blocked: isBlocked([cam.position.x, cam.position.z], walk.world) };
     },
     /** 실제 해로 비춘다 (채광 API의 sun). null이면 기본 해. */
