@@ -12,7 +12,8 @@ export function gapNotes(gaps) {
     const q = gaps[key];
     if (!q || q.mm == null || !(q.need_mm > 0) || q.ok !== false) continue;
     const what = key === "top" ? "천장과" : (key === "back" ? BACK : SIDE)[q.kind] || (key === "back" ? "뒤쪽을" : "옆을");
-    out.push({ key, line: q.line || null, text: `${what} ${mm(q.need_mm - Math.max(q.mm, 0))} mm 더 띄워야 해요` });
+    const text = `${what} ${mm(q.need_mm - Math.max(q.mm, 0))} mm 더 띄워야 해요`;
+    if (!out.some((x) => x.text === text)) out.push({ key, line: q.line || null, text }); // 양옆이 같은 말이면 한 번만
   }
   return out;
 }

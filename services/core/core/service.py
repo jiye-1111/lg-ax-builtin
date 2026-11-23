@@ -850,6 +850,25 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                         return r
         return None
 
+    def _off_wall(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None) -> Pose:
+        """벽에 붙여 둔 제품을 돌려서 모서리가 벽에 박히면, 박힌 벽에서 필요한 만큼만(5 cm씩, 1 m까지) 방 안쪽으로 뗀다."""
+        from recommender.pose import _inward
+
+        def hit(q: Pose) -> list[str]:
+            return [z["ref"] for z in self._judge(room, p, prod, q, exclude).reasons if z["code"] == "hits_wall" and z.get("ref")]
+
+        walls = hit(pose)
+        if not walls:
+            return pose
+        nx = sum(_inward(room, room.wall(w)).v_axis[0] for w in walls)
+        nz = sum(_inward(room, room.wall(w)).v_axis[1] for w in walls)
+        n = math.hypot(nx, nz) or 1.0
+        for k in range(1, 21):
+            q = Pose((pose.center_xz[0] + nx / n * 0.05 * k, pose.center_xz[1] + nz / n * 0.05 * k), pose.yaw_rad, None)
+            if not hit(q):
+                return q
+        return pose
+
     SINK_CABINET_M = (0.6, 0.85, 0.6)
 
     def _add_sink_cabinet(self, room: Room, p: dict, x: dict) -> None:
@@ -1085,6 +1104,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             pose = self._settle(room, p, prod, pose, placement_id)
+            if center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3:  # 제자리에서 돌리기만 했으면
+                pose = self._off_wall(room, p, prod, pose, placement_id)
             self._carry(p, x, pose)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
             x["zone_id"] = None  # 옮긴 순간부터 자유 배치

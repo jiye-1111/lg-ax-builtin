@@ -17,6 +17,16 @@ const wonBucket = bucket([100, 200, 300, 500], "만 원", "이상"); // LGE.COM 
 
 export const INSTALL_STEP = { built_in: "빌트인", built_in_look: "빌트인", freestanding: "일반" };
 
+/** 색상 칩에 쓰는 짧은 이름: "오브제컬렉션 베이지 / 베이지", "오브제컬렉션 베이지 베이지" → "베이지" (같은 색이 여러 칩으로 갈리지 않게) */
+export function colorName(raw) {
+  if (!raw) return null;
+  const parts = String(raw).replace(/오브제컬렉션\s*/g, "").replace(/에센스화이트/g, "에센스 화이트").split("/").map((x) => x.trim()).filter(Boolean)
+    .map((x) => { const w = x.split(/\s+/), h = w.length / 2; return w.length % 2 === 0 && w.slice(0, h).join(" ") === w.slice(h).join(" ") ? w.slice(0, h).join(" ") : x; });
+  return [...new Set(parts)].join(" / ") || null;
+}
+/** 개수를 세는 단위: 목록이 모델(색만 다른 제품은 하나)로 보이므로 칩의 숫자도 모델 수 */
+export const modelKey = (v) => v.fam ?? v.sku ?? v;
+
 export const AXES = [
   { key: "install", label: "설치 방식", of: (v) => INSTALL_STEP[v.install_type] || null, order: ["빌트인", "일반"] },
   { key: "kind", label: "종류", of: (v) => v.options?.kind ?? null },
@@ -28,7 +38,7 @@ export const AXES = [
   { key: "screen_cm", label: "화면 크기", of: (v) => v.options?.screen_cm ?? null, numeric: true, fine: exact("cm"), coarse: cmBucket },
   { key: "door_type", label: "문 여는 방향", of: (v) => v.options?.door_type ?? null },
   { key: "door_material", label: "도어 재질", of: (v) => v.options?.door_material ?? null },
-  { key: "color", label: "색상", of: (v) => v.color ?? null },
+  { key: "color", label: "색상", of: (v) => colorName(v.color) },
   { key: "price", label: "가격대", of: (v) => (typeof v.price_krw === "number" ? v.price_krw / 10000 : null), numeric: true, fine: wonBucket, coarse: wonBucket },
 ];
 const MAX_FINE = 6; // 이보다 값이 많으면 구간으로 묶는다
@@ -46,13 +56,14 @@ export function optionSteps(variants, sel = {}, keys = null) {
     const distinct = new Set(raw.filter((x) => x != null));
     const fmt = ax.fine ? (distinct.size > MAX_FINE ? ax.coarse : ax.fine) : (x) => x;
     const labels = raw.map((x) => (x == null ? null : fmt(x)));
-    const counts = new Map(), lowest = new Map();
+    const models = new Map(), lowest = new Map();
     labels.forEach((l, i) => {
       if (l == null) return;
-      counts.set(l, (counts.get(l) || 0) + 1);
+      models.set(l, (models.get(l) || new Set()).add(modelKey(remaining[i])));
       const n = typeof raw[i] === "number" ? raw[i] : firstNumber(raw[i]);
       lowest.set(l, Math.min(lowest.get(l) ?? Infinity, n));
     });
+    const counts = new Map([...models].map(([l, set]) => [l, set.size]));
     if (counts.size < 2) continue;
     const values = [...counts].map(([label, count]) => ({ label, count }));
     if (ax.order) values.sort((a, b) => ax.order.indexOf(a.label) - ax.order.indexOf(b.label));

@@ -894,3 +894,26 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
 /* 살아 보기 칸은 3D 가운데를 가리지 않게 좁게 */
 .studio:not(.app) .canvas .sheet { width: min(380px, calc(100% - 24px)); padding: 12px 14px; }
 .time-bar .tb-now { font-size: 13px; }
+
+/* 좁은 화면: 하우니가 오른쪽 위에 있으니 보기 버튼과 살아 보기 스위치는 왼쪽으로 (서로 가리지 않게) */
+.studio.app .view-stack { left: 8px; right: auto; top: 56px; }
+.studio.app .canvas > .sim-switches { left: 8px; right: auto; top: 8px; }
+.studio.app .fit-badge { top: auto; bottom: 64px; }
+/* 좁아도 아이콘 아래 이름은 남긴다 (이름 없는 아이콘은 무엇인지 알 수 없다) */
+.studio.app .toolbar .icon-btn[data-l]::after { display: block; }
+@media (max-width: 560px) {
+  .studio.app .fbtn:not(.primary) { padding: 0 8px; font-size: 12.5px; gap: 0; }
+  .studio.app .fbtn .ic { display: none; }
+  .studio.app .fbtn { padding: 0 10px; }
+}
+
+/* 제품 상세의 가격, 구매 신청의 가격·합계 */
+.pd-title .pd-price { margin: 4px 0 10px; font-size: 20px; font-weight: 700; color: var(--ink); }
+.order-list li { grid-template-columns: auto minmax(0, 1fr) auto; }
+.order-list .order-price { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.order-list .order-fix { grid-column: 2 / -1; justify-self: start; }
+.order-list li.nofit { border-color: var(--lg); background: #fbf4f6; }
+.order-all { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 2px 4px; font-size: 14px; }
+.order-all b { font-size: 20px; }
+.facing.guess { font-weight: 400; color: var(--graphite); }
+.hint-sm.warn { color: var(--lg); font-weight: 600; }

@@ -1,7 +1,8 @@
 // 왼쪽 필터의 순수 로직 (apps/web/js/filters.js). 실행: node --test tests/web/
 import test from "node:test";
 import assert from "node:assert/strict";
-import { appliedFilters, clearFilter, detailCount, installCounts, parseManwon, wonText } from "../../apps/web/js/filters.js";
+import { appliedFilters, clearFilter, detailCount, installCounts, matchesQuery, parseManwon, wonText } from "../../apps/web/js/filters.js";
+import { colorName, optionSteps } from "../../apps/web/js/options.js";
 
 const NAMES = { cat: { refrigerator: "냉장고" } };
 const EMPTY = { cat: "", sel: {}, budget: null, fW: "", fH: "", q: "" };
@@ -71,4 +72,42 @@ test("가격 칩: 한쪽 끝이 범위 끝에 닿아 있으면 이하·이상으
   assert.equal(chip({ lo: 200000, hi: 3000000, atMin: true }), "300만원 이하");
   assert.equal(chip({ lo: 2000000, hi: 5100000, atMax: true }), "200만원 이상");
   assert.equal(chip({ lo: 2000000, hi: 3000000 }), "200만 ~ 300만원");
+});
+
+test("설치 방식 개수는 목록과 같은 단위(모델)로 센다: 색만 다른 제품은 하나", () => {
+  const vs = [{ fam: "a", install_type: "built_in" }, { fam: "a", install_type: "built_in" }, { fam: "a", install_type: "built_in" },
+    { fam: "b", install_type: "freestanding" }, { fam: "b", install_type: "freestanding" }];
+  assert.deepEqual(installCounts(vs), { 빌트인: 1, 일반: 1 });
+});
+
+test("옵션 칩의 숫자도 모델 수다", () => {
+  const vs = [{ fam: "a", options: { doors: 4 } }, { fam: "a", options: { doors: 4 } }, { fam: "b", options: { doors: 2 } }];
+  const doors = optionSteps(vs, {}).steps.find((st) => st.key === "doors");
+  assert.deepEqual(doors.values, [{ label: 2, count: 1 }, { label: 4, count: 1 }]);
+});
+
+test("같은 색은 이름이 조금 달라도 한 칩으로 모은다", () => {
+  for (const raw of ["오브제컬렉션 베이지 / 베이지", "오브제컬렉션 베이지", "오브제컬렉션 베이지 베이지", "베이지"]) assert.equal(colorName(raw), "베이지");
+  assert.equal(colorName("오브제컬렉션 에센스화이트"), "에센스 화이트");
+  assert.equal(colorName("오브제컬렉션 에센스 화이트 / 에센스 화이트"), "에센스 화이트");
+  assert.equal(colorName("오브제컬렉션 클레이 민트 / 베이지"), "클레이 민트 / 베이지");
+  assert.equal(colorName("프라임 실버"), "프라임 실버");
+  assert.equal(colorName(null), null);
+  const vs = [{ fam: "a", color: "오브제컬렉션 베이지 / 베이지" }, { fam: "b", color: "오브제컬렉션 베이지" }, { fam: "c", color: "화이트" }];
+  assert.deepEqual(optionSteps(vs, {}).steps.find((st) => st.key === "color").values.map((v) => v.label), ["베이지", "화이트"]);
+});
+
+test("검색은 띄어 쓴 낱말이 모두 들어 있으면 찾는다", () => {
+  const fridge = { words: ["냉장고", "LG 디오스 AI 오브제컬렉션 냉장고 (832L)", "S834MEE30", "양문형", "베이지"], liters: [832] };
+  assert.ok(matchesQuery("양문형 냉장고", fridge));
+  assert.ok(matchesQuery("  디오스   s834 ", fridge));
+  assert.ok(!matchesQuery("양문형 세탁기", fridge));
+  assert.ok(matchesQuery("", fridge));
+});
+
+test("검색에 용량을 어림수로 넣으면 그 근처 용량을 찾는다 (800 → 800리터대)", () => {
+  const fridge = { words: ["냉장고", "LG 디오스 냉장고 (832L)"], liters: [832] };
+  assert.ok(matchesQuery("양문형 냉장고 800".replace("양문형 ", ""), fridge));
+  assert.ok(matchesQuery("832", fridge));
+  assert.ok(!matchesQuery("냉장고 600", fridge));
 });

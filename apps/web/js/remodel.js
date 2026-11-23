@@ -10,7 +10,7 @@ import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 import { fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
 import { optionSteps, priceScale } from "./options.js";
-import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, parseManwon, wonText } from "./filters.js";
+import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, matchesQuery, parseManwon, wonText } from "./filters.js";
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
@@ -47,7 +47,7 @@ export async function customer(pid) {
             <button class="primary small app-only" id="orderMini" hidden>구매·설치 신청</button>
             <button class="ghost small app-only" id="libMore" aria-expanded="false">전체 보기</button></div>
           <input id="q" class="lg-part" type="search" placeholder="이름·모델명 검색" aria-label="제품 검색">
-          <details class="fbox lg-part" id="filterBox" open>
+          <details class="fbox lg-part" id="filterBox">
             <summary><span class="fbox-t"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>필터</span><span class="fbox-n" id="filterN" hidden></span><span class="fbox-arrow" aria-hidden="true"></span></summary>
             <section class="fsec" aria-labelledby="fInstall"><h3 id="fInstall">설치 방식</h3>
               <div class="seg2" id="installSeg" role="group" aria-label="설치 방식"></div></section>
@@ -438,9 +438,20 @@ export async function customer(pid) {
   catalog = await api("/api/catalog");
   decorList = (await api("/api/decor").catch(() => ({ items: [] }))).items;
   // ---- 공간 꾸미기 라이브러리: 전체 / LG 가전 / 가구 / 수납 / 소품. 벽체·구조 변경은 전체 맨 위 ----
+  // 벽지·바닥 색 (탭을 집이 다 열리기 전에 눌러도 되게 탭보다 먼저 둔다)
+  let FIN = [];
+  const finById = (id) => FIN.find((f) => f.id === id);
+  const curFinish = (kind) => project?.scene_state.finish_ids?.[kind] || null;
+  const finishSet = () => Object.fromEntries(["wall", "floor"].map((k) => [k, finById(curFinish(k)?.id)]).filter(([, f]) => f));
+  const FIN_KIND = [["wall", "벽지"], ["floor", "바닥"]];
+  const toneLabel = (f, t) => `${TEXTURE_KO[f.texture]} ${t.name.replace(/ 톤$/, "")}`;
+  const finChip = (f, t) => {
+    const cur = curFinish(f.kind), on = cur?.id === f.id && cur.tone === t.hex, label = toneLabel(f, t);
+    return `<button class="fin-sw${on ? " on" : ""}" data-fin="${esc(f.id)}" data-tone="${esc(t.hex)}" role="radio" aria-checked="${on}" aria-label="${esc(label)}" title="${esc(label)}"><img src="${swatchUrl(f, t.hex, 96)}" alt="" width="48" height="48" draggable="false"></button>`;
+  };
   const libAside = studio.querySelector(".lib");
   const TABS = ["all", "lg", "furniture", "storage", "decor", "finish"];
-  let libTab = TABS.includes(saved.libTab) ? saved.libTab : "all";
+  let libTab = TABS.includes(saved.libTab) ? saved.libTab : "lg"; // 가전을 사러 온 사람이 먼저 보는 것은 가전
   const SECTION = [["structure", "벽체 & 구조 변경"], ["furniture", "가구"], ["storage", "수납 & 선반"], ["decor", "인테리어 소품"]];
   const tileHtml = (d) => `<button class="dtile" data-decor="${esc(d.sku)}" draggable="true" title="${esc(d.label)} 놓기">
       <span class="dimg"><img src="img/decor/${esc(d.model)}.webp" alt="" loading="lazy" decoding="async" draggable="false" onerror="this.remove()"></span><span>${esc(d.label)}</span></button>`;
@@ -450,11 +461,11 @@ export async function customer(pid) {
     const box = document.getElementById("decorLib");
     if (libTab === "finish") { renderFinishes(); return; }
     const groups = libTab === "all" ? SECTION : SECTION.filter(([g]) => g === libTab);
-    box.innerHTML = libTab === "lg" ? "" : groups.map(([g, title]) => {
+    box.innerHTML = libTab === "lg" ? "" : (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "") + groups.map(([g, title]) => {
       const items = decorList.filter((d) => d.group === g);
       const tiles = (g === "structure" ? [items.find((d) => d.sku === "decor:wall")].filter(Boolean).map(tileHtml).join("") + wallTile() + items.filter((d) => d.sku !== "decor:wall").map(tileHtml).join("") : items.map(tileHtml).join(""));
       return `<section class="dsec"><h3>${esc(title)}</h3><div class="dgrid">${tiles}</div></section>`;
-    }).join("") + (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "");
+    }).join("");
     box.querySelectorAll("[data-decor]").forEach((b) => {
       b.classList.toggle("on", b.dataset.decor === "decor:wall" ? !!wallDraw : b.dataset.decor === armed);
       b.onclick = () => {
@@ -630,7 +641,7 @@ export async function customer(pid) {
     libAside.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   };
   filterBox.addEventListener("toggle", () => { saveUiState(pid, { filterOpen: filterBox.open }); if (filterBox.open) syncCatsMore(); });
-  if (saved.filterOpen === false) filterBox.open = false;
+  if (saved.filterOpen === true) filterBox.open = true; // 처음에는 접어 둔다: 제품이 먼저 보이게
   // ---- 가격 범위: 지금 보이는 종류(예: 냉장고)의 실제 가격 범위 안에서 손잡이 두 개나 금액 입력으로 예산을 맞춘다 ----
   let budget = null, budgetScope = "", scale = null; // budget: {lo, hi} (원), 범위 전체면 null. scale: 눈금 {lo, hi, step, open}
   const pLo = document.getElementById("pLo"), pHi = document.getElementById("pHi"), pLoIn = document.getElementById("pLoIn"), pHiIn = document.getElementById("pHiIn");
@@ -687,20 +698,22 @@ export async function customer(pid) {
     el.onfocus = () => el.select();
   }
   const renderLib = () => {
-    const q = qEl.value.trim().toLowerCase();
+    const q = qEl.value.trim();
     const fW = fWEl.value, fH = fHEl.value;
     const scope = shop.filter((f) => inScope(f.category));
+    const all = scope.flatMap((f) => f.variants.map((v) => ({ ...v, fam: f.family_id }))); // 칩의 숫자를 모델 수로 세려고 모델을 달아 둔다
+    const found = (f) => matchesQuery(q, { words: [CATEGORY[f.category], f.name, ...f.variants.flatMap((v) => [v.sku, v.color, v.options?.kind, v.options?.door_type])],
+      liters: f.variants.map((v) => v.options?.capacity_l).filter(Boolean) });
     // 종류를 아직 안 골랐으면 설치 방식(빌트인/일반)만, 골랐으면 그 종류의 옵션을 차례로
-    const narrowed = optionSteps(scope.flatMap((f) => f.variants), sel, cat ? null : ["install"]);
+    const narrowed = optionSteps(all, sel, cat ? null : ["install"]);
     sel = narrowed.sel;
-    renderInstall(optionSteps(scope.flatMap((f) => f.variants), { ...sel, install: undefined }, cat ? null : ["install"]).remaining);
+    renderInstall(optionSteps(all, { ...sel, install: undefined }, cat ? null : ["install"]).remaining);
     renderSteps(narrowed.steps);
     const left = new Set(narrowed.remaining.map((v) => v.sku));
     scope.forEach((f) => { // 고른 옵션에 맞는 SKU를 그 모델의 대표로
       if (!left.has(pick[f.family_id] || f.variants[0].sku)) { const v = f.variants.find((x) => left.has(x.sku)); if (v) pick[f.family_id] = v.sku; }
     });
-    const pre = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && (!q || (CATEGORY[f.category] || "").includes(q) || f.name.toLowerCase().includes(q)
-      || f.variants.some((v) => v.sku.toLowerCase().includes(q) || (v.color || "").toLowerCase().includes(q)))
+    const pre = scope.filter((f) => f.variants.some((v) => left.has(v.sku)) && found(f)
       && inRange(f.product_dims_mm?.w, fW) && inRange(f.product_dims_mm?.h, fH));
     setupBudget(pre);
     const items = pre.filter(inBudget);
@@ -781,7 +794,12 @@ export async function customer(pid) {
     const v = f.variants.find((x) => x.sku === sku) || {};
     const d = p.product_dims_mm || {}, sized = d.w && d.h && d.d;
     // 지예: 상세 창이 조잡하다 → 크기·색만 짧게 (설치 방식·옵션·모델명 표는 뺀다, 모델명은 제목 아래에)
+    const o = p.options || {};
+    const cap = o.capacity_l ? `${mm(o.capacity_l)} L` : o.capacity || [o.wash_kg && `세탁 ${o.wash_kg} kg`, o.dry_kg && `건조 ${o.dry_kg} kg`].filter(Boolean).join(" · ");
+    const price = typeof v.price_krw === "number" ? v.price_krw : p.price_krw;
+    // 살지 말지 정하려면 가격과 용량은 있어야 한다. 그 밖의 표는 넣지 않는다
     const rows = [
+      ["용량", cap ? esc(String(cap)) : ""],
       ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
       ["색상", esc(finishLabel(v))],
     ].filter(([, val]) => val);
@@ -791,6 +809,7 @@ export async function customer(pid) {
         <div class="pd-title">
           <h2>${esc(f.name)}</h2>
           <p class="muted">${esc(CATEGORY[p.category] || p.category)} · ${esc(sku)}</p>
+          ${typeof price === "number" ? `<p class="pd-price">${price.toLocaleString("ko-KR")}원</p>` : ""}
           ${f.demo_only ? `<span class="badge demo">가상 데이터 · 실제 제품 아님</span>` : ""}
           ${pdOptions(f, sku)}
         </div>
@@ -810,8 +829,8 @@ export async function customer(pid) {
     if (sized) place.onclick = () => {
       closeDetail();
       if (walking) setWalking(false);
-      arm(sku);
       openLib(false); // 앱에서는 서랍을 내려 3D 바닥이 보이게
+      autoPlace(sku); // 목록의 배치하기와 똑같이: 알맞은 자리에 바로 놓고, 옮기는 건 그다음에
     };
     place.focus({ preventScroll: true });
     pdModal.scrollTop = 0;
@@ -1416,7 +1435,7 @@ export async function customer(pid) {
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); actBar.querySelector("[data-dim]")?.select(); });
     document.getElementById("actFill")?.addEventListener("click", () => fitGap(x.placement_id));
     document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
-    document.getElementById("actRot").onclick = () => rotate(ROT_STEP);
+    document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
     document.getElementById("actAlign")?.addEventListener("click", () => autoAlign(x.placement_id));
     document.getElementById("actDel").onclick = () => removeSelected();
   };
@@ -1478,15 +1497,20 @@ export async function customer(pid) {
   const openOrder = () => {
     const pls = lgOnly(project.scene_state.placements); // 가구·소품은 꾸미기용이라 신청에 넣지 않는다
     const bad = pls.filter((x) => x.verdict === "no_fit").length;
+    const priceOf = (x) => (prodOf(x.sku) || {}).price_krw;
+    const known = pls.map(priceOf).filter((n) => typeof n === "number");
+    const sum = known.reduce((a, b) => a + b, 0);
     orderSheet.innerHTML = `
       <div class="order-head"><h2>구매 및 설치 신청</h2><button class="ghost small" id="orderClose">닫기</button></div>
       ${pls.length ? `<p class="order-sum">놓은 제품 <b>${pls.length}개</b>${bad ? ` · <b class="bad">${bad}개는 지금 자리에 설치하기 어려워요</b>` : " · 모두 설치할 수 있는 자리예요"}</p>
       <p class="hint-sm">${INSTALL_NOTE}</p>
-      <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li>
+      <ul class="order-list">${pls.map((x) => { const p = prodOf(x.sku) || { name: x.sku }; return `<li class="${x.verdict === "no_fit" ? "nofit" : ""}">
         <i class="dot" style="background:${esc(x.hex || "#fff")}"></i>
         <span class="nm">${esc(p.name)}<small>${esc(x.sku)}${x.color ? ` · ${esc(x.color)}` : ""}</small></span>
-        ${shownVerdict(x.verdict) === "fit" ? "" : `<span class="badge ${shownVerdict(x.verdict)}">${VERDICT_LABEL[x.verdict] || "판정 불가"}</span>`}
+        ${typeof p.price_krw === "number" ? `<b class="order-price">${p.price_krw.toLocaleString("ko-KR")}원</b>` : ""}
+        ${x.verdict === "no_fit" ? `<button class="btn small order-fix" data-fix="${esc(x.placement_id)}">자리 옮기기</button>` : ""}
         ${p.source_url && !p.demo_only ? `<a class="btn ghost small" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 구매</a>` : ""}</li>`; }).join("")}</ul>
+      ${known.length ? `<p class="order-all"><span>합계</span><b>${sum.toLocaleString("ko-KR")}원</b></p>` : ""}
       <p class="order-note">구매는 LGE.COM 제품 페이지에서 하고, 설치는 방문 신청을 하면 기사가 실측한 뒤 진행해요. 전원·배관 위치도 그때 확인해요.</p>
       <div class="order-actions ir-box" id="irBox"></div>`
       : `<p class="order-sum">아직 놓은 제품이 없어요.</p><p class="order-note">왼쪽 목록에서 제품을 골라 3D에 놓으면, 설치할 수 있는 자리인지 검사한 결과와 함께 신청할 수 있어요.</p>`}`;
@@ -1495,6 +1519,7 @@ export async function customer(pid) {
     const irBox = document.getElementById("irBox");
     if (irBox) installRequestBox(irBox, pid, project, () => refresh(true).then(() => { if (!orderSheet.hidden) openOrder(); }));
     document.getElementById("orderClose").onclick = closeOrder;
+    orderSheet.querySelectorAll("[data-fix]").forEach((b) => (b.onclick = () => { closeOrder(); focusPlacement(b.dataset.fix); }));
     document.getElementById("orderClose").focus({ preventScroll: true });
   };
   orderSheet.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); closeOrder(); } });
@@ -1510,7 +1535,7 @@ export async function customer(pid) {
   };
   // 설치 체크: 안 되는 것만, 왜 안 되는지와 어떻게 하면 되는지를 같이. 누르면 그 제품으로 간다
   const FIX = {
-    hits_wall: "벽에서 조금 떼거나 '자동 정렬'을 눌러 보세요", outside_room: "방 안쪽으로 옮겨 주세요",
+    hits_wall: "벽에서 조금 떼거나 '벽에 붙이기'를 눌러 보세요", outside_room: "방 안쪽으로 옮겨 주세요",
     overlaps_object: "가구를 옮기거나 '가구 치우기'로 치워 보세요", overlaps_placement: "다른 제품과 겹쳐요. 한쪽을 옮겨 주세요",
     not_on_wall: "벽이나 가벽 가까이를 누르면 벽에 달려요",
     surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
@@ -1593,16 +1618,6 @@ export async function customer(pid) {
   document.getElementById("renderClose").onclick = () => (document.getElementById("renderBox").hidden = true);
 
   // ---- 벽지·바닥: 색깔만 고른다 (왼쪽 ‘벽지·바닥’ 탭). 상표·품명은 보여 주지 않는다 ----
-  let FIN = [];
-  const finById = (id) => FIN.find((f) => f.id === id);
-  const curFinish = (kind) => project?.scene_state.finish_ids?.[kind] || null;
-  const finishSet = () => Object.fromEntries(["wall", "floor"].map((k) => [k, finById(curFinish(k)?.id)]).filter(([, f]) => f));
-  const FIN_KIND = [["wall", "벽지"], ["floor", "바닥"]];
-  const toneLabel = (f, t) => `${TEXTURE_KO[f.texture]} ${t.name.replace(/ 톤$/, "")}`;
-  const finChip = (f, t) => {
-    const cur = curFinish(f.kind), on = cur?.id === f.id && cur.tone === t.hex, label = toneLabel(f, t);
-    return `<button class="fin-sw${on ? " on" : ""}" data-fin="${esc(f.id)}" data-tone="${esc(t.hex)}" role="radio" aria-checked="${on}" aria-label="${esc(label)}" title="${esc(label)}"><img src="${swatchUrl(f, t.hex, 96)}" alt="" width="48" height="48" draggable="false"></button>`;
-  };
   function renderFinishes() {
     if (libTab !== "finish") return;
     const box = document.getElementById("decorLib");
@@ -1814,7 +1829,8 @@ export async function customer(pid) {
     // 적은 곳을 지도에서 못 찾아 동네까지만 찾았으면 어디 기준인지 한 줄로 알려 준다
     const near = project.site?.approx ? `<p class="sim-line">${esc(project.site.area || String(project.site.address || "").split(",")[0])} 근처 기준이에요</p>` : "";
     // 향 한 줄 아래에 시간 바: 끌면 그 시각의 볕으로 바로 바뀐다
-    box.innerHTML = (main ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>` : "") + near + `
+    box.innerHTML = (!main ? "" : project.site?.address ? `<p class="facing"><b>${esc(main.label)}</b> 집이에요</p>`
+      : `<p class="facing guess">주소를 넣으면 실제 방향으로 맞춰요. 지금은 큰 창이 남쪽이라고 봤어요.</p>`) + near + `
       <div class="time-bar"><span class="tb-end">${timeKo(lo)}</span>
         <input type="range" id="sunTime" min="${lo}" max="${hi}" step="10" value="${Math.round(simMin / 10) * 10}" aria-label="시각" aria-valuetext="${timeKo(simMin)}">
         <span class="tb-end">${timeKo(hi)}</span><b class="tb-now" id="sunNow">${timeKo(simMin)}</b></div>`;
@@ -2055,8 +2071,8 @@ export async function customer(pid) {
     version = v;
     [project, room, zones] = got;
     if (selPl && !project.scene_state.placements.some((q) => q.placement_id === selPl)) selPl = null;
-    const measured = room.walls.filter((w) => w.measured).length, n = project.scene_state.placements.length;
-    document.getElementById("sub").textContent = `${project.scan.scanned_by === "customer" ? "셀프 LiDAR 스캔" : "기사 방문 스캔"} · 벽 ${room.walls.length}개${measured ? ` (실측 ${measured}개)` : ""}${project.floorplan ? " · 도면 첨부" : ""} · 놓은 제품 ${n}개 · 마지막 갱신 ${new Date().toLocaleTimeString("ko-KR")}`;
+    const n = project.scene_state.placements.length;
+    document.getElementById("sub").textContent = n ? `놓은 제품 ${n}개` : "제품을 골라 우리 집에 놓아 보세요";
     draw();
     if (walking) viewer.setWalk(walkWorld()); // 옮긴 제품·치운 가구로 충돌을 다시
     if (simOn("daylight") && resOf("daylight")) guard(runDaylight)();
@@ -2120,26 +2136,17 @@ export async function customer(pid) {
       intro,
       { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요. 누르면 상세가 열리고 '넣어 보기'로 3D에 놓아요." },
       { sel: "#libMore", title: "전체 보기", text: "다른 제품을 찾거나 용량·색상·가격으로 좁히고 싶으면 여기를 눌러요." },
-      { sel: ".canvas", title: "우리 집 3D", text: "놓은 제품을 누르면 아래에 이동·회전·자동 정렬·삭제 버튼이 나와요. 두 손가락으로 확대하고, 끌면 시점이 돌아가요." },
-      { sel: ".icon-row", title: "되돌리기", text: "잘못 놓았으면 되돌리면 돼요. 물음표를 누르면 이 안내를 다시 볼 수 있어요." },
+      { sel: ".canvas", title: "우리 집 3D", text: "놓은 제품을 누르면 아래에 이동·회전·벽에 붙이기·삭제 버튼이 나와요. 두 손가락으로 확대하고, 끌면 시점이 돌아가요." },
       { sel: "#liveBtn", title: "살아 보기", text: "눈높이로 걸어 보고, 볕·와이파이·동선을 봐요." },
-      { sel: "#libTabs [data-tab=finish]", title: "벽지 · 바닥", text: "벽지와 바닥 색깔을 골라 바꿔 봐요." },
-      { sel: ".file-bar", title: "저장 · 불러오기", text: "꾸민 집을 저장하고, 저장해 둔 집을 불러와요. 새로 만들기로 다른 집도 스캔해 올릴 수 있어요." },
       { sel: "#orderMini", title: "구매 및 설치 신청", text: "마음에 들면 LGE.COM에서 구매하고, 설치 기사 방문을 바로 신청할 수 있어요." },
       { sel: "#botBtn", title: "하우니에게 물어보기", text: "\"600리터 넘는 냉장고\"처럼 말로 물어보면 제가 골라 드려요." },
       outro,
     ] : [
       intro,
-      { sel: ".file-bar", title: "저장 · 불러오기", text: "꾸민 집을 저장하고, 저장해 둔 집을 불러와요. 새로 만들기로 다른 집도 스캔해 올릴 수 있어요." },
-      { sel: ".lib-side", title: "제품 찾기", text: "설치 방식, 품목, 가격 범위 순서로 좁혀요. 색상·용량 같은 조건은 '상세 필터'에 있고, 고른 조건은 목록 위에 칩으로 보여요." },
-      { sel: "#sugg", title: "이 집에 들어가는 제품", text: "우리 집 벽을 따라 실제로 놓아 보고, 들어가는 제품만 골라 드려요." },
+      { sel: ".lib-side", title: "제품 찾기", text: "LG 가전, 가구, 벽지·바닥을 탭으로 골라요. '필터'를 열면 품목·가격·색상으로 좁힐 수 있어요." },
       { sel: "#lib", title: "제품 목록", text: "제품을 누르면 상세가 열리고, '넣어 보기'를 누르면 3D에 놓을 수 있어요." },
-      { sel: ".canvas", title: "우리 집 3D", text: "바닥을 누르면 제품이 놓여요. 놓은 제품을 누르면 아래에 이동·회전·자동 정렬·삭제 버튼이 나와요. 빈 곳을 끌면 시점이 돌아가요." },
-      { sel: ".icon-row", title: "되돌리기 · 다시 실행", text: "잘못 놓았으면 되돌리면 돼요. 전체 화면, 이 안내 다시 보기, 키보드 조작키도 여기 있어요." },
+      { sel: ".canvas", title: "우리 집 3D", text: "바닥을 누르면 제품이 놓여요. 놓은 제품을 누르면 아래에 이동·회전·벽에 붙이기·삭제 버튼이 나와요. 빈 곳을 끌면 시점이 돌아가요." },
       { sel: "#liveBtn", title: "살아 보기", text: "눈높이로 집 안을 걸어 보고, 하루 동안 볕이 어떻게 드는지, 와이파이가 어디까지 닿는지, 동선이 어떤지 봐요." },
-      { sel: "#libTabs [data-tab=finish]", title: "벽지 · 바닥", text: "벽지와 바닥 색깔을 골라 바꿔 봐요." },
-      { sel: "#extraBtn", title: "도면 · 실측", text: "도면이나 줄자로 잰 값이 있으면 넣어서 더 정확하게 판정해요. 없어도 괜찮아요." },
-      { sel: ".side", title: "설치 확인", text: "고른 제품이 설치 가능한지, 문 여는 공간과 지나다닐 통로, 그 자리의 채광·와이파이까지 한눈에 보여요." },
       { sel: "#orderBtn", title: "구매 및 설치 신청", text: "마음에 들면 LGE.COM에서 구매하고, 설치 기사 방문을 바로 신청할 수 있어요." },
       { sel: "#botBtn", title: "하우니에게 물어보기", text: "\"밝은 우드에 호텔처럼\", \"600리터 넘는 냉장고\"처럼 말로 물어보면 제가 골라 드려요." },
       outro,

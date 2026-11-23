@@ -134,3 +134,15 @@ def test_english_furniture_words_from_the_ai_are_put_into_korean():
     s = plain_ko("중심은 식탁(table)으로 두고 island나 basecab을 더해요. chair는 한쪽에.")
     assert not any(w in s for w in ("table", "island", "basecab", "chair"))
     assert "식탁" in s and "아일랜드" in s and "하부장" in s and "의자" in s
+
+
+def test_turning_a_product_that_stands_against_a_wall_moves_it_clear_of_the_wall(c):
+    pid = home(c)
+    x = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "G646GBB031"}).json()["placement"]
+    r = c.patch(f"/api/projects/{pid}/placements/{x['placement_id']}",
+                json={"center_xz": x["center_xz"], "yaw_rad": x["yaw_rad"] + math.pi / 4, "snap": False})
+    assert r.status_code == 200, r.text
+    y = r.json()["placement"]
+    assert y["yaw_rad"] == pytest.approx(x["yaw_rad"] + math.pi / 4)  # 돌린 방향은 그대로
+    assert not any(z["code"] == "hits_wall" for z in y["reasons"]), y["reasons"]
+    assert math.dist(y["center_xz"], x["center_xz"]) < 0.8  # 벽에서 필요한 만큼만 뗀다
