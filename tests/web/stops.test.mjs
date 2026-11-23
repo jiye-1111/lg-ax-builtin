@@ -106,3 +106,24 @@ test("가구 위를 고르면 그 옆 설 수 있는 자리를 준다", async ()
   assert.ok(p && !isBlocked(p, world) && Math.hypot(p[0] - 3, p[1] - 2) < 1.5);
   assert.equal(nearFree([30, 30], world), null);
 });
+
+test("창 앞은 창이 가려지지 않는 자리에 선다 (사이에 큰 장이 있으면 그 앞이 아니라 창 쪽)", () => {
+  // 큰 창(오른쪽 벽 x=6)에서 1.3 m 안쪽에 키 큰 장이 창을 가로막고 있다
+  const wall = { placement_id: "tall", sku: "decor:wardrobe", center_xz: [4.7, 2.2], size_m: [0.6, 2.2, 3.0], yaw_rad: Math.PI / 2 };
+  const world = buildWorld(ROOM, [wall]);
+  const win = tourStops(ROOM, [wall], [], world, NAMES).find((s) => s.name === "창 앞");
+  if (win) assert.ok(win.pos[0] > 5.0, `장 뒤에서 장만 보게 된다: ${win.pos}`);
+});
+
+test("가구·가전을 볼 때도 사이에 다른 가구가 끼지 않는 자리를 고른다", () => {
+  const stops = stopsOf();
+  const world = buildWorld(ROOM, [FRIDGE]);
+  const fr = stops.find((s) => s.name === "냉장고 앞");
+  // 선 자리에서 냉장고 앞면까지 0.1 m 간격으로 막힌 곳이 없어야 한다
+  const to = [FRIDGE.center_xz[0] + 0.45 + 0.2, FRIDGE.center_xz[1]];
+  const n = Math.ceil(Math.hypot(to[0] - fr.pos[0], to[1] - fr.pos[1]) / 0.1);
+  for (let i = 0; i <= n; i++) {
+    const p = [fr.pos[0] + ((to[0] - fr.pos[0]) * i) / n, fr.pos[1] + ((to[1] - fr.pos[1]) * i) / n];
+    assert.ok(!isBlocked(p, world, 0.05, 1.2), `사이에 키 큰 가구가 있다: ${p}`);
+  }
+});

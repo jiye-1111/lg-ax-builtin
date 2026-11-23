@@ -237,7 +237,10 @@ export function makeViewer(el, handlers = {}) {
   Object.assign(walkHud.style, { position: "absolute", left: "50%", top: "16px", transform: "translateX(-50%)",
     background: "rgba(20,22,26,.72)", color: "#fff", padding: "10px 14px", borderRadius: "10px", font: "13px/1.5 sans-serif",
     pointerEvents: "none", textAlign: "center", zIndex: 3 });
-  walkHud.innerHTML = "화면을 누르면 마우스로 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게 · <b>Esc</b> 마우스 풀기";
+  // 손으로 쓰는 화면에는 키보드 안내를 보이지 않는다
+  const touchOnly = globalThis.matchMedia?.("(hover: none) and (pointer: coarse)").matches;
+  walkHud.innerHTML = touchOnly ? "화면을 끌어서 둘러봐요"
+    : "화면을 누르면 마우스로 둘러봐요<br><b>W A S D</b> 걷기 · <b>Shift</b> 빠르게 · <b>Esc</b> 마우스 풀기";
   const cross = document.createElement("div");
   cross.hidden = true;
   Object.assign(cross.style, { position: "absolute", left: "50%", top: "50%", width: "6px", height: "6px", margin: "-3px 0 0 -3px",

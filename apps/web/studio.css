@@ -301,8 +301,10 @@
 .studio.app.lib-open :is(#orderMini, #libCount) { display: none !important; }
 .studio.app.lib-open .bot { display: none; }
 .studio.app .side { max-height: 40dvh; }
-.studio.app .side #insp .insp-photo { height: 84px; margin-bottom: 8px; }
+.studio.app .side #insp .insp-photo { height: 48px; margin-bottom: 8px; }
 .studio.app .side .insp-name { font-size: 16px; }
+/* 이름과 가격이 접히지 않고 한눈에 보이게 */
+.studio.app .side #insp .insp-price { margin: 2px 0 8px; }
 /* 앱 배치인데 가로가 넉넉하면(태블릿·작은 PC 창) 서랍을 오른쪽에 세워서 3D 높이를 지킨다 */
 @media (min-width: 700px) {
   .studio.app { grid-template-columns: minmax(0, 1fr) 320px; grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "head head" "stage dock"; }
@@ -1003,3 +1005,5 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .studio.walking .minimap .plan .placed:not(.v-no_fit) rect { stroke: #a39a8d; }
 .studio.walking .minimap .plan .placed.sel:not(.v-no_fit) rect { stroke: #a39a8d; }
 .studio.walking .minimap .plan :is(.scale, .compass) { display: none; }
+/* 휴대폰: 걸어 보기 안내는 위쪽 스위치 줄 아래에 둔다 */
+.studio.app .walk-hud { top: 76px !important; white-space: nowrap; }

@@ -7,7 +7,7 @@ import { smoothPath } from "./walker.js";
 const MAX_STOPS = 8;
 const BODY = RADIUS + 0.1;        // 서는 자리 둘레에 두는 빈 거리 (m)
 const DOOR_IN = 0.9;              // 문에서 안으로 들어와 서는 거리
-const WINDOW_IN = 1.8;            // 창에서 떨어져 서는 거리 (창틀이 다 보이게)
+const WINDOW_INS = [1.8, 1.2, 0.8]; // 창에서 떨어져 서는 거리 (창틀이 다 보이게 넉넉한 곳부터)
 const VIEW_GAPS = [2.2, 1.6, 1.2, 0.9, 0.6]; // 가구·가전을 볼 때 떨어져 서는 거리: 넉넉한 곳부터
 const APART = 0.8;                // 들를 곳끼리 이보다 가까우면 하나만 남긴다
 const NEAR_STOP = 1.0;            // 이 안에 서 있으면 그 곳에 있는 것으로 본다
@@ -36,6 +36,17 @@ export function nearFree(p, world, reach = 1.5, r = BODY) {
   return null;
 }
 
+const SIGHT_H = 1.2; // 이보다 낮은 가구(의자·탁자)는 시야를 가리지 않는다
+/** a에서 b 쪽을 볼 때 stop m 앞까지 키 큰 가구·제품·벽에 가리지 않는지 (10 cm 간격으로 본다) */
+function sees(a, b, world, stop) {
+  const d = dist(a, b), n = Math.ceil(Math.max(0, d - stop) / 0.1);
+  for (let i = 1; i <= n; i++) {
+    const t = (i * 0.1) / d;
+    if (isBlocked([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t], world, 0.05, SIGHT_H)) return false;
+  }
+  return true;
+}
+
 /** 벽에 난 문·창의 가운데와 방 안쪽을 향하는 단위 벡터 */
 function openingPose(op, room, world) {
   const w = (room.walls || []).find((x) => x.wall_id === op.wall_id);
@@ -59,6 +70,7 @@ function viewSpot(c, half, world, mid, front, taken) {
       const facing = front ? dir[0] * front[0] + dir[1] * front[1] : 0;
       if (front && facing < 0.3) continue; // 옆이나 뒤에서 보지 않는다
       if (isBlocked(q, world, BODY) || taken.some((t) => dist(t, q) < APART)) continue;
+      if (!sees(q, c, world, half + 0.15)) continue; // 사이에 다른 가구가 끼면 그것만 보인다
       const score = front ? facing : -dist(q, mid);
       if (score > bs + 1e-9) { bs = score; best = q; }
     }
@@ -95,8 +107,12 @@ export function tourStops(room, placements, hidden, world, names = {}) {
   }
   const win = widest("window") && openingPose(widest("window"), room, world);
   if (win) {
-    const pos = nearFree([win.c[0] + win.n[0] * WINDOW_IN, win.c[1] + win.n[1] * WINDOW_IN], world);
-    if (pos && !taken().some((t) => dist(t, pos) < APART)) add("window", "창 앞", pos, lookYaw([0, 0], [-win.n[0], -win.n[1]]), 0);
+    for (const back of WINDOW_INS) { // 창이 가려지지 않는 가장 넉넉한 자리. 없으면 창 앞은 들르지 않는다
+      const pos = [win.c[0] + win.n[0] * back, win.c[1] + win.n[1] * back];
+      if (isBlocked(pos, world, BODY) || !sees(pos, win.c, world, 0.3) || taken().some((t) => dist(t, pos) < APART)) continue;
+      add("window", "창 앞", pos, lookYaw([0, 0], [-win.n[0], -win.n[1]]), 0);
+      break;
+    }
   }
   for (const cat of VISIT) {
     const o = (room.objects || []).filter((x) => x.category === cat && !gone.has(x.object_id))

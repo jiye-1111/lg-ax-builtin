@@ -16,12 +16,12 @@ export function buildWorld(room, placements = [], hidden = []) {
   const boxes = [];
   for (const o of room.objects || []) {
     if (gone.has(o.object_id)) continue;
-    boxes.push({ id: o.object_id, ...obb([o.position[0], o.position[2]], o.bbox_m.w, o.bbox_m.d, o.yaw_rad || 0) });
+    boxes.push({ id: o.object_id, h: o.bbox_m.h, ...obb([o.position[0], o.position[2]], o.bbox_m.w, o.bbox_m.d, o.yaw_rad || 0) });
   }
   for (const p of placements || []) {
     if (!p.size_m || !p.center_xz) continue;
     // 제품 yaw는 벽 안쪽 법선 방향 → 상자 회전은 yaw - 90° (glb.py와 같음)
-    boxes.push({ id: p.placement_id, ...obb(p.center_xz, p.size_m[0], p.size_m[2], (p.yaw_rad || 0) - Math.PI / 2) });
+    boxes.push({ id: p.placement_id, h: p.size_m[1], ...obb(p.center_xz, p.size_m[0], p.size_m[2], (p.yaw_rad || 0) - Math.PI / 2) });
   }
   const xs = walls.flatMap((w) => [w.a[0], w.b[0]]), ys = walls.flatMap((w) => [w.a[1], w.b[1]]);
   const bounds = xs.length ? [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)] : [-5, -5, 5, 5];
@@ -68,13 +68,14 @@ const boxDist = ([px, py], b) => {
   return Math.hypot(ex, ey);
 };
 
-/** 그 자리에 서 있을 수 없으면 true: 벽·가구·제품과 몸 반지름 안, 또는 방 밖 */
-export function isBlocked(p, world, r = RADIUS) {
+/** 그 자리에 서 있을 수 없으면 true: 벽·가구·제품과 몸 반지름 안, 또는 방 밖.
+ *  minH를 주면 그보다 낮은 가구·제품은 없는 셈 친다 (시야를 가리는지 볼 때) */
+export function isBlocked(p, world, r = RADIUS, minH = 0) {
   const [x0, y0, x1, y1] = world.bounds;
   if (p[0] < x0 || p[0] > x1 || p[1] < y0 || p[1] > y1) return true;
   if (world.poly && !insidePoly(p, world.poly)) return true;
   for (const w of world.walls) if (segDist(p, w.a, w.b) < w.t / 2 + r) return true;
-  for (const b of world.boxes) if (boxDist(p, b) < r) return true;
+  for (const b of world.boxes) if ((b.h ?? Infinity) >= minH && boxDist(p, b) < r) return true;
   return false;
 }
 

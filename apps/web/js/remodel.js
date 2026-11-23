@@ -348,7 +348,8 @@ export async function customer(pid) {
   wtPlay.onclick = () => {
     if (touring) { viewer.walkStop(); setTouring(false); return; }
     setTouring(true);
-    tourNext(stopAt < 0 || stopAt >= stops.length - 1 ? 0 : stopAt + 1);
+    // 실사를 켠 채 시작하면 지금 선 곳부터 실사로 보고 넘어간다
+    tourNext(stopAt < 0 || stopAt >= stops.length - 1 ? 0 : photoOn ? stopAt : stopAt + 1);
   };
   // 실사로 둘러보기: 걸어 보는 중에 실사를 켜면, 들르는 곳에 설 때마다 그 장면을 실사 사진으로 바꿔 보여 준다.
   // 한 번 만든 곳은 서버에 남아서(장면이 그대로면) 다시 갈 때 바로 뜬다.
