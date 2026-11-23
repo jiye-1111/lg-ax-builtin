@@ -253,8 +253,10 @@ def test_live_modes_stack_and_time_bar():
     """지예: 채광·와이파이·동선을 같이 켜고 싶다. 하루 재생 대신 향 아래에 시간 바."""
     assert "const sims = new Set()" in REMODEL and 'class="sim-sec"' not in REMODEL.split("const showSim")[0]
     assert 'id="sunTime"' in REMODEL and "하루 재생" not in REMODEL and 'id="splay"' not in REMODEL
-    # 고른 제품만 끌어서 옮긴다 (실수로 밀리지 않게)
-    assert "id === selPl" in REMODEL
+    # 고르지 않아도 누른 채 끌면 잡힌다. 조금만 움직인 건 누르기로 본다 (실수로 밀리지 않게)
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert "canGrab" in REMODEL and "onGrab" in REMODEL and "GRAB_PX" in viewer
+    assert "누른 채 끌기" in REMODEL
 
 
 def test_walk_tour_bar():
