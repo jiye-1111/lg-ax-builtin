@@ -92,7 +92,12 @@ class TwoAnswers:
         return SimpleNamespace(choices=[SimpleNamespace(message=SimpleNamespace(parsed=a, refusal=None))])
 
 
-def test_second_look_gets_the_plan_the_sketch_and_the_first_reading():
+@pytest.fixture
+def review(monkeypatch):
+    monkeypatch.setenv("PLAN_AI_REVIEW", "1")
+
+
+def test_second_look_gets_the_plan_the_sketch_and_the_first_reading(review):
     from worker.plan_room import PlanOpening
 
     better = box(openings=[PlanOpening(type="window", wall=0, offset_mm=1000, width_mm=1500)])
@@ -104,7 +109,7 @@ def test_second_look_gets_the_plan_the_sketch_and_the_first_reading():
     assert '"walls"' in parts[2]["text"]
 
 
-def test_a_worse_second_look_is_thrown_away():
+def test_a_worse_second_look_is_thrown_away(review):
     first = box()
     for bad in (PlanRead(readable=False, scale_from="none"), box(w=600), box(w=12000),
                 PlanRead(readable=True, scale_from="dimensions", walls=first.walls[:1]), RuntimeError("timeout"), None):
@@ -112,13 +117,13 @@ def test_a_worse_second_look_is_thrown_away():
         assert read_plan(b"x", "image/png", client=c, provider="openai") == first
 
 
-def test_second_look_can_be_turned_off(monkeypatch):
-    monkeypatch.setenv("PLAN_AI_REVIEW", "0")
+def test_second_look_is_off_unless_the_server_turns_it_on(monkeypatch):
+    monkeypatch.delenv("PLAN_AI_REVIEW", raising=False)
     c = TwoAnswers(box(), box(w=6100))
     assert read_plan(b"x", "image/png", client=c, provider="openai") == box() and len(c.calls) == 1
 
 
-def test_unreadable_first_look_is_not_checked_again():
+def test_unreadable_first_look_is_not_checked_again(review):
     c = TwoAnswers(PlanRead(readable=False, reason="사진이에요", scale_from="none"), box())
     assert read_plan(b"x", "image/png", client=c, provider="openai").readable is False and len(c.calls) == 1
 
