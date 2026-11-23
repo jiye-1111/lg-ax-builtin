@@ -84,9 +84,10 @@
 |---|---|---|
 | POST | `/api/projects/{pid}/placements` | `{sku, center_xz, yaw_rad, snap, color}` 그 자리에 놓기. `zone_id`만 주면 예전처럼 영역 자동 배치 |
 | POST | `/api/projects/{pid}/pose-check` | 저장 없이 판정만 (`placement_id`를 주면 그 배치는 장애물에서 뺌) |
-| PATCH | `/api/projects/{pid}/placements/{plid}` | 옮기기·돌리기·색 |
+| PATCH | `/api/projects/{pid}/placements/{plid}` | 옮기기·돌리기·색. 가구는 `hex`(`#RRGGBB`, `""`이면 원래 색)로 색을 바꾼다. LG 제품은 `hex`를 받지 않는다 |
 | DELETE | `/api/projects/{pid}/placements/{plid}` | 빼기 |
 | PUT | `/api/projects/{pid}/objects/{oid}/hidden` | `{hidden}` 기존 가구 치우기 |
+| PUT | `/api/projects/{pid}/objects/{oid}/color` | `{hex}` 스캔한 가구 색 바꾸기 (`null`이면 원래 색) |
 | GET | `/api/samples/{name}` | 샘플 스캔 (`apt_living_kitchen.usdz`, `studio_living.usdz`, `synthetic_room.usdz`, `ugscan_2026-11-18.usdz`) |
 | PUT | `/api/projects/{pid}/openings/{oid}/hidden` | 스캔한 창문 없애기·되돌리기 (`{hidden}`). 문은 안 된다 |
 

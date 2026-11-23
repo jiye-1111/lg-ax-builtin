@@ -1103,9 +1103,15 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return x
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
-                       snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None) -> dict:
+                       snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None,
+                       hex: str | None = None) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
+        if hex is not None:
+            # 색을 마음대로 고르는 건 꾸미기 가구만 (LG 제품 색은 카탈로그에 있는 색만)
+            if not is_decor(x["sku"]):
+                raise Invalid("LG 제품은 제품에 있는 색만 고를 수 있어요")
+            x["hex"] = hex.upper() or None  # 빈 글자 = 원래 색
         if size_m is not None:
             # 크기 조절은 꾸미기 가구만 (LG 제품 치수는 LGE.COM 값 그대로)
             if not is_decor(x["sku"]):
@@ -1181,6 +1187,19 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         self._rejudge_all(room, p)
         self._save_project(p)
         return self._rebuild(pid)
+
+    def set_object_color(self, pid: str, object_id: str, hex: str | None) -> dict:
+        """스캔 가구 색 바꾸기. 스캔 파일은 그대로 두고 scene_state.object_colors에만 적는다. None이면 원래 색."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        if not any(o.object_id == object_id for o in room.objects):
+            raise NotFound(f"가구 없음: {object_id}")
+        colors = p["scene_state"].setdefault("object_colors", {})
+        if hex is None:
+            colors.pop(object_id, None)
+        else:
+            colors[object_id] = hex.upper()
+        self._save_project(p)
+        return self.get_project(pid)
 
     def set_objects_hidden(self, pid: str, hidden: bool = True, object_ids: list[str] | None = None) -> dict:
         """스캔 가구를 한꺼번에 치우거나 되돌린다. object_ids가 없으면 전부."""
