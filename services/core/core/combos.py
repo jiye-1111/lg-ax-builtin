@@ -68,6 +68,16 @@ class Idea(BaseModel):
             out = tail.strip()
         return out or v
 
+    @field_validator("why", "appliance_point")
+    @classmethod
+    def _ko(cls, v: str) -> str:
+        return plain_ko(v)
+
+    @field_validator("tips")
+    @classmethod
+    def _ko_tips(cls, v: list[str]) -> list[str]:
+        return [plain_ko(t) for t in v]
+
     @field_validator("palette")
     @classmethod
     def _hex(cls, v: list[str]) -> list[str]:
@@ -115,6 +125,8 @@ SYSTEM = """너는 LG전자 매장의 인테리어 컨설턴트다. 고객의 �
 - 배치 원칙(인테리어 연구): 중심 가구를 정하고 양옆을 대칭으로, 정면 앞은 비워 동선을 지킨다.
 - 제품 이름, 가격, 치수 숫자를 지어내지 않는다. 어떤 제품이 들어가는지와 가격은 프로그램이 계산한다.
 - why와 tips는 고객에게 바로 도움이 되는 말로. 막연한 칭찬 대신 무엇을 어떻게 하면 되는지.
+- 모든 문장은 한국어 '~해요' 말투로 쓴다. 가구는 식탁·의자·하부장처럼 한국어 이름으로만 부른다 (table, basecab 같은 영어 금지).
+- why는 두 문장을 넘기지 않는다.
 고를 수 있는 가구: {kinds}"""
 
 
@@ -275,6 +287,16 @@ def rule_ideas(prompt: str, purpose: Purpose) -> Ideas:
     return Ideas(purpose=purpose, ideas=ideas)
 
 
+def plain_ko(text: str) -> str:
+    """AI가 문장에 섞어 쓴 가구 영어 이름(table, basecab…)을 한국어로. '식탁(table)'처럼 덧붙인 것은 지운다."""
+    out = text or ""
+    for kind in sorted(DecorKind.__args__, key=len, reverse=True):
+        ko = label_of(kind).replace("주방 ", "")
+        out = re.sub(rf"\s*\(\s*{kind}\s*\)", "", out, flags=re.I)
+        out = re.sub(rf"(?<![A-Za-z]){kind}(?![A-Za-z])", ko, out, flags=re.I)
+    return out
+
+
 def slot_sku(kind: str) -> tuple[str, Optional[tuple[float, float, float]]]:
     if kind == "nightstand":
         return "decor:dresser", NIGHTSTAND_M
@@ -288,4 +310,4 @@ def label_of(kind: str) -> str:
 
 
 __all__ = ["Category", "Idea", "Ideas", "PLAN_FACTOR", "PLAN_KO", "PURPOSE_KO", "Slot", "ask_ideas", "detect_purpose",
-           "label_of", "room_brief", "rule_ideas", "slot_sku"]
+           "label_of", "plain_ko", "room_brief", "rule_ideas", "slot_sku"]

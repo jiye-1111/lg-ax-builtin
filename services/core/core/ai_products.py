@@ -47,6 +47,19 @@ CATEGORY_WORDS = [
     ("plant_grower", "식물재배기", ("식물재배기", "틔운")),
 ]
 CATEGORY_KO = {c: ko for c, ko, _ in CATEGORY_WORDS}
+
+
+def categories_named(text: str) -> list[str]:
+    """말에 나온 가전 종류 전부, 말한 순서대로. 긴 이름부터 지워 가며 찾는다 ('김치냉장고'를 냉장고로 세지 않게)."""
+    t, found = text or "", []
+    words = sorted(((w, c) for c, _, ws in CATEGORY_WORDS for w in ws), key=lambda x: -len(x[0]))
+    for w, c in words:
+        i = t.find(w)
+        while i >= 0:
+            found.append((i, c))
+            t = t[:i] + "\0" * len(w) + t[i + len(w):]
+            i = t.find(w)
+    return list(dict.fromkeys(c for _, c in sorted(found)))
 Category = Literal["refrigerator", "kimchi_refrigerator", "freezer", "wine_cellar", "dishwasher", "oven", "cooktop", "microwave",
                    "water_purifier", "washer", "dryer", "wash_tower", "washer_dryer", "styler", "shoe_care", "air_conditioner",
                    "air_purifier", "dehumidifier", "humidifier", "tv", "portable_tv", "vacuum", "massage_chair", "plant_grower"]

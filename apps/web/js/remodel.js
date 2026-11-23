@@ -1514,6 +1514,7 @@ export async function customer(pid) {
     overlaps_object: "가구를 옮기거나 '가구 치우기'로 치워 보세요", overlaps_placement: "다른 제품과 겹쳐요. 한쪽을 옮겨 주세요",
     not_on_wall: "벽이나 가벽 가까이를 누르면 벽에 달려요",
     surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
+    needs_counter: "인덕션은 주방 하부장이나 아일랜드 위에 놓아야 해요",
     front_blocked: "문을 열 앞 공간이 막혀요. 앞을 비우거나 돌려 보세요", passage_narrow: "지나갈 길이 좁아져요. 벽 쪽으로 붙여 보세요",
     door_blocked: "방문이 열릴 자리를 막아요. 옆으로 옮겨 주세요", entry_narrow: "방문보다 제품이 커서 들여오기 어려워요",
     covers_window: "창을 가려요. 창이 없는 벽으로 옮겨 보세요", ceiling_low: "천장보다 높아요. 더 낮은 제품을 골라 보세요",

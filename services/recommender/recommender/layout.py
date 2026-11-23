@@ -47,6 +47,7 @@ class Item:
     color: Optional[str] = None
     hex: Optional[str] = None
     size_m: Optional[tuple[float, float, float]] = None  # decor 크기를 바꿨으면
+    hug: float = 0.0  # 조리대(싱크대·하부장) 옆에 붙이려는 정도. 식기세척기는 크게, 냉장고는 조금
 
 
 @dataclass
@@ -76,8 +77,10 @@ def _ahead(c: g.Pt, yaw: float, dist: float) -> g.Pt:
 
 
 class _Planner:
-    def __init__(self, room: Room, cfg: FitConfig, others: Iterable[dict], hidden: Iterable[str]):
+    def __init__(self, room: Room, cfg: FitConfig, others: Iterable[dict], hidden: Iterable[str],
+                 counters: Iterable[tuple[g.Pt, float]] = ()):
         self.room, self.cfg = room, cfg
+        self.counters = list(counters)
         self.hidden = list(hidden)
         self.others = list(others)
         self.placed: list[Placed] = []
@@ -256,6 +259,11 @@ class _Planner:
                 best, key = r, k
         return self._add(it, best) if best else self.along_wall(it)
 
+    def _from_counter(self, c: g.Pt, w_m: float) -> float:
+        """가장 가까운 조리대(스캔한 싱크대, 놓인 하부장·아일랜드) 끝에서 떨어진 거리. 조리대가 없으면 0."""
+        tops = self.counters + [(p.pose.center_xz, p.size[0] / 2) for p in self.placed if _kind(p.item) in ("basecab", "island")]
+        return min((max(0.0, math.dist(c, q) - half - w_m / 2) for q, half in tops), default=0.0)
+
     def along_wall(self, it: Item) -> Optional[Placed]:
         best, key = None, None
         for _, _, _, pose in self._wall_poses(it):
@@ -264,6 +272,8 @@ class _Planner:
                 continue
             r, pen = got
             k = pen + self._balance(pose, r.size_m) * 0.5
+            if it.hug:
+                k += it.hug * self._from_counter(pose.center_xz, r.size_m[0])
             if key is None or k < key:
                 best, key = r, k
         return self._add(it, best) if best else None
@@ -302,10 +312,10 @@ _ORDER = {"anchor": 0, "pair": 1, "front": 2, "facing": 3, "appliance": 4, "wall
 
 
 def arrange(room: Room, items: list[Item], cfg: FitConfig | None = None, others: Iterable[dict] = (),
-            hidden: Iterable[str] = ()) -> list[Placed]:
+            hidden: Iterable[str] = (), counters: Iterable[tuple[g.Pt, float]] = ()) -> list[Placed]:
     """역할 순서(중심 → 양옆 → 앞 → 마주 → 가전 → 벽 → 러그 → 구석)로 하나씩 가장 좋은 자리에 놓는다.
     어디에도 안 들어가는 것은 억지로 넣지 않고 뺀다."""
-    pl = _Planner(room, cfg or FitConfig(), others, hidden)
+    pl = _Planner(room, cfg or FitConfig(), others, hidden, counters)
     anchor: Optional[Placed] = None
     for it in sorted(items, key=lambda i: _ORDER.get(i.role, 9)):
         if it.role == "anchor":

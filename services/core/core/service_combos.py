@@ -13,11 +13,11 @@ from recommender.cmf import rank_cmf
 from recommender.finishes import rank_finishes
 from recommender.layout import Item, arrange
 from recommender.lifestyle import Life, in_range, needs
-from recommender.pose import Pose
+from recommender.pose import Pose, can_sit, check_pose, needs_counter
 
-from .ai_life import is_life_story
-from .ai_products import CATEGORY_KO
-from .combos import (PLAN_FACTOR, PLAN_KO, PURPOSE_CATS, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
+from .ai_life import is_life_story, rule_life
+from .ai_products import CATEGORY_KO, categories_named, rule_based_products
+from .combos import (PLAN_KO, PURPOSE_CATS, PURPOSE_KO, Idea, ask_ideas, detect_purpose, label_of, parse_photo, room_brief,
                      rule_ideas, slot_sku)
 from .decor import decor_product, is_decor
 from .models import Product, StyleTags
@@ -25,6 +25,9 @@ from .models import Product, StyleTags
 MAX_CATEGORIES = 6
 TRIES = 4          # 가전 하나당 자리를 찾아볼 후보 수
 SELLABLE = (None, "ACTIVE", "SOLD_OUT")
+# 예산을 말했으면 어느 조합도 그 금액을 넘기지 않는다: 맞춤은 조금 남기고, 아끼기는 더 남기고, 한 단계 위는 꽉 채운다
+BUDGET_FACTOR = {"target": 0.9, "save": 0.7, "upgrade": 1.0}
+HUG = {"dishwasher": 2.0, "refrigerator": 0.6, "kimchi_refrigerator": 0.6}  # 조리대 옆에 붙이는 정도
 
 
 def won(v: int) -> str:
@@ -76,8 +79,28 @@ class ComboMixin:
         if target is None:  # 예산이 없으면 아끼기=아래 4분위, 한 단계 위=위 4분위, 그 밖=가운데
             q = {"save": 0.25, "upgrade": 0.75}.get(plan, 0.5)
             target = prices[min(len(prices) - 1, int(q * (len(prices) - 1)))]
-        return sorted(pool, key=lambda p: (abs(p.price_krw - target) / max(target, 1) + (1 - self._color_score(p, tags)[0]) * 0.4,
+        capped = plan is None  # 예산이 있을 때: 몫을 넘지 않는 것부터
+        return sorted(pool, key=lambda p: (capped and p.price_krw > target,
+                                           abs(p.price_krw - target) / max(target, 1) + (1 - self._color_score(p, tags)[0]) * 0.4,
                                            p.sku))
+
+    @staticmethod
+    def _within(order: dict, pools: dict, cap: Optional[float]) -> None:
+        """첫 후보 합계가 예산을 넘으면 가장 비싼 종류부터 한 칸씩 싼 것으로 바꾼다."""
+        if not cap:
+            return
+        for _ in range(40):
+            if sum(c[0].price_krw for c in order.values() if c) <= cap:
+                return
+            swaps = []
+            for cat, cands in order.items():
+                cheaper = [x for x in pools[cat] if cands and x.price_krw < cands[0].price_krw]
+                if cheaper:
+                    swaps.append((cands[0].price_krw, cat, max(cheaper, key=lambda x: (x.price_krw, x.sku))))
+            if not swaps:
+                return
+            _, cat, nxt = max(swaps, key=lambda x: (x[0], x[1]))
+            order[cat] = [nxt] + [x for x in order[cat] if x is not nxt][:TRIES - 1]
 
     # ---- 만들기 ----
     def make_combos(self, pid: str, categories: list[str] | None = None, budget: int | None = None, prompt: str = "",
@@ -94,9 +117,11 @@ class ComboMixin:
             raise Invalid(f"모르는 가전 종류: {', '.join(bad)}")
         if prompt:
             said = said or self.product_reader(prompt)  # 하우니가 이미 읽었으면 다시 부르지 않는다 (AI 한 번 아끼기)
-            if said.category and said.category not in cats:
-                cats.append(said.category)
+            for c in categories_named(prompt) + ([said.category] if said.category else []):  # 말한 가전은 빠짐없이
+                if c not in cats:
+                    cats.append(c)
             budget = budget or said.price_max
+            cats = cats[:MAX_CATEGORIES] if len(cats) > MAX_CATEGORIES and not categories else cats
         if len(cats) > MAX_CATEGORIES:
             raise Invalid(f"가전 종류는 {MAX_CATEGORIES}개까지 골라 주세요")
         if budget is not None and not (100_000 <= budget <= 100_000_000):
@@ -129,30 +154,44 @@ class ComboMixin:
 
     def _one_combo(self, room, p: dict, others: list[dict], idea: Idea, pools: dict, meds: dict, budget, idx: int) -> dict:
         tags = StyleTags(palette=idea.palette, materials=idea.materials)
-        factor = PLAN_FACTOR[idea.price_plan]
+        cap = budget * BUDGET_FACTOR[idea.price_plan] if budget else None
         share_tot = sum(meds.values()) or 1
-        targets = {c: (budget * factor * meds[c] / share_tot if budget else None) for c in meds}
+        targets = {c: (cap * meds[c] / share_tot if cap else None) for c in meds}
         items: list[Item] = []
         for n, s in enumerate(idea.furniture):
             sku, size = slot_sku(s.kind)
             items.append(Item(key=f"d{n}-{s.kind}", sku=sku, product=decor_product(sku, size), role=s.role, size_m=size))
-        order = {c: self._pick_order(pools[c], tags, targets.get(c), idea.price_plan)[:TRIES] for c in pools}
-        for c, cands in order.items():
-            if cands:
+        order = {c: self._pick_order(pools[c], tags, targets.get(c), None if cap else idea.price_plan)[:TRIES] for c in pools}
+        self._within(order, pools, cap)
+        mine = {x["placement_id"] for x in p["scene_state"]["placements"] if x.get("combo")}  # 전에 넣은 조합 것은 곧 빠진다
+        tops = {flag: [t for t in self._surfaces(room, p, counters=flag) if t["id"] not in mine] for flag in (True, False)}
+        counter_cats = [c for c, cands in order.items() if cands and needs_counter(cands[0])]
+        if counter_cats and not tops[True] and not any(s.kind in ("basecab", "island") for s in idea.furniture):
+            items.append(Item(key=f"d{len(items)}-basecab", sku="decor:basecab", product=decor_product("decor:basecab", None),
+                              role="wall"))  # 인덕션을 넣을 조리대가 없으면 하부장을 같이
+        for c, cands in order.items():  # 바닥에 서는 가전은 가구와 함께 자리를 잡는다. 올려 두는 가전은 그다음에
+            if cands and not can_sit(cands[0]):
                 items.append(self._lg_item(c, cands[0], tags))
         hidden = self._blocked_off(p)
-        placed = arrange(room, items, self.fit_cfg, others, hidden)
+        counters = [(tuple(t["center_xz"]), t["w"] / 2) for t in tops[True]]
+        placed = arrange(room, items, self.fit_cfg, others, hidden, counters)
         got = {x.item.key for x in placed}
+        spent = sum(x.item.product.price_krw or 0 for x in placed if x.item.role == "appliance")
         missing = []
-        for c, cands in order.items():  # 첫 후보가 안 들어가면 다음 후보를 놓인 것 사이에 넣어 본다
+        for c, cands in order.items():  # 올려 두는 가전, 그리고 첫 후보가 안 들어간 가전: 놓인 것 사이에 넣어 본다
             if f"lg-{c}" in got:
                 continue
             ok = False
-            for prod in cands[1:]:
-                more = arrange(room, [self._lg_item(c, prod, tags)], self.fit_cfg,
-                               others + [x.as_placement(f"pl-{i}") for i, x in enumerate(placed) if x.item.role != "rug"], hidden)
+            for prod in (cands if cands and can_sit(cands[0]) else cands[1:]):
+                if cap and spent + prod.price_krw > cap:
+                    continue
+                it = self._lg_item(c, prod, tags)
+                now = others + [x.as_placement(f"pl-{i}") for i, x in enumerate(placed) if x.item.role != "rug"]
+                top = self._combo_on_top(room, it, placed, tops[needs_counter(prod)], now, hidden) if can_sit(prod) else None
+                more = [top] if top else [] if needs_counter(prod) else arrange(room, [it], self.fit_cfg, now, hidden, counters)
                 if more:
                     placed += more
+                    spent += prod.price_krw
                     ok = True
                     break
             if not ok:
@@ -162,7 +201,7 @@ class ComboMixin:
             r = rank_finishes(self.finishes, k, idea.palette, idea.materials,
                               idea.wall_texture if k == "wall" else idea.floor_texture, top_k=1)
             if r and r[0].score > 0:
-                finishes[k] = {"id": r[0].finish.id, "tone": r[0].tone.hex, "name": f"{r[0].finish.brand} {r[0].finish.name}"}
+                finishes[k] = {"id": r[0].finish.id, "tone": r[0].tone.hex, "name": r[0].tone.name}  # 색 이름만 (브랜드 없이)
         out_items = [self._combo_row(x, targets, tags, idea.price_plan) for x in placed]
         total = sum(x["price"] or 0 for x in out_items if x["kind"] == "lg")
         return {"combo_id": f"c{idx + 1}", "name": idea.name, "why": idea.why, "tips": idea.tips[:3],
@@ -173,7 +212,28 @@ class ComboMixin:
     def _lg_item(self, category: str, prod: Product, tags: StyleTags) -> Item:
         _, opt = self._color_score(prod, tags)
         return Item(key=f"lg-{category}", sku=prod.sku, product=prod, role="appliance",
-                    color=opt.color if opt else None, hex=opt.hex_approx if opt else None)
+                    color=opt.color if opt else None, hex=opt.hex_approx if opt else None,
+                    hug=HUG.get(category, 0.0) if prod.install_type == "built_in" or category != "dishwasher" else 0.0)
+
+    def _combo_on_top(self, room, it: Item, placed: list, tops: list[dict], now: list[dict], hidden: list[str]):
+        """올려 두는 가전(인덕션·전자레인지·정수기)을 이 조합의 가구나 원래 있던 가구 윗면에 놓는다. 자리가 없으면 None."""
+        from recommender.layout import Placed
+
+        counter = needs_counter(it.product)
+        hosts = self.CABINETS if counter else self.HOSTS
+        mine = [{"id": f"pl-{i}", "center_xz": tuple(x.pose.center_xz), "yaw_rad": x.pose.yaw_rad - math.pi / 2,
+                 "w": x.size[0], "d": x.size[2], "top_m": x.size[1]}
+                for i, x in enumerate(placed) if x.item.sku in hosts and x.item.role != "rug"]
+        for s in sorted(mine + tops, key=lambda q: -q["w"] * q["d"]):
+            ux, uz = math.cos(s["yaw_rad"]), math.sin(s["yaw_rad"])
+            n = max(0, int(s["w"] / 2 / 0.1))
+            for i in sorted(range(-n, n + 1), key=abs):
+                c = (s["center_xz"][0] + ux * i * 0.1, s["center_xz"][1] + uz * i * 0.1)
+                for yaw in (s["yaw_rad"] + math.pi / 2, s["yaw_rad"] - math.pi / 2):
+                    r = check_pose(room, it.product, Pose(c, yaw), self.fit_cfg, others=now, hidden=hidden, host=s)
+                    if r.verdict.value != "no_fit" and r.size_m:
+                        return Placed(it, r.pose, r.size_m, r.verdict.value, r.reasons)
+        return None
 
     def _combo_row(self, x, targets: dict, tags: StyleTags, plan: str) -> dict:
         it = x.item
@@ -190,11 +250,10 @@ class ComboMixin:
         score, _ = self._color_score(prod, tags)
         if it.color and score >= 0.6:
             why.append(f"{it.color} 색이 이 조합 벽·바닥 톤과 잘 어울려요")
-        t = targets.get(prod.category)
-        if t:
-            why.append(f"이 가전 몫 약 {won(int(t))}에 맞춘 가격이에요")
-        elif plan != "target":
+        if plan != "target":
             why.append("같은 종류에서 가격을 낮춘 선택이에요" if plan == "save" else "같은 종류에서 한 단계 위 제품이에요")
+        elif targets.get(prod.category):
+            why.append("예산 안에서 고른 가격이에요")
         return {**base, "kind": "lg", "name": prod.name, "category": prod.category, "category_label": CATEGORY_KO.get(prod.category),
                 "price": prod.price_krw, "color": it.color, "hex": it.hex, "why": why[:2]}
 
@@ -225,6 +284,9 @@ class ComboMixin:
             msg = (f"고른 가전으로 {n}가지 배치를 만들어 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요." if n
                    else "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요.")
             return {"type": "combos", "message": msg, **out}
+        named = categories_named(prompt)
+        if not photo and len(named) >= 2:  # "냉장고랑 식기세척기, 예산 600" → 말한 가전 그대로, 예산 안에서 조합
+            return self._named_combos(pid, prompt, named[:MAX_CATEGORIES])
         if not photo and is_life_story(prompt):  # "맞벌이 4인 가족, 장은 몰아서" → 가전마다 맞는 용량으로 하나씩
             return self.life_pick(pid, prompt)
         want = self.product_reader(prompt) if prompt else None
@@ -255,6 +317,24 @@ class ComboMixin:
             msg = f"{out['purpose_label'] or '이 공간'}을 {n}가지로 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
         if n and out.get("auto_categories") and out["categories"]:
             msg += f" 가전은 이 공간에 흔히 두는 {'·'.join(CATEGORY_KO[c] for c in out['categories'])}로 넣었어요."
+        return {"type": "combos", "message": msg, **out}
+
+    def _named_combos(self, pid: str, prompt: str, named: list[str]) -> dict:
+        """가전을 둘 이상 콕 집어 말했을 때. 종류·예산·가족 수는 말에서 코드가 읽는다 (AI는 분위기 컨셉만)."""
+        said = rule_based_products(prompt)
+        got = {n.category: n for n in needs(Life(**rule_life(prompt).model_dump()))}
+        keep = {c: (lambda o, n=n: in_range(n, o)) for c, n in got.items() if c in named}
+        out = self.make_combos(pid, named, said.price_max, prompt, said=said, keep=keep)
+        n, names = len(out["combos"]), "·".join(CATEGORY_KO[c] for c in named)
+        if not n:
+            msg = "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요."
+        else:
+            msg = f"말씀하신 {names}로 {n}가지를 꾸며 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요."
+            if out["budget"] and all(c["lg_total"] <= out["budget"] for c in out["combos"]):
+                msg += f" 가전 합계는 모두 예산 {won(out['budget'])} 안이에요."
+            lost = sorted({m for c in out["combos"] for m in c["missing"]})
+            if lost:
+                msg += f" {'·'.join(lost)}는 예산이나 자리가 맞지 않아 빠진 조합이 있어요."
         return {"type": "combos", "message": msg, **out}
 
     def clear_combo(self, pid: str) -> dict:
