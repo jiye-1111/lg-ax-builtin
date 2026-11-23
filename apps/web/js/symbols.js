@@ -105,15 +105,17 @@ export function roomOutline(walls, tol = 0.15) {
   }).sort((p, q) => p[0] - q[0])[0][1];
   const first = turn(start, Math.PI), path = [start];
   let v = start, nxt = first, closed = false;
-  for (let i = 0; i < 4 * walls.length + 16 && !closed; i++) {
+  const edges = [...adj.values()].reduce((n, nb) => n + nb.size, 0) / 2;
+  for (let i = 0; i < 4 * edges + 4 && !closed; i++) {
     const back = Math.atan2(nodes[v][1] - nodes[nxt][1], nodes[v][0] - nodes[nxt][0]);
     [v, nxt] = [nxt, turn(nxt, back)];
     if (v === start && nxt === first) closed = true;
     else path.push(v);
   }
-  if (!closed) return null;
+  if (!closed || new Set(path).size !== path.length) return null;
   const pts = path.map((i) => nodes[i]);
   const cross = (a, b, c) => (b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0]);
   const out = pts.filter((p, i) => Math.abs(cross(pts[(i - 1 + pts.length) % pts.length], p, pts[(i + 1) % pts.length])) > 1e-6);
-  return out.length >= 3 ? out : null;
+  const area = Math.abs(out.reduce((a, p, i) => a + p[0] * out[(i + 1) % out.length][1] - out[(i + 1) % out.length][0] * p[1], 0)) / 2;
+  return out.length >= 3 && area >= 1 ? out : null;
 }

@@ -45,3 +45,9 @@ def test_small_gaps_at_corners_still_close():
 def test_open_room_has_no_outline():
     assert floor_outline(walls(((0, 0), (5, 0)), ((5, 0), (5, 3)), ((5, 3), (0, 3)))) is None
     assert floor_outline([]) is None
+
+
+def test_two_rooms_joined_by_one_wall_fall_back_to_the_rectangle():
+    a = [((0, 0), (3, 0)), ((3, 0), (3, 3)), ((3, 3), (0, 3)), ((0, 3), (0, 0))]
+    b = [((6, 0), (9, 0)), ((9, 0), (9, 3)), ((9, 3), (6, 3)), ((6, 3), (6, 0))]
+    assert floor_outline(walls(*a, *b, ((3, 1.5), (6, 1.5)))) is None

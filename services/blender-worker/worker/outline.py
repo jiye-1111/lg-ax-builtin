@@ -82,6 +82,8 @@ def floor_outline(walls, tol: float = TOL) -> list[tuple[float, float]] | None:
         path.append(v)
     else:
         return None
+    if len(set(path)) != len(path):  # 한 벽으로만 이어진 두 덩어리: 같은 모서리를 두 번 지난다. 네모 바닥으로 둔다
+        return None
     pts = [nodes[i] for i in path]
     pts = [p for i, p in enumerate(pts) if abs(_cross(pts[i - 1], p, pts[(i + 1) % len(pts)])) > 1e-6]
     return pts if len(pts) >= 3 and _area(pts) >= MIN_AREA else None

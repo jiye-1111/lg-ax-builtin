@@ -269,3 +269,15 @@ def test_tour_stop_also_falls_back_to_blender(c, svc, pid, monkeypatch, blender)
     view, mask = view_and_mask()
     r = c.post(f"/api/projects/{pid}/photoreal", json={"image": png_url(view), "mask": png_url(mask), "camera": CAM, "spot": "stop_1"})
     assert r.status_code == 200 and r.json()["model"] == "blender" and "/spots/stop_1.png" in r.json()["url"]
+
+
+def test_blender_pictures_have_their_own_limit(c, svc, pid, monkeypatch, blender):
+    from core import service_photoreal
+
+    monkeypatch.setattr(service_photoreal, "BLENDER_LIMIT_N", 2)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    svc.image_client = None
+    view, mask = view_and_mask()
+    body = {"image": png_url(view), "mask": png_url(mask), "camera": CAM}
+    codes = [c.post(f"/api/projects/{pid}/photoreal", json=body).status_code for _ in range(3)]
+    assert codes == [200, 200, 503] and len(blender) == 2

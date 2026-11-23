@@ -12,6 +12,7 @@ from . import photoreal
 log = logging.getLogger(__name__)
 LIMIT_N, LIMIT_S = 3, 600  # 프로젝트마다 10분에 3장 (한 장마다 API 비용이 든다)
 TOUR_LIMIT_N = 12           # 둘러보기는 들르는 곳마다 한 장이라 따로 센다 (여덟 곳 한 바퀴 + 조금)
+BLENDER_LIMIT_N = 12        # 서버 Blender로 그리는 것도 집마다 10분에 12장까지 (CPU를 오래 쓴다)
 SPOT_RE = re.compile(r"^[A-Za-z0-9_:-]{1,60}$")
 
 
@@ -55,7 +56,7 @@ class PhotorealMixin:
             out, model = self._ai_photo(pid, p, view, m, spot, t), photoreal.MODEL
         except (photoreal.Unavailable, TooMany):
             # 이미지 AI를 못 쓰거나 한도를 넘겼으면 서버의 Blender가 같은 시점으로 그린다. 그것도 안 되면 원래 안내 그대로
-            out = self._blender_photo(pid, camera) if camera else None
+            out = self._blender_photo(pid, camera, t) if camera else None
             if out is None:
                 raise
             model = "blender"
@@ -88,16 +89,26 @@ class PhotorealMixin:
             log.warning("실사 이미지 실패: %s", e)
             raise photoreal.Unavailable("지금은 실사 이미지를 못 만들었어요. 잠시 뒤 다시 눌러 주세요") from None
 
-    def _blender_photo(self, pid: str, camera: dict):
-        from PIL import Image
-        from worker.runner import render_view
+    def _blender_photo(self, pid: str, camera: dict, t: float):
+        import io
 
+        from PIL import Image
+        from worker.runner import render_view, use_blender
+
+        if not use_blender():
+            return None
+        q = self.__dict__.setdefault("_blender_log", defaultdict(deque))[pid]  # AI 한도와 따로 센다
+        while q and t - q[0] > LIMIT_S:
+            q.popleft()
+        if len(q) >= BLENDER_LIMIT_N:
+            return None
+        q.append(t)
         room, _, state = self._scene_inputs(pid)
         png = render_view(room, state, self.pdir(pid) / "scene", camera)
         if png is None:
+            q.pop()
             return None
-        with Image.open(png) as im:
-            return im.convert("RGB")
+        return Image.open(io.BytesIO(png)).convert("RGB")
 
     def _save_spot(self, pid: str, spot: str, out, version: int, t: int) -> dict:
         d = self._spot_dir(pid)

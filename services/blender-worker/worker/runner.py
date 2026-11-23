@@ -18,7 +18,7 @@ SCRIPT = Path(__file__).parent / "bpy_scripts" / "build_scene.py"
 # 웹과 같은 제품·가구 모델을 렌더에도 쓴다 (build_products.py, build_furniture.py 결과)
 MODELS_DIR = Path(__file__).resolve().parents[3] / "apps" / "web" / "models" / "products"
 FURNITURE_DIR = MODELS_DIR.parent / "furniture"
-_VIEW_LOCK = threading.Lock()  # 작은 서버라 시점 렌더는 한 번에 하나만
+_BLENDER_LOCK = threading.Lock()  # 작은 서버라 Blender는 한 번에 하나만 돈다
 
 
 def blender_bin() -> str | None:
@@ -66,20 +66,22 @@ def _job(room: Room, state: dict, out_dir: Path, png: Path) -> dict:
             "sun": state.get("sun")}  # 채광과 같은 해 (sim.daylight.sun_light), 없으면 기본 해
 
 
-def render_view(room: Room, state: dict, out_dir: Path, camera: dict) -> Path | None:
-    """웹에서 보던 시점 그대로 한 장. camera = {pos, target, fov} (웹 3D 좌표, fov는 세로 각도).
+def render_view(room: Room, state: dict, out_dir: Path, camera: dict) -> bytes | None:
+    """웹에서 보던 시점 그대로 한 장(PNG). camera = {pos, target, fov} (웹 3D 좌표, fov는 세로 각도).
 
     Blender가 없거나 다른 렌더가 돌고 있거나 실패하면 None.
     """
     exe = use_blender()
-    if not exe or not _VIEW_LOCK.acquire(blocking=False):
+    if not exe or not _BLENDER_LOCK.acquire(blocking=False):
         return None
     try:
-        out_dir.mkdir(parents=True, exist_ok=True)
-        png = out_dir / "view.png"
-        return png if _run_blender(exe, {**_job(room, state, out_dir, png), "camera": camera}, out_dir, png) else None
+        view_dir = out_dir / "view"  # 장면 렌더(job.json, render.png)와 파일이 섞이지 않게 따로 둔다
+        view_dir.mkdir(parents=True, exist_ok=True)
+        png = view_dir / "view.png"
+        ok = _run_blender(exe, {**_job(room, state, view_dir, png), "camera": camera}, view_dir, png)
+        return png.read_bytes() if ok else None
     finally:
-        _VIEW_LOCK.release()
+        _BLENDER_LOCK.release()
 
 
 def build_scene(room: Room, usdz: Path | None, state: dict, out_dir: Path, render: bool = False) -> dict:
@@ -97,8 +99,9 @@ def build_scene(room: Room, usdz: Path | None, state: dict, out_dir: Path, rende
     if not render:
         return {"glb": glb, "png": None, "engine": "blender" if exe else "fallback"}
     if exe:
-        job = {**_job(room, state, out_dir, png), "out_blend": str(out_dir / "scene.blend")}
-        if _run_blender(exe, job, out_dir, png):
-            return {"glb": glb, "png": png, "engine": "blender"}
+        with _BLENDER_LOCK:
+            job = {**_job(room, state, out_dir, png), "out_blend": str(out_dir / "scene.blend")}
+            if _run_blender(exe, job, out_dir, png):
+                return {"glb": glb, "png": png, "engine": "blender"}
     render_png(room, png, state, title=state.get("title"))
     return {"glb": glb, "png": png, "engine": "fallback"}
