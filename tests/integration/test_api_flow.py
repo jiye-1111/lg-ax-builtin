@@ -146,3 +146,74 @@ def test_real_scan_sample_is_downloadable(client):
     r = client.get("/api/samples/ugscan_2026-11-18.usdz")
     assert r.status_code == 200 and len(r.content) > 100_000
     assert client.get("/api/samples/../../.env").status_code == 404
+
+
+# ---------- 도면으로 집 만들기 · 스캔 보정 ----------
+def _plan(w=5200, d=3600, **kw):
+    from worker.plan_room import PlanOpening, PlanRead, PlanWall
+    walls = [PlanWall(x1=0, y1=0, x2=w, y2=0), PlanWall(x1=w, y1=0, x2=w, y2=d),
+             PlanWall(x1=w, y1=d, x2=0, y2=d), PlanWall(x1=0, y1=d, x2=0, y2=0)]
+    return PlanRead(readable=True, scale_from="dimensions", walls=walls,
+                    openings=[PlanOpening(type="door", wall=2, offset_mm=600, width_mm=900)], **kw)
+
+
+def _reader(client, plan):
+    svc = main.app.dependency_overrides[main.get_service]()
+    svc.plan_reader = (lambda data, content_type, name: plan) if not isinstance(plan, Exception) else _raise(plan)
+
+
+def _raise(e):
+    def f(*a):
+        raise e
+    return f
+
+
+def test_plan_alone_makes_a_home(client):
+    _reader(client, _plan())
+    r = client.post("/api/projects/from-plan", files={"file": ("우리집.png", PNG_1PX, "image/png")})
+    assert r.status_code == 201, r.text
+    p = r.json()
+    assert p["name"] == "우리집" and p["scan"]["source"] == "floorplan_image" and p["scan"]["usdz"] is None
+    assert p["floorplan"]["name"] == "우리집.png" and p["scene"]["glb"]
+    room = client.get(f"/api/projects/{p['project_id']}/room").json()
+    assert [w["scanned"]["length_m"] for w in room["walls"]] == [5.2, 3.6, 5.2, 3.6]
+    assert room["openings"][0]["type"] == "door" and room["objects"] == []
+    # 만든 집에 제품을 놓을 수 있다
+    sku = client.get("/api/catalog").json()["products"][0]["sku"] if isinstance(client.get("/api/catalog").json(), dict) else client.get("/api/catalog").json()[0]["sku"]
+    assert client.post(f"/api/projects/{p['project_id']}/placements", json={"sku": sku, "center_xz": [2.6, 1.8], "yaw_rad": 1.57, "snap": False}).status_code == 200
+
+
+def test_unreadable_plan_says_why_and_makes_nothing(client):
+    from core.plan_read import PlanReadError
+    before = len(client.get("/api/projects").json())
+    _reader(client, PlanReadError("도면을 읽지 못했어요. 벽이 또렷하게 보이는 도면을 올려 주세요"))
+    r = client.post("/api/projects/from-plan", files={"file": ("a.png", PNG_1PX, "image/png")})
+    assert r.status_code == 422 and "또렷" in r.text
+    _reader(client, _plan(w=90000))
+    assert "크기" in client.post("/api/projects/from-plan", files={"file": ("a.png", PNG_1PX, "image/png")}).text
+    assert client.post("/api/projects/from-plan", files={"file": ("a.exe", b"MZ")}).status_code == 422
+    assert len(client.get("/api/projects").json()) == before
+
+
+def test_plan_with_scan_corrects_wall_lengths(client):
+    pid = _project(client)
+    walls = client.get(f"/api/projects/{pid}/room").json()["walls"]
+    long = max(walls, key=lambda w: w["scanned"]["length_m"])
+    target = round(long["scanned"]["length_m"] + 0.03, 3)
+    _reader(client, _plan(w=target * 1000, d=target * 1000 + 900))
+    r = client.post(f"/api/projects/{pid}/floorplan", files={"file": ("도면.png", PNG_1PX, "image/png")})
+    assert r.status_code == 201, r.text
+    assert long["wall_id"] in r.json()["floorplan"]["applied"]["walls"]
+    after = {w["wall_id"]: w for w in client.get(f"/api/projects/{pid}/room").json()["walls"]}
+    assert after[long["wall_id"]]["measured"] == {**after[long["wall_id"]]["measured"], "length_m": target, "by": "floorplan"}
+    # 도면을 빼면 보정도 되돌아간다
+    client.delete(f"/api/projects/{pid}/floorplan")
+    assert all(w["measured"] is None for w in client.get(f"/api/projects/{pid}/room").json()["walls"])
+
+
+def test_plan_that_cannot_be_read_is_still_attached(client):
+    from core.plan_read import PlanReadError
+    pid = _project(client)
+    _reader(client, PlanReadError("도면을 읽지 못했어요"))
+    r = client.post(f"/api/projects/{pid}/floorplan", files={"file": ("도면.png", PNG_1PX, "image/png")})
+    assert r.status_code == 201 and r.json()["floorplan"]["applied"] is None and "읽지" in r.json()["floorplan"]["note"]

@@ -204,3 +204,13 @@ def test_doorless_product_has_no_front_check():
 def test_fit_and_max_is_judged_like_built_in():
     r = check_fit(make_room(), KITCHEN, freestanding(door=None, category="refrigerator", install="built_in_look"), CFG)
     assert "front" not in r.dims
+
+
+def test_floorplan_length_is_used_but_keeps_the_scan_margin():
+    # 도면 치수는 줄자로 잰 값이 아니다: 길이는 도면 값을 쓰되 여유는 스캔과 같은 30 mm를 둔다
+    m = MeasuredDims(length_m=0.925, by="floorplan")  # 제품 900 + 옆 5×2 = 910 → 15 mm 남는다
+    r = check_fit(make_room(measured=m), KITCHEN, product(), CFG)
+    assert r.dims["width"].source == "scanned" and r.dims["width"].available_mm == 925
+    assert r.dims["width"].verdict == Verdict.CONDITIONAL
+    tape = MeasuredDims(length_m=0.925, by="technician")
+    assert check_fit(make_room(measured=tape), KITCHEN, product(), CFG).dims["width"].verdict == Verdict.FIT

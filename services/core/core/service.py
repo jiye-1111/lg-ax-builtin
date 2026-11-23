@@ -207,10 +207,17 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             process_scan(usdz, d / "scan")
         except Exception as e:  # 변환 실패 이유를 화면에 그대로 보여 준다
             raise Invalid(f"스캔 변환 실패: {e}") from e
-        proj = {
+        scan = {"source": "ugscan_roomplan_usdz", "usdz": str(usdz.relative_to(self.root)),
+                "room_json": str((d / "scan" / "room.json").relative_to(self.root)), "scanned_by": scanned_by}
+        self.db.put("project", pid, self._new_project(pid, name, scan, user, request_id))
+        self._set_request_status(request_id, "scanned")
+        self._rebuild(pid)
+        return self.get_project(pid)
+
+    def _new_project(self, pid: str, name: str | None, scan: dict, user: dict | None, request_id: str | None = None) -> dict:
+        return {
             "project_id": pid, "name": name, "request_id": request_id, "created_at": now(), "status": "scanned",
-            "scan": {"source": "ugscan_roomplan_usdz", "usdz": str(usdz.relative_to(self.root)),
-                     "room_json": str((d / "scan" / "room.json").relative_to(self.root)), "scanned_by": scanned_by},
+            "scan": scan,
             "scene": {"glb": None, "png": None, "engine": None},
             "scene_state": {"materials": {}, "finish": None, "placements": []},
             "style": {"prompt": None, "reference_image": None, "palette": [], "materials": []},
@@ -219,8 +226,38 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             "owner_id": user["user_id"] if user and user["role"] == "customer" else None,
             "technician_id": user["user_id"] if is_approved_tech(user) and user["role"] == "technician" else None,
         }
-        self.db.put("project", pid, proj)
-        self._set_request_status(request_id, "scanned")
+
+    def create_project_from_plan(self, data: bytes, filename: str, user: dict | None = None,
+                                 name: str | None = None, reader=None) -> dict:
+        """스캔 없이 도면(이미지·PDF)만으로 집을 만든다. 도면에서 벽·문·창을 읽어 room.json을 쓴다.
+
+        가구는 없다(도면의 가구 그림은 읽지 않는다). 천장 높이는 도면에 없어서 2.4 m로 둔다.
+        """
+        from worker.plan_room import room_from_plan
+
+        from .plan_read import PlanReadError, read_plan
+
+        ext = Path(filename).suffix.lower()
+        if ext not in self.FLOORPLAN_TYPES:
+            raise Invalid("도면은 PNG·JPG·WEBP·PDF만 올릴 수 있습니다")
+        if not data:
+            raise Invalid("빈 파일")
+        name = (name or "").strip()
+        if len(name) > HOME_NAME_MAX:
+            raise Invalid(f"집 이름은 {HOME_NAME_MAX}자까지 쓸 수 있어요")
+        name = name or Path(filename).stem.strip()[:HOME_NAME_MAX] or None
+        try:
+            room = room_from_plan((reader or self.plan_reader or read_plan)(data, self.FLOORPLAN_TYPES[ext], Path(filename).name))
+        except (PlanReadError, ValueError) as e:
+            raise Invalid(str(e)) from e
+        pid = self.db.next_id("p")
+        d = self.pdir(pid)
+        (d / "scan").mkdir(parents=True, exist_ok=True)
+        (d / "scan" / "room.json").write_text(room.model_dump_json(indent=1), encoding="utf-8")
+        scan = {"source": "floorplan_image", "usdz": None,
+                "room_json": str((d / "scan" / "room.json").relative_to(self.root)), "scanned_by": "customer"}
+        self.db.put("project", pid, self._new_project(pid, name, scan, user))
+        self.set_floorplan(pid, data, filename)  # 읽은 도면은 그대로 붙여 둔다 (도면·실측 창에서 다시 볼 수 있게)
         self._rebuild(pid)
         return self.get_project(pid)
 
@@ -406,6 +443,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return w.model_dump()
 
     # ---- 도면 (선택) ----
+    plan_reader = None  # 도면 읽는 함수를 바꿔 끼울 때 (테스트). 없으면 core.plan_read.read_plan
     FLOORPLAN_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
                        ".webp": "image/webp", ".pdf": "application/pdf"}
 
@@ -427,11 +465,49 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                           "content_type": self.FLOORPLAN_TYPES[ext], "uploaded_at": now()}
         return self._save_project(p)
 
+    def apply_floorplan(self, pid: str, reader=None) -> dict:
+        """스캔으로 만든 집에 붙인 도면을 읽어, 길이가 맞는 벽을 도면 치수로 보정한다.
+
+        줄자로 잰 값(기사·고객 실측)이 있는 벽은 건드리지 않는다. 도면을 못 읽어도 첨부는 그대로 두고 이유만 적는다.
+        """
+        from worker.plan_room import corrections, room_from_plan
+
+        from .plan_read import PlanReadError, read_plan
+
+        p = self.get_project(pid)
+        fp = p.get("floorplan")
+        if not fp or p["scan"].get("source") == "floorplan_image":
+            return p
+        try:
+            plan = room_from_plan((reader or self.plan_reader or read_plan)((self.root / fp["file"]).read_bytes(), fp["content_type"], fp["name"]))
+        except (PlanReadError, ValueError) as e:
+            p["floorplan"] = {**fp, "applied": None, "note": str(e)}
+            return self._save_project(p)
+        room = self._load_room(pid)
+        fixed = []
+        for wall_id, length in corrections(room, plan).items():
+            w = room.wall(wall_id)
+            if w.measured and w.measured.length_m is not None and w.measured.by != "floorplan":
+                continue
+            old = w.measured or MeasuredDims()
+            w.measured = MeasuredDims(length_m=length, height_m=old.height_m, depth_m=old.depth_m, by="floorplan", at=now())
+            fixed.append(wall_id)
+        self._save_room(pid, room)
+        p["floorplan"] = {**fp, "applied": {"walls": fixed, "at": now()}, "note": None}
+        return self._save_project(p)
+
     def clear_floorplan(self, pid: str) -> dict:
         p = self.get_project(pid)
         fp = p.pop("floorplan", None)
         if fp:
             (self.root / fp["file"]).unlink(missing_ok=True)
+            if fp.get("applied"):  # 도면으로 맞춘 길이도 같이 되돌린다
+                room = self._load_room(pid)
+                for w in room.walls:
+                    if w.measured and w.measured.by == "floorplan":
+                        rest = w.measured.model_copy(update={"length_m": None, "by": None, "at": None})
+                        w.measured = rest if (rest.height_m is not None or rest.depth_m is not None) else None
+                self._save_room(pid, room)
         return self._save_project(p)
 
     def floorplan_path(self, pid: str) -> tuple[Path, str] | None:
@@ -1581,7 +1657,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if hidden:  # 치운 가구는 3D·렌더에서 뺀다
             room = room.model_copy(update={"objects": [o for o in room.objects if o.object_id not in hidden]})
         room = self._standing(room, p)  # 철거한 벽과 그 벽의 문·창도 뺀다
-        usdz = self.root / p["scan"]["usdz"]
+        usdz = self.root / p["scan"]["usdz"] if p["scan"].get("usdz") else None  # 도면으로 만든 집은 스캔 파일이 없다
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
         if sun:
             state["sun"] = sun

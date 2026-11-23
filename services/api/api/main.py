@@ -9,6 +9,7 @@ from functools import lru_cache
 from typing import Literal, Optional
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, Request, UploadFile
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -398,6 +399,21 @@ async def upload_scan(file: UploadFile = File(...), request_id: Optional[str] = 
     return s.create_project_from_usdz(data, file.filename or "room.usdz", request_id or None, scanned_by, user=u, name=name)
 
 
+MAX_PLAN_UPLOAD = 20 * 1024 * 1024  # 도면 한 장. 이보다 크면 읽는 쪽에서 받지 않는다
+
+
+@app.post("/api/projects/from-plan", status_code=201)
+async def upload_plan_as_home(file: UploadFile = File(...), name: Optional[str] = Form(None),
+                              u: Optional[dict] = ME_OPT, s: Service = S):
+    """스캔 없이 도면만으로 집을 만든다."""
+    data = await file.read()
+    if len(data) > MAX_PLAN_UPLOAD:
+        raise HTTPException(413, "도면 파일이 너무 커요. 20MB 아래로 올려 주세요")
+    if not data:
+        raise HTTPException(422, "빈 파일")
+    return await run_in_threadpool(s.create_project_from_plan, data, file.filename or "floorplan.png", user=u, name=name)
+
+
 @app.get("/api/projects")
 def list_projects(u: Optional[dict] = ME_OPT, s: Service = S):
     return s.visible_projects(u)
@@ -769,7 +785,8 @@ async def upload_floorplan(pid: str, file: UploadFile = File(...), s: Service = 
     data = await file.read()
     if len(data) > MAX_UPLOAD:
         raise HTTPException(413, "파일이 너무 큽니다")
-    return s.set_floorplan(pid, data, file.filename or "floorplan.png")
+    s.set_floorplan(pid, data, file.filename or "floorplan.png")
+    return await run_in_threadpool(s.apply_floorplan, pid)  # 스캔한 집이면 도면 치수로 벽 길이를 맞춘다
 
 
 @app.delete("/api/projects/{pid}/floorplan")

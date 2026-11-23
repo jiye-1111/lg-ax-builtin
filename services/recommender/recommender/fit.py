@@ -193,10 +193,12 @@ def _check_wall(room: Room, zone: Zone, wall: Wall, p: Product, cfg: FitConfig) 
     fr = g.WallFrame(wall.start, wall.end, c)
     m = wall.measured
 
-    len_measured = m is not None and m.length_m is not None
+    has_len = m is not None and m.length_m is not None
+    # 도면 치수(by=floorplan)는 줄자로 잰 값이 아니다: 길이는 쓰되 여유는 스캔과 같게 둔다
+    len_measured = has_len and m.by != "floorplan"
     h_measured = m is not None and m.height_m is not None
     d_measured = m is not None and m.depth_m is not None
-    wall_len = m.length_m if len_measured else wall.scanned.length_m
+    wall_len = m.length_m if has_len else wall.scanned.length_m
     wall_h = m.height_m if h_measured else wall.scanned.height_m
 
     # 1) 폭: 영역이 덮는 벽 구간 − 개구부 − 기존 오브젝트 → 최대 연속 구간
