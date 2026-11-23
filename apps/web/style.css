@@ -250,8 +250,24 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .plan .wall { stroke: var(--ink); stroke-linecap: square; }
 .plan .wall.measured { stroke: var(--fit); }
 .plan .wall.sel { stroke: var(--lg); }
-.plan .door { stroke: #c99a6b; }
-.plan .window { stroke: #86bde3; }
+.plan .floor { fill: #fdfbf8; stroke: none; }
+.plan .door, .plan .window { stroke: #fdfbf8; stroke-linecap: butt; }
+.plan .glass { stroke: #8fa9b8; stroke-width: 1.5px; vector-effect: non-scaling-stroke; pointer-events: none; }
+.plan .swing { fill: none; stroke: #a39a8d; stroke-width: 1px; vector-effect: non-scaling-stroke; pointer-events: none; }
+/* 가구 기호: 흰 바탕에 가는 선, 쿠션·상판 같은 덩어리만 살짝 진하게 */
+.plan .sym { pointer-events: none; }
+.plan .sym :is(rect, circle), .plan .placed .sym :is(rect, circle) { fill: #fff; stroke: #8f867a; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.plan .sym .soft, .plan .placed .sym .soft { fill: #efe9df; }
+.plan .sym .ln, .plan .placed .sym .ln { fill: none; stroke: #b3aa9c; stroke-width: 1px; vector-effect: non-scaling-stroke; }
+.plan .sym .dash { stroke-dasharray: 4 3; }
+.plan .sym.sel :is(rect, circle) { stroke: var(--lg); }
+.plan .obj.has-sym { fill: transparent; stroke: none; }
+.plan .obj.has-sym:hover { fill: rgba(60, 48, 30, .06); }
+.plan .placed.furn > rect { fill: transparent; stroke: transparent; }
+.plan .placed.furn.v-no_fit > rect { stroke: var(--nofit); }
+.plan .placed.furn.sel > rect { stroke: var(--lg); }
+.plan .placed.built rect { fill: var(--ink); stroke: var(--ink); }
+.plan .placed.built.sel rect { fill: var(--lg); stroke: var(--lg); }
 .plan .obj { fill: #e4ded4; stroke: #b0a798; cursor: pointer; }
 .plan .obj:hover { fill: #d9d1c4; }
 .plan .obj.gone { fill: none; stroke-dasharray: .06 .04; opacity: .45; }

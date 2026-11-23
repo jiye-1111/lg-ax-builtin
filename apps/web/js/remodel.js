@@ -314,7 +314,7 @@ export async function customer(pid) {
   };
   const drawStopDots = () => {
     const g = document.getElementById("stopDots");
-    if (g && pv) g.innerHTML = walking ? stops.map((x) => `<circle class="stop-dot" cx="${x.pos[0]}" cy="${x.pos[1]}" r="${pv.sw(3.5)}"/>`).join("") : "";
+    if (g && pv) g.innerHTML = walking ? stops.map((x) => `<circle class="stop-dot" cx="${x.pos[0]}" cy="${x.pos[1]}" r="${pv.sw(4)}"/>`).join("") : "";
   };
   const loadStops = () => {
     const was = stops[stopAt]?.id;
@@ -1965,7 +1965,7 @@ export async function customer(pid) {
   api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
 
   const draw = () => {
-    pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects,
+    pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects, hiddenOpenings: project.scene_state.hidden_openings,
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: simOn("daylight") ? project.site?.north_deg ?? 0 : null });
     drawDraft();
     svg.insertAdjacentHTML("beforeend", `<g id="stopDots"></g><defs><radialGradient id="camFade" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1"><stop offset="0" stop-color="#a50034" stop-opacity=".5"/><stop offset=".55" stop-color="#a50034" stop-opacity=".2"/><stop offset="1" stop-color="#a50034" stop-opacity="0"/></radialGradient></defs><polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="fill:url(#camFade);stroke:none"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
