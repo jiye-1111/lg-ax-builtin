@@ -304,3 +304,11 @@ def test_scene_reloads_when_a_window_is_removed_or_furniture_recoloured():
 
 def test_furniture_colour_is_picked_from_the_3d_menu():
     assert 'actBtn("actColor", "color", "색")' in REMODEL and 'class="cl-dot' in REMODEL
+
+
+def test_installed_lg_appliances_change_colour_only_to_real_colours():
+    """지예: 가전도 설치한 뒤 색을 바꿀 수 있게. 단, 그 모델에 실제로 있는 색(같은 모델군)으로만 바꾼다."""
+    fn = REMODEL.split("const lgColours = ")[1].split("const colourBar")[0]
+    assert "familyOf(x.sku)" in fn and "v.color" in fn and "sellable(v)" in fn
+    bar = REMODEL.split("const colourBar = ")[1].split("// 빈틈에 맞추기")[0]
+    assert 'JSON.stringify({ sku: to.sku })' in bar

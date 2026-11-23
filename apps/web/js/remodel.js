@@ -1569,16 +1569,34 @@ export async function customer(pid) {
   // 색 고르기: 3D 메뉴가 색 점 줄로 바뀐다. 누르면 바로 입혀진다 (놓은 가구도, 스캔한 가구도)
   let colouring = null;
   const paintOf = (x, o) => (x ? x.sku.slice(x.sku.indexOf(":") + 1) : o ? lookOf(o.category, o.bbox_m.h) : null);
+  // 설치한 LG 가전의 색: 그 모델에 실제로 있는 색만 (같은 사양에서 색만 다른 모델로 바꾼다)
+  const lgColours = (x) => {
+    const f = x && !isDecor(x.sku) && familyOf(x.sku);
+    if (!f) return [];
+    const mine = f.variants.find((v) => v.sku === x.sku), same = (v) => JSON.stringify(v.options || {}) === JSON.stringify(mine?.options || {});
+    const pool = f.variants.filter((v) => v.color && v.hex && (v.sku === x.sku || f.demo_only || sellable(v)));
+    const names = [...new Set(pool.map((v) => v.color))];
+    const list = names.map((n) => { const v = pool.find((q) => q.color === n && q.sku === x.sku) || pool.find((q) => q.color === n && same(q)) || pool.find((q) => q.color === n); return { name: n, hex: v.hex, sku: v.sku }; });
+    return list.length > 1 ? list : [];
+  };
   const colourBar = (x, o) => {
-    const list = coloursFor(paintOf(x, o));
-    const cur = (x ? x.hex : (project.scene_state.object_colors || {})[o.object_id]) || null;
+    const lg = lgColours(x);
+    const list = lg.length ? lg : coloursFor(paintOf(x, o));
+    const cur = lg.length ? lg.find((c) => c.sku === x.sku)?.hex || null : (x ? x.hex : (project.scene_state.object_colors || {})[o.object_id]) || null;
     actBar.classList.add("colouring");
     actBar.innerHTML = `<div class="cl-row" role="radiogroup" aria-label="가구 색">${list.map((c) =>
       `<button class="cl-dot${cur === c.hex ? " on" : ""}" data-hex="${c.hex}" role="radio" aria-checked="${cur === c.hex}" aria-label="${esc(c.name)}" title="${esc(c.name)}" style="--c:${c.hex}"></button>`).join("")}</div>
       <div class="cl-foot"><span class="cl-name">${esc(list.find((c) => c.hex === cur)?.name || "원래 색")}</span><span class="spacer"></span>
-        ${cur ? `<button class="ghost small" id="clReset">원래 색으로</button>` : ""}<button class="primary small" id="clDone">완료</button></div>`;
+        ${cur && !lg.length ? `<button class="ghost small" id="clReset">원래 색으로</button>` : ""}<button class="primary small" id="clDone">완료</button></div>`;
     const apply = guard(async (hex) => {
-      if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: hex || "" }) });
+      if (lg.length) { // 색이 다른 같은 모델로 바꾼다 (가격이 다르면 합계도 바뀐다)
+        const to = lg.find((c) => c.hex === hex);
+        if (!to || to.sku === x.sku) return;
+        rememberPlacement(x.placement_id);
+        await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ sku: to.sku }) });
+        const vs = familyOf(x.sku).variants, was = vs.find((v) => v.sku === x.sku)?.price_krw, now = vs.find((v) => v.sku === to.sku)?.price_krw;
+        if (typeof now === "number" && now !== was) toast(`${to.name}은 ${now.toLocaleString("ko-KR")}원이에요`); // 색에 따라 값이 다르면 알려 준다
+      } else if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: hex || "" }) });
       else for (const oid of runOf(room.objects, o.object_id)) await put(`/api/projects/${pid}/objects/${oid}/color`, { hex: hex || null }); // 붙어 있는 한 줄은 같이
       await refresh(true);
     });
@@ -1623,8 +1641,8 @@ export async function customer(pid) {
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku);
     const obj = !x && room.objects.find((q) => q.object_id === selObj);
-    const paintable = (deco || obj) && coloursFor(paintOf(deco ? x : null, obj)).length > 0;
-    if (paintable && colouring === target.id) { colourBar(deco ? x : null, obj); return; }
+    const paintable = x && !deco ? lgColours(x).length > 0 : (deco || obj) && coloursFor(paintOf(deco ? x : null, obj)).length > 0;
+    if (paintable && colouring === target.id) { colourBar(x || null, obj); return; }
     if (colouring !== target.id) colouring = null;
     actBar.innerHTML = actBtn("actMove", "move", "이동") + actBtn("actRot", "rotate", "회전")
       + (paintable ? actBtn("actColor", "color", "색") : "")
