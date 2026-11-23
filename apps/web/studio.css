@@ -969,3 +969,27 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .studio.app .wt-head b { font-size: 15px; }
 .studio.app .wt-play { height: 30px; font-size: 12.5px; }
 .studio.app .wt-line { gap: 14px; }
+
+/* 실사로 둘러보기: 들르는 곳에 서면 3D 위에 그 장면의 실사가 스르르 덮인다. 움직이면 걷힌다 */
+.view-pane .tour-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 2; opacity: 0; transition: opacity .6s ease; pointer-events: none; }
+.view-pane .tour-photo.on { opacity: 1; }
+.view-pane .tour-photo[hidden] { display: none; }
+.studio.walking .view-stack #render.on { background: #a50034; color: #fff; }
+
+/* 걸어 보기 배치 (PC): 제품 칸을 접고, 왼쪽에 큰 도면 · 오른쪽에 보는 장면 · 위에 지금 선 곳 이름 · 아래에 들를 곳 줄 */
+.studio.walking:not(.app) { grid-template-columns: minmax(0, 1fr); grid-template-areas: "head" "stage"; }
+.studio.walking:not(.app) :is(.lib, .lib-fold) { display: none; }
+.studio.walking:not(.app) .canvas { --wt-top: 76px; --wt-bottom: 96px; --wt-side: 24px; --wt-split: 45%; background: var(--sheet); }
+.studio.walking:not(.app) .canvas .minimap { left: var(--wt-side); top: var(--wt-top); bottom: var(--wt-bottom); width: calc(var(--wt-split) - var(--wt-side) - 16px); height: auto;
+  border: 1px solid var(--line-soft); box-shadow: none; }
+.studio.walking:not(.app) .canvas .minimap :is(.mini-grow, .pip-swap) { display: none; }
+.studio.walking:not(.app)[data-view="3d"] .canvas .view-pane { inset: var(--wt-top) var(--wt-side) var(--wt-bottom) var(--wt-split); border-radius: 14px; }
+.studio.walking .minimap .plan text { display: none; } /* 큰 도면은 모양만: 이름은 아래 줄에 있다 */
+.studio.walking:not(.app) .canvas .walk-tour { inset: 0; max-width: none; margin: 0; padding: 0; background: none; box-shadow: none; backdrop-filter: none; pointer-events: none; }
+.studio.walking:not(.app) .wt-head { position: absolute; left: var(--wt-side); top: 16px; height: 44px; margin: 0; justify-content: flex-start; gap: 18px; pointer-events: auto; }
+.studio.walking:not(.app) .wt-head b { font-size: 28px; letter-spacing: -.02em; }
+.studio.walking:not(.app) .wt-line { position: absolute; left: var(--wt-side); right: 104px; bottom: 22px; pointer-events: auto; }
+.studio.walking:not(.app) .wt-line button { font-size: 13.5px; }
+.studio.walking:not(.app) .canvas > .sim-switches { top: 18px; right: var(--wt-side); box-shadow: none; background: var(--warm-grey); }
+.studio.walking:not(.app) .canvas .render-wait { top: calc(var(--wt-top) + 12px); left: calc((100% + var(--wt-split) - var(--wt-side)) / 2); }
+.studio.walking:not(.app) .view-stack { top: 12px; }

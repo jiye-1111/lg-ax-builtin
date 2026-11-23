@@ -110,7 +110,7 @@ export async function customer(pid) {
         <div class="canvas">
           <div class="pane plan-pane"><svg class="plan" id="plan" aria-label="평면도"></svg>
             <button class="pip-swap" data-swap="plan" title="평면도를 크게 보기">평면도 보기</button></div>
-          <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div>
+          <div class="pane view-pane"><div class="viewer" id="viewer"><span class="hud" id="hud"></span></div><img class="tour-photo" id="tourPhoto" alt="지금 선 곳의 실사 이미지" hidden>
             <button class="pip-swap" data-swap="3d" title="3D를 크게 보기">3D 보기</button>
             <div class="view-stack" role="group" aria-label="보기 바꾸기">
               <button class="vbtn on" id="viewTop" aria-pressed="true" title="위에서 내려다봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 3 8l9 5 9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>위에서</span></button>
@@ -339,7 +339,10 @@ export async function customer(pid) {
   const tourNext = (i) => {
     if (!touring || !walking) return;
     if (i >= stops.length) { setTouring(false); return; }
-    goStop(i, () => { tourTimer = setTimeout(() => tourNext(i + 1), TOUR_STAY_MS); });
+    goStop(i, async () => {
+      if (photoOn) await showPhoto(stops[i]).catch(() => {}); // 실사는 다 뜬 뒤부터 머문다
+      if (touring) tourTimer = setTimeout(() => tourNext(i + 1), TOUR_STAY_MS * (photoOn ? 1.6 : 1));
+    });
   };
   wtLine.onclick = (e) => { const b = e.target.closest("[data-stop]"); if (!b) return; setTouring(false); goStop(+b.dataset.stop); };
   wtPlay.onclick = () => {
@@ -347,18 +350,64 @@ export async function customer(pid) {
     setTouring(true);
     tourNext(stopAt < 0 || stopAt >= stops.length - 1 ? 0 : stopAt + 1);
   };
+  // 실사로 둘러보기: 걸어 보는 중에 실사를 켜면, 들르는 곳에 설 때마다 그 장면을 실사 사진으로 바꿔 보여 준다.
+  // 한 번 만든 곳은 서버에 남아서(장면이 그대로면) 다시 갈 때 바로 뜬다.
+  const tourPhoto = document.getElementById("tourPhoto");
+  let photoOn = false, photoAt = null, spotPhotos = {}; // photoAt: 지금 사진을 보여 주는(만드는) 곳 id
+  const photoJobs = new Map(); // 곳 id → 만드는 중인 약속 (같은 곳을 두 번 만들지 않게)
+  const hidePhoto = () => { photoAt = null; tourPhoto.classList.remove("on"); document.getElementById("renderWait").hidden = true; };
+  const setPhotoOn = (on) => {
+    photoOn = !!on;
+    const b = document.getElementById("render");
+    b.classList.toggle("on", photoOn); b.setAttribute("aria-pressed", photoOn);
+    if (!photoOn) hidePhoto();
+  };
+  const spotPhoto = (x) => {
+    const had = spotPhotos[x.id];
+    if (had && had.version === project.version) return Promise.resolve(apiUrl(had.url));
+    const key = `${x.id}@${project.version}`;
+    if (!photoJobs.has(key)) {
+      const version = project.version;
+      photoJobs.set(key, post(`/api/projects/${pid}/photoreal`, { ...takeShot(), spot: x.id })
+        .then((r) => { spotPhotos = { ...spotPhotos, [x.id]: { url: r.url, version } }; return apiUrl(r.url); })
+        .finally(() => photoJobs.delete(key)));
+    }
+    return photoJobs.get(key);
+  };
+  /** 그 곳에 서 있을 때 실사를 띄운다. 만드는 동안 자리를 뜨면 버린다. 끝나면(띄웠든 아니든) 돌아온다 */
+  const showPhoto = async (x) => {
+    if (photoAt === x.id) return;
+    photoAt = x.id;
+    const waitEl = document.getElementById("renderWait");
+    waitEl.hidden = !!(spotPhotos[x.id]?.version === project.version);
+    try {
+      const url = await spotPhoto(x);
+      if (photoAt !== x.id || !photoOn) return;
+      await new Promise((ok) => { tourPhoto.onload = tourPhoto.onerror = ok; tourPhoto.src = url; });
+      if (photoAt !== x.id || !photoOn) return;
+      tourPhoto.hidden = false;
+      requestAnimationFrame(() => tourPhoto.classList.add("on"));
+    } catch (err) {
+      setPhotoOn(false); setTouring(false);
+      if (err.status !== 503 && err.status !== 429) throw err;
+      toast(err.message, true);
+    } finally { if (photoAt === x.id || !photoAt) waitEl.hidden = true; }
+  };
   const setWalking = (on) => {
     walking = !!(on && room && viewer);
     setTouring(false);
+    setPhotoOn(false);
     if (walking) {
       if (studio.dataset.view === "plan") setView("3d");
       armed = null; ghost(null); renderLib();
       viewer.setWalk(walkWorld());
       loadStops();
       if (stops[0]) { viewer.walkPlace(stops[0].pos, stops[0].yaw, stops[0].pitch); markStop(0); } // 현관에서 시작
+      api(`/api/projects/${pid}/photoreal/spots`).then((r) => { spotPhotos = r.spots || {}; }).catch(() => { /* 없으면 새로 만든다 */ });
     } else { viewer?.setWalk(null); stops = []; stopAt = -1; }
     tourBar.hidden = !walking;
     drawStopDots();
+    setTimeout(() => { if (project) draw(); }, 320); // 도면 칸 크기가 바뀌니 글자·선 굵기를 다시 맞춘다
     const b = document.getElementById("walk");
     b.classList.toggle("on", walking);
     studio.classList.toggle("walking", walking);
@@ -1378,6 +1427,11 @@ export async function customer(pid) {
       m.setAttribute("points", `${x},${z} ${x + L * Math.cos(a - half)},${z + L * Math.sin(a - half)} ${x + L * Math.cos(a + half)},${z + L * Math.sin(a + half)}`);
       d.setAttribute("cx", x); d.setAttribute("cy", z);
       if (!w.gliding) { const n = nearestStop(stops, [x, z]); if (n !== stopAt) markStop(n); }
+      if (photoOn) { // 들르는 곳에 그 방향 그대로 서 있을 때만 실사. 움직이거나 고개를 돌리면 3D로 돌아간다
+        const st = stops[stopAt], turn = st ? Math.abs(Math.atan2(Math.sin(w.yaw - st.yaw), Math.cos(w.yaw - st.yaw))) : 9;
+        const still = st && !w.gliding && Math.hypot(st.pos[0] - x, st.pos[1] - z) < 0.06 && turn < 0.06;
+        if (still) showPhoto(st).catch((e) => toast(e.message, true)); else if (photoAt) hidePhoto();
+      }
       return;
     }
     const c = viewer.camera(), key = `${c.pos}|${c.target}`;
@@ -1681,13 +1735,26 @@ export async function customer(pid) {
     document.getElementById("renderCap").textContent = cap;
     document.getElementById("renderBox").hidden = false;
   };
-  document.getElementById("render").onclick = guard(async (e) => {
-    const b = e.currentTarget;
-    // 걸어 보는 중이면 그 눈높이 장면 그대로 찍는다 (예전에는 위에서 본 모습으로 돌아가 버렸다)
+  const takeShot = () => {
     viewer.cancelHold(); armed = null; ghost(null);
     const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
     const shot = viewer.snapshot();
     selPl = keepSel; draw();
+    return shot;
+  };
+  document.getElementById("render").onclick = guard(async (e) => {
+    const b = e.currentTarget;
+    if (walking) { // 걸어 보는 중: 들르는 곳마다 실사로 바뀌는 둘러보기를 켜고 끈다
+      setPhotoOn(!photoOn);
+      if (photoOn && !viewer.walkInfo().gliding) { // 들르는 곳이 아니면 가장 가까운 곳으로 가서 보여 준다
+        const here = herePos();
+        let near = 0;
+        stops.forEach((x, i) => { if (Math.hypot(x.pos[0] - here[0], x.pos[1] - here[1]) < Math.hypot(stops[near].pos[0] - here[0], stops[near].pos[1] - here[1])) near = i; });
+        goStop(near);
+      }
+      return;
+    }
+    const shot = takeShot();
     const label = b.querySelector("span");
     b.disabled = true; b.classList.add("busy"); label.textContent = "만드는 중";
     const waitEl = document.getElementById("renderWait"); // 잠깐 뜨는 알림 대신 끝날 때까지 화면에 남긴다

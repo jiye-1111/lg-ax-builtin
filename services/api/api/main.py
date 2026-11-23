@@ -702,11 +702,25 @@ def render(pid: str, body: Optional[RenderBody] = None, s: Service = S):
 class PhotorealIn(BaseModel):
     image: str = Field(max_length=12_000_000)  # 지금 3D 화면 (data URL)
     mask: str = Field(max_length=12_000_000)   # 같은 시점, LG 제품만 흰색
+    spot: Optional[str] = Field(None, pattern=r"^[A-Za-z0-9_:-]{1,60}$")  # 둘러보기에서 들르는 곳 (곳마다 한 장씩 남긴다)
 
 
 @app.post("/api/projects/{pid}/photoreal")
 def photoreal(pid: str, body: PhotorealIn, s: Service = S):
-    return s.photoreal(pid, body.image, body.mask)
+    return s.photoreal(pid, body.image, body.mask, body.spot)
+
+
+@app.get("/api/projects/{pid}/photoreal/spots")
+def photoreal_spots(pid: str, s: Service = S):
+    return s.photoreal_spots(pid)
+
+
+@app.get("/api/projects/{pid}/photoreal/spots/{name}")
+def photoreal_spot_file(pid: str, name: str, s: Service = S):
+    p = s.photoreal_spot_path(pid, name)
+    if p is None:
+        raise HTTPException(404, "아직 생성되지 않음")
+    return FileResponse(p, headers={"Cache-Control": "no-store"})
 
 
 @app.get("/api/projects/{pid}/zones/{zid}/recommendations")

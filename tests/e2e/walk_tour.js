@@ -63,6 +63,36 @@ const check = (name, ok, info = "") => {
   check("작은 도면을 누르면 그리로 걸어간다", (await info()).gliding);
   await arrived();
 
+  // 실사로 둘러보기: 이미지 AI는 부르지 않고 서버 응답만 흉내 낸다
+  let made = 0;
+  await page.route("**/api/projects/*/photoreal", async (route) => {
+    made += 1;
+    const spot = JSON.parse(route.request().postData()).spot;
+    await new Promise((r) => setTimeout(r, 800));
+    await route.fulfill({ json: { url: `/img/hero-kitchen.webp?spot=${spot}`, model: "test" } });
+  });
+  const photoOn = () => page.$eval("#tourPhoto", (e) => !e.hidden && e.classList.contains("on") && e.src);
+  await page.click("#wtLine li:nth-child(1) button");
+  await arrived();
+  await page.click("#render");
+  await wait(400);
+  check("실사를 누르면 만드는 동안 기다림 표시", !(await page.$eval("#renderWait", (e) => e.hidden)) && (await page.$eval("#render", (e) => e.classList.contains("on"))));
+  await wait(2500);
+  check("선 곳이 실사로 바뀐다", String(await photoOn()).includes("spot=door"), String(await photoOn()));
+  await page.click(`#wtLine li:nth-child(${at + 1}) button`);
+  await wait(600);
+  check("걸어가는 동안은 3D로 돌아간다", !(await photoOn()));
+  await arrived();
+  await wait(2800);
+  check("다음 곳도 실사로 바뀐다", String(await photoOn()).includes("spot=pl"), String(await photoOn()));
+  await page.click("#wtLine li:nth-child(1) button");
+  await arrived();
+  await wait(1500);
+  check("한 번 만든 곳은 다시 만들지 않는다", made === 2 && String(await photoOn()).includes("spot=door"), `만든 횟수 ${made}`);
+  await page.click("#render");
+  await wait(900);
+  check("실사를 다시 누르면 꺼진다", !(await photoOn()));
+
   await page.click("#viewTop");
   await wait(500);
   check("위에서 보기로 돌아가면 줄이 사라진다", await page.$eval("#walkTour", (e) => e.hidden));
