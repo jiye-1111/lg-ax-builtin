@@ -32,8 +32,20 @@ export function poseAt(pts, s) {
 
 /** 경로 길이 length를 speed로 걷고 pause초 쉬었다가 처음부터 다시. 시각 t(초) → {s, moving, v}
  *  ease(초): 출발할 때 그만큼 걸려 보통 빠르기가 되고, 도착 전에도 그만큼 감속한다 (0이면 바로 출발·정지) */
-export function routeClock(length, { speed = WALK_SPEED, pause = 1.2, ease = 0 } = {}) {
+export function routeClock(length, { speed = WALK_SPEED, pause = 1.2, ease = 0, roundTrip = false } = {}) {
   const e = Math.min(ease, length / speed), walkT = length / speed + e, loop = walkT + pause;
+  const oneWay = oneWayClock(length, speed, e, walkT, loop);
+  if (!roundTrip) return oneWay;
+  // 왕복: 끝에서 쉬고 돌아서 걸어온다 (처음 자리로 순간 이동하지 않는다). dir = 가는 쪽(+1)·오는 쪽(-1), 쉴 때는 다음에 갈 쪽
+  return (t) => {
+    if (!(length > 0)) return { ...oneWay(t), dir: 1 };
+    const u = ((t % (2 * loop)) + 2 * loop) % (2 * loop), back = u >= loop, leg = oneWay(back ? u - loop : u);
+    const dir = (back ? -1 : 1) * (leg.moving ? 1 : -1);
+    return { s: back ? length - leg.s : leg.s, moving: leg.moving, v: leg.v, dir };
+  };
+}
+
+function oneWayClock(length, speed, e, walkT, loop) {
   return (t) => {
     if (!(length > 0)) return { s: 0, moving: false, v: 0 };
     const u = ((t % loop) + loop) % loop;

@@ -123,8 +123,8 @@ export async function customer(pid) {
           <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
-            <p class="hint-sm">제품을 누르면 바로 위에 뜨는 이동·회전·벽에 붙이기·삭제 메뉴로 다 할 수 있어요. 키보드가 편하면:</p>
-            <ul class="keys"><li><kbd>클릭</kbd> 집어 들기 · 내려놓기</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+            <p class="hint-sm">제품이나 가구를 누른 채 끌면 바로 옮겨져요. 누르기만 하면 위에 메뉴가 떠요.</p>
+            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
               <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> 다시 실행</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
@@ -454,9 +454,16 @@ export async function customer(pid) {
   let furnPick = false, furnHover = () => {}; // 가구 치우기: 마우스가 올라간 가구·창에만 ✕ (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
-    // 고른 제품만 끌어서 옮긴다. 안 고른 제품 위에서 끌면 화면이 돌아간다 (실수로 밀리지 않게)
     onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
     canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl,
+    // 물건을 누른 채 끌면 바로 잡힌다. 놓으면 내려놓는다. 잡은 채 휠이나 E+마우스로 돌린다
+    canGrab: () => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !furnPick,
+    onGrab: (hit, point) => {
+      if (hit.type === "placement") { selPl = hit.id; selObj = null; } else { selObj = hit.id; selPl = null; }
+      pickUp(hit, point);
+      if (viewer.held()) setHint("놓으면 그 자리에 내려놓아요 · 휠을 굴리거나 E를 누른 채 마우스를 움직이면 돌아가요 (Shift 45°) · Esc 취소");
+      renderAct();
+    },
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
     onSurface: () => (armedRouter ? "router" : armed && tabletop(armed) ? "product" : false),
     onHover: (p) => { hovering = true; follow(p); },
@@ -1319,7 +1326,7 @@ export async function customer(pid) {
     if (viewer.held()) viewer.rotateHeld(d); else nudgeSelected(0, 0, d);
   };
   const CAM_KEYS = ["w", "a", "s", "d", "q", "e"];
-  const onKeyUp = (e) => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; if (CAM_KEYS.includes(k)) viewer?.camKey(k, false); };
+  const onKeyUp = (e) => { const k = e.key.length === 1 ? e.key.toLowerCase() : e.key; if (CAM_KEYS.includes(k)) viewer?.camKey(k, false); if (k === "e") viewer?.spinKey(false); };
   const camKeysOff = () => viewer?.camKeysOff();
   document.addEventListener("keyup", onKeyUp);
   window.addEventListener("blur", camKeysOff);
@@ -1336,6 +1343,7 @@ export async function customer(pid) {
     if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
+    if (k === "e" && viewer.held()) { viewer.spinKey(true); e.preventDefault(); return; } // 잡은 물건 돌리기
     if (in3d && !e.ctrlKey && !e.metaKey && CAM_KEYS.includes(k)) { viewer.camKey(k, true); e.preventDefault(); return; } // 누르고 있는 동안 움직인다
     if (armed && (k === "r" || k === "." || k === ",")) { // 들고 있는 물건 돌리기
       armedYaw += (k === "," || e.shiftKey ? -1 : 1) * (e.altKey ? ROT_FINE : ROT_STEP);

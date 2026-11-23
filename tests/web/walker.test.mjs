@@ -77,3 +77,17 @@ test("출발할 때 천천히 가속하고 도착 전에 감속한다", () => {
   assert.equal(clk(walkT + 0.2).s, 7);
   assert.ok(clk(walkT - 0.05).s > 6.99);
 });
+
+test("왕복: 끝에 닿으면 처음으로 순간 이동하지 않고 돌아서 걸어온다", () => {
+  const clk = routeClock(6, { speed: 1, pause: 1, roundTrip: true });
+  assert.deepEqual([clk(3).s, clk(3).dir, clk(3).moving], [3, 1, true]);
+  const rest = clk(6.5);                       // 끝에서 쉬는 중: 다음에 갈 쪽(돌아가는 쪽)을 알려 준다
+  assert.deepEqual([rest.s, rest.moving, rest.dir], [6, false, -1]);
+  const back = clk(9);                         // 돌아오는 길
+  assert.deepEqual([back.s, back.dir, back.moving], [4, -1, true]);
+  const home = clk(13.5);                      // 처음 자리에서 쉬는 중
+  assert.deepEqual([home.s, home.moving, home.dir], [0, false, 1]);
+  assert.equal(clk(14 + 3).s, 3);              // 다시 출발
+  let prev = clk(0).s;
+  for (let t = 0.05; t < 28; t += 0.05) { const s = clk(t).s; assert.ok(Math.abs(s - prev) < 0.06, `t=${t.toFixed(2)}에서 ${prev}→${s}로 뛰었다`); prev = s; }
+});

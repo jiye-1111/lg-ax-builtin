@@ -41,6 +41,7 @@ const loadAsset = (url) => {
   return assets.get(url);
 };
 const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walker.glb";
+const MAX_TURN_RAD_S = 3.2; // 사람이 제자리에서 도는 빠르기 (반 바퀴에 1초쯤)
 const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
 const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
 const MAX_WALKERS = 4;
@@ -259,7 +260,8 @@ export function makeViewer(el, handlers = {}) {
   plc.addEventListener("unlock", () => { if (walk) { walkHud.hidden = false; cross.hidden = true; } walk && (walk.keys = {}); });
   // 들를 곳까지 데려다주기: 길을 따라 걸으면서 가는 쪽을 보고, 다 와서는 그곳에서 볼 방향으로 돈다
   const GLIDE_SPEED = 1.5, GLIDE_TURN = 3.5, GLIDE_AHEAD_M = 0.6, GLIDE_FACE_M = 0.7, GLIDE_PITCH = -0.06;
-  const stopGlide = () => { if (walk?.glide) { walk.glide = null; handlers.onWalkStop?.(); } };
+  // 들를 곳에 잠깐 서 있는 사이(걸음이 없을 때)에 눌러도 이어 보기는 멈춰야 한다
+  const stopGlide = () => { if (!walk) return; walk.glide = null; handlers.onWalkStop?.(); };
   const glideTick = (dt) => {
     const g = walk.glide;
     euler.setFromQuaternion(cam.quaternion);
@@ -314,6 +316,8 @@ export function makeViewer(el, handlers = {}) {
   };
 
   let down = null, dragging = null;
+  let grabbing = null, rotKey = false; // 누른 채 끌어 잡기, E를 누른 채 돌리기
+  const GRAB_PX = 6, SPIN_RAD_PER_PX = 0.012, SNAP_RAD = Math.PI / 4, WHEEL_RAD = Math.PI / 12;
   // 내장 그래픽처럼 느린 PC에서는 곱게 그린 한 장이 오래 걸려 둘러볼 때 뚝뚝 끊긴다.
   // 움직이는 동안에는 후처리(접촉 그림자)를 쉬고 가볍게 그리다가, 멈추면 다시 곱게 그린다. 빠른 PC는 늘 곱게 그린다.
   const SLOW_FRAME_MS = 28, SETTLE_MS = 220;
@@ -724,7 +728,12 @@ export function makeViewer(el, handlers = {}) {
     if (held) { down = { x: e.clientX, y: e.clientY, hit: null, p: null, held: true }; return; }
     const hit = pick(e);
     down = { x: e.clientX, y: e.clientY, hit, p: floorPoint(e) };
-    if (hit?.type === "placement" && handlers.canDrag?.(hit.id)) {
+    if ((hit?.type === "placement" || hit?.type === "object") && handlers.canGrab?.(hit)) {
+      // 물건 위에서 누르고 끌면 바로 잡혀서 따라온다 (먼저 고를 필요 없다). 놓으면 그 자리에 내려놓는다
+      ctl.enabled = false;
+      grabbing = { hit, p: down.p };
+      renderer.domElement.setPointerCapture?.(e.pointerId);
+    } else if (hit?.type === "placement" && handlers.canDrag?.(hit.id)) {
       // 제품 위에서 누르면 카메라 회전을 멈추고 끌기
       ctl.enabled = false;
       const g = products.children.find((c) => c.userData.placementId === hit.id);
@@ -745,6 +754,20 @@ export function makeViewer(el, handlers = {}) {
       }
       return;
     }
+    if (grabbing && !held && Math.hypot(e.clientX - down.x, e.clientY - down.y) > GRAB_PX) {
+      const g = grabbing;
+      grabbing = null;
+      handlers.onGrab?.(g.hit, g.p);
+      if (held) held.byDrag = true; else ctl.enabled = true;
+    }
+    if (held && !held.dropping && rotKey) { // E를 누른 채 마우스를 좌우로: 잡은 물건이 돈다 (Shift는 45°씩)
+      held.spin = (held.spin ?? held.yaw) + e.movementX * SPIN_RAD_PER_PX;
+      held.yaw = e.shiftKey ? Math.round(held.spin / SNAP_RAD) * SNAP_RAD : held.spin;
+      held.turned = true;
+      handlers.onHoldMove?.(held, held.xz);
+      return;
+    }
+    if (held) held.spin = undefined;
     if (held && !held.dropping) {
       // 들고 있으면 커서를 따라온다: 10 cm 격자, Alt는 1 cm
       // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
@@ -782,6 +805,8 @@ export function makeViewer(el, handlers = {}) {
     const d = down;
     down = null;
     ctl.enabled = true;
+    grabbing = null;
+    if (held?.byDrag) { handlers.onHoldClick?.(held); return; } // 끌던 물건은 놓는 자리에 내려놓는다
     if (dragging) {
       const g = dragging;
       dragging = null;
@@ -797,6 +822,12 @@ export function makeViewer(el, handlers = {}) {
   dom.addEventListener("pointermove", onMove);
   dom.addEventListener("pointerup", onUp);
   dom.addEventListener("pointerleave", () => handlers.onLeave?.());
+  // 잡고 있는 동안 휠을 굴리면 15°씩 돈다 (화면 확대는 잠시 쉰다)
+  el.addEventListener("wheel", (e) => {
+    if (!held || held.dropping) return;
+    e.preventDefault(); e.stopPropagation();
+    api.rotateHeld((e.deltaY > 0 ? 1 : -1) * WHEEL_RAD);
+  }, { capture: true, passive: false });
   dom.addEventListener("mousedown", (e) => { if (e.button === 1) e.preventDefault(); }); // 휠 누름: 브라우저 자동 스크롤 대신 화면 이동
   dom.addEventListener("dragover", (e) => { e.preventDefault(); const p = floorPoint(e); if (p) handlers.onHover?.(p); });
   dom.addEventListener("drop", (e) => {
@@ -812,13 +843,16 @@ export function makeViewer(el, handlers = {}) {
     if (walkersPaused) return;
     for (const w of walkers) {
       w.t += dt;
-      const { s, moving, v } = w.clock(w.t);
+      const { s, moving, v, dir = 1 } = w.clock(w.t);
       const p = poseAt(w.path, s);
       w.node.position.set(p.xz[0], 0, p.xz[1]);
       // 몸은 발밑이 아니라 조금 앞(0.35 m)을 보고 0.3초쯤에 걸쳐 돈다 (모퉁이에서 휙 돌지 않게)
-      const ahead = poseAt(w.path, s + LOOK_AHEAD_M);
-      const want = Math.hypot(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) > 0.05 ? Math.atan2(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) : p.heading;
-      w.heading += angleTo(w.heading, want) * Math.min(1, dt / TURN_S);
+      // 끝에서 쉬는 동안에는 돌아갈 쪽으로 천천히 돌아선다
+      const ahead = poseAt(w.path, Math.max(0, Math.min(w.len, s + dir * LOOK_AHEAD_M)));
+      const far = Math.hypot(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) > 0.05;
+      const want = far ? Math.atan2(ahead.xz[0] - p.xz[0], ahead.xz[1] - p.xz[1]) : w.heading;
+      const turn = angleTo(w.heading, want) * Math.min(1, dt / TURN_S), cap = MAX_TURN_RAD_S * dt;
+      w.heading += Math.max(-cap, Math.min(cap, turn));
       if (moving) w.walk.timeScale = Math.max(v, 0.25) * w.stepRate; // 가속·감속할 때 걸음도 같이
       w.node.rotation.y = w.heading;
       if (moving !== w.moving) {
@@ -993,8 +1027,8 @@ export function makeViewer(el, handlers = {}) {
           idle.play();
           walkersG.add(node);
           const smooth = smoothPath(path), len = pathLength(smooth); // 격자 계단을 펴고 모퉁이는 둥글게
-          walkers.push({ node, mixer, walk, idle, path: smooth, moving: false, heading: poseAt(smooth, 0.3).heading, stepRate,
-            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.5, ease: WALK_EASE_S }), t: -i * 1.2 });
+          walkers.push({ node, mixer, walk, idle, path: smooth, len, moving: false, heading: poseAt(smooth, 0.3).heading, stepRate,
+            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.6, ease: WALK_EASE_S, roundTrip: true }), t: -i * 1.2 });
         });
       });
     },
@@ -1062,6 +1096,8 @@ export function makeViewer(el, handlers = {}) {
       return true;
     },
     held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, y: held.nodes[0]?.node.position.y ?? 0 },
+    /** E를 누르고 있는지 (잡은 물건을 마우스로 돌리는 중) */
+    spinKey(on) { rotKey = !!on && !!held; },
     moveHeld(dx, dz) { if (held) { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
     rotateHeld(dyaw) { if (held) { held.yaw += dyaw; held.turned = true; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
