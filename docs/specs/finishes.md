@@ -6,7 +6,7 @@
 
 ## 데이터
 항목마다 `id, kind(wall|floor), brand, line, pattern, name, texture(plaster|fabric|stone|wood|paint), keywords, trend, facts, spec, tones[{name,hex}], tone_basis(official|approx), source_url, source_checked_at`.
-출처에서 확인하지 않은 값은 넣지 않는다. `spec`은 출처에 있을 때만 (`plank_width_mm`, `tile_mm`).
+출처에서 확인하지 않은 값은 넣지 않는다. 브랜드 없는 페인트 색(`generic: true`, `w_paint_colours`)은 제품이 아니라 색만 고르는 것이라 브랜드·출처를 비워 둔다. `spec`은 출처에 있을 때만 (`plank_width_mm`, `tile_mm`).
 
 ## 순위 (코드가 계산)
 점수 = 0.6 × 색 점수 + 0.4 × 키워드 점수 (CMF와 같은 규칙, `cmf.md`)

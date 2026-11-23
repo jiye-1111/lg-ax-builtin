@@ -59,7 +59,7 @@ def test_home_shows_only_upload_samples_and_recent():
     for gone in ('id="sample"', 'id="pick"', 'class="steps"', "hero-cap", "꾸미던 집 이어서", "기사 스캔", "placements.length}개"):
         assert gone not in home, gone
     assert "data-nav" not in html and "기사 화면" not in html
-    for f in ("apt_living_kitchen", "synthetic_room", "ugscan_2026-11-18"):
+    for f in ("apt_living_kitchen", "studio_living", "ugscan_2026-11-18"):
         assert (WEB / "img" / "samples" / f"{f}.webp").exists(), f
 
 

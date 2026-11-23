@@ -47,6 +47,7 @@ DEMO_ROOM = [
 ]
 
 # 거실과 주방이 이어진 집(가상): 7.8m × 4.6m. 주방 벽 z=0, 큰 창 x=7.8, 현관 쪽 문 z=4.6
+# 실제 집처럼: 주방 벽에 하부장 한 줄, 그 앞에 식탁, 소파는 벽에 붙여 맞은편 거실장을 본다.
 APT_LIVING_KITCHEN = [
     BoxSpec("Architecture/Walls/Wall0", (3.9, H / 2, 0.0), (7.8, H, T), 0),
     BoxSpec("Architecture/Walls/Wall1", (7.8, H / 2, 2.3), (4.6, H, T), 90),
@@ -55,19 +56,37 @@ APT_LIVING_KITCHEN = [
     BoxSpec("Architecture/Doors/Door0", (1.2, 1.05, 4.6), (0.9, 2.1, T), 180),
     BoxSpec("Architecture/Windows/Window0", (7.8, 1.2, 2.3), (2.8, 2.0, T), 90),
     BoxSpec("Architecture/Windows/Window1", (1.5, 1.45, 0.0), (1.0, 0.7, T), 0),
-    # 주방 하부장: 주방 벽 앞 x 0.1~2.5
-    BoxSpec("Object/Storage/Storage0", (1.3, 0.45, 0.32), (2.4, 0.9, 0.6), 0),
-    # 식탁과 의자
-    BoxSpec("Object/Table/Table0", (2.2, 0.37, 2.3), (1.4, 0.74, 0.8), 0),
-    BoxSpec("Object/Chair/Chair0", (1.8, 0.42, 1.6), (0.45, 0.84, 0.48), 0),
-    BoxSpec("Object/Chair/Chair1", (2.6, 0.42, 1.6), (0.45, 0.84, 0.48), 0),
-    BoxSpec("Object/Chair/Chair2", (1.8, 0.42, 3.0), (0.45, 0.84, 0.48), 180),
-    BoxSpec("Object/Chair/Chair3", (2.6, 0.42, 3.0), (0.45, 0.84, 0.48), 180),
-    # 거실: 소파와 낮은 탁자
-    BoxSpec("Object/Sofa/Sofa0", (5.6, 0.4, 3.95), (2.2, 0.8, 0.9), 180),
-    BoxSpec("Object/Table/Table1", (5.6, 0.2, 2.8), (1.1, 0.4, 0.6), 0),
+    # 주방 하부장: 폭 0.6 m 네 칸 (x 0.1~2.5)
+    *[BoxSpec(f"Object/Storage/Storage{i}", (0.4 + 0.6 * i, 0.45, 0.32), (0.6, 0.9, 0.6), 0) for i in range(4)],
+    # 식탁과 의자 넷 (의자는 식탁을 본다)
+    BoxSpec("Object/Table/Table0", (2.3, 0.37, 2.5), (1.4, 0.74, 0.8), 0),
+    BoxSpec("Object/Chair/Chair0", (1.95, 0.42, 1.88), (0.45, 0.84, 0.48), 0),
+    BoxSpec("Object/Chair/Chair1", (2.65, 0.42, 1.88), (0.45, 0.84, 0.48), 0),
+    BoxSpec("Object/Chair/Chair2", (1.95, 0.42, 3.12), (0.45, 0.84, 0.48), 180),
+    BoxSpec("Object/Chair/Chair3", (2.65, 0.42, 3.12), (0.45, 0.84, 0.48), 180),
+    # 거실: 벽에 붙인 소파, 앞에 낮은 탁자, 맞은편 벽에 거실장
+    BoxSpec("Object/Sofa/Sofa0", (5.7, 0.4, 4.1), (2.2, 0.8, 0.9), 180),
+    BoxSpec("Object/Table/Table1", (5.7, 0.2, 2.95), (1.1, 0.4, 0.6), 0),
+    BoxSpec("Object/Tvstand/Tvstand0", (5.7, 0.225, 0.27), (1.8, 0.45, 0.42), 0),
+    BoxSpec("Object/Plant/Plant0", (7.35, 0.6, 0.45), (0.5, 1.2, 0.5), 0),
+    BoxSpec("Object/Lamp/Lamp0", (7.2, 0.8, 4.2), (0.4, 1.6, 0.4), 0),
 ]
-ROOMS = {"synthetic_room": DEMO_ROOM, "apt_living_kitchen": APT_LIVING_KITCHEN}
+
+# 주방 겸 거실 원룸(가상): 5.2m × 3.6m. 주방 벽 z=0, 창 x=5.2, 문 z=3.6
+STUDIO_LIVING = [
+    *DEMO_ROOM[:6],
+    *[BoxSpec(f"Object/Storage/Storage{i}", (0.4 + 0.6 * i, 0.45, 0.32), (0.6, 0.9, 0.6), 0) for i in range(3)],
+    # 벽에 붙인 2인 식탁
+    BoxSpec("Object/Table/Table0", (0.45, 0.37, 1.65), (0.7, 0.74, 0.7), 0),
+    BoxSpec("Object/Chair/Chair0", (1.03, 0.42, 1.65), (0.45, 0.84, 0.48), 270),
+    BoxSpec("Object/Chair/Chair1", (0.45, 0.42, 2.25), (0.45, 0.84, 0.48), 180),
+    # 소파는 벽에 붙여 맞은편 거실장을 본다
+    BoxSpec("Object/Sofa/Sofa0", (3.7, 0.4, 3.1), (2.0, 0.8, 0.9), 180),
+    BoxSpec("Object/Table/Table1", (3.7, 0.2, 2.0), (1.0, 0.4, 0.55), 0),
+    BoxSpec("Object/Tvstand/Tvstand0", (3.7, 0.225, 0.27), (1.6, 0.45, 0.42), 0),
+    BoxSpec("Object/Plant/Plant0", (4.85, 0.6, 0.4), (0.45, 1.2, 0.45), 0),
+]
+ROOMS = {"synthetic_room": DEMO_ROOM, "apt_living_kitchen": APT_LIVING_KITCHEN, "studio_living": STUDIO_LIVING}
 
 
 def _rot_y(p, deg):

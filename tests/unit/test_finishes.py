@@ -18,12 +18,34 @@ def test_every_finish_is_a_real_product_with_source(items):
     assert len(items) >= 12
     assert {f.kind for f in items} == {"wall", "floor"}
     for f in items:
+        if f.generic:  # 상표 없는 색상표: 출처도 상표도 적지 않는다
+            assert not f.source_url and not f.brand, f.id
+            continue
         assert f.source_url.startswith("https://"), f.id
         assert f.source_checked_at, f.id
         assert f.brand and f.line and f.name
         assert f.texture in {"plaster", "fabric", "stone", "wood", "paint"}
         assert f.tones and all(HEX.match(t.hex) for t in f.tones)
         assert f.tone_basis in {"official", "approx"}
+
+
+def test_wall_has_a_wide_colour_range_beyond_beige(items):
+    """벽 색은 베이지·회색만이 아니라 초록·파랑·분홍·노랑·짙은 색까지 고를 수 있다."""
+    import colorsys
+    tones = [t.hex for f in items if f.kind == "wall" for t in f.tones]
+    assert len(tones) >= 38 and len(set(tones)) == len(tones)
+
+    def hsv(h):
+        return colorsys.rgb_to_hsv(*(int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)))
+    vivid = [hsv(h) for h in tones if hsv(h)[1] >= 0.12]
+    for name, lo, hi in (("노랑", 0.11, 0.17), ("초록", 0.22, 0.45), ("파랑", 0.52, 0.68), ("분홍·빨강", 0.92, 1.0)):
+        assert any(lo <= h <= hi for h, _, _ in vivid), name
+    assert sum(1 for h in tones if hsv(h)[2] < 0.45) >= 3  # 짙은 포인트 색
+
+
+def test_generic_colours_are_paint_without_a_brand(items):
+    generic = [f for f in items if f.generic]
+    assert generic and all(f.kind == "wall" and f.texture == "paint" for f in generic)
 
 
 def test_ids_are_unique(items):

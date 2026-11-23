@@ -229,8 +229,11 @@ def test_finish_tab_shows_only_color_chips():
 
 
 def test_furniture_x_and_hold_to_compare():
-    """지예: 가구는 버튼을 켜면 가구마다 ✕가 뜨고, 처음 모습은 누르고 있는 동안만 보인다."""
-    assert 'id="furnX"' in REMODEL and "data-obj=" in REMODEL and 'id="furnAll"' in REMODEL
+    """지예: 가구마다 ✕가 떠 있으면 징그럽다 → 마우스를 올린 가구·창문에만 ✕. 처음 모습은 누르고 있는 동안만 보인다."""
+    assert 'id="furnX"' in REMODEL and 'id="furnAll"' in REMODEL
+    assert "wantHoverHit: () => furnPick" in REMODEL and 'class="flow-x soft"' in REMODEL
+    assert "furnShown = HOVERS ? (furnHot ? [furnHot] : []) : all" in REMODEL  # 터치 화면만 전부 띄운다
+    assert "/openings/" in REMODEL  # 창문도 같은 ✕로 없앤다
     assert "beforeBtn.onpointerdown" in REMODEL and '"pointerup"' in REMODEL
 
 
@@ -239,9 +242,11 @@ def test_view_stack_on_the_3d_view():
     for el in ('class="view-stack"', 'class="vbtn on" id="viewTop"', 'class="vbtn" id="walk"', 'class="vbtn" id="render"'):
         assert el in REMODEL, el
     assert "walk-btn" not in REMODEL and "render-btn" not in REMODEL
-    # 위 도구 아이콘에는 이름이 붙는다
-    for label in ("되돌리기", "가구 치우기", "처음 모습", "전체 화면"):
+    # 위 도구 아이콘에는 이름이 붙는다. 되돌리기·다시는 화살표만 (글자가 지저분해 보인다고 해서 뺐다)
+    for label in ("가구 치우기", "처음 모습", "전체 화면"):
         assert f'data-l="{label}"' in REMODEL, label
+    assert 'data-l="되돌리기"' not in REMODEL and 'data-l="다시"' not in REMODEL
+    assert 'id="undo" disabled aria-label="되돌리기"' in REMODEL
 
 
 def test_live_modes_stack_and_time_bar():
@@ -268,3 +273,10 @@ def test_walk_plan_is_calm():
     css = (WEB / "studio.css").read_text(encoding="utf-8")
     for sel in (".door", ".window", ".zone", ".placed:not(.v-no_fit) rect"):
         assert f".studio.walking .minimap .plan {sel}" in css, sel
+
+
+def test_minimap_buttons_match_the_other_buttons():
+    """작은 도면 위 버튼만 어두워서 튀지 않게: 흰 바탕에 짙은 글씨."""
+    css = (WEB / "studio.css").read_text(encoding="utf-8")
+    rule = css.split("\n.minimap :is(.mini-grow, .pip-swap) {")[1].split("}")[0]
+    assert "rgba(255, 255, 255" in rule and "var(--ink" in rule

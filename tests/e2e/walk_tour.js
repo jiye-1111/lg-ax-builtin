@@ -64,7 +64,7 @@ const check = (name, ok, info = "") => {
   await arrived();
 
   // 실사로 둘러보기: 이미지 AI는 부르지 않고 서버 응답만 흉내 낸다
-  let made = 0, slow = 800;
+  let made = 0, slow = 2000; // 기다림 표시를 확인할 만큼은 걸리게
   await page.route("**/api/projects/*/photoreal", async (route) => {
     made += 1;
     const spot = JSON.parse(route.request().postData()).spot;
@@ -77,13 +77,13 @@ const check = (name, ok, info = "") => {
   await page.click("#render");
   await wait(400);
   check("실사를 누르면 만드는 동안 기다림 표시", !(await page.$eval("#renderWait", (e) => e.hidden)) && (await page.$eval("#render", (e) => e.classList.contains("on"))));
-  await wait(2500);
+  await wait(3600);
   check("선 곳이 실사로 바뀐다", String(await photoOn()).includes("spot=door"), String(await photoOn()));
   await page.click(`#wtLine li:nth-child(${at + 1}) button`);
   await wait(600);
   check("걸어가는 동안은 3D로 돌아간다", !(await photoOn()));
   await arrived();
-  await wait(2800);
+  await wait(3900);
   check("다음 곳도 실사로 바뀐다", String(await photoOn()).includes("spot=pl"), String(await photoOn()));
   await page.click("#wtLine li:nth-child(1) button");
   await arrived();

@@ -19,7 +19,7 @@ from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, MOUNT_SKUS, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
@@ -682,10 +682,11 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
     def _standing(room: Room, p: dict) -> Room:
         """철거한 벽(과 그 벽의 문·창)을 뺀 방. 동선·와이파이처럼 벽이 막는 계산에 쓴다."""
         gone = set(p["scene_state"].get("hidden_walls") or [])
-        if not gone:
+        shut = set(p["scene_state"].get("hidden_openings") or [])  # 없앤 창
+        if not gone and not shut:
             return room
         return room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone],
-                                       "openings": [o for o in room.openings if o.wall_id not in gone]})
+                                       "openings": [o for o in room.openings if o.wall_id not in gone and o.opening_id not in shut]})
 
     def _blocked_off(self, p: dict) -> list[str]:
         """판정에서 빼는 것: 치운 가구 + 철거한 벽."""
@@ -737,7 +738,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if not snap:
             return pose
         gone = set((p or {}).get("scene_state", {}).get("hidden_walls") or [])
-        if prod.sku == self.DOOR:  # 문은 스캔 벽이나 가벽 가운데 줄에 단다
+        if prod.sku in MOUNT_SKUS:  # 문·창은 스캔 벽이나 가벽 가운데 줄에 단다
             return snap_door(self._wall_lines(room, p, gone), pose, prod.product_dims_mm.w / 1000)
         if gone:  # 철거한 벽에는 붙지 않는다
             room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
@@ -790,6 +791,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return prod.category == "water_purifier" and (prod.install_type == "built_in" or prod.install_form == "빌트인")
 
     def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
+        shut = set(p["scene_state"].get("hidden_openings") or [])
+        if shut:  # 없앤 창은 가릴 일이 없다
+            room = room.model_copy(update={"openings": [o for o in room.openings if o.opening_id not in shut]})
         if is_flat(prod.sku):  # 러그: 가구·제품과 겹쳐도 된다 (벽과 방 밖만 본다)
             return check_pose(room, prod, pose, self.fit_cfg, hidden=self._blocked_off(p) + [o.object_id for o in room.objects])
         others = self._others(p, exclude)
@@ -1040,6 +1044,23 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             hs.append(wall_id)
         if not hidden and wall_id in hs:
             hs.remove(wall_id)
+        self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def set_opening_hidden(self, pid: str, opening_id: str, hidden: bool = True) -> dict:
+        """스캔한 창을 없앤다(벽으로 메운다). 되돌리면 다시 생긴다. 문은 드나드는 길이라 없애지 않는다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        op = next((o for o in room.openings if o.opening_id == opening_id), None)
+        if op is None:
+            raise NotFound(f"창 없음: {opening_id}")
+        if op.type != "window":
+            raise Invalid("창문만 없앨 수 있어요")
+        hs = p["scene_state"].setdefault("hidden_openings", [])
+        if hidden and opening_id not in hs:
+            hs.append(opening_id)
+        if not hidden and opening_id in hs:
+            hs.remove(opening_id)
         self._rejudge_all(room, p)
         self._save_project(p)
         return self._rebuild(pid)

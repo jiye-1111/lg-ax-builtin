@@ -7,6 +7,7 @@ import { finishTexture, tileMeters, BUMP, ROUGH } from "./finishes.js";
 const FURN_DIR = "models/furniture/";
 const PLANK_M = 2.4;          // 바닥 무늬 한 장이 덮는 길이 (m)
 const BASEBOARD_H = 0.08;
+const COUNTER_MAX_M = 1.0; // 이보다 낮은 스캔 수납장은 하부장으로 본다
 const FRAME_W = 0.05;
 
 // ---------- 스캔 가구 모델 ----------
@@ -56,7 +57,9 @@ export function furnish(model, isCurrent, categoryOf = () => null) {
     // 예전에 만든 집의 3D 파일에는 종류가 없다 → room.json의 종류로 채운다
     const cat = box.userData.category || categoryOf(box.name);
     if (!cat) continue;
-    furnitureTemplate(cat).then((t) => {
+    // 허리 높이 수납장은 주방 하부장이다: 상판 있는 하부장 모델로 그린다
+    const look = cat === "storage" && box.scale.y <= COUNTER_MAX_M ? "basecab" : cat;
+    furnitureTemplate(look).then((t) => {
       if (!t || !isCurrent()) return;
       const fitted = fitFurniture(t.scene, t.ref, box.scale);
       fitted.position.set(box.position.x, box.position.y - box.scale.y / 2, box.position.z);
@@ -140,7 +143,93 @@ export function wallPieces(L, H, holes) {
   return out;
 }
 
-export function shadowShell(model) {
+/** 조각들을 벽 한 장의 모양으로 합친다 (벽은 1×1×1 상자를 늘린 것이라 0~1 좌표로 만든다). */
+function piecesGeometry(pieces, L, H) {
+  const pos = [], nor = [], uv = [];
+  for (const [u0, u1, v0, v1] of pieces) {
+    const b = new THREE.BoxGeometry((u1 - u0) / L, (v1 - v0) / H, 1).toNonIndexed();
+    b.translate((u0 + u1) / 2 / L, (v0 + v1) / 2 / H, 0);
+    const P = b.attributes.position.array;
+    pos.push(...P);
+    nor.push(...b.attributes.normal.array);
+    for (let i = 0; i < P.length; i += 3) uv.push(P[i] + 0.5, P[i + 1] + 0.5); // 벽지 무늬가 조각마다 끊기지 않게
+    b.dispose();
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("normal", new THREE.Float32BufferAttribute(nor, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+  return g;
+}
+
+/** 벽 기준으로 본 창 자리들. spots: [{x, y, z, w, h}] 창 가운데와 크기 (m) */
+function holesOn(w, spots, inv, p) {
+  const L = w.scale.x, T = w.scale.z, holes = [];
+  inv.compose(w.position, w.quaternion, ONE).invert();
+  for (const s of spots) {
+    p.set(s.x, s.y, s.z).applyMatrix4(inv);
+    if (Math.abs(p.z) > T / 2 + 0.06 || Math.abs(p.x) > L / 2 + s.w / 2) continue;
+    holes.push([p.x - s.w / 2, p.x + s.w / 2, p.y - s.h / 2, p.y + s.h / 2]);
+  }
+  return holes;
+}
+const ONE = new THREE.Vector3(1, 1, 1);
+const spotsOf = (meshes) => meshes.map((o) => ({ x: o.position.x, y: o.position.y, z: o.position.z, w: o.scale.x, h: o.scale.y }));
+
+// 창밖: 유리 너머로 보이는 하늘빛. 방 안쪽에서만 보인다 (밖에서 내려다볼 때는 안 보이게 한쪽 면만)
+let skyTex = null;
+function skyMaterial() {
+  if (!skyTex) {
+    const c = document.createElement("canvas");
+    c.width = 4; c.height = 128;
+    const x = c.getContext("2d"), g = x.createLinearGradient(0, 0, 0, 128);
+    g.addColorStop(0, "#bcd6ec"); g.addColorStop(0.62, "#e4eef5"); g.addColorStop(1, "#f6f3ec");
+    x.fillStyle = g; x.fillRect(0, 0, 4, 128);
+    skyTex = new THREE.CanvasTexture(c);
+    skyTex.colorSpace = THREE.SRGBColorSpace;
+  }
+  return new THREE.MeshBasicMaterial({ map: skyTex, toneMapped: false });
+}
+
+/** 창이 있는 자리의 벽을 뚫고 그 너머에 창밖 하늘빛을 둔다: 유리가 비쳐 보인다.
+ *  extra = 새로 단 창·유리문 자리 (바뀔 때마다 다시 부른다) */
+export function cutWalls(model, extra = []) {
+  const walls = [], wins = [];
+  model.traverse((o) => {
+    if (!o.isMesh) return;
+    if (o.userData?.kind === "wall") walls.push(o);
+    else if (o.userData?.kind === "window" && o.visible) wins.push(o);
+  });
+  const old = model.getObjectByName("outside");
+  if (old) { old.traverse((o) => { o.geometry?.dispose(); o.material?.dispose(); }); model.remove(old); }
+  const outside = new THREE.Group();
+  outside.name = "outside";
+  const mid = new THREE.Vector3();
+  walls.forEach((w) => mid.add(w.position));
+  mid.divideScalar(walls.length || 1);
+  const spots = [...spotsOf(wins), ...extra], inv = new THREE.Matrix4(), p = new THREE.Vector3();
+  for (const w of walls) {
+    const holes = holesOn(w, spots, inv, p);
+    const out = -Math.sign(p.copy(mid).applyMatrix4(inv).z) || 1; // 방 가운데의 반대쪽이 밖
+    for (const [u0, u1, v0, v1] of holes) {
+      const sky = new THREE.Mesh(new THREE.PlaneGeometry(u1 - u0, v1 - v0), skyMaterial());
+      sky.position.set((u0 + u1) / 2, (v0 + v1) / 2, out * (w.scale.z / 2 + 0.03)).applyQuaternion(w.quaternion).add(w.position);
+      sky.quaternion.copy(w.quaternion);
+      if (out > 0) sky.rotateY(Math.PI); // 앞면이 방 안을 보게
+      sky.raycast = () => {};
+      outside.add(sky);
+    }
+    const key = holes.map((h) => h.map((v) => v.toFixed(3)).join(",")).join("|");
+    w.userData.solid ??= w.geometry;
+    if ((w.userData.holeKey ?? "") === key) continue;
+    if (w.geometry !== w.userData.solid) w.geometry.dispose();
+    w.userData.holeKey = key;
+    w.geometry = holes.length ? piecesGeometry(wallPieces(w.scale.x, w.scale.y, holes), w.scale.x, w.scale.y) : w.userData.solid;
+  }
+  model.add(outside);
+}
+
+export function shadowShell(model, extra = []) {
   const g = new THREE.Group();
   g.name = "shadowShell";
   const walls = [], ops = [];
@@ -158,12 +247,7 @@ export function shadowShell(model) {
     const L = w.scale.x, H = w.scale.y, T = w.scale.z;
     top = Math.max(top, w.position.y + H / 2);
     inv.compose(w.position, w.quaternion, new THREE.Vector3(1, 1, 1)).invert();
-    const holes = [];
-    for (const o of ops) {
-      p.copy(o.position).applyMatrix4(inv); // 벽 기준 (m)
-      if (Math.abs(p.z) > T / 2 + 0.06 || Math.abs(p.x) > L / 2 + o.scale.x / 2) continue;
-      holes.push([p.x - o.scale.x / 2, p.x + o.scale.x / 2, p.y - o.scale.y / 2, p.y + o.scale.y / 2]);
-    }
+    const holes = holesOn(w, [...spotsOf(ops), ...extra], inv, p);
     const frame = new THREE.Group();
     frame.position.copy(w.position);
     frame.quaternion.copy(w.quaternion);

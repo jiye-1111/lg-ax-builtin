@@ -821,6 +821,13 @@ details[open] > summary > .fbox-arrow { transform: rotate(225deg) translate(-2px
   background: var(--nofit); color: #fff; box-shadow: 0 2px 8px rgba(60, 48, 30, .35); pointer-events: auto; cursor: pointer; will-change: transform; }
 .flow-x svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; }
 .flow-x:hover:not(:disabled) { background: #8f1d17; }
+/* 가구 치우기: 마우스를 올린 것에만 뜨는 조용한 ✕. 누르려고 올리면 빨개진다 */
+.flow-x.soft { left: -14px; top: -14px; width: 28px; height: 28px; border: 1px solid var(--line, #e3ddd4); background: rgba(255, 255, 255, .96); color: #4a433c;
+  box-shadow: 0 2px 10px rgba(60, 48, 30, .22); animation: xpop .12s ease-out; transition: background .12s, color .12s, border-color .12s; }
+.flow-x.soft svg { width: 12px; height: 12px; stroke-width: 2.4; }
+.flow-x.soft:hover:not(:disabled) { background: var(--nofit); border-color: var(--nofit); color: #fff; }
+@keyframes xpop { from { opacity: 0; scale: .7; } }
+@media (prefers-reduced-motion: reduce) { .flow-x.soft { animation: none; } }
 .studio[data-view="plan"] .flow-xs { display: none; }
 
 /* 남는 틈 표시: 고른 물건 옆·위·뒤 틈 (mm). 설치 여유 값이 있는 틈만 초록/빨강 */
@@ -1007,3 +1014,9 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .studio.walking .minimap .plan :is(.scale, .compass) { display: none; }
 /* 휴대폰: 걸어 보기 안내는 위쪽 스위치 줄 아래에 둔다 */
 .studio.app .walk-hud { top: 76px !important; white-space: nowrap; }
+/* 작은 도면 위 버튼(크게, 평면도 보기)도 다른 버튼처럼 흰 바탕에 짙은 글씨 */
+.minimap :is(.mini-grow, .pip-swap) { background: rgba(255, 255, 255, .94); color: var(--ink, #1f1b18); border: 1px solid var(--line, #e3ddd4); box-shadow: 0 1px 3px rgba(60, 50, 40, .08); }
+.minimap :is(.mini-grow, .pip-swap):hover { background: #fff; border-color: #cfc6b9; }
+/* 되돌리기·다시는 화살표만 (글자 없이도 아는 모양) */
+.toolbar :is(#undo, #redo) { width: 38px; min-width: 38px; height: 46px; }
+.studio.app .toolbar :is(#undo, #redo) { width: 34px; min-width: 34px; height: 34px; }

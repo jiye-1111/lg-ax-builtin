@@ -21,6 +21,9 @@ DECOR: dict[str, dict] = {
     "partition": {"label": "파티션", "group": "structure", "model": "partition", "size_mm": (1200, 2100, 50)},
     # 문: 벽·가벽에 겹쳐 단다. 앞쪽으로 문짝 폭만큼 비어 있어야 열린다 (swing)
     "door": {"label": "문", "group": "structure", "model": "door", "size_mm": (900, 2100, 140), "swing": True},
+    # 창: 벽에 겹쳐 단다. 창문은 바닥에서 띄워서(pose.SILL_M), 베란다 유리문은 바닥부터
+    "window": {"label": "창문", "group": "structure", "model": "window", "size_mm": (1200, 1200, 140)},
+    "glassdoor": {"label": "베란다 유리문", "group": "structure", "model": "glassdoor", "size_mm": (1800, 2100, 140)},
     "sofa": {"label": "소파", "group": "furniture", "model": "sofa", "size_mm": (2000, 850, 900)},
     "table": {"label": "식탁", "group": "furniture", "model": "table", "size_mm": (1600, 740, 800)},
     "chair": {"label": "의자", "group": "furniture", "model": "chair", "size_mm": (500, 850, 520)},

@@ -6,7 +6,7 @@ import { planView } from "./plan.js";
 // 눌러서 바로 쓰는 샘플 집. 가상 예시는 ‘예시’, 실제 스캔은 ‘실제 스캔’으로 적는다.
 const SAMPLE_HOMES = [
   { file: "apt_living_kitchen.usdz", name: "거실과 주방이 이어진 집", tag: "예시" },
-  { file: "synthetic_room.usdz", name: "주방 겸 거실 원룸", tag: "예시" },
+  { file: "studio_living.usdz", name: "주방 겸 거실 원룸", tag: "예시" },
   { file: "ugscan_2026-11-18.usdz", name: "아이폰으로 스캔한 강의실", tag: "실제 스캔" },
 ];
 const ICON_SCAN = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M12 7.5 16 9.8v4.4L12 16.5 8 14.2V9.8zM12 12v4.5M8 9.8l4 2.2 4-2.2"/></svg>`;
