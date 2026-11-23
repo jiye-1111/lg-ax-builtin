@@ -993,3 +993,13 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .studio.walking:not(.app) .canvas > .sim-switches { top: 18px; right: var(--wt-side); box-shadow: none; background: var(--warm-grey); }
 .studio.walking:not(.app) .canvas .render-wait { top: calc(var(--wt-top) + 12px); left: calc((100% + var(--wt-split) - var(--wt-side)) / 2); }
 .studio.walking:not(.app) .view-stack { top: 12px; }
+
+/* 걸어 보기의 큰 도면은 차분하게: 벽은 먹색, 나머지는 베이지·흰색, 빨강은 지금 선 곳과 들를 곳에만 */
+.studio.walking .minimap .plan .grid line { stroke-opacity: .45; }
+.studio.walking .minimap .plan .wall.measured { stroke: var(--ink); }
+.studio.walking .minimap .plan .door { stroke: #cfc6b9; }
+.studio.walking .minimap .plan .window { stroke: #f6f3ee; }
+.studio.walking .minimap .plan .zone { fill: none; stroke: none; }
+.studio.walking .minimap .plan .placed:not(.v-no_fit) rect { stroke: #a39a8d; }
+.studio.walking .minimap .plan .placed.sel:not(.v-no_fit) rect { stroke: #a39a8d; }
+.studio.walking .minimap .plan :is(.scale, .compass) { display: none; }
