@@ -64,3 +64,23 @@ def test_door_on_a_wall_added_from_a_tile_keeps_its_wall():
 def test_bad_tile_reading_leaves_the_plan_as_it_was():
     first = rect()
     assert merge_tiles(first, [(None, WHOLE), ("x", WHOLE)], BOX) == first
+
+
+def test_estimated_size_is_reshaped_to_the_picture_keeping_the_floor_area():
+    from worker.plan_merge import fit_to_picture
+
+    first = rect(openings=[PlanOpening(type="window", wall=0, offset_mm=1000, width_mm=1000)])
+    first = first.model_copy(update={"scale_from": "door_width"})
+    out = fit_to_picture(first, (0, 0, 500, 500))  # 그림은 정사각형인데 6 × 4 m로 읽었다
+    xs = [v for w in out.walls for v in (w.x1, w.x2)]
+    ys = [v for w in out.walls for v in (w.y1, w.y2)]
+    side = (6000 * 4000) ** 0.5
+    assert abs(max(xs) - side) < 1 and abs(max(ys) - side) < 1
+    o = out.openings[0]
+    assert abs(o.offset_mm - 1000 * side / 6000) < 1 and abs(o.width_mm - 1000 * side / 6000) < 1
+
+
+def test_printed_dimensions_are_never_reshaped():
+    from worker.plan_merge import fit_to_picture
+
+    assert fit_to_picture(rect(), (0, 0, 500, 500)) == rect()

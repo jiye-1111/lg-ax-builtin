@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from PIL import Image
 
-from worker.plan_merge import TileRead, merge_tiles
+from worker.plan_merge import TileRead, fit_to_picture, merge_tiles
 from worker.plan_room import PlanRead
 
 from .plan_read import _ask, _image_parts
@@ -124,6 +124,8 @@ def read_tiles(data: bytes, plan: PlanRead, client, provider: str) -> PlanRead:
     except Exception:  # noqa: BLE001 - 그림이 아니면 처음 읽은 것 그대로
         return plan
     box = house_box(im)
+    if box is not None:
+        plan = fit_to_picture(plan, box)  # 어림한 크기면 그림 비율에 맞춘다
     if box is None or not _same_shape(plan, box):
         log.info("도면 조각 읽기 건너뜀: 그림에서 집 테두리를 못 찾았거나 읽은 집과 모양이 달라요 (%s)", box)
         return plan

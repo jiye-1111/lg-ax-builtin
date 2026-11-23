@@ -122,6 +122,39 @@ def _add_wall(walls: list[PlanWall], a, b, exterior: bool) -> None:
     walls.append(PlanWall(x1=sa[0], y1=sa[1], x2=sb[0], y2=sb[1], exterior=exterior))
 
 
+def fit_to_picture(plan: PlanRead, box_px) -> PlanRead:
+    """치수 없이 어림한 집은 가로세로 비를 그림 속 집 테두리에 맞춘다 (넓이는 그대로).
+
+    AI는 그림 비율을 자주 틀리게 옮긴다. 그림의 비율은 코드가 잰 것이라 더 믿을 만하다.
+    도면에 적힌 치수로 읽은 집은 손대지 않는다.
+    """
+    if plan.scale_from != "door_width" or not plan.walls:
+        return plan
+    xs = [v for w in plan.walls for v in (w.x1, w.x2)]
+    ys = [v for w in plan.walls for v in (w.y1, w.y2)]
+    mw, mh = max(xs) - min(xs), max(ys) - min(ys)
+    pw, ph = box_px[2] - box_px[0], box_px[3] - box_px[1]
+    if min(mw, mh, pw, ph) <= 0:
+        return plan
+    r = math.sqrt((pw / ph) / (mw / mh))
+    kx, ky = r, 1 / r
+    x0, y0 = min(xs), min(ys)
+
+    def wall(w: PlanWall) -> PlanWall:
+        return w.model_copy(update={"x1": x0 + (w.x1 - x0) * kx, "x2": x0 + (w.x2 - x0) * kx,
+                                    "y1": y0 + (w.y1 - y0) * ky, "y2": y0 + (w.y2 - y0) * ky})
+
+    def opening(o: PlanOpening) -> PlanOpening:
+        if not 0 <= o.wall < len(plan.walls):
+            return o
+        w = plan.walls[o.wall]
+        L = math.hypot(w.x2 - w.x1, w.y2 - w.y1) or 1.0
+        k = math.hypot((w.x2 - w.x1) / L * kx, (w.y2 - w.y1) / L * ky)
+        return o.model_copy(update={"offset_mm": o.offset_mm * k, "width_mm": o.width_mm * k})
+
+    return plan.model_copy(update={"walls": [wall(w) for w in plan.walls], "openings": [opening(o) for o in plan.openings]})
+
+
 def merge_tiles(plan: PlanRead, tiles: list, box_px: tuple[float, float, float, float]) -> PlanRead:
     """tiles = [(TileRead, (조각 원점 x, y, 배율)), ...]. 배율 = 조각 그림 px / 원래 그림 px"""
     if not plan.walls:

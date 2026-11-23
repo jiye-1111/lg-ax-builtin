@@ -92,8 +92,18 @@ def test_tiles_can_be_turned_off_and_skip_pdf(monkeypatch):
     assert len(c.calls) == 1
 
 
-def test_tiles_are_skipped_when_the_picture_and_reading_disagree_on_shape(monkeypatch):
+def test_tiles_are_skipped_when_printed_dimensions_disagree_with_the_picture(monkeypatch):
     monkeypatch.delenv("PLAN_AI_TILES", raising=False)
-    c = Answers(plan(w=14000, d=3000), TileRead())  # 그림은 7:4.6인데 읽은 집은 14:3
+    c = Answers(plan(w=14000, d=3000), TileRead())  # 그림은 7:4.6인데 치수로 읽은 집은 14:3
     read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
     assert len(c.calls) == 1
+
+
+def test_estimated_size_is_reshaped_to_the_picture_then_tiles_run(monkeypatch):
+    monkeypatch.delenv("PLAN_AI_TILES", raising=False)
+    first = plan(w=14000, d=3000).model_copy(update={"scale_from": "door_width"})
+    c = Answers(first, TileRead())
+    out = read_plan(drawing(), "image/png", "a.png", client=c, provider="openai")
+    xs = [v for w in out.walls for v in (w.x1, w.x2)]
+    ys = [v for w in out.walls for v in (w.y1, w.y2)]
+    assert len(c.calls) == 5 and abs((max(xs) - min(xs)) / (max(ys) - min(ys)) - 700 / 460) < 0.05
