@@ -113,6 +113,12 @@ test("창 앞은 창이 가려지지 않는 자리에 선다 (사이에 큰 장�
   const world = buildWorld(ROOM, [wall]);
   const win = tourStops(ROOM, [wall], [], world, NAMES).find((s) => s.name === "창 앞");
   if (win) assert.ok(win.pos[0] > 5.0, `장 뒤에서 장만 보게 된다: ${win.pos}`);
+  // 창에 바짝 붙어 서면 유리만 보인다. 그럴 바에는 들르지 않는다
+  if (win) assert.ok(6 - win.pos[0] >= 1.0, `창에 너무 붙어 선다: ${win.pos}`);
+  const near = { ...wall, center_xz: [4.5, 2.2] }; // 장과 창 사이가 사람 하나 겨우 설 만큼
+  const w2 = buildWorld(ROOM, [near]);
+  const win2 = tourStops(ROOM, [near], [], w2, NAMES).find((s) => s.name === "창 앞");
+  assert.ok(!win2 || 6 - win2.pos[0] >= 1.0, `창에 너무 붙어 선다: ${win2?.pos}`);
 });
 
 test("가구·가전을 볼 때도 사이에 다른 가구가 끼지 않는 자리를 고른다", () => {
