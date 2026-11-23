@@ -1,5 +1,5 @@
 // 왼쪽 필터의 순수 로직: 적용된 조건을 칩으로 풀기, 하나씩 빼기, 금액 읽기·쓰기. 화면과 떨어져 있어 node로 테스트한다.
-import { AXES, INSTALL_STEP } from "./options.js";
+import { AXES, INSTALL_STEP, modelKey } from "./options.js";
 
 export const SIZE_W = [["0-650", "폭 650 mm 이하"], ["650-850", "폭 650~850 mm"], ["850-99999", "폭 850 mm 이상"]];
 export const SIZE_H = [["0-900", "높이 900 mm 이하"], ["900-1800", "높이 900~1,800 mm"], ["1800-99999", "높이 1,800 mm 이상"]];
@@ -55,9 +55,20 @@ export function clearFilter(st, key) {
   return { ...st };
 }
 
-/** 설치 방식별 제품 수 (빌트인 핏은 빌트인) */
+/** 설치 방식별 모델 수 (빌트인 핏은 빌트인). 색만 다른 제품은 한 모델로 센다: 목록의 "N개 모델"과 같은 단위 */
 export function installCounts(variants) {
-  const n = { 빌트인: 0, 일반: 0 };
-  for (const v of variants) { const k = INSTALL_STEP[v.install_type]; if (k) n[k] += 1; }
-  return n;
+  const seen = { 빌트인: new Set(), 일반: new Set() };
+  for (const v of variants) seen[INSTALL_STEP[v.install_type]]?.add(modelKey(v));
+  return { 빌트인: seen.빌트인.size, 일반: seen.일반.size };
+}
+
+const ROUND_L = 100; // "800"처럼 100 단위로 쓴 숫자는 800리터대로 읽는다
+/** 검색어의 낱말이 모두 들어 있는지. item = { words: [이름·모델명·색상…], liters: [용량] } */
+export function matchesQuery(query, item) {
+  const hay = item.words.filter(Boolean).join(" ").toLowerCase();
+  return String(query ?? "").toLowerCase().split(/\s+/).filter(Boolean).every((t) => {
+    if (hay.includes(t)) return true;
+    const n = /^\d+$/.test(t) ? Number(t) : null;
+    return n != null && n >= ROUND_L && n % ROUND_L === 0 && (item.liters || []).some((l) => l >= n && l < n + ROUND_L);
+  });
 }

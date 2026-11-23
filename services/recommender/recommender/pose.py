@@ -44,6 +44,7 @@ LABELS = {
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
     "surface_overhang": "올려 둔 가구 밖으로 나옴",
+    "needs_counter": "하부장이나 아일랜드 위에 놓아야 해요",
 }
 
 
@@ -162,9 +163,19 @@ TABLETOP_MAX_MM = (700, 650, 700)  # 폭·높이·깊이가 이보다 작아야 
 SURFACE_MAX_M = 1.2                # 이보다 높은 윗면에는 올리지 않는다 (손이 닿는 조리대·식탁 높이까지)
 
 
+COUNTER_ONLY = frozenset({"cooktop"})  # 상판을 따내고 넣는 제품: 하부장·아일랜드 위에만 놓는다
+
+
+def needs_counter(p: Product) -> bool:
+    """상판에 넣는 제품(인덕션·전기레인지)인지. 바닥에는 놓을 수 없다."""
+    return p.category in COUNTER_ONLY
+
+
 def can_sit(p: Product) -> bool:
     """가구 윗면에 올려 둘 수 있는 제품인지."""
     d = p.product_dims_mm
+    if needs_counter(p):
+        return None not in (d.w, d.h, d.d)
     if p.category not in TABLETOP or p.install_type == "built_in" or d.w is None or d.h is None or d.d is None:
         return False
     if p.category == "tv":
@@ -317,6 +328,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         kind = "wall" if mounted and o.get("sku") in WALL_LIKE else "placement"  # 문에게 가벽은 벽
         obstacles.append((kind, o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
     host_id = host["id"] if host else None
+    if needs_counter(product) and host is None:
+        add("needs_counter", Verdict.NO_FIT)
     # 올려 둔 가구 자신, 그리고 높이가 겹치지 않는 것(윗면보다 낮은 바닥 물건 등)은 뺀다
     # (바닥에 놓을 때 스캔 가구는 높이를 따지지 않고 전처럼 다 본다: 스캔 높이는 믿기 어렵다)
     obstacles = [ob for ob in obstacles if ob[1] != host_id
@@ -403,18 +416,24 @@ _RANK = {Verdict.FIT: 0, Verdict.CONDITIONAL: 1, Verdict.UNKNOWN: 2, Verdict.NO_
 
 
 def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others: Iterable[dict] = (),
-              hidden: Iterable[str] = (), step_m: float = 0.1) -> Optional[PoseResult]:
+              hidden: Iterable[str] = (), step_m: float = 0.1,
+              near: Iterable[tuple[g.Pt, float]] = ()) -> Optional[PoseResult]:
     """벽을 따라 step_m 간격으로 등을 붙여 놓아 보고 가장 잘 들어가는 자리를 고른다.
-    적합 > 조건부 순, 같으면 걸리는 이유가 적은 곳, 그다음 벽 가운데에 가까운 곳. 어디에도 안 들어가면 None."""
+    적합 > 조건부 순, 같으면 걸리는 이유가 적은 곳, 그다음 벽 가운데에 가까운 곳. 어디에도 안 들어가면 None.
+    near: (가운데, 폭의 반) 목록. 주면 그중 가장 가까운 것 바로 옆을 먼저 고른다 (식기세척기는 싱크대 옆)."""
     cfg = cfg or FitConfig()
     size = product_size(product)
     if size is None or not room.walls:
         return None
-    others, hidden = list(others), list(hidden)
+    others, hidden, near = list(others), list(hidden), list(near)
     w_m, _, d_m = size
     side, back, _, _ = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
     best, best_key = None, None
+
+    def away(c: g.Pt) -> float:  # 가장 가까운 조리대 끝에서 떨어진 거리 (10 cm 단위로 뭉쳐 본다)
+        return round(min((max(0.0, math.dist(c, q) - half_w - w_m / 2) for q, half_w in near), default=0.0), 1)
+
     for wall in room.walls:
         if wall.wall_id in hidden:  # 철거한 벽에는 붙이지 않는다
             continue
@@ -431,7 +450,7 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
             r = check_pose(room, product, pose, cfg, others=others, hidden=hidden)
             if r.verdict == Verdict.NO_FIT:
                 continue
-            key = (_RANK[r.verdict], len(r.reasons), abs(u - f.length / 2))
+            key = (_RANK[r.verdict], away(pose.center_xz), len(r.reasons), abs(u - f.length / 2))
             if best_key is None or key < best_key:
                 best, best_key = r, key
     return best

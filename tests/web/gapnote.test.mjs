@@ -22,3 +22,9 @@ test("겹쳐 있으면 필요한 값만큼, 소수는 올림", () => {
   assert.equal(gapNotes({ right: { mm: 0, need_mm: 4, ok: false, kind: "wall" } })[0].text, "옆 벽과 4 mm 더 띄워야 해요");
   assert.equal(gapNotes({ right: { mm: 1.5, need_mm: 4, ok: false, kind: "object" } })[0].text, "옆 가구와 2.5 mm 더 띄워야 해요");
 });
+
+test("양옆이 같은 말이면 한 번만 말한다", () => {
+  const side = { mm: 0, need_mm: 4, ok: false, kind: "object" };
+  const n = gapNotes({ left: { ...side, line: [[0, 0], [1, 0]] }, right: side });
+  assert.deepEqual(n.map((x) => x.text), ["옆 가구와 4 mm 더 띄워야 해요"]);
+});

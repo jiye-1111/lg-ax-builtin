@@ -40,6 +40,11 @@ const check = (name, ok, info = "") => {
   const share = stage / (lib + stage);
   check("3D가 화면의 4분의 3 이상", share >= 0.75 && share <= 0.83, `${Math.round(share * 100)}%`);
 
+  // 처음에는 필터가 접혀 있고 제품이 먼저 보인다
+  check("처음에는 필터가 접혀 있다", !(await page.$eval("#filterBox", (el) => el.open)));
+  await page.click("#filterBox > summary");
+  await wait(300);
+
   // 필터 순서
   const order = await page.$$eval("#filterBox .fsec h3", (els) => els.map((e) => e.textContent.trim()));
   check("필터 순서: 설치 방식 → 품목 → 가격 범위 → 상세 필터", order.join(">") === "설치 방식>품목>가격 범위>상세 필터", order.join(" > "));

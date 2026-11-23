@@ -84,13 +84,15 @@ export function mountComboPop(pid, onApplied) {
   const go = document.getElementById("comboGo"), res = document.getElementById("comboRes");
   go.onclick = guard(async () => {
     const man10k = Number(document.getElementById("comboBudget").value);
-    if (man10k && (man10k < 10 || man10k > 10000)) { toast("목표 가격은 10만 ~ 1억 원 사이로 적어 주세요", true); return; }
-    if (!cats.size && !mood.value.trim()) { toast("가전을 고르거나 분위기를 적어 주세요", true); return; }
+    // 알림은 창 뒤에 가려질 수 있어 버튼 바로 아래에 적는다
+    const ask = (text) => { res.innerHTML = `<p class="hint-sm warn" role="alert">${esc(text)}</p>`; };
+    if (man10k && (man10k < 10 || man10k > 10000)) { ask("목표 가격은 10만 ~ 1억 원 사이로 적어 주세요."); return; }
+    if (!cats.size && !mood.value.trim()) { ask("가전을 하나 이상 고르거나 분위기를 적어 주세요."); return; }
     go.disabled = true; go.textContent = "이 집에 맞춰 짜는 중…";
     try {
       const d = await post(`/api/projects/${pid}/combos`, { categories: [...cats], budget: man10k ? man10k * 10000 : null, prompt: mood.value.trim() });
       res.innerHTML = comboCardsHtml(d) + `<button class="ghost small combo-clear" id="comboClear">넣은 조합 빼기</button>`;
-      bindComboCards(res, pid, onApplied);
+      bindComboCards(res, pid, async (r) => { await onApplied(r); open(false); }); // 넣었으면 창을 닫아 3D가 보이게
       document.getElementById("comboClear").onclick = guard(async () => {
         const r = await api(`/api/projects/${pid}/combos/applied`, { method: "DELETE" });
         res.querySelectorAll(".combo").forEach((li) => li.classList.remove("on"));
