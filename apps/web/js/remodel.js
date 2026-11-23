@@ -376,8 +376,13 @@ export async function customer(pid) {
     return photoJobs.get(key);
   };
   /** 그 곳에 서 있을 때 실사를 띄운다. 만드는 동안 자리를 뜨면 버린다. 끝나면(띄웠든 아니든) 돌아온다 */
-  const showPhoto = async (x) => {
-    if (photoAt === x.id) return;
+  let photoRun = null; // 지금 띄우는 중인 일 (같은 곳을 또 부르면 그 일이 끝나기를 같이 기다린다)
+  const showPhoto = (x) => {
+    if (photoAt === x.id && photoRun) return photoRun;
+    photoRun = runPhoto(x);
+    return photoRun;
+  };
+  const runPhoto = async (x) => {
     photoAt = x.id;
     const waitEl = document.getElementById("renderWait");
     waitEl.hidden = !!(spotPhotos[x.id]?.version === project.version);

@@ -64,11 +64,11 @@ const check = (name, ok, info = "") => {
   await arrived();
 
   // 실사로 둘러보기: 이미지 AI는 부르지 않고 서버 응답만 흉내 낸다
-  let made = 0;
+  let made = 0, slow = 800;
   await page.route("**/api/projects/*/photoreal", async (route) => {
     made += 1;
     const spot = JSON.parse(route.request().postData()).spot;
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, slow));
     await route.fulfill({ json: { url: `/img/hero-kitchen.webp?spot=${spot}`, model: "test" } });
   });
   const photoOn = () => page.$eval("#tourPhoto", (e) => !e.hidden && e.classList.contains("on") && e.src);
@@ -92,6 +92,32 @@ const check = (name, ok, info = "") => {
   await page.click("#render");
   await wait(900);
   check("실사를 다시 누르면 꺼진다", !(await photoOn()));
+
+  // 실사를 켜자마자 한 번에 둘러보기를 눌러도, 지금 선 곳의 실사가 뜬 뒤에 다음으로 간다
+  const last = await page.$$eval("#wtLine button", (b) => b.length);
+  await page.click(`#wtLine li:nth-child(${last}) button`);
+  await arrived();
+  await page.click("#wtLine li:nth-child(1) button"); // 처음(현관)이 아닌 가운데에서 시작하지 않게 현관으로
+  await arrived();
+  await page.evaluate(() => fetch(location.origin + "/api/health").catch(() => {}));
+  slow = 6000; // 머무는 시간보다 오래 걸리는 실사
+  const first = await page.$$eval("#wtLine button", (b) => b.length > 2 ? 2 : 1);
+  await page.click(`#wtLine li:nth-child(${first === at + 1 ? first + 1 : first}) button`);
+  await arrived();
+  const here = await page.innerText("#wtName");
+  await page.click("#render");
+  await wait(300);
+  await page.click("#wtPlay");
+  let seen = "떠남"; // 실사가 먼저 뜨는지, 그 전에 자리를 뜨는지
+  for (let k = 0; k < 60; k++) {
+    await wait(250);
+    if (await photoOn()) { seen = (await page.innerText("#wtName")) === here ? "실사" : "다른 곳"; break; }
+    if ((await page.innerText("#wtName")) !== here) break;
+  }
+  check("실사를 켜자마자 이어 보기를 눌러도 선 곳의 실사가 뜬 뒤에 넘어간다", seen === "실사", seen);
+  await page.click("#wtPlay");
+  await page.click("#render");
+  await wait(600);
 
   await page.click("#viewTop");
   await wait(500);
