@@ -126,7 +126,7 @@ export async function customer(pid) {
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
             <p class="hint-sm">제품이나 가구를 누른 채 끌면 바로 옮겨져요. 누르기만 하면 위에 메뉴가 떠요.</p>
-            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>고른 물건 둘레 <kbd>고리</kbd>를 끌어 돌리기 (45°에 착 붙어요, <kbd>Shift</kbd> 15°씩)</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>고른 물건 둘레 <kbd>고리</kbd>를 끌어 돌리기 (45°에 착 붙어요, <kbd>Shift</kbd> 15°씩, <kbd>Alt</kbd> 안 붙게)</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
               <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> 다시 실행</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 커서 쪽으로 확대·축소</li><li><kbd>오른쪽 끌기</kbd> 또는 <kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>

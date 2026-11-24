@@ -39,3 +39,11 @@ test("붙어 있는 하부장 한 줄은 색을 같이 바꾼다. 떨어진 장�
   assert.deepEqual(runOf(objects, "far"), ["far"]);
   assert.deepEqual(runOf(objects, "none"), []);
 });
+
+test("의자·탁자처럼 따로 쓰는 가구는 붙어 있어도 고른 하나만 바꾼다", async () => {
+  const { runOf } = await import("../../apps/web/js/furncolors.js");
+  const chair = (id, x) => ({ object_id: id, category: "chair", position: [x, 0.4, 0.3], bbox_m: { w: 0.45, h: 0.8, d: 0.45 } });
+  const table = (id, x) => ({ object_id: id, category: "table", position: [x, 0.37, 2], bbox_m: { w: 1.2, h: 0.74, d: 0.6 } });
+  assert.deepEqual(runOf([chair("c1", 0.3), chair("c2", 0.78)], "c1"), ["c1"]);
+  assert.deepEqual(runOf([table("t1", 0.6), table("t2", 1.8)], "t2"), ["t2"]);
+});

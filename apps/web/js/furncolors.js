@@ -35,10 +35,13 @@ export const coloursFor = (model) => PARTS[model]?.[1] ?? [];
 export const COUNTER_MAX_M = 1.0;
 /** 나란히 붙어 있는 같은 종류 가구 (싱크대 하부장처럼 여러 칸으로 스캔된 한 줄). 색은 한 줄을 같이 바꾼다. */
 const TOUCH_GAP_M = 0.08;
+// 한 줄로 짜 넣는 수납만 같이 칠한다. 의자·탁자·소파는 붙어 있어도 하나씩 쓰는 가구라 고른 것만 바꾼다
+const RUN_LOOKS = new Set(["basecab", "storage", "tallcab", "wardrobe", "sink"]);
 export function runOf(objects, id) {
   const first = objects.find((o) => o.object_id === id);
   if (!first) return [];
   const look = (o) => lookOf(o.category, o.bbox_m.h);
+  if (!RUN_LOOKS.has(look(first))) return [first.object_id];
   const touch = (a, b) => Math.hypot(a.position[0] - b.position[0], a.position[2] - b.position[2])
     <= (Math.max(a.bbox_m.w, a.bbox_m.d) + Math.max(b.bbox_m.w, b.bbox_m.d)) / 2 + TOUCH_GAP_M;
   const run = [first];

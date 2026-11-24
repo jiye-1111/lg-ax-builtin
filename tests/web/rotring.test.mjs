@@ -41,3 +41,7 @@ test("화면에 보이는 각도는 0~359°", () => {
   assert.equal(degLabel(deg(360)), "0°");
   assert.equal(degLabel(deg(44.6)), "45°");
 });
+
+test("Alt를 누르면 45° 근처에서도 붙지 않는다", () => {
+  near(snapTurn(deg(88), { free: true }), deg(88));
+});

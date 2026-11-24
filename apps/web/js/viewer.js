@@ -790,7 +790,7 @@ export function makeViewer(el, handlers = {}) {
     if (!p) return;
     const g = ringDrag, now = pointerAngle(g.item.xz, p);
     // 커서가 뒤쪽(±180°)을 넘어가도 이어지게 잡은 각도를 따라 옮긴다
-    const a = snapTurn(turnTo({ rot: g.rot, grab: g.grab }, g.grab + wrap(now - g.grab)), { fine: e.shiftKey });
+    const a = snapTurn(turnTo({ rot: g.rot, grab: g.grab }, g.grab + wrap(now - g.grab)), { fine: e.shiftKey, free: e.altKey });
     if (Math.abs(wrap(now - g.grab)) > Math.PI * 0.9) { g.rot = g.a; g.grab = now; } // 반 바퀴 넘게 돌리면 기준을 다시 잡는다
     g.a = a;
     g.moved = g.moved || Math.abs(wrap(a - rotY(g.item.kind, g.item.yaw))) > 1e-4;
