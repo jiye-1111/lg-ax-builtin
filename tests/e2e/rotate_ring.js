@@ -31,9 +31,15 @@ const check = (name, ok, info = "") => { if (!ok) failed += 1; console.log(`${ok
   await page.waitForSelector("#libTabs", { state: "attached", timeout: 60000 });
   await page.waitForTimeout(4000);
 
-  const [sx, sy] = await toScreen([-2, -2.5], 0.4);
-  await page.mouse.click(sx, sy);
-  await page.waitForTimeout(600);
+  // 가구 모델이 늦게 올라오면 첫 클릭이 빗나간다: 메뉴가 뜰 때까지 다시 누른다
+  for (let i = 0; i < 10; i++) {
+    const [sx, sy] = await toScreen([-2, -2.5], 0.4);
+    await page.mouse.click(sx, sy);
+    await page.waitForTimeout(600);
+    if (await page.evaluate(() => !document.getElementById("actBar").hidden)) break;
+    await page.mouse.click(5, 5); // 다른 것이 골라졌으면 풀고
+    await page.waitForTimeout(400);
+  }
   const r = Math.hypot(sofa.size_m[0], sofa.size_m[2]) / 2 + 0.18; // rotring.ringRadius와 같다
   const at = (a) => toScreen([-2 + r * Math.sin(a), -2.5 + r * Math.cos(a)]);
   const [kx, ky] = await at(0); // 손잡이는 앞(0°)
