@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v80"; // 옆 물건 위에 걸친 고리 손잡이도 먼저 잡힘
+const VERSION = "lgb-shell-v81"; // 판매 중인 제품 모델·사진 새로 + 옆 물건 위에 걸친 고리 손잡이도 먼저 잡힘
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/snap.js", "./js/gapnote.js",
