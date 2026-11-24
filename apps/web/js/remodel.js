@@ -1,4 +1,5 @@
 // 화면: 우리 집 가상 리모델링 (제품 배치, 색·재질, 살아 보기)
+import { ringRadius } from "./rotring.js";
 import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
 import { makeViewer } from "./viewer.js";
@@ -21,6 +22,7 @@ import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./c
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
 const MAX_DOTS = 5; // 카드에 보이는 색 동그라미 수 (나머지는 상세 창에서)
+const WALL_SKUS = new Set(["decor:window", "decor:glassdoor"]); // 벽에 끼우는 창·유리문은 벽 방향 그대로라 회전 고리를 안 띄운다
 const DOOR_SKU = "decor:door"; // 벽에 다는 문: 앞이 비어야 열린다 (서버 판정 front_blocked)
 const CATS_CLIP_PX = 72; // 품목 칩 두 줄 높이 (studio.css .cat-chips.clip과 같은 값)
 
@@ -124,10 +126,10 @@ export async function customer(pid) {
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
             <p class="hint-sm">제품이나 가구를 누른 채 끌면 바로 옮겨져요. 누르기만 하면 위에 메뉴가 떠요.</p>
-            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>고른 물건 둘레 <kbd>고리</kbd>를 끌어 돌리기 (45°에 착 붙어요, <kbd>Shift</kbd> 15°씩)</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
               <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> 다시 실행</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
-            <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 확대·축소</li><li><kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
+            <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 커서 쪽으로 확대·축소</li><li><kbd>오른쪽 끌기</kbd> 또는 <kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
             <h4>둘러보기</h4>
             <ul class="keys"><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 걷기 · <kbd>Shift</kbd> 빠르게</li><li><kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> 둘러보기 (화면을 끌어도 돼요)</li></ul>
             <h4>저장 (로그인하면)</h4>
@@ -507,6 +509,15 @@ export async function customer(pid) {
       if (x) patch(id, { center_xz: c, yaw_rad: yaw ?? x.yaw_rad, ...(snappable(x.sku) ? { snap: false } : {}) });
     },
     onDropSku: (sku, p) => placeAt(sku, p),
+    // 회전 고리: 돌리는 동안 판정만 다시 보고, 놓으면 저장
+    onRingMove: (it) => {
+      if (it.kind !== "placement") return;
+      const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
+      if (!x) return;
+      drag3d = it.id;
+      preview({ sku: x.sku, center_xz: it.xz, yaw_rad: it.yaw, snap: false, placement_id: it.id, ...sizeArgs(x) }, (r) => { viewer.setDragVerdict(it.id, r.verdict); showGaps(r); });
+    },
+    onRingEnd: (it) => { drag3d = null; savePose(it); },
   });
   const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
   // 첫 화면 ‘최근에 만든 집’ 카드에 쓸 미리보기. 3D가 다 뜬 뒤와 화면을 떠날 때 찍는다
@@ -1536,7 +1547,11 @@ export async function customer(pid) {
     const w = actBar.offsetWidth, h = actBar.offsetHeight;
     const left = Math.min(Math.max(sx - r.left, w / 2 + 8), r.width - w / 2 - 8);
     // 위에 자리가 없으면(물건이 화면 위쪽에 있을 때) 물건을 덮지 않게 발밑으로 내린다
-    const above = sy - r.top - h - 14, below = viewer.toScreen(xz, base)[1] - r.top + 14;
+    // 회전 고리도 가리지 않게: 고리의 화면 위·아래 끝을 같이 본다
+    const sz = x ? [x.size_m?.[0], x.size_m?.[2]] : o ? [o.bbox_m.w, o.bbox_m.d] : null;
+    const ringYs = !held && sz?.[0] ? [0, 1, 2, 3, 4, 5, 6, 7].map((i) => { const a = (i * Math.PI) / 4, rr = ringRadius(sz[0], sz[1]);
+      return viewer.toScreen([xz[0] + rr * Math.sin(a), xz[1] + rr * Math.cos(a)], base)[1]; }) : [];
+    const above = Math.min(sy, ...ringYs) - r.top - h - 14, below = Math.max(viewer.toScreen(xz, base)[1], ...ringYs) - r.top + 14;
     const under = above < 8 && below + h <= r.height - 8;
     const topPx = under ? below : Math.min(Math.max(above, 8), r.height - h - 8);
     actBar.classList.add("near");
@@ -1634,8 +1649,9 @@ export async function customer(pid) {
       fitBadge.innerHTML = `<b>${esc(head)}</b>${why ? `<span>${esc(why)}</span>` : ""}`;
     }
     actBar.classList.remove("sizing", "colouring");
-    if (walking) { actBar.hidden = true; return; }
+    if (walking) { actBar.hidden = true; showRing(null); return; }
     if (armed) {
+      showRing(null);
       actBar.hidden = false;
       actBar.innerHTML = `<span class="act-tag">${esc(nameOf(armed))}</span>
         <button class="primary small" id="actAuto">알맞은 자리에 놓기</button><button class="ghost small" id="actCancel">취소</button>`;
@@ -1645,6 +1661,7 @@ export async function customer(pid) {
     }
     const target = x ? { type: "placement", id: x.placement_id } : selObj ? { type: "object", id: selObj } : null;
     actBar.hidden = !target;
+    showRing(target, x);
     if (!target) { sizing = null; colouring = null; return; }
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku);
@@ -1665,6 +1682,14 @@ export async function customer(pid) {
     document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
     document.getElementById("actAlign")?.addEventListener("click", () => autoAlign(x.placement_id));
     document.getElementById("actDel").onclick = () => removeSelected();
+  };
+  // 고른 물건 둘레 회전 고리 (문·창처럼 벽에 붙은 것과 공유기는 빼고)
+  const showRing = (target, x) => {
+    const it = target && poseOf(target);
+    const o = target?.type === "object" && objOf(target.id);
+    const size = x ? [x.size_m?.[0], x.size_m?.[2]] : o?.bbox_m ? [o.bbox_m.w, o.bbox_m.d] : null;
+    const onWall = x && WALL_SKUS.has(x.sku);
+    viewer.setRotateRing(it && size?.[0] && !onWall ? { kind: it.kind, id: it.id, xz: it.xz, yaw: it.yaw, r: +ringRadius(size[0], size[1]).toFixed(3), y: x?.base_m || 0 } : null);
   };
   const OPT_SHORT = (p) => {
     const o = p.options || {};
