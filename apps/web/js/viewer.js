@@ -769,15 +769,11 @@ export function makeViewer(el, handlers = {}) {
     setNdc(e);
     const h = ray.intersectObjects(rotRing.children, true).find((x) => x.object.userData.ringPart);
     if (!h) return false;
-    // 고리는 바닥에 깔려 있어서, 앞에 있는 물건을 누른 것이면 고리가 아니다.
-    // 손잡이는 고른 물건 뒤에 비쳐 보여도 잡힌다. 고리 줄은 고른 물건 몸통 너머면 몸통을 잡는다 (냉장고를 눌렀는데 돌아가면 안 된다)
-    const knob = ray.intersectObjects(rotRing.children, true).some((x) => x.object.userData.knob);
-    const mine = new Set(knob ? heldNodes(ringInfo) : []);
-    const front = products.children.filter((c) => !mine.has(c));
-    model?.traverse((o) => { if (o.isMesh && o.visible && o.userData?.kind === "object" && !mine.has(o)) front.push(o); }); // 벽은 빼고: 벽에 붙은 물건은 손잡이가 벽 쪽에 올 수 있다
-    // 받침(책상 윗면처럼 고리와 같은 높이거나 더 낮은 면)은 가리는 것으로 치지 않는다: 책상 위 정수기도 고리로 돌린다
-    const f = ray.intersectObjects(front, true).find((x) => x.object.visible && x.point.y > (ringInfo.y || 0) + 0.03);
-    return !f || h.distance <= f.distance + 0.01;
+    // 고리와 손잡이는 늘 맨 위에 그려진다: 보이는 대로 먼저 잡힌다 (옆 의자·책상 위에 걸쳐 있어도).
+    // 손잡이는 언제나 잡힌다. 고리 줄만 고른 물건 몸통 너머면 몸통을 잡는다 (냉장고를 눌렀는데 돌아가면 안 된다)
+    if (ray.intersectObjects(rotRing.children, true).some((x) => x.object.userData.knob)) return true;
+    const mine = ray.intersectObjects(heldNodes(ringInfo), true).find((x) => x.object.visible && x.point.y > (ringInfo.y || 0) + 0.03);
+    return !mine || h.distance <= mine.distance + 0.01;
   };
   const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
   const startRing = (e) => {
