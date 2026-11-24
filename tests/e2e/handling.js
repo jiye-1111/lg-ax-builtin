@@ -71,8 +71,9 @@ const check = (name, ok, info = "") => { if (!ok) failed += 1; console.log(`${ok
 
   // 3) 고정하면 끌어도, R을 눌러도 안 움직인다
   if (!(await menuShown())) await select(await toScreen(p1.center_xz, 0.93));
+  await page.waitForTimeout(1000); // 느린 화면에서는 메뉴가 물건을 따라 자리 잡는 데 시간이 걸린다
   await page.click("#actLock");
-  await page.waitForTimeout(800);
+  await page.waitForFunction(() => document.getElementById("actLock")?.innerText.includes("고정 풀기"), null, { timeout: 5000 }).catch(() => {});
   if (process.env.SHOT) await page.screenshot({ path: process.env.SHOT, clip: { x: 520, y: 300, width: 720, height: 400 } });
   check("고정하면 메뉴에 고정 풀기가 보인다", (await page.textContent("#actLock")).includes("고정 풀기"));
   check("고정하면 옮기기 버튼이 없다", !(await page.$("#actMove")));
