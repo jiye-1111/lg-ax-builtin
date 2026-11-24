@@ -52,3 +52,31 @@ python services/blender-worker/worker/bpy_scripts/build_router.py --out apps/web
 
 - 유리(글라스) 마감은 텍스처 없이 매끈한 코팅 반사만 쓴다
 - LG 로고, 제품 사진, 조작부 글자는 넣지 않았다
+
+
+## 제품 모델 (제품군 틀로 만든 가전) — 판매 중인 제품
+
+Fusion으로 직접 만들지 않은 판매 중 제품(`sale_status`가 ACTIVE·SOLD_OUT)은 제품군 틀에 제품별 값을 넣어 만든다. 판매 종료 제품은 손대지 않았다.
+
+### 모양·치수
+
+- 크기: 카탈로그 `product_dims_mm` (LGE.COM 값). 만든 모델은 이 치수에 정확히 맞춘다
+- 틀: `services/blender-worker/worker/archetypes.py`. 냉장고, 김치냉장고, 드럼세탁기, 워시타워, 통돌이, TV, 스탠드·벽걸이 에어컨, 공기청정기, 정수기, 청소기, 안마의자 등 제품군마다 하나
+- 제품별 값: `data/models/features.json`. 문이 몇 칸인지, 문 나눔 높이, 손잡이·디스펜서·유리문 유무, TV 받침 종류와 위치 등. 2026-11-24에 LGE.COM 제품 사진과 치수도 이미지를 보고 잰 근사값이다 (`tools/models/make_features.py`에 적어 두고 여기서 json을 만든다)
+- LG가 배포하는 CAD나 사진은 모델에 넣지 않았다. 로고·글자도 없다
+
+### 색
+
+- 겉면 색: 재질 이름이 `finish`인 면을 웹이 카탈로그 `cmf_options[].hex_approx`로 칠한다. 그래서 색만 다른 모델은 glb 하나를 같이 쓴다 (`index.json`의 `file`)
+- 그 밖의 부품 색(본체, 조작부, 금속)은 `realize.py`의 `MATS` 표에 있는 근사값
+
+### 만드는 순서
+
+```bash
+python3 tools/models/make_features.py                 # 제품별 값 → data/models/features.json
+uv run python tools/models/plan.py                    # 무엇을 만들지 → .cache/model_plan.json
+python services/blender-worker/worker/bpy_scripts/build_models.py --plan .cache/model_plan.json --out apps/web/models/products
+python services/blender-worker/worker/bpy_scripts/render_thumbs.py --models apps/web/models/products --out apps/web/img/products --catalog data/catalog/products.json --list <모델명 목록>
+```
+
+`index.json`의 `layout`이 틀 이름이면 이 방법으로 만든 모델, `fusion`이면 Fusion 모델, `drawing`이면 예전 도면 방식(판매 종료 제품)이다.
