@@ -12,8 +12,9 @@ export const pointerAngle = (c, p) => Math.atan2(p[0] - c[0], p[1] - c[1]);
 /** 잡은 순간의 물건 회전(rot)과 커서 각도(grab)에서, 지금 커서 각도(now)일 때의 물건 회전 */
 export const turnTo = ({ rot, grab }, now) => rot + (now - grab);
 
-/** 45° 근처면 붙이고, fine이면 15°씩 */
-export const snapTurn = (a, { fine = false } = {}) => {
+/** 45° 근처면 붙이고, fine이면 15°씩, free(Alt)면 붙지 않는다 */
+export const snapTurn = (a, { fine = false, free = false } = {}) => {
+  if (free) return a;
   if (fine) return Math.round(a / FINE_RAD) * FINE_RAD;
   const s = Math.round(a / SNAP_RAD) * SNAP_RAD;
   return Math.abs(a - s) < MAGNET_RAD ? s : a;
