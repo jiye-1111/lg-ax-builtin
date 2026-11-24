@@ -151,6 +151,7 @@ export function makeViewer(el, handlers = {}) {
   // 휠을 누른 채 끌면 화면 중심을 옮긴다 (CAD·Blender처럼). 확대는 휠 굴리기, 오른쪽 끌기도 이동
   ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.PAN, RIGHT: THREE.MOUSE.PAN };
   ctl.screenSpacePanning = false; // 바닥과 나란히 움직여 시점이 바닥 아래로 빠지지 않게
+  ctl.addEventListener("start", () => { camGlide = null; }); // 직접 돌리거나 확대하면 데려가던 시점 옮기기는 멈춘다 (안 그러면 되돌아간다)
   ctl.zoomToCursor = true; // 휠로 확대하면 커서가 가리키는 곳으로 다가간다 (Planner 5D·지도처럼)
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
