@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-for s in ("core", "recommender", "blender-worker"):
+for s in ("core", "recommender", "blender-worker", "sim"):
     sys.path.insert(0, str(ROOT / "services" / s))
 
 from core import config  # noqa: E402
