@@ -1249,9 +1249,22 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         # 빌트인 정수기와 같이 놓은 하부장도 같이 뺀다
         p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"]
                                           if y.get("placement_id") != placement_id and y.get("host_of") != placement_id]
+        if "locked" in p["scene_state"]:  # 지운 물건은 고정 목록에서도 뺀다
+            p["scene_state"]["locked"] = [i for i in p["scene_state"]["locked"] if i != placement_id]
         self._rejudge_all(room, p)
         self._save_project(p)
         return self._rebuild(pid)
+
+    def set_locked(self, pid: str, item_id: str, locked: bool = True) -> dict:
+        """고정: 놓은 물건이나 스캔 가구를 화면에서 끌어도 안 움직이게 한다. 목록만 적고 자리는 건드리지 않는다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        known = {y["placement_id"] for y in p["scene_state"]["placements"]} | {o.object_id for o in room.objects}
+        if item_id not in known:
+            raise NotFound(f"물건 없음: {item_id}")
+        ids = [i for i in p["scene_state"].get("locked", []) if i != item_id and i in known]
+        p["scene_state"]["locked"] = ids + [item_id] if locked else ids
+        self._save_project(p)
+        return self.get_project(pid)
 
     def set_object_hidden(self, pid: str, object_id: str, hidden: bool = True) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)

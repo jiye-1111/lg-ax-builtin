@@ -711,6 +711,17 @@ def reset_object(pid: str, oid: str, s: Service = S):
     return s.reset_object(pid, oid)
 
 
+class LockIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    id: str = Field(min_length=1, max_length=64, description="놓은 물건 placement_id 또는 스캔 가구 object_id")
+    locked: bool = True
+
+
+@app.put("/api/projects/{pid}/locked")
+def lock_item(pid: str, body: LockIn, s: Service = S):
+    return s.set_locked(pid, body.id, body.locked)
+
+
 @app.put("/api/projects/{pid}/objects/{oid}/hidden")
 def hide_object(pid: str, oid: str, body: HiddenIn, s: Service = S):
     return s.set_object_hidden(pid, oid, body.hidden)
