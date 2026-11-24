@@ -59,9 +59,31 @@ def light(name: str, loc, size: float, power: float, glossy: bool = True) -> Non
     ob.visible_glossy = glossy
 
 
-def render(glb: Path, out: Path) -> None:
+def lin(hex_: str) -> tuple[float, float, float, float]:
+    h = hex_.lstrip("#")
+    c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    return (*[v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4 for v in c], 1.0)
+
+
+def tint(hex_: str) -> None:
+    """겉면(finish) 재질을 그 제품 색으로 칠한다. 색 다른 모델이 파일 하나를 같이 쓰기 때문."""
+    for m in bpy.data.materials:
+        if not m.name.startswith("finish") or not m.node_tree:
+            continue
+        for n in m.node_tree.nodes:
+            if n.type == "BSDF_PRINCIPLED" and not n.inputs["Base Color"].is_linked:
+                n.inputs["Base Color"].default_value = lin(hex_)
+            elif n.type == "MIX" and n.blend_type == "MULTIPLY":      # 무늬 × 색
+                for i in n.inputs:
+                    if i.type == "RGBA" and not i.is_linked:
+                        i.default_value = lin(hex_)
+
+
+def render(glb: Path, out: Path, hex_: str | None = None) -> None:
     sc = setup_scene()
     bpy.ops.import_scene.gltf(filepath=str(glb))
+    if hex_:
+        tint(hex_)
     objs = [o for o in sc.objects if o.type == "MESH"]
     pts = [o.matrix_world @ Vector(c) for o in objs for c in o.bound_box]
     lo = Vector((min(p.x for p in pts), min(p.y for p in pts), min(p.z for p in pts)))
@@ -98,9 +120,22 @@ def main() -> None:
     ap.add_argument("--models", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--sku", action="append")
+    ap.add_argument("--catalog", help="있으면 모델명마다 index.json의 파일을 그 제품 색으로 칠해 렌더한다")
+    ap.add_argument("--list", help="렌더할 모델명이 한 줄에 하나씩 적힌 파일 (--catalog와 같이)")
     a = ap.parse_args(argv)
     out = Path(a.out)
     out.mkdir(parents=True, exist_ok=True)
+    if a.catalog:
+        import json
+        index = json.loads((Path(a.models) / "index.json").read_text(encoding="utf-8"))["models"]
+        want = set(a.sku or []) | (set(Path(a.list).read_text().split()) if a.list else set())
+        for p in json.loads(Path(a.catalog).read_text(encoding="utf-8"))["products"]:
+            if want and p["sku"] not in want or p["sku"] not in index:
+                continue
+            opt = (p.get("cmf_options") or [{}])[0]
+            render(Path(a.models) / index[p["sku"]]["file"], out / f"{p['sku']}.webp", opt.get("hex_approx"))
+            print(p["sku"], flush=True)
+        return
     for glb in sorted(Path(a.models).glob("*.glb")):
         if a.sku and glb.stem not in a.sku:
             continue
