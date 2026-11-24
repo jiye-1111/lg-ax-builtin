@@ -125,8 +125,8 @@ export async function customer(pid) {
           <div class="keys-pop" id="keysPop" role="dialog" aria-label="조작키" hidden>
             <div class="keys-head"><b>조작키</b><button class="ghost small" id="keysClose">닫기</button></div>
             <h4>제품</h4>
-            <p class="hint-sm">제품이나 가구를 누른 채 끌면 바로 옮겨져요. 누르기만 하면 위에 메뉴가 떠요.</p>
-            <ul class="keys"><li><kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>고른 물건 둘레 <kbd>고리</kbd>를 끌어 돌리기 (45°에 착 붙어요, <kbd>Shift</kbd> 15°씩, <kbd>Alt</kbd> 안 붙게)</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
+            <p class="hint-sm">제품이나 가구를 한 번 눌러 고르면 위에 메뉴가 떠요. 고른 것만 끌어서 옮길 수 있어요. 다 꾸몄으면 메뉴의 고정을 눌러 두세요.</p>
+            <ul class="keys"><li>고른 물건을 <kbd>누른 채 끌기</kbd> 잡아서 옮기기 · 놓으면 내려놓기</li><li>고른 물건 둘레 <kbd>고리</kbd>를 끌어 돌리기 (45°에 착 붙어요, <kbd>Shift</kbd> 15°씩, <kbd>Alt</kbd> 안 붙게)</li><li>잡은 채 <kbd>휠</kbd> 또는 <kbd>E</kbd> 누르고 마우스 돌리기 (<kbd>Shift</kbd> 45°)</li><li><kbd>R</kbd> 45° 돌리기 (<kbd>Shift</kbd> 반대, <kbd>Alt</kbd> 15°)</li>
               <li><kbd>←↑↓→</kbd> 10 cm 옮기기 (<kbd>Shift</kbd> 1 cm)</li><li><kbd>Delete</kbd> 지우기</li><li><kbd>Ctrl</kbd><kbd>Z</kbd> 되돌리기 · <kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Z</kbd> 다시 실행</li><li><kbd>Esc</kbd> 취소</li></ul>
             <h4>화면</h4>
             <ul class="keys"><li><kbd>빈 곳 끌기</kbd> 시점 돌리기</li><li><kbd>휠</kbd> 커서 쪽으로 확대·축소</li><li><kbd>오른쪽 끌기</kbd> 또는 <kbd>휠 누르고 끌기</kbd> 화면 옮기기</li><li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> 카메라 이동 · <kbd>Q</kbd><kbd>E</kbd> 돌기</li></ul>
@@ -457,9 +457,11 @@ export async function customer(pid) {
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
-    canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl,
-    // 물건을 누른 채 끌면 바로 잡힌다. 놓으면 내려놓는다. 잡은 채 휠이나 E+마우스로 돌린다
-    canGrab: () => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !furnPick,
+    canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl && !isLocked(id),
+    // 고른 물건만 누른 채 끌면 잡힌다 (IKEA·Planner 5D처럼 먼저 눌러 고르고 옮긴다). 안 고른 물건 위에서 끌면 화면이 돈다
+    // 고정한 물건은 끌어도 안 움직인다. 잡은 채 휠이나 E+마우스로 돌린다
+    canGrab: (hit) => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !furnPick
+      && (hit.type === "placement" ? hit.id === selPl : hit.id === selObj) && !isLocked(hit.id),
     onGrab: (hit, point) => {
       if (hit.type === "placement") { selPl = hit.id; selObj = null; } else { selObj = hit.id; selPl = null; }
       pickUp(hit, point);
@@ -576,6 +578,15 @@ export async function customer(pid) {
     poly: "꼭짓점을 차례로 누르고, 첫 점을 다시 누르거나 더블클릭하면 완성됩니다.",
   };
   let renderAct = () => {}; // 3D 아래 조작 버튼 (아래에서 채운다)
+  // 고정: 다 꾸민 물건은 고정해 두면 끌어도, 키보드로도 안 움직인다 (scene_state.locked)
+  const isLocked = (id) => !!id && (project?.scene_state.locked || []).includes(id);
+  const setLocked = guard(async (id, on) => {
+    const ss = project.scene_state;
+    ss.locked = on ? [...(ss.locked || []).filter((i) => i !== id), id] : (ss.locked || []).filter((i) => i !== id);
+    renderAct();
+    await put(`/api/projects/${pid}/locked`, { id, locked: on });
+    toast(on ? "고정했어요. 이제 끌어도 안 움직여요" : "고정을 풀었어요");
+  });
   let trackFurnX = () => {}; // 가구 치우기에서 가구마다 뜨는 ✕ 자리
   let trackFlowX = () => {}; // 동선에서 길이 막힌 제품의 ✕ 자리 (아래에서 채운다)
   const setHint = (msg) => {
@@ -1326,6 +1337,7 @@ export async function customer(pid) {
   // 고른 것(들고 있지 않을 때)을 키보드로 바꾸면 잠깐 모았다가 한 번에 저장
   let pendingKey = null, keyTimer = 0;
   const nudgeSelected = (dx, dz, dyaw) => {
+    if (isLocked(selPl || selObj)) { toast("고정한 물건이에요. 메뉴에서 고정 풀기를 누르면 옮길 수 있어요"); return; }
     const it = pendingKey || (selPl ? poseOf({ type: "placement", id: selPl }) : selObj ? poseOf({ type: "object", id: selObj }) : null);
     if (!it) return;
     pendingKey = { ...it, xz: [it.xz[0] + dx, it.xz[1] + dz], yaw: it.yaw + dyaw };
@@ -1461,6 +1473,8 @@ export async function customer(pid) {
     size: '<path d="M4 9V4h5M20 15v5h-5M4 4l7 7M20 20l-7-7"/>',
     color: '<path d="M12 3.5c3 3.6 5.5 6.4 5.5 9.6a5.5 5.5 0 0 1-11 0c0-3.2 2.5-6 5.5-9.6z"/>',
     fill: '<path d="M4 4v16M20 4v16M8 12h8M8 12l3-3M8 12l3 3M16 12l-3-3M16 12l-3 3"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    unlock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/>',
   };
   // 조작 메뉴는 고른 제품 바로 위에 따라붙는다 (큰 화면). 앱 배치는 아래 고정
   let actRaf = 0;
@@ -1661,7 +1675,8 @@ export async function customer(pid) {
     }
     const target = x ? { type: "placement", id: x.placement_id } : selObj ? { type: "object", id: selObj } : null;
     actBar.hidden = !target;
-    showRing(target, x);
+    const locked = target && isLocked(target.id);
+    showRing(locked ? null : target, x);
     if (!target) { sizing = null; colouring = null; return; }
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku);
@@ -1669,17 +1684,20 @@ export async function customer(pid) {
     const paintable = x && !deco ? lgColours(x).length > 0 : (deco || obj) && coloursFor(paintOf(deco ? x : null, obj)).length > 0;
     if (paintable && colouring === target.id) { colourBar(x || null, obj); return; }
     if (colouring !== target.id) colouring = null;
-    actBar.innerHTML = actBtn("actMove", "move", "이동") + actBtn("actRot", "rotate", "회전")
+    // 고정한 물건은 옮기는 버튼을 빼고 '고정 풀기'만 앞에 둔다
+    actBar.innerHTML = (locked ? actBtn("actLock", "unlock", "고정 풀기") : actBtn("actMove", "move", "이동") + actBtn("actRot", "rotate", "회전"))
       + (paintable ? actBtn("actColor", "color", "색") : "")
-      + (deco ? actBtn("actSize", "size", "크기 조절") + (canFill(x.sku) ? actBtn("actFill", "fill", "빈틈 맞춤") : "") : x ? actBtn("actAlign", "align", "벽에 붙이기") : "")
-      + (x ? actBtn("actCopy", "copy", "복사") : "") + (x && !deco ? actBtn("actInfo", "info", "상세") : "") + actBtn("actDel", "del", "삭제", "danger");
+      + (locked ? "" : deco ? actBtn("actSize", "size", "크기 조절") + (canFill(x.sku) ? actBtn("actFill", "fill", "빈틈 맞춤") : "") : x ? actBtn("actAlign", "align", "벽에 붙이기") : "")
+      + (x ? actBtn("actCopy", "copy", "복사") : "") + (x && !deco ? actBtn("actInfo", "info", "상세") : "")
+      + (locked ? "" : actBtn("actLock", "lock", "고정")) + actBtn("actDel", "del", "삭제", "danger");
+    document.getElementById("actLock").onclick = () => setLocked(target.id, !locked);
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); actBar.querySelector("[data-dim]")?.select(); });
     document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; renderAct(); });
     document.getElementById("actFill")?.addEventListener("click", () => fitGap(x.placement_id));
-    document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
-    document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
+    if (!locked) document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
+    if (!locked) document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
     document.getElementById("actAlign")?.addEventListener("click", () => autoAlign(x.placement_id));
     document.getElementById("actDel").onclick = () => removeSelected();
   };

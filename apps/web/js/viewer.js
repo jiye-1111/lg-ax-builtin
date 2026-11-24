@@ -9,6 +9,7 @@ import { PointerLockControls } from "three/addons/controls/PointerLockControls.j
 import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
 import { lookYaw } from "./stops.js";
 import { pointerAngle, turnTo, snapTurn, degLabel } from "./rotring.js";
+import { onPlane, grabOffset } from "./surfmove.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -195,7 +196,7 @@ export function makeViewer(el, handlers = {}) {
     const rim = new THREE.Mesh(new THREE.CircleGeometry(0.085, 32), knobRimMat);
     const knob = new THREE.Mesh(new THREE.CircleGeometry(0.06, 32), knobMat);
     const grip = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), new THREE.MeshBasicMaterial({ visible: false }));
-    grip.userData.ringPart = true;
+    grip.userData.ringPart = true; grip.userData.knob = true;
     rim.position.y = 0.001; knob.position.y = 0.002;
     [rim, knob, grip].forEach((m) => { m.position.z = r; m.rotation.x = -Math.PI / 2; m.renderOrder = 6; arm.add(m); });
     [band, hit].forEach((m) => { m.rotation.x = -Math.PI / 2; m.renderOrder = 5; });
@@ -723,6 +724,8 @@ export function makeViewer(el, handlers = {}) {
     const snap = (v) => Math.round(v / 0.05) * 0.05;
     return surface === "product" ? [snap(hit.point.x), snap(hit.point.z)] : [hit.point.x, hit.point.z];
   };
+  // 높이 h인 수평면에서 커서가 가리키는 점. 위에 올린 물건은 잡은 높이의 평면을 따라가야 바닥 먼 곳으로 튀지 않는다
+  const planePoint = (e, h) => { setNdc(e); return onPlane(ray.ray.origin.toArray(), ray.ray.direction.toArray(), h); };
   const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
   const pick = (e) => {
     setNdc(e);
@@ -766,11 +769,14 @@ export function makeViewer(el, handlers = {}) {
     setNdc(e);
     const h = ray.intersectObjects(rotRing.children, true).find((x) => x.object.userData.ringPart);
     if (!h) return false;
-    // 고리는 바닥에 깔려 있어서, 앞에 있는 가구(책상 윗면 등)를 누른 것이면 고리가 아니다
-    const mine = new Set(heldNodes(ringInfo)); // 고른 물건 자신은 고리를 가리는 것으로 치지 않는다
+    // 고리는 바닥에 깔려 있어서, 앞에 있는 물건을 누른 것이면 고리가 아니다.
+    // 손잡이는 고른 물건 뒤에 비쳐 보여도 잡힌다. 고리 줄은 고른 물건 몸통 너머면 몸통을 잡는다 (냉장고를 눌렀는데 돌아가면 안 된다)
+    const knob = ray.intersectObjects(rotRing.children, true).some((x) => x.object.userData.knob);
+    const mine = new Set(knob ? heldNodes(ringInfo) : []);
     const front = products.children.filter((c) => !mine.has(c));
-    model?.traverse((o) => { if (o.isMesh && o.visible && o.userData?.kind === "object" && !(ringInfo.kind === "object" && o.name === ringInfo.id)) front.push(o); }); // 벽은 빼고: 벽에 붙은 물건은 손잡이가 벽 쪽에 올 수 있다
-    const f = ray.intersectObjects(front, true).find((x) => x.object.visible);
+    model?.traverse((o) => { if (o.isMesh && o.visible && o.userData?.kind === "object" && !mine.has(o)) front.push(o); }); // 벽은 빼고: 벽에 붙은 물건은 손잡이가 벽 쪽에 올 수 있다
+    // 받침(책상 윗면처럼 고리와 같은 높이거나 더 낮은 면)은 가리는 것으로 치지 않는다: 책상 위 정수기도 고리로 돌린다
+    const f = ray.intersectObjects(front, true).find((x) => x.object.visible && x.point.y > (ringInfo.y || 0) + 0.03);
     return !f || h.distance <= f.distance + 0.01;
   };
   const wrap = (a) => Math.atan2(Math.sin(a), Math.cos(a));
@@ -832,7 +838,7 @@ export function makeViewer(el, handlers = {}) {
     const hit = pick(e);
     down = { x: e.clientX, y: e.clientY, hit, p: floorPoint(e) };
     if ((hit?.type === "placement" || hit?.type === "object") && handlers.canGrab?.(hit)) {
-      // 물건 위에서 누르고 끌면 바로 잡혀서 따라온다 (먼저 고를 필요 없다). 놓으면 그 자리에 내려놓는다
+      // 고른 물건 위에서 누르고 끌면 잡혀서 따라온다 (잡아도 되는지는 canGrab이 정한다). 놓으면 그 자리에 내려놓는다
       e.preventDefault(); // 끄는 동안 화면 글자가 파랗게 잡히지 않게
       ctl.enabled = false;
       grabbing = { hit, p: down.p };
@@ -863,7 +869,10 @@ export function makeViewer(el, handlers = {}) {
       const g = grabbing;
       grabbing = null;
       handlers.onGrab?.(g.hit, g.p);
-      if (held) held.byDrag = true; else ctl.enabled = true;
+      if (held) {
+        held.byDrag = true;
+        if (held.surface) held.grab = grabOffset(held.xz, planePoint({ clientX: down.x, clientY: down.y }, held.plane)); // 누른 자리 그대로 잡는다
+      } else ctl.enabled = true;
     }
     if (held && !held.dropping && rotKey) { // E를 누른 채 마우스를 좌우로: 잡은 물건이 돈다 (Shift는 45°씩)
       held.spin = (held.spin ?? held.yaw) + e.movementX * SPIN_RAD_PER_PX;
@@ -876,7 +885,7 @@ export function makeViewer(el, handlers = {}) {
     if (held && !held.dropping) {
       // 들고 있으면 커서를 그대로 따라온다 (1 cm). 칸 단위로 뚝뚝 끊기면 손에 안 붙는다. 맞추는 건 벽·가전 붙기가 한다
       // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
-      const q = held.surface ? surfacePoint(e, held.surface, held.id) : floorPoint(e, 0.01);
+      const q = held.surface ? planePoint(e, held.plane) : floorPoint(e, 0.01);
       if (q) {
         held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]];
         // 벽·가전 옆에 가까이 가면 착 붙는다 (Alt를 누르고 있으면 붙지 않는다)
@@ -1197,8 +1206,9 @@ export function makeViewer(el, handlers = {}) {
       nodes.forEach((n) => { if (n.userData.placementId) n.userData.dirty = true; }); // 들어 옮긴 것은 다시 그릴 때 새로 만든다
       held = { ...item, nodes: nodes.map((n) => ({ node: n, baseY: n.position.y, orig: n.position.clone(), rot: n.rotation.y })),
         lift: 0, dropping: false,
-        // 윗면을 따라다니는 물건은 가운데를 잡은 것으로 본다 (바닥 점과 윗면 점이 섞이면 튄다)
-        grab: grabPoint && !item.surface ? [item.xz[0] - grabPoint[0], item.xz[1] - grabPoint[1]] : [0, 0] };
+        // 윗면에 올린 물건은 잡은 높이의 평면을 따라간다 (끌어서 잡으면 누른 자리 차이는 onMove에서 잰다)
+        plane: item.surface ? nodes[0].position.y : 0,
+        grab: item.surface ? [0, 0] : grabOffset(item.xz, grabPoint) };
       return true; // 50 cm 격자는 안 띄운다: 1 cm로 따라오는데 칸이 보이면 칸에 맞춰야 할 것 같고 방 밖까지 깔려 어지럽다
     },
     /** 회전 고리를 고른 물건 둘레에 깐다. info = {kind, id, xz, yaw, r, y} 또는 null */
