@@ -116,10 +116,17 @@ def test_water_purifier_faucet_is_placed_with_body():
         assert "finish" not in {m["name"] for m in body["materials"]}
 
 
-def test_products_with_figma_drawing_use_it():
-    """data/drawings에 도면이 있는 제품은 도면대로 만든 모델이어야 한다."""
+def test_every_model_says_how_it_was_made():
+    """index.json의 layout: 제품군 틀 이름, fusion(직접 모델링한 것을 같이 씀), drawing(예전 도면 상자 모델).
+
+    판매 중인 제품은 도면 상자 모델(drawing)로 남아 있으면 안 된다. 직접 모델링했거나 전달받은 모델은 예외.
+    """
+    from worker import archetypes
+
     index = json.loads((MODELS / "index.json").read_text(encoding="utf-8"))["models"]
-    drawn = [p.stem for p in (ROOT / "data/drawings").glob("*.json")]
-    assert drawn, "도면이 하나는 있어야 한다"
-    for sku in drawn:
-        assert index[sku]["layout"] == "drawing", sku
+    hand_made = {p.name for p in (ROOT / "data/fusion").iterdir()} | set(handoff())
+    for prod in CATALOG:
+        layout = index[prod["sku"]]["layout"]
+        assert layout in ("drawing", "fusion") or hasattr(archetypes, layout), prod["sku"]
+        if prod.get("sale_status") in ("ACTIVE", "SOLD_OUT") and prod["sku"] not in hand_made:
+            assert layout != "drawing", f"{prod['sku']}: 판매 중인데 상자 모델이다"

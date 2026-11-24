@@ -1,0 +1,1592 @@
+{
+ "_note": "제품 한 줄(같은 모양)마다 대표 모델명 → 만드는 틀과 값. tools/models/make_features.py로 만든다. 문 나눔·받침 위치는 LGE.COM 제품 사진에서 잰 비율 (2026-11-24).",
+ "models": {
+  "FQ17GC1ED2": {
+   "arch": "ac_stand",
+   "params": {
+    "kind": "cool"
+   }
+  },
+  "FQ20GC2EA2": {
+   "arch": "ac_stand",
+   "params": {
+    "kind": "cool"
+   }
+  },
+  "FW16FC1EA2": {
+   "arch": "ac_stand",
+   "params": {
+    "kind": "cool"
+   }
+  },
+  "FQ17GW1HD2": {
+   "arch": "ac_stand",
+   "params": {
+    "kind": "winner"
+   }
+  },
+  "FQ25GN9BE2": {
+   "arch": "ac_stand",
+   "params": {
+    "kind": "tower"
+   }
+  },
+  "SQ06FA1WDS": {
+   "arch": "ac_wall",
+   "params": {}
+  },
+  "SQ06GZ1WCS": {
+   "arch": "ac_wall",
+   "params": {}
+  },
+  "SQ06EZ1WBS": {
+   "arch": "ac_wall",
+   "params": {}
+  },
+  "SQ07GJ1WES": {
+   "arch": "ac_wall",
+   "params": {}
+  },
+  "SW16FK1WBS": {
+   "arch": "ac_wall",
+   "params": {}
+  },
+  "SQ07GS9EES": {
+   "arch": "ac_wall",
+   "params": {
+    "strip": true
+   }
+  },
+  "SW09GS1EES": {
+   "arch": "ac_wall",
+   "params": {
+    "strip": true
+   }
+  },
+  "AS195DWWA": {
+   "arch": "purifier_round",
+   "params": {
+    "booster": true
+   }
+  },
+  "AS206NSHA": {
+   "arch": "purifier_round",
+   "params": {
+    "body": "slats",
+    "cap": 0.2,
+    "body_mat": "#6F6659/s"
+   }
+  },
+  "AS186LSAA": {
+   "arch": "purifier_panel",
+   "params": {}
+  },
+  "AS356LSAA": {
+   "arch": "purifier_panel",
+   "params": {}
+  },
+  "AS105GWJC": {
+   "arch": "purifier_round",
+   "params": {
+    "top": "grille",
+    "cap": 0.1
+   }
+  },
+  "AS155GWDL": {
+   "arch": "aero_ring",
+   "params": {}
+  },
+  "AS076MWHC": {
+   "arch": "purifier_round",
+   "params": {
+    "top": "grille",
+    "taper": 0.1,
+    "cap": 0.3
+   }
+  },
+  "FS065PSKA": {
+   "arch": "aero_tower",
+   "params": {}
+  },
+  "AS065PWHA": {
+   "arch": "aero_table",
+   "params": {}
+  },
+  "AS065CWHA": {
+   "arch": "aero_table",
+   "params": {
+    "cat": true
+   }
+  },
+  "BEY3SRBLE": {
+   "arch": "cooktop",
+   "params": {}
+  },
+  "DFE5BGE": {
+   "arch": "dishwasher_free",
+   "params": {}
+  },
+  "MW20GDN": {
+   "arch": "microwave",
+   "params": {}
+  },
+  "MW23FDI": {
+   "arch": "microwave",
+   "params": {
+    "dials": 1,
+    "door": "same",
+    "panel": 0.22,
+    "window": 0.7
+   }
+  },
+  "MWE25HD": {
+   "arch": "microwave",
+   "params": {
+    "panel": 0.2
+   }
+  },
+  "MW25B": {
+   "arch": "microwave",
+   "params": {
+    "dials": 1
+   }
+  },
+  "MW22CA": {
+   "arch": "microwave",
+   "params": {
+    "dials": 1
+   }
+  },
+  "MW30EDN": {
+   "arch": "microwave",
+   "params": {}
+  },
+  "MLJ28ERN": {
+   "arch": "microwave",
+   "params": {
+    "dials": 2,
+    "door": "same",
+    "panel": 0.22,
+    "window": 0.7
+   }
+  },
+  "L023E1P42": {
+   "arch": "plant_tray",
+   "params": {}
+  },
+  "DQ205PSVA": {
+   "arch": "dehumidifier",
+   "params": {}
+  },
+  "HW300BBB": {
+   "arch": "pot",
+   "params": {
+    "kind": "hw300"
+   }
+  },
+  "HW500DAS": {
+   "arch": "pot",
+   "params": {
+    "kind": "hw500"
+   }
+  },
+  "HY505RWLAH": {
+   "arch": "glow_tower",
+   "params": {}
+  },
+  "RH10WTA": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "black",
+    "door": 0.76
+   }
+  },
+  "RG20WN": {
+   "arch": "drum",
+   "params": {
+    "ring": "black"
+   }
+  },
+  "W1310EGN": {
+   "arch": "wash_tower",
+   "params": {}
+  },
+  "F9WTB": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "black",
+    "door": 0.76,
+    "bulge": 40
+   }
+  },
+  "F12WVAR": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "chrome",
+    "door": 0.78,
+    "bulge": 45
+   }
+  },
+  "FY9WT": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "black",
+    "door": 0.76,
+    "bulge": 40
+   }
+  },
+  "F17CTPR": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "black",
+    "door": 0.74
+   }
+  },
+  "FG21ENR": {
+   "arch": "drum",
+   "params": {
+    "ring": "black"
+   }
+  },
+  "F8WVR": {
+   "arch": "drum",
+   "params": {
+    "panel_mat": "white",
+    "ring": "chrome",
+    "door": 0.74,
+    "bulge": 40
+   }
+  },
+  "FX4WC": {
+   "arch": "mini_wash",
+   "params": {}
+  },
+  "TR13MV4": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "TR15WV5": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "T17DX3A": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "T19MX8A": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "T19OZ0": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "TA25GZ9": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "T21MX9A": {
+   "arch": "top_loader",
+   "params": {}
+  },
+  "FH11EA": {
+   "arch": "drum",
+   "params": {
+    "ring": "black",
+    "door": 0.76,
+    "bulge": 45
+   }
+  },
+  "FC2521KX6C": {
+   "arch": "drum",
+   "params": {
+    "ring": "black"
+   }
+  },
+  "FH25LMTH": {
+   "arch": "drum_pedestal",
+   "params": {
+    "ring": "black"
+   }
+  },
+  "Y321GB3S": {
+   "arch": "fridge",
+   "params": {}
+  },
+  "Z321GC3CS": {
+   "arch": "fridge",
+   "params": {}
+  },
+  "Z326GB7": {
+   "arch": "fridge",
+   "params": {}
+  },
+  "R321S": {
+   "arch": "fridge",
+   "params": {
+    "style": "classic",
+    "handles": "bar",
+    "side": "grey",
+    "display": [
+     0,
+     0.5,
+     0.86
+    ]
+   }
+  },
+  "DF165ME": {
+   "arch": "fridge",
+   "params": {
+    "style": "classic",
+    "handles": "pocket",
+    "side": "same"
+   }
+  },
+  "A202S": {
+   "arch": "fridge",
+   "params": {
+    "style": "classic",
+    "side": "grey",
+    "top_strip": 0.05
+   }
+  },
+  "Z135MEE123": {
+   "arch": "chest_kimchi",
+   "params": {
+    "seam": 0.19,
+    "lids": 1
+   }
+  },
+  "K225MB131": {
+   "arch": "chest_kimchi",
+   "params": {
+    "seam": 0.281,
+    "lids": 2
+   }
+  },
+  "Z330MRRF21": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.533,
+     0.732
+    ]
+   }
+  },
+  "Z334SGS171": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.56,
+     0.741
+    ]
+   }
+  },
+  "Z403MEEF53": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.515,
+     0.753
+    ],
+    "cols": [
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "Z509MPSF13": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.533,
+     0.76
+    ],
+    "cols": [
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "Z490MPSF11": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.535,
+     0.768
+    ],
+    "cols": [
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "Z495GBB271": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.554,
+     0.779
+    ],
+    "cols": [
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "M516GBB012S": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.55
+    ],
+    "cols": [
+     [
+      0.5
+     ],
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "F904ND79E": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.557
+    ],
+    "cols": [
+     [
+      0.5
+     ],
+     [
+      0.5
+     ]
+    ],
+    "gap": 0.014,
+    "glass": [
+     1,
+     0.08
+    ],
+    "side": "grey"
+   }
+  },
+  "T873MEE111": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.536
+    ],
+    "cols": [
+     [
+      0.5
+     ],
+     [
+      0.5
+     ]
+    ],
+    "gap": 0.03
+   }
+  },
+  "M876GBB231": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.552
+    ],
+    "cols": [
+     [
+      0.5
+     ],
+     [
+      0.5
+     ]
+    ]
+   }
+  },
+  "S834MEE111": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.537
+    ],
+    "cols": [
+     [
+      0.432
+     ],
+     [
+      0.432
+     ]
+    ],
+    "gap": 0.031
+   }
+  },
+  "S656P003": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.537
+    ],
+    "cols": [
+     [
+      0.432
+     ],
+     [
+      0.432
+     ]
+    ],
+    "gap": 0.031
+   }
+  },
+  "S836MQQ152": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.537
+    ],
+    "cols": [
+     [
+      0.432
+     ],
+     [
+      0.432
+     ]
+    ],
+    "gap": 0.031
+   }
+  },
+  "B103S14": {
+   "arch": "fridge",
+   "params": {
+    "style": "classic",
+    "side": "grey",
+    "handles": "pocket"
+   }
+  },
+  "B124S14": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.307
+    ],
+    "gap": 0.036,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "DL195ME": {
+   "arch": "fridge",
+   "params": {
+    "style": "classic",
+    "handles": "pocket",
+    "side": "same"
+   }
+  },
+  "B182W13": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.339
+    ],
+    "gap": 0.033,
+    "style": "classic",
+    "side": "same"
+   }
+  },
+  "D215MHH13": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.344
+    ],
+    "gap": 0.034
+   }
+  },
+  "B245W22": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.326
+    ],
+    "gap": 0.029,
+    "style": "classic",
+    "side": "same"
+   }
+  },
+  "D265MEE22": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.304
+    ],
+    "gap": 0.03
+   }
+  },
+  "M301S31": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.552
+    ],
+    "gap": 0.028,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "Q342GBB133": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.58
+    ],
+    "gap": 0.026
+   }
+  },
+  "M344MB14": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.582
+    ],
+    "gap": 0.026,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "M336DS123": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.578
+    ],
+    "gap": 0.025,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "B312W31": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.343
+    ],
+    "gap": 0.03,
+    "style": "classic",
+    "side": "same"
+   }
+  },
+  "B332S34": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.325
+    ],
+    "gap": 0.028,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "Q405MEE133": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.578
+    ],
+    "gap": 0.026
+   }
+  },
+  "M402ND": {
+   "arch": "glass_cabinet",
+   "params": {
+    "drawers": [
+     0.565,
+     0.75
+    ],
+    "side": "grey"
+   }
+  },
+  "D463MRR33": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.302
+    ],
+    "gap": 0.026
+   }
+  },
+  "M451PS53": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.615
+    ],
+    "gap": 0.012,
+    "style": "classic",
+    "handles": "bar",
+    "side": "grey",
+    "display": [
+     0,
+     0.5,
+     0.8
+    ]
+   }
+  },
+  "B502S53": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.301
+    ],
+    "gap": 0.037,
+    "style": "classic",
+    "side": "grey"
+   }
+  },
+  "D604MPS52": {
+   "arch": "fridge",
+   "params": {
+    "rows": [
+     0.371
+    ],
+    "gap": 0.027
+   }
+  },
+  "IY15CT80": {
+   "arch": "ironing",
+   "params": {}
+  },
+  "SC3GBE52": {
+   "arch": "single_door_tall",
+   "params": {}
+  },
+  "S3BOF": {
+   "arch": "single_door_tall",
+   "params": {}
+  },
+  "W0772GB": {
+   "arch": "glass_cabinet",
+   "params": {}
+  },
+  "W0082GLE": {
+   "arch": "glass_cabinet",
+   "params": {
+    "shelves": 3,
+    "frame": 16
+   }
+  },
+  "W400ND": {
+   "arch": "glass_cabinet",
+   "params": {
+    "drawers": [
+     0.566,
+     0.751
+    ],
+    "side": "grey"
+   }
+  },
+  "MH20BR": {
+   "arch": "lounge_chair",
+   "params": {}
+  },
+  "MH65CC": {
+   "arch": "massage_chair",
+   "params": {}
+  },
+  "MH81CC": {
+   "arch": "massage_chair",
+   "params": {}
+  },
+  "MX91WR": {
+   "arch": "massage_chair",
+   "params": {}
+  },
+  "MO972WA": {
+   "arch": "robot_vac",
+   "params": {
+    "lidar": false
+   }
+  },
+  "B72WW": {
+   "arch": "robot_vac",
+   "params": {
+    "square": true,
+    "lidar": false
+   }
+  },
+  "R585WKA1": {
+   "arch": "robot_vac",
+   "params": {}
+  },
+  "N95TWU": {
+   "arch": "robot_vac",
+   "params": {
+    "lidar": false
+   }
+  },
+  "B94AHB": {
+   "arch": "robot_vac",
+   "params": {}
+  },
+  "A720TC": {
+   "arch": "stick_vac",
+   "params": {
+    "style": "a7"
+   }
+  },
+  "AS520WA": {
+   "arch": "stick_vac",
+   "params": {
+    "style": "a5"
+   }
+  },
+  "C40SFHT": {
+   "arch": "canister_vac",
+   "params": {}
+  },
+  "C40SGY": {
+   "arch": "canister_vac",
+   "params": {}
+  },
+  "K83IGY": {
+   "arch": "canister_vac",
+   "params": {}
+  },
+  "C40WGY": {
+   "arch": "canister_vac",
+   "params": {}
+  },
+  "C33FNT": {
+   "arch": "canister_vac",
+   "params": {}
+  },
+  "WD723RH": {
+   "arch": "purifier_ice",
+   "params": {}
+  },
+  "WD520MH": {
+   "arch": "purifier_slim",
+   "params": {
+    "head": 0.36
+   }
+  },
+  "WD522MH": {
+   "arch": "purifier_slim",
+   "params": {
+    "head": 0.36
+   }
+  },
+  "WD523AWB": {
+   "arch": "purifier_slim",
+   "params": {
+    "head": 0.3
+   }
+  },
+  "WD525ACB": {
+   "arch": "purifier_slim",
+   "params": {
+    "head": 0.3
+   }
+  },
+  "WS511SH": {
+   "arch": "purifier_stand",
+   "params": {}
+  },
+  "WS513SH": {
+   "arch": "purifier_stand",
+   "params": {}
+  },
+  "WD121MCB": {
+   "arch": "purifier_slim",
+   "params": {
+    "head": 0.45
+   }
+  },
+  "75MRGB96BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.096,
+    "sw": 0.24
+   }
+  },
+  "86MRGB96BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.084,
+    "sw": 0.21
+   }
+  },
+  "100MRGB96BK": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.046,
+    "sw": 0.17
+   }
+  },
+  "55MRGB86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.055,
+    "sw": 0.41
+   }
+  },
+  "65MRGB83BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.076,
+    "pos": 0.072
+   }
+  },
+  "65MRGB86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.061,
+    "sw": 0.31
+   }
+  },
+  "75MRGB83BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.071,
+    "pos": 0.06
+   }
+  },
+  "75MRGB86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.053,
+    "sw": 0.24
+   }
+  },
+  "75MRGB85BMC": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.055,
+    "pos": 0.061
+   }
+  },
+  "86MRGB83BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.063,
+    "pos": 0.066
+   }
+  },
+  "86MRGB85BMC": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.048,
+    "pos": 0.066
+   }
+  },
+  "86MRGB86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.057,
+    "sw": 0.19
+   }
+  },
+  "43NU850BENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.094,
+    "pos": 0.1
+   }
+  },
+  "50NU850BXNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.093,
+    "pos": 0.105
+   }
+  },
+  "55NU850BXNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "55NU850BENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.085,
+    "pos": 0.107
+   }
+  },
+  "98NU850BENB": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.036,
+    "pos": 0.097
+   }
+  },
+  "55QNED70ABA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.075,
+    "pos": 0.053
+   }
+  },
+  "55QNED80BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.083,
+    "pos": 0.07
+   }
+  },
+  "65QNED91BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.084,
+    "sw": 0.27
+   }
+  },
+  "65QNED65BBA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.071,
+    "pos": 0.1
+   }
+  },
+  "65QNED70AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.069,
+    "pos": 0.09
+   }
+  },
+  "65QNED80BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.069,
+    "pos": 0.09
+   }
+  },
+  "65QNED75AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "65QNED86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.061,
+    "sw": 0.23
+   }
+  },
+  "75QNED90KQA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.079,
+    "pos": 0.09
+   }
+  },
+  "75QNED80BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.068,
+    "pos": 0.072
+   }
+  },
+  "75QNED92AGA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.109,
+    "pos": 0.071
+   }
+  },
+  "75QNED81BMA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.066,
+    "sw": 0.24
+   }
+  },
+  "75QNED8MBEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.068,
+    "pos": 0.119
+   }
+  },
+  "75QNED85AKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "75QNED86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.061,
+    "sw": 0.23
+   }
+  },
+  "75QNED70ABA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "85QNED80BEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.057,
+    "pos": 0.093
+   }
+  },
+  "85QNED81BMA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.059,
+    "sw": 0.21
+   }
+  },
+  "85QNED91BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.068,
+    "sw": 0.31
+   }
+  },
+  "85QNED65BBA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.057,
+    "pos": 0.093
+   }
+  },
+  "85QNED92AGA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.109,
+    "pos": 0.071
+   }
+  },
+  "86QNED70AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.059,
+    "pos": 0.11
+   }
+  },
+  "86QNED65ABA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "86QNED75AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.063,
+    "pos": 0.097
+   }
+  },
+  "86QNED86BKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.05,
+    "sw": 0.2
+   }
+  },
+  "98QNED89TKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "43NANO80ANA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.094,
+    "pos": 0.095
+   }
+  },
+  "43NA1C90AKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.112,
+    "pos": 0.077
+   }
+  },
+  "55NANO90AKA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "65NANO80AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.073,
+    "pos": 0.11
+   }
+  },
+  "75NANO80AEA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.071,
+    "pos": 0.108
+   }
+  },
+  "65QNED85AKS": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.072,
+    "pos": 0.108
+   }
+  },
+  "65LX7BKNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.077,
+    "pos": 0.136,
+    "frame": "#B79C7A/s"
+   }
+  },
+  "OLED42C5ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.072,
+    "pos": 0.119
+   }
+  },
+  "OLED48B5NNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.101,
+    "pos": 0.075
+   }
+  },
+  "OLED48C5ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.093,
+    "sw": 0.44
+   }
+  },
+  "OLED55G6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.071,
+    "sw": 0.41
+   }
+  },
+  "OLED55C6ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.087,
+    "sw": 0.39
+   }
+  },
+  "OLED55B5NNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.088,
+    "pos": 0.077
+   }
+  },
+  "OLED55B6ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.093,
+    "pos": 0.072
+   }
+  },
+  "OLED65C5ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED65M4KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED65G6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.063,
+    "sw": 0.35
+   }
+  },
+  "OLED65C6SNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.075,
+    "sw": 0.33
+   }
+  },
+  "OLED65B2QNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.055,
+    "sw": 0.32
+   }
+  },
+  "OLED65B5NNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.075,
+    "pos": 0.142
+   }
+  },
+  "OLED65B6ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.079,
+    "pos": 0.135
+   }
+  },
+  "OLED77C6QNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.066,
+    "sw": 0.3
+   }
+  },
+  "OLED77G6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.077,
+    "sw": 0.29
+   }
+  },
+  "OLED77W6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED77B6NNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED77B6BNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.068,
+    "pos": 0.099
+   }
+  },
+  "OLED77B5XNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.066,
+    "pos": 0.1
+   }
+  },
+  "OLED83C6QNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.053,
+    "sw": 0.25
+   }
+  },
+  "OLED83W6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED83G6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "pedestal",
+    "sf": 0.072,
+    "sw": 0.27
+   }
+  },
+  "OLED97G2KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "OLED97G6KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "floor",
+    "sf": 0.272,
+    "pos": 0.12
+   }
+  },
+  "43UA7500ENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.071,
+    "pos": 0.09
+   }
+  },
+  "43UR931C0NA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.093,
+    "pos": 0.077
+   }
+  },
+  "50UT8350KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "50UA7500KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.071,
+    "pos": 0.09
+   }
+  },
+  "50UT93RC0NA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.094,
+    "pos": 0.095
+   }
+  },
+  "55UT93RC0NA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.094,
+    "pos": 0.078
+   }
+  },
+  "65UQ931C0NA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.074,
+    "pos": 0.11
+   }
+  },
+  "86UT9300KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "86UT93RC0NA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.065,
+    "pos": 0.11
+   }
+  },
+  "86UQ9300KNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.074,
+    "pos": 0.11
+   }
+  },
+  "32LB650BGNA": {
+   "arch": "tv",
+   "params": {
+    "stand": "wall"
+   }
+  },
+  "32LB650BENA": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.09,
+    "pos": 0.11
+   }
+  },
+  "43LB6500KNB": {
+   "arch": "tv",
+   "params": {
+    "stand": "feet",
+    "sf": 0.09,
+    "pos": 0.1
+   }
+  },
+  "OLED77T6KNA": {
+   "arch": "tv_cabinet",
+   "params": {}
+  }
+ }
+}
