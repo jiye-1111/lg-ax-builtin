@@ -13,9 +13,9 @@ def catalog(lineup=LINEUP) -> Catalog:
     return Catalog([config.ROOT / "data" / "catalog" / "products.json"], lineup)
 
 
-def test_lineup_is_the_56_handed_over_models_and_all_are_in_the_catalog():
+def test_lineup_is_the_handed_over_models_on_sale_and_all_are_in_the_catalog():
     cat = catalog()
-    assert len(MODELS) == 56
+    assert len(MODELS) == 412  # 485 SKU 묶음 가운데 2026-11-25에 LGE.COM에서 팔던 것
     assert set(MODELS) <= {p.sku for p in cat.products}
     assert {p.sku for p in cat.products if p.listed} == set(MODELS)
 
@@ -36,14 +36,15 @@ def test_only_lineup_models_on_sale_can_be_found():
     cat = catalog()
     on_sale = {p.sku for p in cat.products if p.on_sale}
     assert on_sale and on_sale <= set(MODELS)
-    assert "G646GBB031" not in on_sale  # 직접 만든 모델만 있던 제품은 목록에서 빠진다
+    assert "G646GBB031" in on_sale  # 2026-11-25 묶음에 들어 있다
+    assert "FQ18GV3EK2" not in on_sale  # 묶음에 모델이 없는 제품(에어컨)은 팔고 있어도 목록에서 빠진다
     assert "DUE6GL" not in on_sale and "BEI3GQK" not in on_sale  # 묶음에 있어도 단종·출시 전이면 안 나온다
     found = find_products(cat.products, Conditions(limit=None), None, None)
     assert {it["product"]["sku"] for it in found["items"]} <= on_sale
 
 
 def test_products_outside_lineup_stay_readable_for_homes_saved_earlier():
-    p = catalog().get("G646GBB031")
+    p = catalog().get("FQ18GV3EK2")
     assert p.listed is False and p.on_sale is False
 
 
@@ -58,6 +59,6 @@ def test_families_follow_the_handed_over_grouping():
         groups = {MODELS[v["sku"]]["family_id"] for v in f["variants"]}
         assert len(groups) == 1, f["family_id"]  # 치수가 같아도 다른 제품군은 섞이지 않는다
         by_first[groups.pop()] = f
-    assert len(by_first) == 28
-    due5 = {v["sku"]: v for v in by_first["DUE5-batch10"]["variants"]}
+    assert len(by_first) == 207
+    due5 = {v["sku"]: v for v in by_first["deliverables/color-library-batch10:DUE5-batch10"]["variants"]}
     assert due5["DUE5BGE"]["note"] == "상단 글라이드 레일 없음" and due5["DUE5BGHE"]["note"] == "상단 글라이드 레일 있음"

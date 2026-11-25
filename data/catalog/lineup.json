@@ -1,285 +1,2065 @@
 {
- "_note": "화면에 내놓는 모델. 전달받은 묶음(LG-HANDOFF-01)에 3D 모델이 있는 것만 적는다. 여기 없는 카탈로그 제품은 목록·추천에 나오지 않는다 (.env CATALOG_LINEUP)",
- "package_id": "LG-HANDOFF-01",
+ "_note": "화면에 내놓는 모델. 전달받은 묶음(LG-WEB-DEVELOPER-01)에 3D 모델이 있고 LGE.COM에서 지금 파는 것만 적는다. 여기 없는 카탈로그 제품은 목록·추천에 나오지 않는다 (.env CATALOG_LINEUP). family_id는 묶음의 제품군(group_id)",
+ "package_id": "LG-WEB-DEVELOPER-01-20261125-485SKU",
  "models": {
   "DUE6BGE": {
-   "family_id": "DUE6-150",
+   "family_id": "deliverables/color-library-batch01:DUE6-150",
    "handoff_sku": "DUE6BGE.AKOR",
    "note": null
   },
   "DUE6GLE": {
-   "family_id": "DUE6-150",
+   "family_id": "deliverables/color-library-batch01:DUE6-150",
    "handoff_sku": "DUE6GLE.AKOR",
    "note": null
   },
   "BEI3ANHLE": {
-   "family_id": "BEI3AN",
+   "family_id": "deliverables/color-library-batch01:BEI3AN",
    "handoff_sku": "BEI3ANHLE.AKOR",
    "note": null
   },
   "BEI3ANBLE": {
-   "family_id": "BEI3AN",
+   "family_id": "deliverables/color-library-batch01:BEI3AN",
    "handoff_sku": "BEI3ANBLE.AKOR",
    "note": null
   },
   "BEI3ANPLE": {
-   "family_id": "BEI3AN",
+   "family_id": "deliverables/color-library-batch01:BEI3AN",
    "handoff_sku": "BEI3ANPLE.AKOR",
    "note": null
   },
   "MLJ39EW": {
-   "family_id": "MLJ39",
+   "family_id": "deliverables/color-library-batch01:MLJ39",
    "handoff_sku": "MLJ39EW.CKOR",
    "note": null
   },
-  "MLJ39CW": {
-   "family_id": "MLJ39",
-   "handoff_sku": "MLJ39CW.CKOR",
-   "note": null
-  },
-  "BEI3GQK": {
-   "family_id": "BEI3GQK-builtin",
-   "handoff_sku": "BEI3GQK.AKOR1",
-   "note": null
-  },
   "MW23BDI": {
-   "family_id": "MW23-mirror",
+   "family_id": "deliverables/color-library-batch02:MW23-mirror",
    "handoff_sku": "MW23BDI.CKOR",
    "note": null
   },
   "MW23GDI": {
-   "family_id": "MW23-mirror",
+   "family_id": "deliverables/color-library-batch02:MW23-mirror",
    "handoff_sku": "MW23GDI.CKOR",
    "note": null
   },
   "MW23FDI": {
-   "family_id": "MW23-mirror",
+   "family_id": "deliverables/color-library-batch02:MW23-mirror",
    "handoff_sku": "MW23FDI.CKOR",
    "note": null
   },
   "MW23WDI": {
-   "family_id": "MW23-window",
+   "family_id": "deliverables/color-library-batch02:MW23-window",
    "handoff_sku": "MW23WDI.CKOR",
    "note": null
   },
   "B053S14": {
-   "family_id": "B053-batch03",
+   "family_id": "deliverables/color-library-batch03:B053-batch03",
    "handoff_sku": "B053S14.AKOR",
    "note": null
   },
   "B053W14": {
-   "family_id": "B053-batch03",
+   "family_id": "deliverables/color-library-batch03:B053-batch03",
    "handoff_sku": "B053W14.AKOR",
    "note": null
   },
   "B182W13": {
-   "family_id": "B182-batch03",
+   "family_id": "deliverables/color-library-batch03:B182-batch03",
    "handoff_sku": "B182W13.AKOR",
    "note": null
   },
   "B182DS13": {
-   "family_id": "B182-batch03",
+   "family_id": "deliverables/color-library-batch03:B182-batch03",
    "handoff_sku": "B182DS13.AKOR",
    "note": null
   },
-  "M-X0140ABSB": {
-   "family_id": "MX0140-batch03",
-   "handoff_sku": "M-X0140ABSB.ASM",
-   "note": null
-  },
   "W0082GLE": {
-   "family_id": "W0082-batch04",
+   "family_id": "deliverables/color-library-batch04:W0082-batch04",
    "handoff_sku": "W0082GLE.AKOR",
    "note": null
   },
   "W0082GBE": {
-   "family_id": "W0082-batch04",
+   "family_id": "deliverables/color-library-batch04:W0082-batch04",
    "handoff_sku": "W0082GBE.AKOR",
    "note": null
   },
   "W0082GPE": {
-   "family_id": "W0082-batch04",
+   "family_id": "deliverables/color-library-batch04:W0082-batch04",
    "handoff_sku": "W0082GPE.AKOR",
    "note": null
   },
   "W0082GCB": {
-   "family_id": "W0082-batch04",
+   "family_id": "deliverables/color-library-batch04:W0082-batch04",
    "handoff_sku": "W0082GCB.AKOR",
    "note": null
   },
   "W0082GTB": {
-   "family_id": "W0082-batch04",
+   "family_id": "deliverables/color-library-batch04:W0082-batch04",
    "handoff_sku": "W0082GTB.AKOR",
    "note": null
   },
-  "BEI3ABWLE": {
-   "family_id": "BEI3AB-batch05",
-   "handoff_sku": "BEI3ABWLE.AKOR",
-   "note": null
-  },
-  "BEI3ABBLE": {
-   "family_id": "BEI3AB-batch05",
-   "handoff_sku": "BEI3ABBLE.AKOR",
-   "note": null
-  },
   "B124W14": {
-   "family_id": "B124W-batch06",
+   "family_id": "deliverables/color-library-batch06:B124W-batch06",
    "handoff_sku": "B124W14.AKOR",
    "note": null
   },
   "MW20CDN": {
-   "family_id": "MW20-batch06",
+   "family_id": "deliverables/color-library-batch06:MW20-batch06",
    "handoff_sku": "MW20CDN.CKOR",
    "note": null
   },
   "MW20GDN": {
-   "family_id": "MW20-batch06",
+   "family_id": "deliverables/color-library-batch06:MW20-batch06",
    "handoff_sku": "MW20GDN.CKOR",
    "note": null
   },
   "MW30BDN": {
-   "family_id": "MW30-batch06",
+   "family_id": "deliverables/color-library-batch06:MW30-batch06",
    "handoff_sku": "MW30BDN.CKOR",
    "note": null
   },
   "MW30EDN": {
-   "family_id": "MW30-batch06",
+   "family_id": "deliverables/color-library-batch06:MW30-batch06",
    "handoff_sku": "MW30EDN.CKOR",
    "note": null
   },
   "BEI3HKHLE": {
-   "family_id": "BEI3HK-batch07",
+   "family_id": "deliverables/color-library-batch07:BEI3HK-batch07",
    "handoff_sku": "BEI3HKHLE.AKOR",
    "note": null
   },
   "BEI3HKBLE": {
-   "family_id": "BEI3HK-batch07",
+   "family_id": "deliverables/color-library-batch07:BEI3HK-batch07",
    "handoff_sku": "BEI3HKBLE.AKOR",
    "note": null
   },
   "BEI3HKSLE": {
-   "family_id": "BEI3HK-batch07",
+   "family_id": "deliverables/color-library-batch07:BEI3HK-batch07",
    "handoff_sku": "BEI3HKSLE.AKOR",
    "note": null
   },
   "MWJ20EDN": {
-   "family_id": "MWJ20-batch07",
+   "family_id": "deliverables/color-library-batch07:MWJ20-batch07",
    "handoff_sku": "MWJ20EDN.CKOR",
    "note": null
   },
   "MWJ23EI": {
-   "family_id": "MWJ23I-batch07",
+   "family_id": "deliverables/color-library-batch07:MWJ23I-batch07",
    "handoff_sku": "MWJ23EI.CKOR",
    "note": null
   },
   "MWJ23PI": {
-   "family_id": "MWJ23I-batch07",
+   "family_id": "deliverables/color-library-batch07:MWJ23I-batch07",
    "handoff_sku": "MWJ23PI.CKOR",
    "note": null
   },
   "BEI3HRBLE": {
-   "family_id": "BEI3HR-batch08",
+   "family_id": "deliverables/color-library-batch08:BEI3HR-batch08",
    "handoff_sku": "BEI3HRBLE.AKOR",
    "note": null
   },
   "BEI3HSBLE": {
-   "family_id": "BEI3HS-batch08",
+   "family_id": "deliverables/color-library-batch08:BEI3HS-batch08",
    "handoff_sku": "BEI3HSBLE.AKOR",
    "note": null
   },
   "MWJ25E": {
-   "family_id": "MWJ25-batch08",
+   "family_id": "deliverables/color-library-batch08:MWJ25-batch08",
    "handoff_sku": "MWJ25E.CKOR",
    "note": null
   },
-  "MWJ25P": {
-   "family_id": "MWJ25-batch08",
-   "handoff_sku": "MWJ25P.CKOR",
-   "note": null
-  },
   "B245W22": {
-   "family_id": "B245-batch09",
+   "family_id": "deliverables/color-library-batch09:B245-batch09",
    "handoff_sku": "B245W22.AKOR",
    "note": null
   },
   "B245DS22": {
-   "family_id": "B245-batch09",
+   "family_id": "deliverables/color-library-batch09:B245-batch09",
    "handoff_sku": "B245DS22.AKOR",
    "note": null
   },
   "MW25B": {
-   "family_id": "MW25-batch09",
+   "family_id": "deliverables/color-library-batch09:MW25-batch09",
    "handoff_sku": "MW25B.CKOR",
    "note": null
   },
   "DUE5BGE": {
-   "family_id": "DUE5-batch10",
+   "family_id": "deliverables/color-library-batch10:DUE5-batch10",
    "handoff_sku": "DUE5BGE.AKOR",
    "note": "상단 글라이드 레일 없음"
   },
   "DUE5BGHE": {
-   "family_id": "DUE5-batch10",
+   "family_id": "deliverables/color-library-batch10:DUE5-batch10",
    "handoff_sku": "DUE5BGHE.AKOR",
    "note": "상단 글라이드 레일 있음"
   },
   "MW22CA": {
-   "family_id": "MW22-batch10",
+   "family_id": "deliverables/color-library-batch10:MW22-batch10",
    "handoff_sku": "MW22CA.CKOR",
    "note": null
   },
-  "MW22EA": {
-   "family_id": "MW22-batch10",
-   "handoff_sku": "MW22EA.CKOR",
-   "note": null
-  },
-  "DUE6BGHE": {
-   "family_id": "DUE6H-batch11",
-   "handoff_sku": "DUE6BGHE.AKOR",
-   "note": null
-  },
   "DUE6GLHE": {
-   "family_id": "DUE6H-batch11",
+   "family_id": "deliverables/color-library-batch11:DUE6H-batch11",
    "handoff_sku": "DUE6GLHE.AKOR",
    "note": null
   },
   "B312W31": {
-   "family_id": "B312-batch11",
+   "family_id": "deliverables/color-library-batch11:B312-batch11",
    "handoff_sku": "B312W31.AKOR",
    "note": null
   },
   "B312S31": {
-   "family_id": "B312-batch11",
+   "family_id": "deliverables/color-library-batch11:B312-batch11",
    "handoff_sku": "B312S31.AKOR",
    "note": null
   },
   "B312DS31": {
-   "family_id": "B312-batch11",
+   "family_id": "deliverables/color-library-batch11:B312-batch11",
    "handoff_sku": "B312DS31.AKOR",
    "note": null
   },
   "DUE6BG": {
-   "family_id": "DUE6Legacy-batch12",
+   "family_id": "deliverables/color-library-batch12:DUE6Legacy-batch12",
    "handoff_sku": "DUE6BG.AKOR",
    "note": "상단 글라이드 레일 있음"
   },
-  "DUE6GL": {
-   "family_id": "DUE6Legacy-batch12",
-   "handoff_sku": "DUE6GL.AKOR",
-   "note": "상단 글라이드 레일 있음"
-  },
-  "DUE6BGH": {
-   "family_id": "DUE6Legacy-batch12",
-   "handoff_sku": "DUE6BGH.AKOR",
-   "note": "상단 글라이드 레일 없음"
-  },
   "B332W34": {
-   "family_id": "B332-batch12",
+   "family_id": "deliverables/color-library-batch12:B332-batch12",
    "handoff_sku": "B332W34.AKOR",
    "note": null
   },
   "B332S34": {
-   "family_id": "B332-batch12",
+   "family_id": "deliverables/color-library-batch12:B332-batch12",
    "handoff_sku": "B332S34.AKOR",
+   "note": null
+  },
+  "B103S14": {
+   "family_id": "handoffs/02-LG-additions-B103:B103-batch13",
+   "handoff_sku": "B103S14.AKOR",
+   "note": null
+  },
+  "B103W14": {
+   "family_id": "handoffs/02-LG-additions-B103:B103-batch13",
+   "handoff_sku": "B103W14.AKOR",
+   "note": null
+  },
+  "B315W11": {
+   "family_id": "handoffs/02-LG-additions-r2:B315-batch14",
+   "handoff_sku": "B315W11.AKOR",
+   "note": null
+  },
+  "B315DS11": {
+   "family_id": "handoffs/02-LG-additions-r2:B315-batch14",
+   "handoff_sku": "B315DS11.AKOR",
+   "note": null
+  },
+  "DUE4BGE": {
+   "family_id": "handoffs/02-LG-additions-r2:DUE4-batch14",
+   "handoff_sku": "DUE4BGE.AKOR",
+   "note": null
+  },
+  "DUE4BGL1E": {
+   "family_id": "handoffs/02-LG-additions-r2:DUE4-batch14",
+   "handoff_sku": "DUE4BGL1E.AKOR",
+   "note": null
+  },
+  "G646GBB031": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:G646-team-r1",
+   "handoff_sku": "G646GBB031.AKOR",
+   "note": null
+  },
+  "G646MEE021": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:G646-team-r1",
+   "handoff_sku": "G646MEE021.AKOR",
+   "note": null
+  },
+  "G646SVV031": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:G646-team-r1",
+   "handoff_sku": "G646SVV031.AKOR",
+   "note": null
+  },
+  "Z386GBB281": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:Z386-team-r1",
+   "handoff_sku": "Z386GBB281.AKOR",
+   "note": null
+  },
+  "Z386MEE221": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:Z386-team-r1",
+   "handoff_sku": "Z386MEE221.AKOR",
+   "note": null
+  },
+  "Z386SLL281": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:Z386-team-r1",
+   "handoff_sku": "Z386SLL281.AKOR",
+   "note": null
+  },
+  "M616GBB0M1": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:M616-team-r1",
+   "handoff_sku": "M616GBB0M1.AKOR",
+   "note": null
+  },
+  "D646GBB041": {
+   "family_id": "handoffs/03-LG-team-12SKU-r3:D646-team-r1",
+   "handoff_sku": "D646GBB041.CKOR",
+   "note": null
+  },
+  "Z484GBB172": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:Z484-team-r1",
+   "handoff_sku": "Z484GBB172.AKOR",
+   "note": null
+  },
+  "BEI3QKBLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3QK-team-r1",
+   "handoff_sku": "BEI3QKBLOE.AKOR",
+   "note": null
+  },
+  "BEF3AMB4E": {
+   "family_id": "handoffs/03-LG-team-12SKU-r3:BEF3A-team-r1",
+   "handoff_sku": "BEF3AMB4E.AKOR",
+   "note": null
+  },
+  "BEF3ASMLE": {
+   "family_id": "handoffs/03-LG-team-12SKU-r3:BEF3A-team-r1",
+   "handoff_sku": "BEF3ASMLE.AKOR",
+   "note": null
+  },
+  "WU523AWB": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:WU523-reuse-r1",
+   "handoff_sku": "WU523AWB.AKOR",
+   "note": null
+  },
+  "WU523ACB": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:WU523-reuse-r1",
+   "handoff_sku": "WU523ACB.AKOR",
+   "note": null
+  },
+  "W1213GG": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:W121-reuse-r1",
+   "handoff_sku": "W1213GG.AKOR",
+   "note": null
+  },
+  "W1212GB": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:W121-reuse-r1",
+   "handoff_sku": "W1212GB.AKOR",
+   "note": null
+  },
+  "FX24KNTR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:FX24-reuse-r1",
+   "handoff_sku": "FX24KNTR.AKOR2",
+   "note": null
+  },
+  "FX24ENER": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:FX24-reuse-r1",
+   "handoff_sku": "FX24ENER.AKOR2",
+   "note": null
+  },
+  "SC5GMR80S": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:SC5-reuse-r1",
+   "handoff_sku": "SC5GMR80S.AKOR",
+   "note": null
+  },
+  "SC5MBR80S": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:SC5-reuse-r1",
+   "handoff_sku": "SC5MBR80S.AKOR",
+   "note": null
+  },
+  "SC5MSR82A": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:SC5-reuse-r1",
+   "handoff_sku": "SC5MSR82A.AKOR",
+   "note": null
+  },
+  "SS4RHS60E": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:SS4R-reuse-r1",
+   "handoff_sku": "SS4RHS60E.AKOR",
+   "note": null
+  },
+  "SS4RWS60E": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:SS4R-reuse-r1",
+   "handoff_sku": "SS4RWS60E.AKOR",
+   "note": null
+  },
+  "WL21WDU": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:WL21-reuse-r1",
+   "handoff_sku": "WL21WDU.AKOR",
+   "note": null
+  },
+  "WL21EGZU": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:WL21-reuse-r1",
+   "handoff_sku": "WL21EGZU.AKOR",
+   "note": null
+  },
+  "DUE6EWL2E": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:DUE6EWL2E-reuse-r1",
+   "handoff_sku": "DUE6EWL2E.AKOR",
+   "note": null
+  },
+  "Y323MEF": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:Y323MEF-reuse-r1",
+   "handoff_sku": "Y323MEF.AKOR",
+   "note": null
+  },
+  "Z323MEF": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:Z323MEF-reuse-r1",
+   "handoff_sku": "Z323MEF.AKOR",
+   "note": null
+  },
+  "X323MEF": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:X323MEF-reuse-r1",
+   "handoff_sku": "X323MEF.AKOR",
+   "note": null
+  },
+  "Y324GB7": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:Y324GB7-reuse-r1",
+   "handoff_sku": "Y324GB7.AKOR",
+   "note": null
+  },
+  "X324GB7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:X324GB7-reuse-r1",
+   "handoff_sku": "X324GB7.AKOR",
+   "note": null
+  },
+  "MLJ32ERS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ32ERS-reuse-r1",
+   "handoff_sku": "MLJ32ERS.CKOR",
+   "note": null
+  },
+  "MLJ39ER": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ39ER-reuse-r1",
+   "handoff_sku": "MLJ39ER.CKOR",
+   "note": null
+  },
+  "FH25KA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:FH25KA-reuse-r1",
+   "handoff_sku": "FH25KA.AKOR",
+   "note": null
+  },
+  "RD20KNTR": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:RD20KNTR-reuse-r1",
+   "handoff_sku": "RD20KNTR.AKOR",
+   "note": null
+  },
+  "RD21ESER": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:RD21ESER-reuse-r1",
+   "handoff_sku": "RD21ESER.AKOR",
+   "note": null
+  },
+  "OLED65C5ENA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:OLED65C5ENA-reuse-r1",
+   "handoff_sku": "OLED65C5EW.AKRG",
+   "note": null
+  },
+  "65QNED65BBA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:65QNED65BBA-reuse-r1",
+   "handoff_sku": "65QNED65BBS.AKRG",
+   "note": null
+  },
+  "OLED77B6BNA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:OLED77B6BNA-reuse-r1",
+   "handoff_sku": "OLED77B6BS.AKRG",
+   "note": null
+  },
+  "27LX6TPGA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:27LX6TPGA-reuse-r1",
+   "handoff_sku": "27LX6TPGA.AKR",
+   "note": null
+  },
+  "32LX6BPGA": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:32LX6BPGA-reuse-r1",
+   "handoff_sku": "32LX6BPGA.AKR",
+   "note": null
+  },
+  "AS305DWWL": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:AS305DWWL-reuse-r1",
+   "handoff_sku": "AS305DWWL.AKOR",
+   "note": null
+  },
+  "AS356NSMA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:AS356NSMA-reuse-r1",
+   "handoff_sku": "AS356NSMA.AKOR",
+   "note": null
+  },
+  "AS186HWWL": {
+   "family_id": "handoffs/LG-team-reuse-20261124-r1:AS186HWWL-reuse-r1",
+   "handoff_sku": "AS186HWWL.AKOR",
+   "note": null
+  },
+  "HY706RWUAB": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:HY706RWUAB-reuse-r1",
+   "handoff_sku": "HY706RWUAB.AKOR",
+   "note": null
+  },
+  "DQ235MWGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:DQ235MWGA-reuse-r1",
+   "handoff_sku": "DQ235MWGA.AKOR",
+   "note": null
+  },
+  "MLJ32MRS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ32ERS-reuse-r1",
+   "handoff_sku": "MLJ32MRS.CKOR",
+   "note": null
+  },
+  "MLJ32PRS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ32ERS-reuse-r1",
+   "handoff_sku": "MLJ32PRS.CKOR",
+   "note": null
+  },
+  "MLJ32HWS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ32ERS-reuse-r1",
+   "handoff_sku": "MLJ32HWS.CKOR",
+   "note": null
+  },
+  "BEI3AMB4E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b19:BEI3A-framed-b19",
+   "handoff_sku": "BEI3AMB4E.AKOR",
+   "note": null
+  },
+  "BEI3ASB4E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b19:BEI3A-framed-b19",
+   "handoff_sku": "BEI3ASB4E.AKOR",
+   "note": null
+  },
+  "BEI3ASMLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b19:BEI3ASML-b19",
+   "handoff_sku": "BEI3ASMLE.AKOR",
+   "note": null
+  },
+  "MLJ32HRS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ32ERS-reuse-r1",
+   "handoff_sku": "MLJ32HRS.CKOR",
+   "note": null
+  },
+  "MLJ39PR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ39ER-reuse-r1",
+   "handoff_sku": "MLJ39PR.CKOR",
+   "note": null
+  },
+  "MLJ39KR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:MLJ39ER-reuse-r1",
+   "handoff_sku": "MLJ39KR.CKOR",
+   "note": null
+  },
+  "AS356NGMA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:AS356NSMA-reuse-r1",
+   "handoff_sku": "AS356NGMA.AKOR",
+   "note": null
+  },
+  "DQ235MEGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:DQ235MWGA-reuse-r1",
+   "handoff_sku": "DQ235MEGA.AKOR",
+   "note": null
+  },
+  "BEI3ANHLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3AN-O-b20",
+   "handoff_sku": "BEI3ANHLOE.AKOR",
+   "note": null
+  },
+  "BEI3ANBLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3AN-O-b20",
+   "handoff_sku": "BEI3ANBLOE.AKOR",
+   "note": null
+  },
+  "BEI3ANPLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3AN-O-b20",
+   "handoff_sku": "BEI3ANPLOE.AKOR",
+   "note": null
+  },
+  "BEI3AMBLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:BEI3AMBLO-b20",
+   "handoff_sku": "BEI3AMBLOE.AKOR",
+   "note": null
+  },
+  "BEI3ASB2OE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b20:BEI3ASB2O-b20",
+   "handoff_sku": "BEI3ASB2OE.AKOR",
+   "note": null
+  },
+  "Z484GGG172S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:Z484-team-r1",
+   "handoff_sku": "Z484GGG172S.AKOR",
+   "note": null
+  },
+  "Z484GGA172S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:Z484-team-r1",
+   "handoff_sku": "Z484GGA172S.AKOR",
+   "note": null
+  },
+  "Z484GAG172S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:Z484-team-r1",
+   "handoff_sku": "Z484GAG172S.AKOR",
+   "note": null
+  },
+  "Z484GQQ172S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:Z484-team-r1",
+   "handoff_sku": "Z484GQQ172S.AKOR",
+   "note": null
+  },
+  "BEI3ANSLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3AN-O-b20",
+   "handoff_sku": "BEI3ANSLOE.AKOR",
+   "note": null
+  },
+  "BEI3QKHLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b21:BEI3QK-team-r1",
+   "handoff_sku": "BEI3QKHLOE.AKOR",
+   "note": null
+  },
+  "G646GQQ031": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:G646-team-r1",
+   "handoff_sku": "G646GQQ031.AKOR",
+   "note": null
+  },
+  "Z386GQQ281": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:Z386-team-r1",
+   "handoff_sku": "Z386GQQ281.AKOR",
+   "note": null
+  },
+  "Z386SVV281": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:Z386-team-r1",
+   "handoff_sku": "Z386SVV281.AKOR",
+   "note": null
+  },
+  "BEI3ASS4E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:BEI3ASS4-b22",
+   "handoff_sku": "BEI3ASS4E.AKOR",
+   "note": null
+  },
+  "BEI3ASMLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b22:BEI3ASML-O-b22",
+   "handoff_sku": "BEI3ASMLOE.AKOR",
+   "note": null
+  },
+  "FX24GNGR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:FX24-reuse-r1",
+   "handoff_sku": "FX24GNGR.AKOR2",
+   "note": null
+  },
+  "FX24WNR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:FX24-reuse-r1",
+   "handoff_sku": "FX24WNR.AKOR2",
+   "note": null
+  },
+  "FX24WSR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:FX24-reuse-r1",
+   "handoff_sku": "FX24WSR.AKOR2",
+   "note": null
+  },
+  "RD21GSGR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:RD21ESER-reuse-r1",
+   "handoff_sku": "RD21GSGR.AKOR",
+   "note": null
+  },
+  "RD21ENR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:RD21ENR-b23",
+   "handoff_sku": "RD21ENR.AKOR",
+   "note": null
+  },
+  "HY706RSUAB": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:HY706RWUAB-reuse-r1",
+   "handoff_sku": "HY706RSUAB.AKOR",
+   "note": null
+  },
+  "BEF3ANHLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:BEF3AN-b23",
+   "handoff_sku": "BEF3ANHLE.AKOR",
+   "note": null
+  },
+  "BEF3ANBLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:BEF3AN-b23",
+   "handoff_sku": "BEF3ANBLE.AKOR",
+   "note": null
+  },
+  "BEF3ANPLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:BEF3AN-b23",
+   "handoff_sku": "BEF3ANPLE.AKOR",
+   "note": null
+  },
+  "BEF3ANSLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b23:BEF3AN-b23",
+   "handoff_sku": "BEF3ANSLE.AKOR",
+   "note": null
+  },
+  "SC5GMR60S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:SC5-60-b24",
+   "handoff_sku": "SC5GMR60S.BKOR",
+   "note": null
+  },
+  "SC5MBR60S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:SC5-60-b24",
+   "handoff_sku": "SC5MBR60S.BKOR",
+   "note": null
+  },
+  "SC5MFR60S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:SC5-60-b24",
+   "handoff_sku": "SC5MFR60S.BKOR",
+   "note": null
+  },
+  "SC5MHR60S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:SC5-60-b24",
+   "handoff_sku": "SC5MHR60S.BKOR",
+   "note": null
+  },
+  "AS186HWWA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:AS186-A-b24",
+   "handoff_sku": "AS186HWWA.AKOR",
+   "note": null
+  },
+  "AS305DWWA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:AS305-A-b24",
+   "handoff_sku": "AS305DWWA.AKOR",
+   "note": null
+  },
+  "BEF3ANHLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:BEF3AN-O-b24",
+   "handoff_sku": "BEF3ANHLOE.AKOR",
+   "note": null
+  },
+  "BEF3ASMLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b24:BEF3ASML-O-b24",
+   "handoff_sku": "BEF3ASMLOE.AKOR",
+   "note": null
+  },
+  "DUE6BGL3E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:DUE6-L3-b25",
+   "handoff_sku": "DUE6BGL3E.AKOR",
+   "note": null
+  },
+  "DUE6PFL3E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:DUE6-L3-b25",
+   "handoff_sku": "DUE6PFL3E.AKOR",
+   "note": null
+  },
+  "DQ256MEGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:DQ256-b25",
+   "handoff_sku": "DQ256MEGA.AKOR",
+   "note": null
+  },
+  "DQ256MWGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:DQ256-b25",
+   "handoff_sku": "DQ256MWGA.AKOR",
+   "note": null
+  },
+  "AS156HWWC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:AS156-b25",
+   "handoff_sku": "AS156HWWC.AKOR",
+   "note": null
+  },
+  "AS156HWWL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:AS156-b25",
+   "handoff_sku": "AS156HWWL.AKOR",
+   "note": null
+  },
+  "BEI3QEBLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:BEI3QE-QM-b25",
+   "handoff_sku": "BEI3QEBLOE.AKOR",
+   "note": null
+  },
+  "BEI3QMBLOE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b25:BEI3QE-QM-b25",
+   "handoff_sku": "BEI3QMBLOE.AKOR",
+   "note": null
+  },
+  "FX23ENER": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:FX23-b26",
+   "handoff_sku": "FX23ENER.AKOR2",
+   "note": null
+  },
+  "FX23GNGR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:FX23-b26",
+   "handoff_sku": "FX23GNGR.AKOR2",
+   "note": null
+  },
+  "FX23WNAR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:FX23-b26",
+   "handoff_sku": "FX23WNAR.AKOR2",
+   "note": null
+  },
+  "RD20ENER": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:RD20-b26",
+   "handoff_sku": "RD20ENER.AKOR",
+   "note": null
+  },
+  "RD20GNGR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:RD20-b26",
+   "handoff_sku": "RD20GNGR.AKOR",
+   "note": null
+  },
+  "RD20WNR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:RD20-b26",
+   "handoff_sku": "RD20WNR.AKOR",
+   "note": null
+  },
+  "DQ154MWGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:DQ154-185-214-b26",
+   "handoff_sku": "DQ154MWGA.AKOR",
+   "note": null
+  },
+  "DQ214MWGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:DQ154-185-214-b26",
+   "handoff_sku": "DQ214MWGA.AKOR",
+   "note": null
+  },
+  "BEI3CSQE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:BEI3CSQE-b26",
+   "handoff_sku": "BEI3CSQE.AKOR",
+   "note": null
+  },
+  "BEI3QRBLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b26-r1:BEI3QRBLE-b26",
+   "handoff_sku": "BEI3QRBLE.AKOR",
+   "note": null
+  },
+  "FX25ENR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:FX25-b27",
+   "handoff_sku": "FX25ENR.AKOR2",
+   "note": null
+  },
+  "FX25GNR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:FX25-b27",
+   "handoff_sku": "FX25GNR.AKOR2",
+   "note": null
+  },
+  "FX25WSQR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:FX25-b27",
+   "handoff_sku": "FX25WSQR.AKOR2",
+   "note": null
+  },
+  "FX25EAR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:FX25-b27",
+   "handoff_sku": "FX25EAR.AKOR2",
+   "note": null
+  },
+  "FX25GAR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:FX25-b27",
+   "handoff_sku": "FX25GAR.AKOR2",
+   "note": null
+  },
+  "SC5GMR4ES": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:SC5-R4-b27",
+   "handoff_sku": "SC5GMR4ES.AKOR",
+   "note": null
+  },
+  "SC5MBR4ES": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:SC5-R4-b27",
+   "handoff_sku": "SC5MBR4ES.AKOR",
+   "note": null
+  },
+  "SC5MBR42S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:SC5-R4-b27",
+   "handoff_sku": "SC5MBR42S.AKOR",
+   "note": null
+  },
+  "SC5MRR42S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:SC5-R4-b27",
+   "handoff_sku": "SC5MRR42S.AKOR",
+   "note": null
+  },
+  "OLED77B6SNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b27:OLED77B6S-b27",
+   "handoff_sku": "OLED77B6SS.AKRG",
+   "note": null
+  },
+  "OLED55B6BNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED55B6-b28",
+   "handoff_sku": "OLED55B6BS.AKRG",
+   "note": null
+  },
+  "OLED55B6ENA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED55B6-b28",
+   "handoff_sku": "OLED55B6ES.AKRG",
+   "note": null
+  },
+  "OLED55B6KNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED55B6-b28",
+   "handoff_sku": "OLED55B6KS.AKRG",
+   "note": null
+  },
+  "OLED65B6BNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED65B6-b28",
+   "handoff_sku": "OLED65B6BS.AKRG",
+   "note": null
+  },
+  "OLED65B6ENA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED65B6-b28",
+   "handoff_sku": "OLED65B6ES.AKRG",
+   "note": null
+  },
+  "OLED65B6SNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:OLED65B6-b28",
+   "handoff_sku": "OLED65B6SS.AKRG",
+   "note": null
+  },
+  "SC5MSR40S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:SC5MSR40S-b28",
+   "handoff_sku": "SC5MSR40S.AKOR",
+   "note": null
+  },
+  "SC5MSR42CS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:SC5MSR42CS-b28",
+   "handoff_sku": "SC5MSR42CS.AKOR",
+   "note": null
+  },
+  "SC5MSR42S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:SC5MSR42S-b28",
+   "handoff_sku": "SC5MSR42S.AKOR",
+   "note": null
+  },
+  "65QNED65BNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:QNED65B6-b28",
+   "handoff_sku": "65QNED65BNS.AKRG",
+   "note": null
+  },
+  "55QNED65BEA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b28:QNED55B6-b28",
+   "handoff_sku": "55QNED65BES.AKRG",
+   "note": null
+  },
+  "75QNED65BBA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:QNED75-65B-b29",
+   "handoff_sku": "75QNED65BBS.AKRG",
+   "note": null
+  },
+  "75QNED65BNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:QNED75-65B-b29",
+   "handoff_sku": "75QNED65BNS.AKRG",
+   "note": null
+  },
+  "85QNED65BBA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:QNED85-65B-b29",
+   "handoff_sku": "85QNED65BBS.AKRG",
+   "note": null
+  },
+  "85QNED65BNA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:QNED85-65B-b29",
+   "handoff_sku": "85QNED65BNS.AKRG",
+   "note": null
+  },
+  "DUE6BGL1E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:DUE6-L12-b29",
+   "handoff_sku": "DUE6BGL1E.AKOR",
+   "note": null
+  },
+  "DUE6BGL2E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b29:DUE6-L12-b29",
+   "handoff_sku": "DUE6BGL2E.AKOR",
+   "note": null
+  },
+  "DQ205PEGA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b30:DQ205-b30",
+   "handoff_sku": "DQ205PEGA.AKOR",
+   "note": null
+  },
+  "DQ205PSVA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b30:DQ205-b30",
+   "handoff_sku": "DQ205PSVA.AKOR",
+   "note": null
+  },
+  "AS185DWWD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b30:AS185-195-b30",
+   "handoff_sku": "AS185DWWD.AKOR",
+   "note": null
+  },
+  "AS195DWWA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b30:AS185-195-b30",
+   "handoff_sku": "AS195DWWA.AKOR",
+   "note": null
+  },
+  "DUE1BGL1E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE1-12-b31",
+   "handoff_sku": "DUE1BGL1E.AKOR",
+   "note": null
+  },
+  "DUE1BGLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE1-12-b31",
+   "handoff_sku": "DUE1BGLE.AKOR",
+   "note": null
+  },
+  "DUE5BGL1E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE5-14-b31",
+   "handoff_sku": "DUE5BGL1E.AKOR",
+   "note": null
+  },
+  "DUE5BGL2E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE5-14-b31",
+   "handoff_sku": "DUE5BGL2E.AKOR",
+   "note": null
+  },
+  "DUE5MBL2E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE5-14-b31",
+   "handoff_sku": "DUE5MBL2E.AKOR",
+   "note": null
+  },
+  "DUE6BGLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:DUE6-GLE-b31",
+   "handoff_sku": "DUE6BGLE.AKOR",
+   "note": null
+  },
+  "AS235DWSA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:AS235-285-b31",
+   "handoff_sku": "AS235DWSA.AKOR",
+   "note": null
+  },
+  "AS285DWWA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:AS235-285-b31",
+   "handoff_sku": "AS285DWWA.AKOR",
+   "note": null
+  },
+  "AS285DWWC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:AS235-285-b31",
+   "handoff_sku": "AS285DWWC.AKOR",
+   "note": null
+  },
+  "AS285DWWD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b31:AS235-285-b31",
+   "handoff_sku": "AS285DWWD.AKOR",
+   "note": null
+  },
+  "AS185LGAA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b32:WallFit-LG-b32",
+   "handoff_sku": "AS185LGAA.AKOR",
+   "note": null
+  },
+  "AS186LSAA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b32:WallFit-LS-b32",
+   "handoff_sku": "AS186LSAA.AKOR",
+   "note": null
+  },
+  "AS206NSHA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b32:AS206-b32",
+   "handoff_sku": "AS206NSHA.AKOR",
+   "note": null
+  },
+  "AS356NSLL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b32:AS356-LL-b32",
+   "handoff_sku": "AS356NSLL.AKOR",
+   "note": null
+  },
+  "HY505RWLAH": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b32:HY505-b32",
+   "handoff_sku": "HY505RWLAH.AKOR",
+   "note": null
+  },
+  "DFE5BGE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b33:DFE5-b33",
+   "handoff_sku": "DFE5BGE.AKOR",
+   "note": null
+  },
+  "DFE6BGE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b33:DFE6-b33",
+   "handoff_sku": "DFE6BGE.AKOR",
+   "note": null
+  },
+  "DFE6BGHE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b33:DFE6-b33",
+   "handoff_sku": "DFE6BGHE.AKOR",
+   "note": null
+  },
+  "DUB61TBE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b33:DUB61-b33",
+   "handoff_sku": "DUB61TBE.AKOR",
+   "note": null
+  },
+  "DEE6BGE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:DEE6-b34",
+   "handoff_sku": "DEE6BGE.AKOR",
+   "note": null
+  },
+  "BEY3GS2E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:BEY-GS2-b34",
+   "handoff_sku": "BEY3GS2E.AKOR",
+   "note": null
+  },
+  "BEY3GSU1E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:BEY-Frame-b34",
+   "handoff_sku": "BEY3GSU1E.AKOR",
+   "note": null
+  },
+  "BEY3MSE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:BEY-Frame-b34",
+   "handoff_sku": "BEY3MSE.AKOR",
+   "note": null
+  },
+  "BEY3SRBLE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:BEY-Plain-b34",
+   "handoff_sku": "BEY3SRBLE.AKOR",
+   "note": null
+  },
+  "HEI1V9E": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:HEI1-b34",
+   "handoff_sku": "HEI1V9E.CKOR",
+   "note": null
+  },
+  "ML39BW": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:ML39-Classic-b34",
+   "handoff_sku": "ML39BW.CKOR",
+   "note": null
+  },
+  "MLJ39EWO": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:ML39-Classic-b34",
+   "handoff_sku": "MLJ39EWO.CKOR",
+   "note": null
+  },
+  "MLJ39WW": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:ML39-Classic-b34",
+   "handoff_sku": "MLJ39WW.CKOR",
+   "note": null
+  },
+  "MLJ28ERN": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:MLJ28-b34",
+   "handoff_sku": "MLJ28ERN.DKOR",
+   "note": null
+  },
+  "MLJ39HW": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:MLJ39-HW-b34",
+   "handoff_sku": "MLJ39HW.CKOR",
+   "note": null
+  },
+  "MLJ32EWSO": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:MLJ32-b34",
+   "handoff_sku": "MLJ32EWSO.CKOR",
+   "note": null
+  },
+  "MW23BPI": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:MW23-b34",
+   "handoff_sku": "MW23BPI.CKOR",
+   "note": null
+  },
+  "MWE25HD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b34:MWE25-b34",
+   "handoff_sku": "MWE25HD.CKOR",
+   "note": null
+  },
+  "D646GBB021": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:D646-b35",
+   "handoff_sku": "D646GBB021.CKOR",
+   "note": null
+  },
+  "D646GBB091": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:D646-b35",
+   "handoff_sku": "D646GBB091.CKOR",
+   "note": null
+  },
+  "D646MEE021": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:D646-b35",
+   "handoff_sku": "D646MEE021.CKOR",
+   "note": null
+  },
+  "D646SLL041": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:D646-b35",
+   "handoff_sku": "D646SLL041.CKOR",
+   "note": null
+  },
+  "D646SLL091": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:D646-b35",
+   "handoff_sku": "D646SLL091.CKOR",
+   "note": null
+  },
+  "Z386GBB221": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386GBB221.AKOR",
+   "note": null
+  },
+  "Z386GQQ261": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386GQQ261.AKOR",
+   "note": null
+  },
+  "Z386MEE241": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386MEE241.AKOR",
+   "note": null
+  },
+  "Z386MQQ221": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386MQQ221.AKOR",
+   "note": null
+  },
+  "Z386SLL261": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386SLL261.AKOR",
+   "note": null
+  },
+  "Z386SVV261": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z386-b35",
+   "handoff_sku": "Z386SVV261.AKOR",
+   "note": null
+  },
+  "Z484GBB123": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z484-b35",
+   "handoff_sku": "Z484GBB123.AKOR",
+   "note": null
+  },
+  "Z484GBB152": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z484-b35",
+   "handoff_sku": "Z484GBB152.AKOR",
+   "note": null
+  },
+  "Z484GBB173": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z484-b35",
+   "handoff_sku": "Z484GBB173.AKOR",
+   "note": null
+  },
+  "Z484GQQ123S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z484-b35",
+   "handoff_sku": "Z484GQQ123S.AKOR",
+   "note": null
+  },
+  "Z484SVV123S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b35:Z484-b35",
+   "handoff_sku": "Z484SVV123S.AKOR",
+   "note": null
+  },
+  "G646GBB021": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646GBB021.AKOR",
+   "note": null
+  },
+  "G646GBB032": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646GBB032.AKOR",
+   "note": null
+  },
+  "G646GBB071": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646GBB071.AKOR",
+   "note": null
+  },
+  "G646GBB081": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646GBB081.AKOR",
+   "note": null
+  },
+  "G646GBB091": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646GBB091.AKOR",
+   "note": null
+  },
+  "G646MEE032": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646MEE032.AKOR",
+   "note": null
+  },
+  "G646SLL031": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646SLL031.AKOR",
+   "note": null
+  },
+  "G646SLL091": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646SLL091.AKOR",
+   "note": null
+  },
+  "G646SVV091": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-b36",
+   "handoff_sku": "G646SVV091.AKOR",
+   "note": null
+  },
+  "G646GBB341": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:G646-KnockOn-b36",
+   "handoff_sku": "G646GBB341.AKOR",
+   "note": null
+  },
+  "M516GBB012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:M516-b36",
+   "handoff_sku": "M516GBB012S.CKOR",
+   "note": null
+  },
+  "M516MQQ012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:M516-b36",
+   "handoff_sku": "M516MQQ012S.CKOR",
+   "note": null
+  },
+  "M516SVV012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b36:M516-b36",
+   "handoff_sku": "M516SVV012S.CKOR",
+   "note": null
+  },
+  "Z495GBB212": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495GBB212.AKOR",
+   "note": null
+  },
+  "Z495GBB261": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495GBB261.AKOR",
+   "note": null
+  },
+  "Z495GBB271": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495GBB271.AKOR",
+   "note": null
+  },
+  "Z495GQQ251": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495GQQ251.AKOR",
+   "note": null
+  },
+  "Z495MQQ212": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495MQQ212.AKOR",
+   "note": null
+  },
+  "Z495MQQ261": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495MQQ261.AKOR",
+   "note": null
+  },
+  "Z495SVV271": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b37:Z495-b37",
+   "handoff_sku": "Z495SVV271.AKOR",
+   "note": null
+  },
+  "Z330MEEF11": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b38:Z330-b38",
+   "handoff_sku": "Z330MEEF11.AKOR",
+   "note": null
+  },
+  "Z330MQQF21": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b38:Z330-b38",
+   "handoff_sku": "Z330MQQF21.AKOR",
+   "note": null
+  },
+  "Z330MRRF21": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b38:Z330-b38",
+   "handoff_sku": "Z330MRRF21.AKOR",
+   "note": null
+  },
+  "Z334SGS171": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b39:Z334-b39",
+   "handoff_sku": "Z334SGS171.AKOR",
+   "note": null
+  },
+  "Z509MEEF33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b39:Z509-b39",
+   "handoff_sku": "Z509MEEF33.AKOR",
+   "note": null
+  },
+  "Z509MHHF23": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b39:Z509-b39",
+   "handoff_sku": "Z509MHHF23.AKOR",
+   "note": null
+  },
+  "Z509MPSF13": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b39:Z509-b39",
+   "handoff_sku": "Z509MPSF13.AKOR",
+   "note": null
+  },
+  "X321GB3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:X321-b40",
+   "handoff_sku": "X321GB3S.AKOR",
+   "note": null
+  },
+  "X321MB3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:X321-b40",
+   "handoff_sku": "X321MB3S.AKOR",
+   "note": null
+  },
+  "X321SG3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:X321-b40",
+   "handoff_sku": "X321SG3S.AKOR",
+   "note": null
+  },
+  "Y321GB3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:Y321-b40",
+   "handoff_sku": "Y321GB3S.AKOR",
+   "note": null
+  },
+  "Y321MW3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:Y321-b40",
+   "handoff_sku": "Y321MW3S.AKOR",
+   "note": null
+  },
+  "Y321SS3S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:Y321-b40",
+   "handoff_sku": "Y321SS3S.AKOR",
+   "note": null
+  },
+  "Z321GC3CS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:Z321-b40",
+   "handoff_sku": "Z321GC3CS.AKOR",
+   "note": null
+  },
+  "Z321SG3CS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b40:Z321-b40",
+   "handoff_sku": "Z321SG3CS.AKOR",
+   "note": null
+  },
+  "X324GB3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:X324-b41",
+   "handoff_sku": "X324GB3.AKOR",
+   "note": null
+  },
+  "Y324GB3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Y324-b41",
+   "handoff_sku": "Y324GB3.AKOR",
+   "note": null
+  },
+  "Z324GB7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Z324-b41",
+   "handoff_sku": "Z324GB7.AKOR",
+   "note": null
+  },
+  "X326GB3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:X326-b41",
+   "handoff_sku": "X326GB3.AKOR",
+   "note": null
+  },
+  "X326GB7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:X326-b41",
+   "handoff_sku": "X326GB7.AKOR",
+   "note": null
+  },
+  "Y326GB3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Y326-b41",
+   "handoff_sku": "Y326GB3.AKOR",
+   "note": null
+  },
+  "Y326GB7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Y326-b41",
+   "handoff_sku": "Y326GB7.AKOR",
+   "note": null
+  },
+  "Z326GB3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Z326-b41",
+   "handoff_sku": "Z326GB3.AKOR",
+   "note": null
+  },
+  "Z326GB7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261124-b41:Z326-b41",
+   "handoff_sku": "Z326GB7.AKOR",
+   "note": null
+  },
+  "X326GG3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:X326-b41",
+   "handoff_sku": "X326GG3.AKOR",
+   "note": null
+  },
+  "X326GG7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:X326-b41",
+   "handoff_sku": "X326GG7.AKOR",
+   "note": null
+  },
+  "X326GQ3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:X326-b41",
+   "handoff_sku": "X326GQ3.AKOR",
+   "note": null
+  },
+  "X326GQ7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:X326-b41",
+   "handoff_sku": "X326GQ7.AKOR",
+   "note": null
+  },
+  "Y326GG3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Y326-b41",
+   "handoff_sku": "Y326GG3.AKOR",
+   "note": null
+  },
+  "Y326GG7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Y326-b41",
+   "handoff_sku": "Y326GG7.AKOR",
+   "note": null
+  },
+  "Y326GQ3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Y326-b41",
+   "handoff_sku": "Y326GQ3.AKOR",
+   "note": null
+  },
+  "Y326GQ7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Y326-b41",
+   "handoff_sku": "Y326GQ7.AKOR",
+   "note": null
+  },
+  "Z326GG3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Z326-b41",
+   "handoff_sku": "Z326GG3.AKOR",
+   "note": null
+  },
+  "Z326GG7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Z326-b41",
+   "handoff_sku": "Z326GG7.AKOR",
+   "note": null
+  },
+  "Z326GQ3": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Z326-b41",
+   "handoff_sku": "Z326GQ3.AKOR",
+   "note": null
+  },
+  "Z326GQ7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b42:Z326-b41",
+   "handoff_sku": "Z326GQ7.AKOR",
+   "note": null
+  },
+  "X324GB5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b43:X324-b41",
+   "handoff_sku": "X324GB5.AKOR",
+   "note": null
+  },
+  "Y324GB5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b43:Y324-b41",
+   "handoff_sku": "Y324GB5.AKOR",
+   "note": null
+  },
+  "Z324GB5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b43:Z324-b41",
+   "handoff_sku": "Z324GB5.AKOR",
+   "note": null
+  },
+  "D215MEE13": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D215-b44",
+   "handoff_sku": "D215MEE13.AKOR",
+   "note": null
+  },
+  "D215MHH13": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D215-b44",
+   "handoff_sku": "D215MHH13.AKOR",
+   "note": null
+  },
+  "D265MEE22": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D265-b44",
+   "handoff_sku": "D265MEE22.AKOR",
+   "note": null
+  },
+  "D312MBE31": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D312-b44",
+   "handoff_sku": "D312MBE31.AKOR",
+   "note": null
+  },
+  "D315MHH31": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D315-b44",
+   "handoff_sku": "D315MHH31.AKOR",
+   "note": null
+  },
+  "D315MPS31": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D315-b44",
+   "handoff_sku": "D315MPS31.AKOR",
+   "note": null
+  },
+  "D332MBE34": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b44:D332-b44",
+   "handoff_sku": "D332MBE34.AKOR",
+   "note": null
+  },
+  "D463MEE33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D463-b45",
+   "handoff_sku": "D463MEE33.AKOR",
+   "note": null
+  },
+  "D463MHH33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D463-b45",
+   "handoff_sku": "D463MHH33.AKOR",
+   "note": null
+  },
+  "D463MRR33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D463-b45",
+   "handoff_sku": "D463MRR33.AKOR",
+   "note": null
+  },
+  "D502MEE33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D502-33-b45",
+   "handoff_sku": "D502MEE33.AKOR",
+   "note": null
+  },
+  "D502MEE53": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D502-53-b45",
+   "handoff_sku": "D502MEE53.AKOR",
+   "note": null
+  },
+  "D604MEE33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-33-b45",
+   "handoff_sku": "D604MEE33.AKOR",
+   "note": null
+  },
+  "D604MPS33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-33-b45",
+   "handoff_sku": "D604MPS33.AKOR",
+   "note": null
+  },
+  "D604MQQ33": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-33-b45",
+   "handoff_sku": "D604MQQ33.AKOR",
+   "note": null
+  },
+  "D604MEE52": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-52-b45",
+   "handoff_sku": "D604MEE52.AKOR",
+   "note": null
+  },
+  "D604MPS52": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-52-b45",
+   "handoff_sku": "D604MPS52.AKOR",
+   "note": null
+  },
+  "D604MQQ52": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b45:D604-52-b45",
+   "handoff_sku": "D604MQQ52.AKOR",
+   "note": null
+  },
+  "DF165ME": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DF165-b46",
+   "handoff_sku": "DF165ME.AKOR",
+   "note": null
+  },
+  "DF165MH": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DF165-b46",
+   "handoff_sku": "DF165MH.AKOR",
+   "note": null
+  },
+  "DL195ME": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DL195-b46",
+   "handoff_sku": "DL195ME.AKOR",
+   "note": null
+  },
+  "DL195MH": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DL195-b46",
+   "handoff_sku": "DL195MH.AKOR",
+   "note": null
+  },
+  "DEE6EWE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DEE6-b34",
+   "handoff_sku": "DEE6EWE.AKOR",
+   "note": null
+  },
+  "DUE2BGE": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b46:DUE2-b46",
+   "handoff_sku": "DUE2BGE.AKOR",
+   "note": null
+  },
+  "DQ134MWEC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b47:DQ134",
+   "handoff_sku": "DQ134MWEC.AKOR",
+   "note": null
+  },
+  "MW23BD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b48:MW23",
+   "handoff_sku": "MW23BD.CKOR",
+   "note": null
+  },
+  "MW23GD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b48:MW23",
+   "handoff_sku": "MW23GD.CKOR",
+   "note": null
+  },
+  "MW23BP": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b48:MW23",
+   "handoff_sku": "MW23BP.CKOR",
+   "note": null
+  },
+  "MW23WD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b48:MW23",
+   "handoff_sku": "MW23WD.CKOR",
+   "note": null
+  },
+  "MW23FD": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b48:MW23",
+   "handoff_sku": "MW23FD.CKOR",
+   "note": null
+  },
+  "M301S31": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M301-b49",
+   "handoff_sku": "M301S31.AKOR",
+   "note": null
+  },
+  "M336DS123": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M336-b49",
+   "handoff_sku": "M336DS123.AKOR",
+   "note": null
+  },
+  "M336MB122": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M336-b49",
+   "handoff_sku": "M336MB122.AKOR",
+   "note": null
+  },
+  "M344MB14": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M344-b49",
+   "handoff_sku": "M344MB14.AKOR",
+   "note": null
+  },
+  "M451MC53": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M451-b49",
+   "handoff_sku": "M451MC53.AKOR",
+   "note": null
+  },
+  "M451PS53": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b49:M451-b49",
+   "handoff_sku": "M451PS53.AKOR",
+   "note": null
+  },
+  "M516GAG012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516GAG012S.CKOR",
+   "note": null
+  },
+  "M516GCB012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516GCB012S.CKOR",
+   "note": null
+  },
+  "M516GGA012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516GGA012S.CKOR",
+   "note": null
+  },
+  "M516GGG012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516GGG012S.CKOR",
+   "note": null
+  },
+  "M516GQQ012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516GQQ012S.CKOR",
+   "note": null
+  },
+  "M516MNQ012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516MNQ012S.CKOR",
+   "note": null
+  },
+  "M516MRQ012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516MRQ012S.CKOR",
+   "note": null
+  },
+  "M516SGS012S": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b50:M516-b36",
+   "handoff_sku": "M516SGS012S.CKOR",
+   "note": null
+  },
+  "AS206NGHA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b52:AS206-b32",
+   "handoff_sku": "AS206NGHA.AKOR",
+   "note": null
+  },
+  "AS356NSHH": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b52:AS356-LL-b32",
+   "handoff_sku": "AS356NSHH.AKOR",
+   "note": null
+  },
+  "DQ205PBBC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b52:DQ205-b30",
+   "handoff_sku": "DQ205PBBC.AKOR",
+   "note": null
+  },
+  "AS105GWJC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b54:AS105-b54",
+   "handoff_sku": "AS105GWJC.AKOR",
+   "note": null
+  },
+  "AS155GWDL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b54:AS155-b54",
+   "handoff_sku": "AS155GWDL.AKOR",
+   "note": null
+  },
+  "AS076MWHC": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b55:AS076-b55",
+   "handoff_sku": "AS076MWHC.AKOR",
+   "note": null
+  },
+  "AS405BWRP": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b56:AS405-b56",
+   "handoff_sku": "AS405BWRP.AKOR",
+   "note": null
+  },
+  "AS405BWRR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b56:AS405-b56",
+   "handoff_sku": "AS405BWRR.AKOR",
+   "note": null
+  },
+  "AS520HA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b57:AS5-Air-b57",
+   "handoff_sku": "AS520HA.CKOR",
+   "note": null
+  },
+  "AS520WA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b57:AS5-Air-b57",
+   "handoff_sku": "AS520WA.CKOR",
+   "note": null
+  },
+  "AS527WA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b57:AS5-Air-b57",
+   "handoff_sku": "AS527WA.CKOR",
+   "note": null
+  },
+  "AS720WA": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b57:AS720-b57",
+   "handoff_sku": "AS720WA.CKOR",
+   "note": null
+  },
+  "TR10MV4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b58:TR10-13-b58",
+   "handoff_sku": "TR10MV4.AKOR2",
+   "note": null
+  },
+  "TR10WV4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b58:TR10-13-b58",
+   "handoff_sku": "TR10WV4.AKOR2",
+   "note": null
+  },
+  "TR13MV4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b58:TR10-13-b58",
+   "handoff_sku": "TR13MV4.AKOR2",
+   "note": null
+  },
+  "TR13WV4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b58:TR10-13-b58",
+   "handoff_sku": "TR13WV4.AKOR2",
+   "note": null
+  },
+  "TR15DV5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR15DV5.AKOR",
+   "note": null
+  },
+  "TR15MV5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR15MV5.AKOR",
+   "note": null
+  },
+  "TR15WV5": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR15WV5.AKOR",
+   "note": null
+  },
+  "TR16DV6": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR16DV6.AKOR",
+   "note": null
+  },
+  "TR16MV6": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR16MV6.AKOR",
+   "note": null
+  },
+  "TR16WV6": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:TR15-16-b58",
+   "handoff_sku": "TR16WV6.AKOR",
+   "note": null
+  },
+  "T18DX7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b59:T18-b59",
+   "handoff_sku": "T18DX7.AKOR",
+   "note": null
+  },
+  "T18MX7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b59:T18-b59",
+   "handoff_sku": "T18MX7.AKOR",
+   "note": null
+  },
+  "T18MX7A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b59:T18-b59",
+   "handoff_sku": "T18MX7A.AKOR",
+   "note": null
+  },
+  "T19DX7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b60:T19-X-b60",
+   "handoff_sku": "T19DX7.AKOR",
+   "note": null
+  },
+  "T19DX8": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b60:T19-X-b60",
+   "handoff_sku": "T19DX8.AKOR",
+   "note": null
+  },
+  "T19MX7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b60:T19-X-b60",
+   "handoff_sku": "T19MX7.AKOR",
+   "note": null
+  },
+  "T19MX7A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b60:T19-X-b60",
+   "handoff_sku": "T19MX7A.AKOR",
+   "note": null
+  },
+  "T19MX8A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b60:T19-X-b60",
+   "handoff_sku": "T19MX8A.AKOR",
+   "note": null
+  },
+  "T19OZ0": {
+   "family_id": "handoffs/LG-CORRECTION-20261125-b60-oz-r2:T19-OZ-b60",
+   "handoff_sku": "T19OZ0.AKOR",
+   "note": null
+  },
+  "T21MX9A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T21-25-X-b61",
+   "handoff_sku": "T21MX9A.AKOR",
+   "note": null
+  },
+  "T23PX9": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T21-25-X-b61",
+   "handoff_sku": "T23PX9.AKOR",
+   "note": null
+  },
+  "T23PX9A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T21-25-X-b61",
+   "handoff_sku": "T23PX9A.AKOR",
+   "note": null
+  },
+  "T25PX9A": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T21-25-X-b61",
+   "handoff_sku": "T25PX9A.AKOR",
+   "note": null
+  },
+  "T21GZ9": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T21-22-Z9-b61",
+   "handoff_sku": "T21GZ9.AKOR",
+   "note": null
+  },
+  "T25OZ0": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b61:T25-OZ0-b61",
+   "handoff_sku": "T25OZ0.AKOR",
+   "note": null
+  },
+  "T18PZ7": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b62:T18PZ7-b62",
+   "handoff_sku": "T18PZ7.AKOR",
+   "note": null
+  },
+  "F17CTPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F17-TPR-b63",
+   "handoff_sku": "F17CTPR.AKOR1",
+   "note": null
+  },
+  "F17HTPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F17-TPR-b63",
+   "handoff_sku": "F17HTPR.AKOR1",
+   "note": null
+  },
+  "F17ITPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F17-TPR-b63",
+   "handoff_sku": "F17ITPR.AKOR1",
+   "note": null
+  },
+  "F17NTPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F17-TPR-b63",
+   "handoff_sku": "F17NTPR.AKOR1",
+   "note": null
+  },
+  "F19WDLPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F19-21-D-glass-b63",
+   "handoff_sku": "F19WDLPR.AKOR2",
+   "note": null
+  },
+  "F21VDSKR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F19-21-D-glass-b63",
+   "handoff_sku": "F21VDSKR.AKOR2",
+   "note": null
+  },
+  "F21WDLPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F19-21-D-glass-b63",
+   "handoff_sku": "F21WDLPR.AKOR2",
+   "note": null
+  },
+  "F19WDWPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b63:F19-WDW-round-b63",
+   "handoff_sku": "F19WDWPR.AKOR2",
+   "note": null
+  },
+  "F24VDLPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b64:F24-D-glass-b64",
+   "handoff_sku": "F24VDLPR.AKOR2",
+   "note": null
+  },
+  "F24VDSPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b64:F24-D-glass-b64",
+   "handoff_sku": "F24VDSPR.AKOR2",
+   "note": null
+  },
+  "F24WDLPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b64:F24-D-glass-b64",
+   "handoff_sku": "F24WDLPR.AKOR2",
+   "note": null
+  },
+  "F24WDWPR": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b64:F24-D-glass-b64",
+   "handoff_sku": "F24WDWPR.AKOR2",
+   "note": null
+  },
+  "WU823AS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b66:WU823",
+   "handoff_sku": "WU823AS.AKOR",
+   "note": null
+  },
+  "WU923ACB": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b66:WU923",
+   "handoff_sku": "WU923ACB.AKOR",
+   "note": null
+  },
+  "WU923AS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b66:WU923",
+   "handoff_sku": "WU923AS.AKOR",
+   "note": null
+  },
+  "WU923AWB": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b66:WU923",
+   "handoff_sku": "WU923AWB.AKOR",
+   "note": null
+  },
+  "BEI3AMB4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b67:BEI3AMB4",
+   "handoff_sku": "BEI3AMB4.AKOR",
+   "note": null
+  },
+  "BEF3AMB4": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b67:BEF3AMB4",
+   "handoff_sku": "BEF3AMB4.AKOR",
+   "note": null
+  },
+  "BEI3ASML": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b67:BEI3ASML",
+   "handoff_sku": "BEI3ASML.AKOR",
+   "note": null
+  },
+  "BEI3ANBL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b68:BEI3ANBL",
+   "handoff_sku": "BEI3ANBL.AKOR1",
+   "note": null
+  },
+  "BEI3ANHLO": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b68:BEI3ANHLO",
+   "handoff_sku": "BEI3ANHLO.AKOR1",
+   "note": null
+  },
+  "BEF3ANPL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b68:BEF3ANPL",
+   "handoff_sku": "BEF3ANPL.AKOR1",
+   "note": null
+  },
+  "BEF3MQ1": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b69:BEF3MQ1",
+   "handoff_sku": "BEF3MQ1.AKOR",
+   "note": null
+  },
+  "BEF3WBQT": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b70:BEF3WBQT",
+   "handoff_sku": "BEF3WBQT.AKOR",
+   "note": null
+  },
+  "BEY3GS2": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b70:BEY3GS2",
+   "handoff_sku": "BEY3GS2.AKOR1",
+   "note": null
+  },
+  "BEY3MS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b70:BEY3MS",
+   "handoff_sku": "BEY3MS.AKOR1",
+   "note": null
+  },
+  "BEY3SRBL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b70:BEY3SRBL",
+   "handoff_sku": "BEY3SRBL.AKOR",
+   "note": null
+  },
+  "HW300BBB": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b71:HW300BBB",
+   "handoff_sku": "HW300BBB.AKOR",
+   "note": null
+  },
+  "HW300DBL": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b71:HW300DBL",
+   "handoff_sku": "HW300DBL.AKOR",
+   "note": null
+  },
+  "HW500DAS": {
+   "family_id": "handoffs/LG-CONTINUATION-20261125-b71:HW500DAS",
+   "handoff_sku": "HW500DAS.AKOR1",
    "note": null
   }
  }

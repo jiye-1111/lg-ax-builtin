@@ -2,6 +2,7 @@
 // 평면 좌표 (x, y) = 3D (x, z), Y-up. 제품 yaw = 정면 방향, 상자 회전 = -(yaw - 90°) (glb.py와 같은 규칙)
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { MeshoptDecoder } from "../vendor/meshopt/meshopt_decoder.module.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { lookRadPerPx } from "./walk.js";
 import { wantVelocity, ease, isMoving } from "./camkeys.js";
@@ -59,6 +60,24 @@ const pending = new Map();
 let modelIndex = null;
 let companionIndex = null;
 const gltf = new GLTFLoader();
+gltf.setMeshoptDecoder(MeshoptDecoder); // 제품 모델은 meshopt로 눌러 담겨 있다
+// 색만 다른 모델은 파일 하나를 같이 쓴다: 파일은 한 번만 받고, 모델명에 맞는 색(KHR_materials_variants, 이름 = 묶음 SKU)을 복사본에 입힌다
+const files = new Map();
+function loadVariant(file, variant) {
+  if (!files.has(file)) files.set(file, gltf.loadAsync(MODEL_DIR + file));
+  return files.get(file).then(async (g) => {
+    const scene = g.scene.clone(true);
+    const i = variant ? (g.parser.json.extensions?.KHR_materials_variants?.variants ?? []).findIndex((v) => v.name === variant) : -1;
+    if (i < 0) return scene;
+    const jobs = [];
+    scene.traverse((o) => {
+      const hit = o.isMesh && o.userData.gltfExtensions?.KHR_materials_variants?.mappings?.find((m) => m.variants.includes(i));
+      if (hit) jobs.push(g.parser.getDependency("material", hit.material).then((m) => { o.material = m; }));
+    });
+    await Promise.all(jobs);
+    return scene;
+  });
+}
 function loadModel(sku) {
   if (templates.has(sku)) return Promise.resolve(true);
   if (pending.has(sku)) return pending.get(sku);
@@ -80,15 +99,15 @@ function loadModel(sku) {
     if (!entry) return false; // 모델이 없으면 치수 상자로 둔다
     const comp = comps.models?.[sku];
     return Promise.all([
-      gltf.loadAsync(MODEL_DIR + entry.file),
-      comp ? gltf.loadAsync(MODEL_DIR + comp.file).catch(() => null) : null,
-    ]).then(([g, c]) => {
-      if (c) {
-        c.scene.position.fromArray(comp.offset_m);
-        c.scene.userData.companion = true;
-        g.scene.add(c.scene);
+      loadVariant(entry.file, entry.variant),
+      comp ? loadVariant(comp.file, comp.variant).catch(() => null) : null,
+    ]).then(([scene, part]) => {
+      if (part) {
+        part.position.fromArray(comp.offset_m);
+        part.userData.companion = true;
+        scene.add(part);
       }
-      templates.set(sku, g.scene);
+      templates.set(sku, scene);
       return true;
     }, () => false);
   });

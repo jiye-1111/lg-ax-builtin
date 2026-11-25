@@ -6,7 +6,7 @@
 | 렌더 입력 | `glb.py` 상자 목록 (옮긴·치운 가구 반영) + 제품·가구 모델 | room.json |
 | 벽·바닥 | 창·문 자리는 구멍(Boolean), 걸레받이, 마루 무늬 × 바닥 색, 무광 페인트 | 박스 색 |
 | 스캔 가구 | `models/furniture/<종류>.glb`를 스캔 크기에 맞춰 부품별로 늘림 (웹과 같은 rig 규칙) | 박스 |
-| 제품 배치 | `models/products/<sku>.glb` + 고른 색 | 박스 + 색 |
+| 제품 배치 | `models/products/index.json`에 적힌 모델 파일 + 고른 색 | 박스 + 색 |
 | 렌더 | Cycles CPU 64샘플 + 노이즈 제거, 1600×900, AgX (`BLENDER_ENGINE=EEVEE`로 바꿀 수 있음) | `plan_render.py`: 등각 컷어웨이 PNG |
 | 출력 | scene.glb, render.png, scene.blend | scene.glb, render.png |
 

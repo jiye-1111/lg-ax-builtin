@@ -98,7 +98,7 @@
 
 ![제품 모델 Cycles 렌더](../images/product-models.png)
 
-- 놓은 제품은 치수 상자 대신 `apps/web/models/products/<sku>.glb`를 불러와 그린다. 모델이 없거나 못 받으면 예전처럼 치수 상자로 그린다.
+- 놓은 제품은 치수 상자 대신 `apps/web/models/products/index.json`에 적힌 모델 파일을 불러와 그린다 (색만 다른 모델은 파일 하나를 같이 쓰고 `variant`로 색을 입힌다. meshopt로 눌러 담겨 있다). 모델이 없거나 못 받으면 예전처럼 치수 상자로 그린다.
 - 모델은 `services/blender-worker/worker/bpy_scripts/build_products.py`가 카탈로그에서 만든다. 크기는 `product_dims_mm`(LGE.COM 값) 그대로, 바닥 가운데 원점, 정면 +Z.
 - 모양(문 나눔, 손잡이, 화구 무늬, 표시창)은 카테고리별 화면용 표현이다. 실제 제품 도면이 아니다.
   - 냉장고: 4도어(위 양문 + 아래 좌우 서랍), 컨버터블 드로어(위 양문 + 아래 서랍 2단)
