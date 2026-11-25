@@ -1,342 +1,6334 @@
 {
- "_note": "전달받은 묶음(LG-HANDOFF-01) 56개 모델의 LGE.COM 제품 페이지 값. 이름·모델명은 페이지 제품 정보(JSON-LD), 판매 상태는 modelStatus, 가격은 obsSellingPrice. 판매하지 않는 모델의 가격은 페이지에 남아 있는 값이고 0이면 null",
+ "_note": "전달받은 묶음(LG-WEB-DEVELOPER-01, 485 SKU) 모델의 LGE.COM 제품 페이지 값. tools/catalog/fetch_lgecom_pages.mjs로 받았다. 이름은 페이지 제품 정보(JSON-LD), 판매 상태는 modelStatus, 가격은 판매가 obsSellingPrice(0이면 null), specs는 스펙 표에 적힌 글자 그대로(크기·색·에너지 등급·종류·용량만 남김)",
  "checked_at": "2026-11-25",
  "models": {
   "DUE6BGE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "ACTIVE",
    "price_krw": 2240000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bge"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bge",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "DUE6GLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "ACTIVE",
    "price_krw": 2240000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gle"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gle",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "솔리드그린",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "BEI3ANHLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 1740000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anhle"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anhle",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3ANBLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 1740000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anble"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anble",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3ANPLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 1740000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anple"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anple",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 핑크)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "MLJ39EW.CKOR": {
    "name": "LG 디오스 오브제컬렉션 광파오븐",
    "model_status": "ACTIVE",
    "price_krw": 399000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39ew"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39ew",
+   "specs": {
+    "도어 색상": "미스트 베이지",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
   },
   "MLJ39CW.CKOR": {
    "name": "LG 디오스 오브제컬렉션 광파오븐",
    "model_status": "DISCONTINUED",
    "price_krw": 449000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39cw"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39cw",
+   "specs": {
+    "도어 색상": "미스트 클레이 브라운",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
   },
   "BEI3GQK.AKOR1": {
    "name": "LG 디오스 인덕션 빌트인",
    "model_status": "READY_FOR_SALE",
    "price_krw": null,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3gqk"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3gqk",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515"
+   }
   },
   "MW23BDI.CKOR": {
    "name": "LG 디오스 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 174000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bdi"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bdi",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "MW23GDI.CKOR": {
    "name": "LG 디오스 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 172000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23gdi"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23gdi",
+   "specs": {
+    "도어 색상": "화이트",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "MW23FDI.CKOR": {
    "name": "LG 디오스 오브제컬렉션 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 169000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23fdi"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23fdi",
+   "specs": {
+    "도어 색상": "크리스탈 베이지",
+    "외관 색상": "크리스탈 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "MW23WDI.CKOR": {
    "name": "LG 디오스 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 166000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23wdi"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23wdi",
+   "specs": {
+    "도어 색상": "화이트",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "B053S14.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 250000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b053s14"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b053s14",
+   "specs": {
+    "전체 용량 (L)": "43",
+    "제품 크기 (WxHxD, mm)": "443 x 501 x 450",
+    "색상": "퓨어",
+    "에너지 소비효율등급": "4등급"
+   }
   },
   "B053W14.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 220000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b053w14"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b053w14",
+   "specs": {
+    "전체 용량 (L)": "43",
+    "제품 크기 (WxHxD, mm)": "443 x 501 x 450",
+    "색상": "슈퍼화이트",
+    "에너지 소비효율등급": "4등급"
+   }
   },
   "B182W13.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 440000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b182w13"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b182w13",
+   "specs": {
+    "전체 용량 (L)": "189",
+    "제품 크기 (WxHxD, mm)": "555 x 1,400 x 585",
+    "색상": "화이트",
+    "에너지 소비효율등급": "3등급"
+   }
   },
   "B182DS13.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 500000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b182ds13"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b182ds13",
+   "specs": {
+    "전체 용량 (L)": "189",
+    "제품 크기 (WxHxD, mm)": "555 x 1,400 x 585",
+    "색상": "다크 그라파이트",
+    "에너지 소비효율등급": "3등급"
+   }
   },
   "M-X0140ABSB.ASM": {
    "name": "LG 퓨리케어 시스템 공기청정기",
    "model_status": "NOT_FOR_SALE",
    "price_krw": null,
-   "source_url": "https://www.lge.co.kr/product/system-air-purifier/m-x0140absb"
+   "source_url": "https://www.lge.co.kr/product/system-air-purifier/m-x0140absb",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "본체 크기 (WxHxD, mm)": "475 x 150 x 412",
+    "판넬 크기 (WxHxD, mm)": "730 x 39 x 510"
+   }
   },
   "W0082GLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 와인셀러",
    "model_status": "ACTIVE",
    "price_krw": 450000,
-   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gle"
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gle",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "29",
+    "색상": "오브제컬렉션 크림 라벤더",
+    "도어스타일/재질": "글라스 (크리스탈)",
+    "제품 크기 (WxHxD, mm)": "282 × 497 × 534",
+    "에너지 소비효율등급": "해당없음"
+   }
   },
   "W0082GBE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 와인셀러",
    "model_status": "ACTIVE",
    "price_krw": 510000,
-   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gbe"
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gbe",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "29",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스 (크리스탈)",
+    "제품 크기 (WxHxD, mm)": "282 × 497 × 534",
+    "에너지 소비효율등급": "해당없음"
+   }
   },
   "W0082GPE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 와인셀러",
    "model_status": "ACTIVE",
    "price_krw": 510000,
-   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gpe"
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gpe",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "29",
+    "색상": "오브제컬렉션 핑크",
+    "도어스타일/재질": "글라스 (크리스탈)",
+    "제품 크기 (WxHxD, mm)": "282 × 497 × 534",
+    "에너지 소비효율등급": "해당없음"
+   }
   },
   "W0082GCB.AKOR": {
    "name": "LG 디오스 오브제컬렉션 와인셀러",
    "model_status": "ACTIVE",
    "price_krw": 480000,
-   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gcb"
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gcb",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "29",
+    "색상": "오브제컬렉션 클레이 브라운",
+    "도어스타일/재질": "글라스 (크리스탈)",
+    "제품 크기 (WxHxD, mm)": "282 × 497 × 534",
+    "에너지 소비효율등급": "해당없음"
+   }
   },
   "W0082GTB.AKOR": {
    "name": "LG 디오스 오브제컬렉션 와인셀러",
    "model_status": "ACTIVE",
    "price_krw": 480000,
-   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gtb"
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gtb",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "29",
+    "색상": "오브제컬렉션 클레이 민트",
+    "도어스타일/재질": "글라스 (크리스탈)",
+    "제품 크기 (WxHxD, mm)": "282 × 497 × 534",
+    "에너지 소비효율등급": "해당없음"
+   }
   },
   "BEI3ABWLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "NOT_FOR_SALE",
    "price_krw": 1790000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abwle"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abwle",
+   "specs": {
+    "글라스컬러": "웜 화이트",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3ABBLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "NOT_FOR_SALE",
    "price_krw": 1792000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abble"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abble",
+   "specs": {
+    "글라스컬러": "크리스탈 베이지",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "B124W14.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 320000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b124w14"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b124w14",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "121",
+    "제품 크기 (WxHxD, mm)": "475 x 1,170 x 487",
+    "색상": "화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "4등급"
+   }
   },
   "MW20CDN.CKOR": {
    "name": "LG 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 145000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20cdn"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20cdn",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "454 x 261 x 328"
+   }
   },
   "MW20GDN.CKOR": {
    "name": "LG 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 129000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20gdn"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20gdn",
+   "specs": {
+    "도어 색상": "화이트",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "454 x 261 x 328"
+   }
   },
   "MW30BDN.CKOR": {
    "name": "LG 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 169000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30bdn"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30bdn",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "508 x 290 x 400"
+   }
   },
   "MW30EDN.CKOR": {
    "name": "LG 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 169000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30edn"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30edn",
+   "specs": {
+    "도어 색상": "화이트",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "508 x 290 x 400"
+   }
   },
   "BEI3HKHLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 759000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkhle"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkhle",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3HKBLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 901000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkble"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkble",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3HKSLE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 인덕션",
    "model_status": "ACTIVE",
-   "price_krw": 901000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hksle"
+   "price_krw": 770000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hksle",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 크림 스카이)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "MWJ20EDN.CKOR": {
    "name": "LG 오브제컬렉션 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 152000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj20edn"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj20edn",
+   "specs": {
+    "도어 색상": "크리스탈 베이지",
+    "외관 색상": "스킨 베이지",
+    "제품 크기 (WXHXD,mm)": "454 x 261 x 328"
+   }
   },
   "MWJ23EI.CKOR": {
    "name": "LG 디오스 오브제컬렉션 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 190000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23ei"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23ei",
+   "specs": {
+    "도어 색상": "크리스탈 베이지",
+    "외관 색상": "미스트 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "MWJ23PI.CKOR": {
    "name": "LG 디오스 오브제컬렉션 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 190000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23pi"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23pi",
+   "specs": {
+    "도어 색상": "크리스탈 핑크",
+    "외관 색상": "미스트 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
   },
   "BEI3HRBLE.AKOR": {
    "name": "LG 디오스 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 719000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hrble"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hrble",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "BEI3HSBLE.AKOR": {
    "name": "LG 디오스 인덕션",
    "model_status": "ACTIVE",
    "price_krw": 750000,
-   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hsble"
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hsble",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "MWJ25E.CKOR": {
    "name": "LG 디오스 오브제컬렉션 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 260000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25e"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25e",
+   "specs": {
+    "도어 색상": "크리스탈 베이지",
+    "외관 색상": "스킨 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 370"
+   }
   },
   "MWJ25P.CKOR": {
    "name": "LG 디오스 오브제컬렉션 전자레인지",
    "model_status": "DISCONTINUED",
    "price_krw": 239000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25p"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25p",
+   "specs": {
+    "도어 색상": "크리스탈 핑크",
+    "외관 색상": "스킨 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 370"
+   }
   },
   "B245W22.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 540000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b245w22"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b245w22",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "241",
+    "제품 크기 (WxHxD, mm)": "555 x 1,573 x 637",
+    "색상": "화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
   },
   "B245DS22.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "SOLD_OUT",
    "price_krw": 560000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b245ds22"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b245ds22",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "241",
+    "제품 크기 (WxHxD, mm)": "555 x 1,573 x 637",
+    "색상": "다크 그라파이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
   },
   "MW25B.CKOR": {
    "name": "LG 디오스 전자레인지",
    "model_status": "ACTIVE",
    "price_krw": 175000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw25b"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw25b",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 370"
+   }
   },
   "DUE5BGE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "ACTIVE",
    "price_krw": 1780000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bge"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bge",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "DUE5BGHE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "ACTIVE",
    "price_krw": 1330000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bghe"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bghe",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "MW22CA.CKOR": {
    "name": "LG 디오스 전자레인지",
    "model_status": "SOLD_OUT",
    "price_krw": 179000,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ca"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ca",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 346"
+   }
   },
   "MW22EA.CKOR": {
    "name": "LG 전자레인지",
    "model_status": "NOT_FOR_SALE",
    "price_krw": null,
-   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ea"
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ea",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 346"
+   }
   },
   "DUE6BGHE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "READY_FOR_SALE",
    "price_krw": null,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bghe"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bghe",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "DUE6GLHE.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "ACTIVE",
    "price_krw": 1500000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6glhe"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6glhe",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "솔리드그린",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "B312W31.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "SOLD_OUT",
    "price_krw": 560000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b312w31"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b312w31",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "화이트",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "B312S31.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 800000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b312s31"
+   "source_url": "https://www.lge.co.kr/product/care-solutions/refrigerators/b312s31?subscCategoryKeyId=241821",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "퓨어",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "B312DS31.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 800000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b312ds31"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b312ds31",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "다크 그라파이트",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
   },
   "DUE6BG.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "SOLD_OUT",
    "price_krw": 2140000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bg"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bg",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "등급 외 제품",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "DUE6GL.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기",
    "model_status": "DISCONTINUED",
    "price_krw": 2140000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gl"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gl",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "솔리드그린",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "등급 외 제품",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "DUE6BGH.AKOR": {
    "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
    "model_status": "NOT_FOR_SALE",
    "price_krw": 1254000,
-   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgh"
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgh",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "등급 외 제품",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
   },
   "B332W34.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 660000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b332w34"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b332w34",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "335",
+    "제품 크기 (WxHxD, mm)": "600 x 1,720 x 710",
+    "색상": "화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "4등급"
+   }
   },
   "B332S34.AKOR": {
    "name": "LG 일반냉장고",
    "model_status": "ACTIVE",
    "price_krw": 700000,
-   "source_url": "https://www.lge.co.kr/product/refrigerators/b332s34"
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b332s34",
+   "specs": {
+    "전체 용량 (L)": "335",
+    "제품 크기 (WxHxD, mm)": "600 x 1,720 x 710",
+    "색상": "퓨어",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "B103S14.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 310000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b103s14",
+   "specs": {
+    "전체 용량 (L)": "90",
+    "제품 크기 (WxHxD, mm)": "463 X 820 X 482",
+    "색상": "퓨어",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "B103W14.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 290000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b103w14",
+   "specs": {
+    "전체 용량 (L)": "90",
+    "제품 크기 (WxHxD, mm)": "463 X 820 X 482",
+    "색상": "슈퍼화이트",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "B315W11.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b315w11",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "B315DS11.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b315ds11",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "다크 그라파이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "DUE4BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/12인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 950000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due4bge",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE4BGL1E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/12인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 960000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due4bgl1e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "G646GBB031.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4150000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb031",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646MEE021.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3030000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646mee021",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646SVV031.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4350000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646svv031",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 실버 / 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386GBB281.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2950000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386gbb281",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386MEE221.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386mee221",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386SLL281.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3150000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386sll281",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M616GBB0M1.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2680000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m616gbb0m1",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "609",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D646GBB041.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 4550000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646gbb041",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "628",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z484GBB172.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3100000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gbb172",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "BEI3QKBLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1144000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3qkbloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3AMB4E.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1940000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3amb4e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3ASMLE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3asmle",
+   "specs": {
+    "글라스컬러": "무광블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "WU523AWB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 정수기 (빌트인, 냉온정)",
+   "model_status": "ACTIVE",
+   "price_krw": 1839000,
+   "source_url": "https://www.lge.co.kr/product/water-purifiers/wu523awb",
+   "specs": {
+    "색상": "솔리드 크림 화이트",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "WU523ACB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 정수기 (빌트인, 냉온정)",
+   "model_status": "ACTIVE",
+   "price_krw": 1839000,
+   "source_url": "https://www.lge.co.kr/product/water-purifiers/wu523acb",
+   "specs": {
+    "색상": "솔리드 베이지",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "W1213GG.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w1213gg",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "283",
+    "색상": "오브제컬렉션 그린",
+    "도어스타일/재질": "글라스",
+    "제품 크기 (WxHxD, mm)": "595 x 1,488 x 585",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "W1212GB.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 2200000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w1212gb",
+   "specs": {
+    "타입": "와인셀러",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "283",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "제품 크기 (WxHxD, mm)": "595 x 1,488 x 585",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "FX24KNTR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1290000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx24kntr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "스페이스 블랙",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX24ENER.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1360000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx24ener",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "SC5GMR80S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW) + 스티머",
+   "model_status": "ACTIVE",
+   "price_krw": 2690000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5gmr80s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "블랙틴트미러",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "최저소비효율기준만족"
+   }
+  },
+  "SC5MBR80S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW) + 스티머",
+   "model_status": "ACTIVE",
+   "price_krw": 2590000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mbr80s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "샌드 베이지",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "최저소비효율기준만족"
+   }
+  },
+  "SC5MSR82A.AKOR": {
+   "name": "LG 스타일러 오브제컬렉션 (NEW) + 스티머",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5msr82a",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "에센스 화이트",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SS4RHS60E.AKOR": {
+   "name": "LG 스타일러 오브제컬렉션 슈케어",
+   "model_status": "ACTIVE",
+   "price_krw": 1270000,
+   "source_url": "https://www.lge.co.kr/product/shoe-care/ss4rhs60e",
+   "specs": {
+    "크기 (WxHxD, mm)": "380 x 1,008 x 390",
+    "용량": "최대 4켤레",
+    "색상": "에센스 그라파이트",
+    "에너지 소비효율등급": "등급 외 제품"
+   }
+  },
+  "SS4RWS60E.AKOR": {
+   "name": "LG 스타일러 오브제컬렉션 슈케어",
+   "model_status": "ACTIVE",
+   "price_krw": 1270000,
+   "source_url": "https://www.lge.co.kr/product/shoe-care/ss4rws60e",
+   "specs": {
+    "크기 (WxHxD, mm)": "380 x 1,008 x 390",
+    "용량": "최대 4켤레",
+    "색상": "에센스 화이트",
+    "에너지 소비효율등급": "등급 외 제품"
+   }
+  },
+  "WL21WDU.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 워시타워",
+   "model_status": "ACTIVE",
+   "price_krw": 4479000,
+   "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/wl21wdu",
+   "specs": {
+    "색상 (세탁/건조)": "릴리 화이트 / 릴리 화이트",
+    "크기 (WxHxD, mm)": "700 x 1,890 x 830",
+    "에너지 소비효율등급": "세탁기 1등급 / 건조기 1등급"
+   }
+  },
+  "WL21EGZU.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 워시타워",
+   "model_status": "ACTIVE",
+   "price_krw": 4579000,
+   "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/wl21egzu",
+   "specs": {
+    "색상 (세탁/건조)": "네이처 베이지 / 네이처 그린",
+    "크기 (WxHxD, mm)": "700 x 1,890 x 830",
+    "에너지 소비효율등급": "세탁기 1등급 / 건조기 1등급"
+   }
+  },
+  "DUE6EWL2E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1250000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6ewl2e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 에센스 화이트",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "Y323MEF.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1020000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y323mef",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "빌트인 타입",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "321",
+    "제품 크기 (WxHxD, mm)": "595 x 1,860 x 707",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z323MEF.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(김치전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1190000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z323mef",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "빌트인 타입",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "324",
+    "제품 크기 (WxHxD, mm)": "595 x 1,860 x 707",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X323MEF.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 910000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x323mef",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "빌트인 타입",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "384",
+    "제품 크기 (WxHxD, mm)": "595 x 1,860 x 707",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y324GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1900000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y324gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "X324GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "MLJ32ERS.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32ers",
+   "specs": {
+    "도어 색상": "카밍 베이지",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "MLJ39ER.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 489000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39er",
+   "specs": {
+    "도어 색상": "카밍 베이지",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "FH25KA.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 워시콤보",
+   "model_status": "ACTIVE",
+   "price_krw": 3190000,
+   "source_url": "https://www.lge.co.kr/product/all-in-one-laundry/fh25ka",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "스페이스 블랙",
+    "에너지 소비효율등급": "세탁: 1등급(에너지 소비효율등급은 에너지이용 합리화법에 따른 효율관리기자재 운용규정에 의한 시험 방법에 따라 &quot;세탁 모드의 표준 코스&quot;에서 표기 용량 세탁 시 사용되는 전기 및 물 사용량임)"
+   }
+  },
+  "RD20KNTR.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 1370000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd20kntr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "스페이스 블랙",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD21ESER.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 1690000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd21eser",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "OLED65C5EW.AKRG": {
+   "name": "LG 올레드 evo AI (벽걸이형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2540000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled65c5ena-wall",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,441 x 826 x 45.1",
+    "스탠드 포함크기 (WxHxD, mm)": "1,441 x 880 x 230",
+    "스탠드 크기 (WxD, mm)": "470 x 230"
+   }
+  },
+  "65QNED65BBS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1280000,
+   "source_url": "https://www.lge.co.kr/product/tvs/65qned65bba-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,447 x 838 x 70.8",
+    "스탠드 포함크기 (WxHxD, mm)": "1,447 x 901 x 269",
+    "스탠드 크기 (WxD, mm)": "1,185 x 269"
+   }
+  },
+  "OLED77B6BS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 4100000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled77b6bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,719 x 989 x 50.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,719 x 1,057 x 268",
+    "스탠드 크기 (WxD, mm)": "1,390 x 268"
+   }
+  },
+  "27LX6TPGA.AKR": {
+   "name": "LG 스탠바이미 2",
+   "model_status": "ACTIVE",
+   "price_krw": 1390000,
+   "source_url": "https://www.lge.co.kr/product/stan-by-me/27lx6tpga",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "623 x 364 x 28.5",
+    "스탠드 포함크기 (WxHxD, mm)": "623 x 1,265 x 398",
+    "스탠드 크기 (WxD, mm)": "398 x 398"
+   }
+  },
+  "32LX6BPGA.AKR": {
+   "name": "LG 스탠바이미 2 Max",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/stan-by-me/32lx6bpga",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "724 x 421 x 28.5",
+    "스탠드 포함크기 (WxHxD, mm)": "724 x 1,308 x 420",
+    "스탠드 크기 (WxD, mm)": "420 x 420"
+   }
+  },
+  "AS305DWWL.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 799000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as305dwwl",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS356NSMA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M7",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as356nsma",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS186HWWL.AKOR": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "ACTIVE",
+   "price_krw": 368000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as186hwwl",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "HY706RWUAB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 하이드로타워 + 급수비커 세트",
+   "model_status": "ACTIVE",
+   "price_krw": 1519000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hy706rwuab",
+   "specs": {
+    "색상": "화이트",
+    "에너지 소비효율등급": "3등급",
+    "제품 크기 (WxHxD, mm)": "310(240) x 986 x 310(240)"
+   }
+  },
+  "DQ235MWGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 849000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq235mwga",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "MLJ32MRS.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32mrs",
+   "specs": {
+    "도어 색상": "카밍 클레이 민트",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "MLJ32PRS.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32prs",
+   "specs": {
+    "도어 색상": "카밍 핑크",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "MLJ32HWS.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 699000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32hws",
+   "specs": {
+    "도어 색상": "카밍 에센스 화이트",
+    "외관 색상": "에센스 화이트",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "BEI3AMB4E.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3amb4e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ASB4E.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3asb4e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ASMLE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1740000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3asmle",
+   "specs": {
+    "글라스컬러": "무광블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "MLJ32HRS.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32hrs",
+   "specs": {
+    "도어 색상": "카밍 에센스 화이트",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "MLJ39PR.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 489000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39pr",
+   "specs": {
+    "도어 색상": "카밍 핑크",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "MLJ39KR.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 489000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39kr",
+   "specs": {
+    "도어 색상": "카밍 매트 블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "AS356NGMA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M7",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as356ngma",
+   "specs": {
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "DQ235MEGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 629000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq235mega",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "카밍 베이지",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "BEI3ANHLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1200000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anhloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ANBLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1109000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anbloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ANPLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anploe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 핑크)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3AMBLOE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1149000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3ambloe",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ASB2OE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1000000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3asb2oe",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X324GQ7S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "DISCONTINUED",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gq7s",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X324GG7S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "DISCONTINUED",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gg7s",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X324GN7S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "DISCONTINUED",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gn7s",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 크림 레몬",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X324GH7S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "DISCONTINUED",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gh7s",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 크림 피치",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z484GCB172S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "DISCONTINUED",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gcb172s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 클레이 브라운 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z484GGG172S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484ggg172s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z484GGA172S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gga172s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 토프 / 아몬드",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z484GAG172S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gag172s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 아몬드 / 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z484GQQ172S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gqq172s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "BEI3ANSLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3ansloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 크림 스카이)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3QKHLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1124000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3qkhloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646GQQ031.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4150000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gqq031",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M616GGA0M1.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "DISCONTINUED",
+   "price_krw": 3650000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m616gga0m1",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "609",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 토프 / 아몬드",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M616MQQ0M1.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 2830000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m616mqq0m1",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "609",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 에센스 화이트 / 에센스 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M616MQR0M1.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "DISCONTINUED",
+   "price_krw": 2800000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m616mqr0m1",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "609",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 에센스 화이트 / 크림 그레이",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386GQQ281.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3150000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386gqq281",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386SVV281.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2850000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386svv281",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ASS4E.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3ass4e",
+   "specs": {
+    "글라스컬러": "크리스탈 코튼 실버",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ASMLOE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1050000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3asmloe",
+   "specs": {
+    "글라스컬러": "무광블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX24GNGR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1850000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx24gngr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX24WNR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1220000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx24wnr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "릴리 화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX24WSR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1800000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx24wsr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD21GSGR.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 2140000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd21gsgr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD21ENR.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 2040000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd21enr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "HY706RSUAB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 하이드로타워 + 급수비커 세트",
+   "model_status": "ACTIVE",
+   "price_krw": 1519000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hy706rsuab",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "3등급",
+    "제품 크기 (WxHxD, mm)": "310(240) x 986 x 310(240)"
+   }
+  },
+  "BEF3ANHLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3anhle",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3ANBLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3anble",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3ANPLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3anple",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 핑크)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3ANSLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3ansle",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 크림 스카이)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "SC5GMR60S.BKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 2340000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5gmr60s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "블랙틴트미러",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "최저소비효율기준만족"
+   }
+  },
+  "SC5MBR60S.BKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mbr60s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "샌드 베이지",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "최저소비효율기준만족"
+   }
+  },
+  "SC5MFR60S.BKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mfr60s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "토프",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MHR60S.BKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 2190000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mhr60s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌 + 바지 1벌",
+    "도어 색상": "에센스 그라파이트",
+    "LCD 크기": "2.4인치",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS186HWWA.AKOR": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "ACTIVE",
+   "price_krw": 329000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as186hwwa",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "AS305DWWA.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 899000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as305dwwa",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "BEF3ANHLOE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1299000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3anhloe",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3ASMLOE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1299000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3asmloe",
+   "specs": {
+    "글라스컬러": "무광블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "DUE6BGL3E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1380000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgl3e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE6PFL3E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1430000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6pfl3e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 프라임 실버",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DQ256MEGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 899000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq256mega",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "카밍 베이지",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "DQ256MWGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 899000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq256mwga",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "AS156HWWC.AKOR": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "ACTIVE",
+   "price_krw": 305000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as156hwwc",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "AS156HWWL.AKOR": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "ACTIVE",
+   "price_krw": 338000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as156hwwl",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "BEI3QEBLOE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 804000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3qebloe",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3QMBLOE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1159000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3qmbloe",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX23ENER.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1530000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx23ener",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX23GNGR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1480000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx23gngr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX23WNAR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1360000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx23wnar",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD20ENER.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 1550000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd20ener",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD20GNGR.AKOR": {
+   "name": "LG 트롬 오브제컬렉션 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 1660000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd20gngr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "RD20WNR.AKOR": {
+   "name": "LG 트롬 건조기",
+   "model_status": "ACTIVE",
+   "price_krw": 1380000,
+   "source_url": "https://www.lge.co.kr/product/dryers/rd20wnr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 824",
+    "색상": "릴리 화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "DQ154MWGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 461000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq154mwga-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "DQ185MWGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "DISCONTINUED",
+   "price_krw": 439000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq185mwga",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "DQ214MWGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 529000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq214mwga",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "BEI3CSQE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1113000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3csqe",
+   "specs": {
+    "글라스컬러": "크리스탈 코튼 실버",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3QRBLE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1040000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3qrble",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX25ENR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 2050000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx25enr-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX25GNR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 2020000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx25gnr-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX25WSQR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1450000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx25wsqr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "릴리 화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX25EAR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 2100000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx25ear-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 베이지",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "FX25GAR.AKOR2": {
+   "name": "LG 트롬 오브제컬렉션 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 2100000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/fx25gar-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "SC5GMR4ES.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5gmr4es",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "블랙틴트미러",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MBR4ES.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1640000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mbr4es",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "샌드 베이지",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MBR42S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1640000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mbr42s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "샌드 베이지",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MRR42S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1390000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5mrr42s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "클레이 브라운",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "OLED77B6SS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 5790000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled77b6sna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,719 x 989 x 50.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,719 x 1,057 x 268",
+    "스탠드 크기 (WxD, mm)": "1,390 x 268"
+   }
+  },
+  "OLED55B6BS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled55b6bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,228 x 708 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,228 x 776 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "OLED55B6ES.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled55b6ena-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,228 x 708 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,228 x 776 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "OLED55B6KS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled55b6kna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,228 x 708 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,228 x 776 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "OLED65B6BS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2790000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled65b6bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,449 x 832 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,449 x 900 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "OLED65B6ES.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2190000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled65b6ena-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,449 x 832 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,449 x 900 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "OLED65B6SS.AKRG": {
+   "name": "LG 올레드 AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 3290000,
+   "source_url": "https://www.lge.co.kr/product/tvs/oled65b6sna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,449 x 832 x 45.9",
+    "스탠드 포함크기 (WxHxD, mm)": "1,449 x 900 x 218",
+    "스탠드 크기 (WxD, mm)": "1,069 x 218"
+   }
+  },
+  "SC5MSR40S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1940000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5msr40s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "에센스 화이트",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MSR42CS.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5msr42cs",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "에센스 화이트",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "SC5MSR42S.AKOR": {
+   "name": "LG 스타일러 AI 오브제컬렉션 (2026 NEW)",
+   "model_status": "ACTIVE",
+   "price_krw": 1350000,
+   "source_url": "https://www.lge.co.kr/product/lg-styler/sc5msr42s",
+   "specs": {
+    "크기 (WxHxD, mm)": "600x1,965x620",
+    "용량": "5벌",
+    "도어 색상": "에센스 화이트",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "65QNED65BNS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1490000,
+   "source_url": "https://www.lge.co.kr/product/tvs/65qned65bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,447 x 838 x 70.8",
+    "스탠드 포함크기 (WxHxD, mm)": "1,447 x 901 x 269",
+    "스탠드 크기 (WxD, mm)": "1,185 x 269"
+   }
+  },
+  "55QNED65BES.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1190000,
+   "source_url": "https://www.lge.co.kr/product/tvs/55qned65bea-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,228 x 715 x 70.8",
+    "스탠드 포함크기 (WxHxD, mm)": "1,228 x 776 x 230",
+    "스탠드 크기 (WxD, mm)": "989 x 230"
+   }
+  },
+  "75QNED65BBS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 1680000,
+   "source_url": "https://www.lge.co.kr/product/tvs/75qned65bba-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,669 x 963 x 72.1",
+    "스탠드 포함크기 (WxHxD, mm)": "1,669 x 1,026 x 361",
+    "스탠드 크기 (WxD, mm)": "1,299 x 361"
+   }
+  },
+  "75QNED65BNS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "SOLD_OUT",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/tvs/75qned65bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,669 x 963 x 72.1",
+    "스탠드 포함크기 (WxHxD, mm)": "1,669 x 1,026 x 361",
+    "스탠드 크기 (WxD, mm)": "1,299 x 361"
+   }
+  },
+  "85QNED65BBS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2390000,
+   "source_url": "https://www.lge.co.kr/product/tvs/85qned65bba-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,890 x 1,088 x 72.4",
+    "스탠드 포함크기 (WxHxD, mm)": "1,890 x 1,148 x 362",
+    "스탠드 크기 (WxD, mm)": "1,565 x 362"
+   }
+  },
+  "85QNED65BNS.AKRG": {
+   "name": "LG QNED AI (스탠드형)",
+   "model_status": "ACTIVE",
+   "price_krw": 2890000,
+   "source_url": "https://www.lge.co.kr/product/tvs/85qned65bna-stand",
+   "specs": {
+    "스탠드 제외크기 (WxHxD, mm)": "1,890 x 1,088 x 72.4",
+    "스탠드 포함크기 (WxHxD, mm)": "1,890 x 1,148 x 362",
+    "스탠드 크기 (WxD, mm)": "1,565 x 362"
+   }
+  },
+  "DUE6BGL1E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1770000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgl1e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE6BGL2E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1380000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgl2e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DQ205PEGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 538000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq205pega-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "카밍 베이지",
+    "제품 크기 (WxHxD, mm)": "415 x 715 x 296"
+   }
+  },
+  "DQ205PSVA.AKOR": {
+   "name": "LG 휘센 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 563000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq205psva-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "실버",
+    "제품 크기 (WxHxD, mm)": "415 x 715 x 296"
+   }
+  },
+  "AS185DWWD.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 799000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as185dwwd",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "343 x 587 x 343",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS195DWWA.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 999000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as195dwwa",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "343 x 587 x 343",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "DUE1BGL1E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/12인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 850000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due1bgl1e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE1BGLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/12인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 840000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due1bgle",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE5BGL1E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1140000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bgl1e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE5BGL2E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1120000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bgl2e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE5MBL2E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1150000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5mbl2e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 맨해튼 미드나잇",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE6BGLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1840000,
+   "source_url": "https://www.lge.co.kr/product/care-solutions/dishwashers/due6bgle",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "AS235DWSA.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 999000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as235dwsa",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS285DWWA.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 1219000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as285dwwa",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS285DWWC.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 899000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as285dwwc",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS285DWWD.AKOR": {
+   "name": "LG 퓨리케어 AI 360˚ 공기청정기 플러스",
+   "model_status": "ACTIVE",
+   "price_krw": 849000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as285dwwd",
+   "specs": {
+    "색상": "크리미스노우",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "376 x 1,073 x 376",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS185LGAA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 월핏 (스탠드)",
+   "model_status": "ACTIVE",
+   "price_krw": 890000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as185lgaa",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "560 x 540 x 180"
+   }
+  },
+  "AS186LSAA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 월핏 (스탠드)",
+   "model_status": "ACTIVE",
+   "price_krw": 539000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as186lsaa",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "560 x 540 x 180"
+   }
+  },
+  "AS206NSHA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M5",
+   "model_status": "ACTIVE",
+   "price_krw": 1540000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as206nsha",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "347 x 612 x 347",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS356NSLL.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M5",
+   "model_status": "ACTIVE",
+   "price_krw": 1490000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as356nsll",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "HY505RWLAH.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 하이드로에센셜",
+   "model_status": "ACTIVE",
+   "price_krw": 748000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hy505rwlah",
+   "specs": {
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "270 x 750 x 270"
+   }
+  },
+  "DFE5BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (프리스탠딩/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1780000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dfe5bge",
+   "specs": {
+    "설치타입": "프리스탠딩겸용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 845 x 600",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 845 x 600"
+   }
+  },
+  "DFE6BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (프리스탠딩/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dfe6bge",
+   "specs": {
+    "설치타입": "프리스탠딩겸용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 845 x 600",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 845 x 600"
+   }
+  },
+  "DFE6BGHE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (프리스탠딩/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1600000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dfe6bghe",
+   "specs": {
+    "설치타입": "프리스탠딩겸용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 845 x 600",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 845 x 600"
+   }
+  },
+  "DUB61TBE.AKOR": {
+   "name": "LG 디오스 식기세척기 (빌트인/12인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 710000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dub61tbe",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "스테인리스",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "4등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DEE6BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dee6bge",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "BEY3GS2E.AKOR": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "ACTIVE",
+   "price_krw": 1140000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3gs2e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "BEY3GSU1E.AKOR": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "ACTIVE",
+   "price_krw": 900000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3gsu1e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "BEY3MSE.AKOR": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "ACTIVE",
+   "price_krw": 1240000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3mse",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "BEY3SRBLE.AKOR": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "ACTIVE",
+   "price_krw": 710000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3srble",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "HEI1V9E.CKOR": {
+   "name": "LG 디오스 포터블 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 159000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/hei1v9e",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "300 x 410 x 40",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "ML39BW.CKOR": {
+   "name": "LG 디오스 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 360000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/ml39bw",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "MLJ39EWO.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 399000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39ewo",
+   "specs": {
+    "도어 색상": "미스트 베이지",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "MLJ39WW.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 399000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39ww",
+   "specs": {
+    "도어 색상": "미스트 크림 화이트",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "MLJ28ERN.DKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "SOLD_OUT",
+   "price_krw": 350000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj28ern",
+   "specs": {
+    "도어 색상": "미스트 베이지",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "512 x 311 x 488"
+   }
+  },
+  "MLJ39HW.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 459000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39hw",
+   "specs": {
+    "도어 색상": "카밍 에센스 화이트",
+    "외관 색상": "에센스 화이트",
+    "제품 크기 (WXHXD,mm)": "540 x 325 x 523"
+   }
+  },
+  "MLJ32EWSO.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 719000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj32ewso",
+   "specs": {
+    "도어 색상": "카밍 베이지",
+    "외관 색상": "에센스 화이트",
+    "제품 크기 (WXHXD,mm)": "527 x 394 x 480"
+   }
+  },
+  "MW23BPI.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 174000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bpi",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "MWE25HD.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 270000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwe25hd",
+   "specs": {
+    "도어 색상": "에센스 화이트",
+    "외관 색상": "에센스 화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 355"
+   }
+  },
+  "D646GBB021.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 3950000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646gbb021",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "628",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D646GBB091.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 4850000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646gbb091",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "616",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D646MEE021.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 3170000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646mee021",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "628",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D646SLL041.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 4750000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646sll041",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "628",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D646SLL091.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "ACTIVE",
+   "price_krw": 5050000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646sll091",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "616",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386GBB221.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2190000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386gbb221",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386GQQ261.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2530000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386gqq261",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386MEE241.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2350000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386mee241",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386MQQ221.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2320000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386mqq221",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386SLL261.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2600000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386sll261",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z386SVV261.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2450000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z386svv261",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "386",
+    "제품 크기 (WxHxD, mm)": "697 x 1,860 x 696",
+    "색상": "오브제컬렉션 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z484GBB123.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2430000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gbb123",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "Z484GBB152.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2950000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gbb152",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z484GBB173.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2320000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gbb173",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "Z484GQQ123S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2430000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484gqq123s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "Z484SVV123S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2750000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z484svv123s",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "480",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "G646GBB021.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3250000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb021",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646GBB032.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3900000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb032",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "G646GBB071.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3900000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb071",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "635",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646GBB081.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4450000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb081",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "635",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646GBB091.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4550000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb091",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "635",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646MEE032.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3750000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646mee032",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "G646SLL031.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4350000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646sll031",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646SLL091.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646sll091",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "635",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 럭스 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646SVV091.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 4700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646svv091",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "635",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 실버 / 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "G646GBB341.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 냉장고 Fit & Max (노크온)",
+   "model_status": "ACTIVE",
+   "price_krw": 4600000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/g646gbb341",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "650",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M516GBB012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gbb012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516MQQ012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516mqq012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 에센스 화이트 / 에센스 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516SVV012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3400000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516svv012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 실버 / 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z495GBB212.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 3050000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495gbb212",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z495GBB261.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 3260000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495gbb261",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z495GBB271.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 3830000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495gbb271",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z495GQQ251.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 2600000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495gqq251",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z495MQQ212.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 2800000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495mqq212",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "Z495MQQ261.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 2830000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495mqq261",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z495SVV271.AKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 4130000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z495svv271",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "491",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 838",
+    "색상": "오브제컬렉션 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z330MEEF11.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 1480000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z330meef11",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "327",
+    "제품 크기 (WxHxD, mm)": "666 x 1,787 x 737",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z330MQQF21.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 1860000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z330mqqf21",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "327",
+    "제품 크기 (WxHxD, mm)": "666 x 1,787 x 737",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z330MRRF21.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 1480000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z330mrrf21",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "프리스탠딩",
+    "전체 용량 (L)": "327",
+    "제품 크기 (WxHxD, mm)": "666 x 1,787 x 737",
+    "색상": "오브제컬렉션 크림 그레이 / 크림 그레이",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z334SGS171.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 2250000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z334sgs171",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "3도어",
+    "설치타입": "Fit & Max",
+    "전체 용량 (L)": "324",
+    "제품 크기 (WxHxD, mm)": "666 x 1,860 x 685",
+    "색상": "오브제컬렉션 그린 / 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z509MEEF33.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 2480000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z509meef33",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "505",
+    "제품 크기 (WxHxD, mm)": "835 x 1,787 x 730",
+    "색상": "오브제컬렉션 베이지 / 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "Z509MHHF23.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 2330000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z509mhhf23",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "505",
+    "제품 크기 (WxHxD, mm)": "835 x 1,787 x 730",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "Z509MPSF13.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 김치톡톡",
+   "model_status": "ACTIVE",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/kimchi-refrigerators/z509mpsf13",
+   "specs": {
+    "타입": "스탠드형 김치냉장고",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "505",
+    "제품 크기 (WxHxD, mm)": "835 x 1,787 x 730",
+    "색상": "프라임 실버",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "X321GB3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1320000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x321gb3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "미스트 (글라스)"
+   }
+  },
+  "X321MB3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1183000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x321mb3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 블랙",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "X321SG3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1456000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x321sg3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 그린",
+    "도어스타일/재질": "스테인리스"
+   }
+  },
+  "Y321GB3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1411000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y321gb3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "미스트 (글라스)"
+   }
+  },
+  "Y321MW3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1274000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y321mw3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 화이트",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "Y321SS3S.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1547000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y321ss3s",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 실버",
+    "도어스타일/재질": "스테인리스"
+   }
+  },
+  "Z321GC3CS.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(김치전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1390000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z321gc3cs",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 클레이 브라운",
+    "도어스타일/재질": "미스트 (글라스)"
+   }
+  },
+  "Z321SG3CS.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션(김치전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1620000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z321sg3cs",
+   "specs": {
+    "전체크기 (WxHxD, mm)": "595 x 1,860 x 670",
+    "색상": "오브제컬렉션 그린",
+    "도어스타일/재질": "스테인리스"
+   }
+  },
+  "X324GB3.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1490000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gb3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y324GB3.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1590000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y324gb3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z324GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (김치전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1980000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z324gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GB3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1680000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gb3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1950000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y326GB3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1770000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gb3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Y326GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2050000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z326GB3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1860000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gb3",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z326GB7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2150000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gb7",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GG3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1680000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gg3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GG7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1950000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gg7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GQ3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1680000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gq3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GQ7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1950000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gq7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y326GG3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1770000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gg3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Y326GG7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2050000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gg7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Y326GQ3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1770000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gq3",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Y326GQ7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2050000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gq7",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z326GG3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1860000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gg3",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z326GG7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2150000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gg7",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z326GQ3.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1860000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gq3",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z326GQ7.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "ACTIVE",
+   "price_krw": 2150000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gq7",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X324GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1615000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x324gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y324GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1710000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y324gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z324GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 오브제컬렉션 Fit & Max (김치전용고)",
+   "model_status": "ACTIVE",
+   "price_krw": 1852000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z324gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1900000,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "X326GQ5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉장전용고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/x326gq5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉장전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "387",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Y326GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Y326GQ5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (냉동전용고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/y326gq5",
+   "specs": {
+    "타입": "컨버터블 패키지 (냉동전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "Z326GB5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gb5",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "Z326GQ5.AKOR": {
+   "name": "LG 컨버터블 패키지 AI 오브제컬렉션 Fit & Max (김치냉장고)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/convertible-refrigerators/z326gq5",
+   "specs": {
+    "타입": "컨버터블 패키지 (김치전용고)",
+    "설치타입": "Fit & Max",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "328",
+    "제품 크기 (WxHxD, mm)": "598 x 1,860 x 670",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D215MEE13.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 520000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d215mee13",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "215",
+    "제품 크기 (WxHxD, mm)": "555 x 1,445 x 637",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D215MHH13.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 430000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d215mhh13",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "215",
+    "제품 크기 (WxHxD, mm)": "555 x 1,445 x 637",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D265MEE22.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 670000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d265mee22",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "264",
+    "제품 크기 (WxHxD, mm)": "555 x 1,680 x 637",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "D312MBE31.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 880000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d312mbe31",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D312MCK31.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "DISCONTINUED",
+   "price_krw": 465000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d312mck31",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "오브제컬렉션 클레이 핑크",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D312MCT31.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "DISCONTINUED",
+   "price_krw": 540000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d312mct31",
+   "specs": {
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "오브제컬렉션 클레이 민트",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D315MHH31.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d315mhh31",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D315MPS31.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 900000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d315mps31",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "317",
+    "제품 크기 (WxHxD, mm)": "600 x 1,640 x 710",
+    "색상": "프라임 실버",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "D332MBE34.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 800000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d332mbe34",
+   "specs": {
+    "전체 용량 (L)": "335",
+    "제품 크기 (WxHxD, mm)": "600 x 1,720 x 710",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "D332MCK34.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "DISCONTINUED",
+   "price_krw": 774000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d332mck34",
+   "specs": {
+    "전체 용량 (L)": "335",
+    "제품 크기 (WxHxD, mm)": "600 x 1,720 x 710",
+    "색상": "오브제컬렉션 클레이 핑크",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "D332MCT34.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "DISCONTINUED",
+   "price_krw": 537000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d332mct34",
+   "specs": {
+    "전체 용량 (L)": "335",
+    "제품 크기 (WxHxD, mm)": "600 x 1,720 x 710",
+    "색상": "오브제컬렉션 클레이 민트",
+    "도어스타일/재질": "네이처 (메탈)",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "D463MEE33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 800000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d463mee33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "전체 용량 (L)": "461",
+    "제품 크기 (WxHxD, mm)": "700 x 1,845 x 725",
+    "색상": "네이처 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D463MHH33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 760000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d463mhh33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "전체 용량 (L)": "461",
+    "제품 크기 (WxHxD, mm)": "700 x 1,845 x 725",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D463MRR33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 720000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d463mrr33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "461",
+    "제품 크기 (WxHxD, mm)": "700 x 1,845 x 725",
+    "색상": "오브제컬렉션 크림 그레이",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D502MEE33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 890000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d502mee33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "507",
+    "제품 크기 (WxHxD, mm)": "780 x 1,800 x 730",
+    "색상": "네이처 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D502MEE53.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1080000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d502mee53",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "507",
+    "제품 크기 (WxHxD, mm)": "780 x 1,800 x 730",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D604MEE33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 1130000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mee33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D604MPS33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 950000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mps33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "프라임 실버",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D604MQQ33.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 1000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mqq33",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D604MEE52.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 1290000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mee52",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "D604MPS52.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 950000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mps52",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "프라임 실버",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "D604MQQ52.AKOR": {
+   "name": "LG 일반냉장고 오브제컬렉션",
+   "model_status": "ACTIVE",
+   "price_krw": 1290000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d604mqq52",
+   "specs": {
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "612",
+    "제품 크기 (WxHxD, mm)": "831 x 1,860 x 741",
+    "색상": "오브제컬렉션 에센스화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "DF165ME.AKOR": {
+   "name": "LG 냉동고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 355000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/df165me",
+   "specs": {
+    "타입": "일반냉장고",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "148",
+    "제품 크기 (WxHxD, mm)": "530 x 1,300 x 600",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "DF165MH.AKOR": {
+   "name": "LG 냉동고",
+   "model_status": "ACTIVE",
+   "price_krw": 400000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/df165mh",
+   "specs": {
+    "타입": "일반냉장고",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "148",
+    "제품 크기 (WxHxD, mm)": "530 x 1,300 x 600",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "DL195ME.AKOR": {
+   "name": "LG 오브제컬렉션 일반냉장고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 390000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/dl195me",
+   "specs": {
+    "타입": "일반냉장고",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "195",
+    "제품 크기 (WxHxD, mm)": "525 x 1,295 x 555",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "DL195MH.AKOR": {
+   "name": "LG 오브제컬렉션 일반냉장고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 396000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/dl195mh",
+   "specs": {
+    "타입": "일반냉장고",
+    "도어 개수": "1도어",
+    "전체 용량 (L)": "195",
+    "제품 크기 (WxHxD, mm)": "525 x 1,295 x 555",
+    "색상": "오브제컬렉션 크림 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "D646GBB081.CKOR": {
+   "name": "LG 디오스 AI 오브제컬렉션 STEM 베이직 냉장고 Fit & Max (컨버터블 드로어)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/d646gbb081",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "616",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 709",
+    "제품 크기 - 후면핸들 미포함 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "DEE6EWE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dee6ewe",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 에센스 화이트",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DFE6BGH.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/dfe6bgh",
+   "specs": {
+    "설치타입": "프리스탠딩겸용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 845 x 600",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "등급 외 제품",
+    "제품 크기 (WxHxD, mm)": "598 x 845 x 600"
+   }
+  },
+  "DUE2BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기",
+   "model_status": "ACTIVE",
+   "price_krw": 1170000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due2bge",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (12인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE6BGH1E.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgh1e",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DUE6BGL2.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1930000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgl2",
+   "specs": {
+    "설치타입": "빌트인전용",
+    "용량": "3~5인가구용 (14인용)",
+    "색상": "네이처 베이지",
+    "크기(WxHxD) (mm)": "598 x 815 x 567",
+    "상판 제거 시, 제품 크기 - 깊이(mm)": "567",
+    "상판 제거 시, 제품 크기 - 세로(mm)": "815",
+    "상판 제거 시, 제품 크기 - 가로(mm)": "598",
+    "에너지 소비효율등급": "등급 외 제품",
+    "제품 크기 (WxHxD, mm)": "598 x 815 x 567"
+   }
+  },
+  "DQ134MWEC.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 377000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq134mwec-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "에센스 화이트",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "DQ185MEGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 709000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq185mega",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "카밍 베이지",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "DQ214MEGA.AKOR": {
+   "name": "LG 휘센 오브제컬렉션 제습기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 799000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq214mega-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "카밍 베이지",
+    "제품 크기 (WxHxD, mm)": "410 x 640 x 210"
+   }
+  },
+  "MW23BD.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 174000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bd",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "MW23GD.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 182000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23gd",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "MW23BP.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 174000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bp",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "MW23WD.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 171000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23wd",
+   "specs": {
+    "도어 색상": "화이트",
+    "외관 색상": "화이트",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "MW23FD.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 164000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23fd",
+   "specs": {
+    "도어 색상": "미스트 베이지",
+    "외관 색상": "미스트 베이지",
+    "제품 크기 (WXHXD,mm)": "476 x 272 x 369"
+   }
+  },
+  "ML32BW1.CKOR": {
+   "name": "LG 디오스 광파오븐",
+   "model_status": "DISCONTINUED",
+   "price_krw": 551000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/ml32bw1",
+   "specs": {
+    "도어 색상": "블랙",
+    "외관 색상": "블랙",
+    "제품 크기 (WXHXD,mm)": "527 x 389 x 472 (손잡이 제외) 527 x 389 x 518 (손잡이 포함)"
+   }
+  },
+  "M301S31.AKOR": {
+   "name": "LG 모던엣지 냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 720000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m301s31",
+   "specs": {
+    "전체 용량 (L)": "300",
+    "제품 크기 (WxHxD, mm)": "595 X 1,720 X 677",
+    "색상": "샤인",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "M336DS123.AKOR": {
+   "name": "LG 모던엣지 AI 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 780000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m336ds123",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "333",
+    "제품 크기 (WxHxD, mm)": "597 x 1,860 x 674",
+    "색상": "다크 그라파이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "M336MB122.AKOR": {
+   "name": "LG 모던엣지 AI 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 1130000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m336mb122",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "333",
+    "제품 크기 (WxHxD, mm)": "597 x 1,860 x 674",
+    "색상": "몽블랑 네이처",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M344MB14.AKOR": {
+   "name": "LG 모던엣지 냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 720000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m344mb14",
+   "specs": {
+    "설치타입": "프리스탠딩",
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "344",
+    "제품 크기 (WxHxD, mm)": "595 x 1,860 x 682",
+    "색상": "몽블랑 네이처",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "4등급"
+   }
+  },
+  "M451MC53.AKOR": {
+   "name": "LG 모던엣지 냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m451mc53",
+   "specs": {
+    "설치타입": "프리스탠딩",
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "462",
+    "제품 크기 (WxHxD, mm)": "705 x 1,850 x 740",
+    "색상": "오브제컬렉션 맨해튼 미드나잇",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "M451PS53.AKOR": {
+   "name": "LG 모던엣지 냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 920000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m451ps53",
+   "specs": {
+    "설치타입": "프리스탠딩",
+    "타입": "일반 냉장고",
+    "도어 개수": "2도어",
+    "전체 용량 (L)": "462",
+    "제품 크기 (WxHxD, mm)": "705 x 1,850 x 740",
+    "색상": "프라임 실버",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "3등급"
+   }
+  },
+  "M516GAG012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gag012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 아몬드 / 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516GCB012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gcb012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 클레이 브라운 / 베이지",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516GGA012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gga012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 토프 / 아몬드",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516GGG012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516ggg012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 토프 / 토프",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516GQQ012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "ACTIVE",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gqq012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 에센스 화이트 / 에센스 화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516GYQ012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "DISCONTINUED",
+   "price_krw": 2890000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516gyq012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 크림 스카이 / 에센스 화이트",
+    "도어스타일/재질": "글라스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516MNQ012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "SOLD_OUT",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516mnq012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 네이비 / 에센스 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516MRQ012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "SOLD_OUT",
+   "price_krw": 3000000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516mrq012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 크림 그레이 / 에센스 화이트",
+    "도어스타일/재질": "메탈",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516SGS012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "SOLD_OUT",
+   "price_krw": 3400000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516sgs012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 그린 / 실버",
+    "도어스타일/재질": "스테인리스",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M516SKV012S.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 냉장고 Fit & Max",
+   "model_status": "DISCONTINUED",
+   "price_krw": 3400000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m516skv012s",
+   "specs": {
+    "설치타입": "Fit & Max",
+    "타입": "상냉장/하냉동",
+    "도어 개수": "4도어",
+    "전체 용량 (L)": "504",
+    "제품 크기 (WxHxD, mm)": "835 x 1,860 x 685",
+    "색상": "오브제컬렉션 클레이핑크 / 실버",
+    "도어스타일/재질": "스톤 (스테인리스)",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "M622GBP352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3600000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622gbp352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 베이지 / 핑크",
+    "도어스타일/재질": "글라스"
+   }
+  },
+  "M622GCB352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3600000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622gcb352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 클레이 브라운 / 베이지",
+    "도어스타일/재질": "글라스"
+   }
+  },
+  "M622MBB352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3300000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622mbb352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 블랙 블랙",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "M622MGB352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3300000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622mgb352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 그레이 / 블랙",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "M622MGG352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3300000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622mgg352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 그레이 / 그레이",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "M622MGW352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3300000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622mgw352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 그레이 화이트",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "M622MWG352S.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 빌트인 타입 냉장고",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 3300000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/m622mwg352s",
+   "specs": {
+    "전체 용량 (L)": "613",
+    "제품 크기 (WxHxD, mm)": "914 x 1,860 x 698",
+    "색상": "오브제컬렉션 화이트 / 그레이",
+    "도어스타일/재질": "메탈"
+   }
+  },
+  "AS206NGHA.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M5",
+   "model_status": "ACTIVE",
+   "price_krw": 1540000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as206ngha",
+   "specs": {
+    "색상": "네이처 그린",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "347 x 612 x 347",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS356NSHH.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M5",
+   "model_status": "ACTIVE",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as356nshh",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "DQ205PBBC.AKOR": {
+   "name": "LG 휘센 제습기",
+   "model_status": "ACTIVE",
+   "price_krw": 559000,
+   "source_url": "https://www.lge.co.kr/product/dehumidifiers/dq205pbbc-akor",
+   "specs": {
+    "에너지 소비효율등급": "1등급",
+    "색상": "블루",
+    "제품 크기 (WxHxD, mm)": "415 x 715 x 296"
+   }
+  },
+  "AS336NSLC.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 M5",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1690000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as336nslc",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS354NS3H.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 360˚ 알파UP (G 필터)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as354ns3h",
+   "specs": {
+    "색상": "샌드 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS354NS4H.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 360˚ 알파UP (G 펫필터)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as354ns4h",
+   "specs": {
+    "색상": "샌드 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS355NSAH.AKOR": {
+   "name": "LG 퓨리케어 AI 오브제컬렉션 360˚ 공기청정기 알파UP (G 필터)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as355nsah",
+   "specs": {
+    "색상": "카밍 베이지",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "377 x 1,100 x 377",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS153HWFS.AKOR1": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 539000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as153hwfs-akor1",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "AS183HWFS.AKOR1": {
+   "name": "LG 퓨리케어 360˚ 공기청정기 Hit",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 689000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as183hwfs-akor1",
+   "specs": {
+    "색상": "화이트 (그릴 : 다크 그레이)",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "315 x 511 x 315"
+   }
+  },
+  "AS105GWJC.AKOR": {
+   "name": "LG 퓨리케어 에어로 Hit",
+   "model_status": "ACTIVE",
+   "price_krw": 249000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as105gwjc",
+   "specs": {
+    "색상": "화이트",
+    "에너지 소비효율등급": "3등급",
+    "제품 크기 (WxHxD, mm)": "240 x 500 x 240"
+   }
+  },
+  "AS155GWDL.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 에어로부스터",
+   "model_status": "ACTIVE",
+   "price_krw": 669000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as155gwdl",
+   "specs": {
+    "색상": "에센스 화이트",
+    "에너지 소비효율등급": "3등급",
+    "제품 크기 (WxHxD, mm)": "240 x 997 x 240"
+   }
+  },
+  "AS076MWHC.AKOR": {
+   "name": "LG 퓨리케어 에어로미니",
+   "model_status": "ACTIVE",
+   "price_krw": 259000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as076mwhc",
+   "specs": {
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급",
+    "제품 크기 (WxHxD, mm)": "250 x 360 x 250",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS405BWRP.AKOR": {
+   "name": "LG 퓨리케어 스탠드 공기청정기",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/air-purifier/as405bwrp",
+   "specs": {
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "590 x 320 x 1,840",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS405BWRR.AKOR": {
+   "name": "LG 퓨리케어 스탠드 공기청정기",
+   "model_status": "ACTIVE",
+   "price_krw": 2090000,
+   "source_url": "https://www.lge.co.kr/product/care-solutions/air-purifiers/as405bwrr",
+   "specs": {
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급",
+    "제품 크기 (WxHxD, mm)": "590 x 320 x 1,840",
+    "먼지 입자 크기 표시": "PM 1.0 / 2.5 / 10"
+   }
+  },
+  "AS520HA.CKOR": {
+   "name": "LG 코드제로 A5",
+   "model_status": "ACTIVE",
+   "price_krw": 600000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as520ha",
+   "specs": {
+    "색상 (청소기 본체)": "에센스 화이트",
+    "크기 (WxHxD, mm)": "251 x 1,026 x 242",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS520WA.CKOR": {
+   "name": "LG 코드제로 A5",
+   "model_status": "ACTIVE",
+   "price_krw": 399000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as520wa",
+   "specs": {
+    "색상 (청소기 본체)": "카밍 베이지",
+    "크기 (WxHxD, mm)": "251 x 1,026 x 242",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS527WA.CKOR": {
+   "name": "LG 코드제로 A5",
+   "model_status": "ACTIVE",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as527wa",
+   "specs": {
+    "색상 (청소기 본체)": "카밍 베이지",
+    "크기 (WxHxD, mm)": "251 x 1,026 x 242",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS9000HR.CKOR": {
+   "name": "LG 코드제로 A9 Air",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 650000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as9000hr",
+   "specs": {
+    "색상 (청소기 본체)": "에센스 화이트",
+    "크기 (WxHxD, mm)": "251 x 1,026 x 242",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS9000WR.CKOR": {
+   "name": "LG 코드제로 A9 Air",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 650000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as9000wr",
+   "specs": {
+    "색상 (청소기 본체)": "카밍 베이지",
+    "크기 (WxHxD, mm)": "251 x 1,026 x 242",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "AS720WA.CKOR": {
+   "name": "LG 코드제로 오브제컬렉션 A7 Core",
+   "model_status": "ACTIVE",
+   "price_krw": 590000,
+   "source_url": "https://www.lge.co.kr/product/vacuum-cleaners/as720wa",
+   "specs": {
+    "색상 (청소기 본체)": "카밍 베이지",
+    "크기 (WxHxD, mm)": "250 x 1,120 x 260",
+    "에너지 소비효율등급": "해당없음"
+   }
+  },
+  "TR10MV4.AKOR2": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 479000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr10mv4-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "590 x 965 x 610",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR10WV4.AKOR2": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 469000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr10wv4-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "590 x 965 x 610",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR13MV4.AKOR2": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 529000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr13mv4-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "590 x 965 x 610",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR13WV4.AKOR2": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 519000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr13wv4-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "590 x 965 x 610",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR13WV4Q.AKOR2": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "READY_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr13wv4q-akor2",
+   "specs": {
+    "크기 (WxHxD, mm)": "590 x 965 x 610",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR15DV5.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 520000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr15dv5",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR15MV5.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 520000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr15mv5",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR15WV5.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 450000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr15wv5",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16DV6.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 520000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16dv6",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16MV6.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 520000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16mv6",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16WV6.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 561000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16wv6",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T18DX7.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 680000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t18dx7",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T18MX7.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 750000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t18mx7",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T18MX7A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 690000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t18mx7a",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T18WX7.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "DISCONTINUED",
+   "price_krw": 670000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t18wx7",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19DX7.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19dx7",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19DX8.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 800000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19dx8",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX7.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 695000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx7",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX7.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 556000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx7-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX7A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 760000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx7a",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX7A.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 646000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx7a-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX8.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 792000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx8-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX8A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 810000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx8a",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19MX8A.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 648000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19mx8a-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632 x 1,040 x 670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19OZ0.AKOR": {
+   "name": "LG 통돌이 컴포트 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19oz0",
+   "specs": {
+    "크기 (WxHxD, mm)": "651 x 1,060 x 680",
+    "색상": "오닉스 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T19OZ0.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 컴포트 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 792000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t19oz0-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "651 x 1,060 x 680",
+    "색상": "오닉스 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T21MX9A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 830000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t21mx9a",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T21MX9A.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 664000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t21mx9a-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T23PX9.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 940000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t23px9",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "플래티늄 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T23PX9A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 930000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t23px9a",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "플래티넘 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T23PX9A.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 744000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t23px9a-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "플래티넘 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T25PX9A.AKOR": {
+   "name": "LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1120000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t25px9a",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "플래티늄 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T25PX9A.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1005000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t25px9a-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "690 x 1,070 x 730",
+    "색상": "플래티넘 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T21GZ9.AKOR": {
+   "name": "LG 통돌이 컴포트 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1240000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t21gz9",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "에센스 그라파이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T21GZ9.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 컴포트 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 992000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t21gz9-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "에센스 그라파이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T22PZ9.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 컴포트 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 990000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t22pz9-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "플래티넘 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T22PZ9.AKOR": {
+   "name": "LG 통돌이 컴포트 세탁기",
+   "model_status": "DISCONTINUED",
+   "price_krw": 1238000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t22pz9",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "플래티늄 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T25OZ0.AKOR": {
+   "name": "LG 통돌이 컴포트 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1390000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t25oz0",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "오닉스 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T25OZ0.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 컴포트 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1112000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t25oz0-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "686x1,092x721",
+    "색상": "오닉스 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "T18PZ7.AKOR": {
+   "name": "LG 통돌이 컴포트 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 940000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/t18pz7",
+   "specs": {
+    "크기 (WxHxD, mm)": "651 x 1,060 x 680",
+    "색상": "플래티넘 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR15MV5.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 416000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr15mv5-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR15WV5.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 360000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr15wv5-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16DV6.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 443000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16dv6-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드프리실버",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16MV6.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "SOLD_OUT",
+   "price_krw": 416000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16mv6-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "미드 블랙",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "TR16WV6.AKOR-R1": {
+   "name": "[HS등급제품] LG 통돌이 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 449000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/tr16wv6-r1",
+   "specs": {
+    "크기 (WxHxD, mm)": "632x970x670",
+    "색상": "화이트",
+    "에너지 소비효율등급": "2등급"
+   }
+  },
+  "F17CTPR.AKOR1": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 940000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f17ctpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "650x950x780",
+    "색상": "글로우 에센스 화이트(유광)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F17HTPR.AKOR1": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1300000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f17htpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "650x950x780",
+    "색상": "에센스 그라파이트(무광)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F17ITPR.AKOR1": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1000000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f17itpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "650x950x780",
+    "색상": "네이처 에센스 화이트(무광)",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F17NTPR.AKOR1": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1000000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f17ntpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "650x950x780",
+    "색상": "네이처 에센스 블랙",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F19WDLPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1010000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f19wdlpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 770",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F21VDSKR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1250000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f21vdskr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 770",
+    "색상": "스테인리스 실버",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F21WDLPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1120000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f21wdlpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 770",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F19WDWPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1050000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f19wdwpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 770",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F24VDLPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1470000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f24vdlpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "스테인리스 실버",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F24VDSPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1220000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f24vdspr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "스테인리스 실버",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F24WDLPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1380000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f24wdlpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "F24WDWPR.AKOR2": {
+   "name": "LG 트롬 세탁기",
+   "model_status": "ACTIVE",
+   "price_krw": 1210000,
+   "source_url": "https://www.lge.co.kr/product/washing-machines/f24wdwpr",
+   "specs": {
+    "크기 (WxHxD, mm)": "700 x 990 x 830",
+    "색상": "화이트",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "WU823AS.AKOR": {
+   "name": "LG 퓨리케어 정수기(듀얼, 냉정)",
+   "model_status": "ACTIVE",
+   "price_krw": 1803000,
+   "source_url": "https://www.lge.co.kr/product/water-purifiers/wu823as",
+   "specs": {
+    "색상": "실버",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "WU923ACB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 정수기(듀얼, 냉온정)",
+   "model_status": "ACTIVE",
+   "price_krw": 2021000,
+   "source_url": "https://www.lge.co.kr/product/water-purifiers/wu923acb",
+   "specs": {
+    "색상": "솔리드 베이지",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "WU923AS.AKOR": {
+   "name": "LG 퓨리케어 정수기(듀얼, 냉온정)",
+   "model_status": "ACTIVE",
+   "price_krw": 1934000,
+   "source_url": "https://www.lge.co.kr/product/water-purifiers/wu923as",
+   "specs": {
+    "색상": "실버",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "WU923AWB.AKOR": {
+   "name": "LG 퓨리케어 오브제컬렉션 정수기(듀얼, 냉온정)",
+   "model_status": "ACTIVE",
+   "price_krw": 2021000,
+   "source_url": "https://www.lge.co.kr/product/care-solutions/water-purifiers/wu923awb",
+   "specs": {
+    "색상": "솔리드 크림 화이트",
+    "제품 크기 (WxHxD, mm)": "170 x 420 x 410",
+    "파우셋 크기 (ØXHXD, mm)": "48 x 264 x 188"
+   }
+  },
+  "BEI3AMB4.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3amb4",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515"
+   }
+  },
+  "BEF3AMB4.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1940000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3amb4",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515"
+   }
+  },
+  "BEI3ASML.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1740000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3asml",
+   "specs": {
+    "글라스컬러": "무광블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEI3ANBL.AKOR1": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anbl",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520"
+   }
+  },
+  "BEI3ANHLO.AKOR1": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1540000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anhlo",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 에센스 화이트)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520"
+   }
+  },
+  "BEF3ANPL.AKOR1": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3anpl",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 핑크)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520"
+   }
+  },
+  "BEF3ABWLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1940000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3abwle",
+   "specs": {
+    "글라스컬러": "웜 화이트",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515",
+    "에너지 소비효율등급": "1등급"
+   }
+  },
+  "BEF3MQ1.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1940000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3mq1",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 59 x 515"
+   }
+  },
+  "BEF3WBQT.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1890000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bef3wbqt",
+   "specs": {
+    "글라스컬러": "화이트(조작부: 미스트 베이지)",
+    "제품 크기 (WXHXD,mm)": "580 x 59 x 520"
+   }
+  },
+  "BEY3GS2.AKOR1": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1140000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3gs2",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515"
+   }
+  },
+  "BEY3MS.AKOR1": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "SOLD_OUT",
+   "price_krw": 1440000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3ms",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515"
+   }
+  },
+  "BEY3SRBL.AKOR": {
+   "name": "LG 디오스 하이브리드",
+   "model_status": "SOLD_OUT",
+   "price_krw": 801000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bey3srbl",
+   "specs": {
+    "글라스컬러": "블랙",
+    "제품 크기 (WXHXD,mm)": "575 x 54 x 515"
+   }
+  },
+  "HW300BBB.AKOR": {
+   "name": "LG 퓨리케어 자연기화 가습기",
+   "model_status": "ACTIVE",
+   "price_krw": 259000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hw300bbb",
+   "specs": {
+    "색상": "라이트 블루",
+    "제품 크기 (WxHxD, mm)": "320 x 370 x 320"
+   }
+  },
+  "HW300DBL.AKOR": {
+   "name": "LG 퓨리케어 자연기화 가습기",
+   "model_status": "ACTIVE",
+   "price_krw": 299000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hw300dbl",
+   "specs": {
+    "색상": "라임",
+    "제품 크기 (WxHxD, mm)": "320 x 370 x 320"
+   }
+  },
+  "HW500DAS.AKOR1": {
+   "name": "LG 퓨리케어 자연기화 가습기",
+   "model_status": "ACTIVE",
+   "price_krw": 305000,
+   "source_url": "https://www.lge.co.kr/product/humidifiers/hw500das-akor1",
+   "specs": {
+    "색상": "라이트 블루",
+    "제품 크기 (WxHxD, mm)": "390 x 395 x 350"
+   }
   }
  }
 }

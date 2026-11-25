@@ -1,12 +1,12 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v93"; // 화면을 돌리는 동안 채광 볕이 사라지던 것 고침
+const VERSION = "lgb-shell-v94"; // 전달받은 모델 묶음 485 SKU, 색만 다른 모델은 파일 하나
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",
-  "./vendor/three/addons/loaders/GLTFLoader.js",
+  "./vendor/three/addons/loaders/GLTFLoader.js", "./vendor/meshopt/meshopt_decoder.module.js",
   "./vendor/three/addons/controls/OrbitControls.js",
   "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js", "./js/stops.js", "./js/furncolors.js", "./js/camkeys.js", "./js/wallsnap.js", "./js/symbols.js", "./js/rotring.js", "./js/surfmove.js", "./js/wallmount.js", "./js/slot.js", "./js/stretch.js",
   "./vendor/three/addons/utils/SkeletonUtils.js", "./models/devices/router.glb", "./models/people/walker.glb",
@@ -46,7 +46,7 @@ self.addEventListener("fetch", (e) => {
   if (url.pathname.startsWith("/api/")) return; // 스캔·판정 데이터는 캐시하지 않음 (API가 다른 주소에 있어도)
   // 화면 파일: 네트워크 먼저 받아 캐시를 갱신하고, 끊기면 캐시로
   // 같은 서버 파일은 매번 서버에 바뀌었는지 묻는다(no-cache): 앱을 고친 뒤 옛 CSS·JS가 남지 않게
-  // 제품 사진(img/products/<sku>.webp)·모델(models/products/<sku>.glb): 캐시에 있으면 바로 (오프라인 시연)
+  // 제품 사진(img/products/<sku>.webp)·모델(models/products/*.glb): 캐시에 있으면 바로 (오프라인 시연)
   if (url.origin === location.origin && /\/(img|models)\/products\/[^/]+\.(webp|glb)$/.test(url.pathname)) {
     e.respondWith(caches.open(VERSION).then((c) => c.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
       if (res.ok) c.put(e.request, res.clone());

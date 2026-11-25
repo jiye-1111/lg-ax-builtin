@@ -26,8 +26,8 @@ def plan() -> dict:
     cat = Catalog(config.catalog_paths())
     feats = json.loads((ROOT / "data/models/features.json").read_text(encoding="utf-8"))["models"]
     handoff = set(json.loads((ROOT / "apps/web/models/products/handoff.json").read_text(encoding="utf-8"))["models"])
-    # 직접 모델링한 것 중 전달받은 모델로 바뀐 것은 색이 파일에 들어 있어서 다른 색 제품이 같이 쓸 수 없다
-    fusion = {p.name for p in (ROOT / "data/fusion").iterdir() if (p / "drawing.json").exists()} - handoff
+    # 전달받은 모델은 제품군 파일이 따로 있어서(index.json) 직접 모델링한 파일과 겹치지 않는다. 같은 줄의 다른 색은 직접 모델링한 것을 쓴다
+    fusion = {p.name for p in (ROOT / "data/fusion").iterdir() if (p / "drawing.json").exists()}
     build, index, missing = [], {}, []
     for fam in cat.families():
         vs = fam["variants"]
@@ -35,7 +35,8 @@ def plan() -> dict:
             continue
         skus = [v["sku"] for v in vs]
         made = [s for s in skus if s in fusion]
-        rest = [s for s in skus if s not in fusion and s not in handoff]
+        sold = {v["sku"] for v in vs if v.get("sale_status") in SELL}
+        rest = [s for s in skus if s not in fusion and s not in handoff and s in sold]  # 팔지 않는 색은 모델을 만들지 않는다
         if not rest:
             continue
         if made:

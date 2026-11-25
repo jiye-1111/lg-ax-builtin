@@ -113,8 +113,8 @@ def test_every_catalog_product_has_a_drawing_that_matches_its_size():
     handed = json.loads((ROOT / "data/catalog/lineup.json").read_text(encoding="utf-8"))["models"]
     for p in cat:
         d = load_drawing(ROOT / "data/drawings", p["sku"])
-        if d is None and p["sku"] in handed:
-            continue  # 전달받은 모델로만 들어온 제품은 도면을 따로 그리지 않았다
+        if d is None and (p["sku"] in handed or any("전달받은 모델 묶음" in n for n in p["spec_notes"])):
+            continue  # 전달받은 모델로만 들어온 제품은 도면을 따로 그리지 않았다 (지금은 팔지 않아 목록에서 빠진 것도)
         assert d is not None, f"{p['sku']} 도면 없음"
         assert d["sku"] == p["sku"]
         boxes_from_drawing(d, p["product_dims_mm"])
