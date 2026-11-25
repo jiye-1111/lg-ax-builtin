@@ -1064,7 +1064,7 @@ export async function customer(pid) {
       ["용량", cap ? esc(String(cap)) : ""],
       ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
       ["색상", esc(finishLabel(v))],
-      ["에너지 효율", energyBadge(p.energy_grade)],
+      ["에너지 효율", energyBadge(p.energy_grade, p.energy_parts)],
     ].filter(([, val]) => val);
     pdModal.innerHTML = `
       <div class="pd-top">

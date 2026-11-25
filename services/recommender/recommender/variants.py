@@ -66,6 +66,7 @@ def families(products: list[dict], shapes: dict[str, str | None]) -> list[dict]:
                 "note": p.get("lineup_note"),
                 "price_krw": p.get("price_krw"),
                 "energy_grade": p.get("energy_grade"),
+                "energy_parts": p.get("energy_parts") or {},
             } for p in ps],
         })
     return out

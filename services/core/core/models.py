@@ -138,6 +138,8 @@ class Product(_Strict):
     price_checked_at: Optional[str] = None
     # LGE.COM 스펙 표의 에너지 소비효율등급(1~5). 등급이 없는 제품(해당없음·등급 외)이거나 확인 못 했으면 null
     energy_grade: Optional[Literal[1, 2, 3, 4, 5]] = None
+    # 등급이 둘인 제품: 에어컨 {"냉방": 1, "난방": 3}, 워시타워 {"세탁": 1, "건조": 3}. 이때 energy_grade는 null
+    energy_parts: dict[str, Literal[1, 2, 3, 4, 5]] = Field(default_factory=dict)
     energy_checked_at: Optional[str] = None
     # 정수기 설치 형태(데스크·스탠드·빌트인)와 설치가이드의 현장 치수(mm). 키는 docs/specs/catalog.md
     install_form: Optional[str] = None
