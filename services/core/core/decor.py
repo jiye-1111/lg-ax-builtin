@@ -27,6 +27,8 @@ DECOR: dict[str, dict] = {
     "sofa": {"label": "소파", "group": "furniture", "model": "sofa", "size_mm": (2000, 850, 900)},
     "table": {"label": "식탁", "group": "furniture", "model": "table", "size_mm": (1600, 740, 800)},
     "chair": {"label": "의자", "group": "furniture", "model": "chair", "size_mm": (500, 850, 520)},
+    # 아일랜드 식탁: 수납이 달린 조리대 높이 식탁. 기본 크기는 한샘 모디 아일랜드식탁 120cm (출처는 PRESETS)
+    "islandtable": {"label": "아일랜드 식탁", "group": "furniture", "model": "islandtable", "size_mm": (1200, 890, 750)},
     "coffee": {"label": "테이블", "group": "furniture", "model": "coffee", "size_mm": (1000, 400, 600)},
     "bed": {"label": "침대", "group": "furniture", "model": "bed", "size_mm": (1600, 950, 2100)},
     "desk": {"label": "책상", "group": "furniture", "model": "desk", "size_mm": (1200, 730, 600)},
@@ -38,6 +40,10 @@ DECOR: dict[str, dict] = {
     "sink": {"label": "싱크대", "group": "storage", "model": "sink", "size_mm": (1200, 880, 600)},
     "basecab": {"label": "주방 하부장", "group": "storage", "model": "basecab", "size_mm": (1200, 850, 600)},
     "island": {"label": "아일랜드", "group": "storage", "model": "island", "size_mm": (1800, 900, 900)},
+    # 후드: 인덕션 위에 단다. 벽 쪽 조리대 위는 벽에 거는 것(hang), 아일랜드 위는 천장에서 내려오는 것
+    # 기본 크기는 IKEA RYTMISK 벽고정레인지후드 60 (높이는 가장 짧게 뺐을 때)
+    "hood": {"label": "후드", "group": "storage", "model": "hood", "size_mm": (600, 620, 471), "hang": True},
+    "islandhood": {"label": "아일랜드 후드", "group": "storage", "model": "islandhood", "size_mm": (900, 800, 600), "listed": False},
     "tvstand": {"label": "거실장", "group": "storage", "model": "tvstand", "size_mm": (1600, 450, 400)},
     "rug": {"label": "러그", "group": "decor", "model": "rug", "size_mm": (2000, 12, 1400), "flat": True},
     "lamp": {"label": "조명", "group": "decor", "model": "lamp", "size_mm": (400, 1600, 400)},
@@ -49,7 +55,7 @@ IKEA = "https://www.ikea.com/"
 
 
 def _p(label: str, w: int, h: int, d: int, path: str) -> dict:
-    return {"label": label, "size_mm": {"w": w, "h": h, "d": d}, "source_url": IKEA + path}
+    return {"label": label, "size_mm": {"w": w, "h": h, "d": d}, "source_url": path if path.startswith("https://") else IKEA + path}
 
 
 # 크기 프리셋: 실제 판매 제품의 공개 치수 (폭·높이·깊이 mm). 출처는 docs/catalog-sources.md '가구 크기 프리셋'
@@ -65,6 +71,12 @@ PRESETS: dict[str, list[dict]] = {
         _p("IKEA METOD 60", 600, 800, 600, "kr/ko/p/metod-base-cabinet-white-90270889/"),
         _p("IKEA METOD 80", 800, 800, 600, "kr/ko/p/metod-base-cabinet-white-10270893/"),
     ],
+    "islandtable": [
+        _p("한샘 모디 120", 1200, 890, 750, "https://store.hanssem.com/goods/883389"),
+        _p("IKEA TORNVIKEN", 1260, 900, 770, "kr/ko/p/tornviken-kitchen-island-off-white-oak-30402246/"),
+        _p("IKEA VADHOLMA", 1260, 900, 790, "kr/ko/p/vadholma-kitchen-island-black-oak-80359189/"),
+    ],
+    "hood": [_p("IKEA RYTMISK 60", 600, 620, 471, "kr/ko/p/rytmisk-wall-mounted-extractor-hood-stainless-steel-10508951/")],
     "dresser": [
         _p("IKEA MALM 4칸", 800, 1000, 480, "kr/ko/p/malm-chest-of-4-drawers-white-20354646/"),
         _p("IKEA MALM 6칸", 1600, 780, 480, "kr/ko/p/malm-chest-of-6-drawers-white-70354644/"),
@@ -88,9 +100,11 @@ def is_flat(sku: str | None) -> bool:
 
 
 def decor_items() -> list[dict]:
-    """웹 라이브러리용 목록. 이름·묶음·기본 크기·모델만 (가격·출처 없음)."""
+    """웹 라이브러리용 목록. 이름·묶음·기본 크기·모델만 (가격·출처 없음).
+    hang: 벽에 거는 것 · listed=False: 목록에는 안 보이고 다른 것에 딸려 놓이는 것."""
     return [{"sku": PREFIX + k, "label": d["label"], "name": d.get("name", d["label"]), "group": d["group"], "model": d["model"],
-             "size_mm": dict(zip("whd", d["size_mm"])), "flat": d.get("flat", False), "presets": PRESETS.get(k, [])} for k, d in DECOR.items()]
+             "size_mm": dict(zip("whd", d["size_mm"])), "flat": d.get("flat", False), "presets": PRESETS.get(k, []),
+             "hang": d.get("hang", False), "listed": d.get("listed", True)} for k, d in DECOR.items()]
 
 
 def _clamp(v: float) -> float:

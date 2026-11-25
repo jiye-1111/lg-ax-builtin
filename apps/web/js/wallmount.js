@@ -3,6 +3,7 @@
 // 좌표: 평면 (x, y) = 3D (x, z), 높이 = 3D y. yaw = 정면 방향.
 // walls: [{id, start, end, t(두께), h(높이), both}] · both = 양쪽 면 다 걸 수 있는 가벽. 스캔 벽은 방 안쪽 면에만 건다.
 const TV_EYE_M = 1.1, AC_DROP_M = 0.15; // 서버 mount.py와 같은 값
+const HOOD_BASE_M = 1.6; // 인덕션 없이 벽에 거는 후드의 밑면 높이 (서버 pose.py와 같은 값)
 const STANDOFF_M = 0.0005; // 벽면에서 아주 조금 띄운다 (계산 오차로 벽에 박힌 것으로 보이지 않게)
 
 const frame = (w, center) => {
@@ -50,7 +51,7 @@ const settle = (r, walls, item) => {
 export const clampBase = (base, h, ceiling) => Math.max(0, Math.min(base, ceiling - h));
 /** 처음 걸 때의 밑면 높이 */
 export const defaultBase = (category, h, ceiling) =>
-  clampBase(category === "air_conditioner" ? ceiling - AC_DROP_M - h : TV_EYE_M - h / 2, h, ceiling);
+  clampBase(category === "hood" ? HOOD_BASE_M : category === "air_conditioner" ? ceiling - AC_DROP_M - h : TV_EYE_M - h / 2, h, ceiling);
 
 /** 광선(o 출발, d 방향)이 가리키는 벽 자리. item {w, h, d}. 벽을 안 가리키면 null */
 export function hangAtRay(o, d, walls, item, center) {
