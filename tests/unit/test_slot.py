@@ -150,8 +150,9 @@ def test_a_fridge_taller_than_the_cabinet_does_not_slot():
 
 # ---------- 위를 덮는 상판 ----------
 def test_cover_joins_the_countertop_over_a_slotted_dishwasher():
-    c = cover(DW, Pose((2.9 + 0.299, FRONT_Y), UP), [cab("c1", 2.0, 1.8, hex="#DDDDDD")])
+    c = cover(DW, Pose((2.9 + 0.299, FRONT_Y), UP), [cab("c1", 2.0, 1.8, hex="#DDDDDD", top_hex="#3A3B3D")])
     assert c["top_m"] == 0.85 and c["depth_m"] == 0.6 and c["look"] == "basecab" and c["hex"] == "#DDDDDD"
+    assert c["top_hex"] == "#3A3B3D"  # 이어 덮는 상판은 옆 장 상판 색을 따른다
     assert near(c["off_m"], 0.35 - FRONT_Y)
     assert c["left_m"] >= 0 and c["right_m"] == 0
 
