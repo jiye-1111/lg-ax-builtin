@@ -1997,6 +1997,17 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 sun = sun_light(s, when)
         return self._rebuild(pid, render=True, sun=sun)
 
+    def surface_placements(self, placements: list[dict], find) -> list[dict]:
+        """렌더가 재질대로 그리게, 재질을 아는 제품의 배치에 겉면 값(surface)을 붙인다. 저장된 상태는 건드리지 않는다"""
+        from .surface import surface_for
+
+        out = []
+        for pl in placements:
+            prod = find(pl.get("sku")) if not str(pl.get("sku") or "").startswith("decor:") else None
+            look = surface_for(prod) if prod else None
+            out.append({**pl, "surface": look} if look else pl)
+        return out
+
     def _scene_inputs(self, pid: str, sun: dict | None = None):
         """지금 집 모습: (방, 스캔 파일, 장면 상태). 치운 가구와 철거한 벽은 빠져 있다"""
         p = self.get_project(pid)
@@ -2007,6 +2018,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         room = self._standing(room, p)  # 철거한 벽과 그 벽의 문·창도 뺀다
         usdz = self.root / p["scan"]["usdz"] if p["scan"].get("usdz") else None  # 도면으로 만든 집은 스캔 파일이 없다
         state = {**p["scene_state"], "title": f"{pid} · {p['style'].get('prompt') or ''}".strip(" ·")}
+        state["placements"] = self.surface_placements(state.get("placements") or [], self.catalog.get)
         if sun:
             state["sun"] = sun
         return room, usdz, state

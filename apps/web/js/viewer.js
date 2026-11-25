@@ -14,6 +14,7 @@ import { reachOf, HANDLE_OUT_M } from "./stretch.js";
 import { DOOR_BACK_M } from "./slot.js";
 import { onPlane, grabOffset } from "./surfmove.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { coversCase, finishPart, materialLabel, surfaceKind, surfaceLook } from "./surface.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
@@ -78,6 +79,37 @@ function loadVariant(file, variant) {
     return scene;
   });
 }
+// 제품 겉면: 카탈로그의 재질(메탈·스테인리스·글라스)대로 문짝과 몸통이 빛나고 주변이 비치게 한다 (surface.js)
+const surfaces = new Map();
+const glossy = new Set(); // 재질을 입힌 문짝·몸통 재질 (방 안 모습이 비치는 면)
+function dressModel(sku, root) {
+  const kind = surfaces.get(sku), look = surfaceLook(kind);
+  if (!look || root.userData.surface === kind) return;
+  const done = new Map();
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    const part = finishPart(o.material.name);
+    if (!part || (part === "case" && !coversCase(kind))) return;
+    if (!done.has(o.material)) {
+      // 색만 다른 모델끼리 재질을 같이 쓰니 늘 복사본에 입힌다. 맑은 겉칠은 MeshPhysicalMaterial에만 있다. 모델이 표준 재질로 왔으면 색·무늬를 옮겨 바꾼다
+      const m = o.material.isMeshPhysicalMaterial ? o.material.clone() : new THREE.MeshPhysicalMaterial({ name: o.material.name, color: o.material.color, map: o.material.map, normalMap: o.material.normalMap });
+      Object.assign(m, look);
+      m.needsUpdate = true;
+      glossy.add(m);
+      done.set(o.material, m);
+    }
+    o.material = done.get(o.material);
+  });
+  root.userData.surface = kind;
+}
+/** 카탈로그를 받으면 한 번 부른다. 이미 받아 둔 모델에도 바로 입힌다 */
+export function setProductSurfaces(products) {
+  for (const p of products || []) {
+    const kind = surfaceKind(materialLabel(p), p.cmf_options?.[0]?.color);
+    if (kind) surfaces.set(p.sku, kind);
+  }
+  templates.forEach((t, sku) => { if (t.isObject3D) dressModel(sku, t); });
+}
 function loadModel(sku) {
   if (templates.has(sku)) return Promise.resolve(true);
   if (pending.has(sku)) return pending.get(sku);
@@ -107,6 +139,7 @@ function loadModel(sku) {
         part.userData.companion = true;
         scene.add(part);
       }
+      dressModel(sku, scene);
       templates.set(sku, scene);
       return true;
     }, () => false);
@@ -125,6 +158,7 @@ export function makeViewer(el, handlers = {}) {
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   el.appendChild(renderer.domElement);
   const scene = new THREE.Scene();
+  const ROOM_ENV_SKY = new THREE.Color("#f3efe8"); // 벽이 열린 쪽으로 비치는 바깥: 밝은 천장빛
   const STAGE_BG = new THREE.Color("#ffe6c4"), STAGE_BG_SHOWN = new THREE.Color("#e1d8ca");
   scene.background = STAGE_BG.clone(); // 톤 매핑을 거치면 따뜻한 회색(#e1d8ca)으로 보인다
   // 실내 반사(유리·메탈 앞판이 살아 보이게) + 부드러운 하늘빛 + 그림자 내는 해
@@ -425,7 +459,30 @@ export function makeViewer(el, handlers = {}) {
   const seenPos = new THREE.Vector3(), seenQuat = new THREE.Quaternion();
   let fullMs = 0, lastBusy = 0, prevFull = false, liteFrames = 0, forceLite = false;
   let sunBusy = false; // 해가 새 자리로 옮겨 가는 중 (시각을 바꿨을 때)
+  // 문짝에 방 안이 비치게: 방 가운데에서 둘러본 모습을 작게 한 번 찍어 반짝이는 면에만 입힌다.
+  // 배치가 바뀌고 손을 뗀 뒤에만 다시 찍는다 (매 장면마다 찍지 않으니 느린 PC에서도 가볍다).
+  const ROOM_ENV_PX = 128, ROOM_ENV_REST_MS = 700, ROOM_ENV_EVERY_MS = 2500;
+  const myGloss = new Map(); // 모델 재질 → 이 화면 전용 복사본 (비친 그림은 화면마다 따로 가진다)
+  const glossOf = (mat) => { if (!myGloss.has(mat)) { const m = mat.clone(); m.envMap = roomEnv?.texture || null; myGloss.set(mat, m); } return myGloss.get(mat); };
+  let roomEnv = null, roomEnvDirty = true, roomEnvAt = -1e9, roomCube = null;
+  const bakeRoomEnv = (now) => {
+    roomEnvDirty = false; roomEnvAt = now;
+    if (!model || !myGloss.size) return;
+    const box = new THREE.Box3().setFromObject(model);
+    if (box.isEmpty()) return;
+    roomCube ??= new THREE.CubeCamera(0.05, 40, new THREE.WebGLCubeRenderTarget(ROOM_ENV_PX, { type: THREE.HalfFloatType }));
+    roomCube.position.set((box.min.x + box.max.x) / 2, Math.min(1.3, box.max.y * 0.6), (box.min.z + box.max.z) / 2);
+    const bg = scene.background, auto = renderer.shadowMap.autoUpdate;
+    scene.background = ROOM_ENV_SKY; renderer.shadowMap.autoUpdate = false;
+    roomCube.update(renderer, scene);
+    scene.background = bg; renderer.shadowMap.autoUpdate = auto;
+    const next = pmrem.fromCubemap(roomCube.renderTarget.texture);
+    roomEnv?.dispose();
+    roomEnv = next;
+    myGloss.forEach((m) => { if (!m.envMap) m.needsUpdate = true; m.envMap = roomEnv.texture; });
+  };
   const renderFrame = (now, dtMs) => {
+    if (roomEnvDirty && now - lastBusy > ROOM_ENV_REST_MS && now - roomEnvAt > ROOM_ENV_EVERY_MS) bakeRoomEnv(now);
     if (prevFull) fullMs = fullMs ? fullMs * 0.8 + dtMs * 0.2 : dtMs; // 곱게 그린 다음 장까지 걸린 시간
     const moves = !!held || !!dragging || (walkers.length > 0 && !walkersPaused);
     if (moves || !cam.position.equals(seenPos) || !cam.quaternion.equals(seenQuat)) lastBusy = now;
@@ -723,6 +780,7 @@ export function makeViewer(el, handlers = {}) {
         o.receiveShadow = true;
         o.userData.placementId = p.placement_id;
         if (tmpl.decor) o.material = o.material.clone(), o.userData.ownMaterial = true;
+        else if (glossy.has(o.material)) o.material = glossOf(o.material);
         if (o.material.name === "glass") { // 창 유리
           Object.assign(o.material, { transparent: true, opacity: 0.22, roughness: 0.04, depthWrite: false, envMapIntensity: 1.2 });
           o.castShadow = false;
@@ -1222,6 +1280,7 @@ export function makeViewer(el, handlers = {}) {
     /** 놓은 제품을 다시 그린다. 끌고 있는 중이면 건너뛴다. */
     setPlacements(list, selectedId) {
       last = { ...last, list, selectedId };
+      roomEnvDirty = true;
       openWalls(list);
       if (dragging || (held?.kind === "placement" && !held.dropping)) return;
       if (!last.ghost) setCarve(null); // 놓았거나 그만뒀으면 미리 보던 칸은 지운다
@@ -1691,7 +1750,7 @@ export function makeViewer(el, handlers = {}) {
       gtao.output = mode === "debug" ? GTAOPass.OUTPUT.Denoise : GTAOPass.OUTPUT.Default;
       return gtao.enabled;
     },
-    dispose() { alive = false; clearWalkers(); ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
+    dispose() { alive = false; clearWalkers(); ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); roomEnv?.dispose(); roomCube?.renderTarget.dispose(); myGloss.forEach((m) => m.dispose()); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
   el.viewer = api;
   return api;
