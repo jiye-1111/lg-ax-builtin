@@ -485,6 +485,7 @@ export async function customer(pid) {
     onHoverHit: (h) => furnHover(h),
     onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
+      if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (point && floorAction(point)) return;
       if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }

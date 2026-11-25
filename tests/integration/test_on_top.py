@@ -82,3 +82,25 @@ def test_catalog_marks_tabletop_products(c):
     fams = fams["families"] if isinstance(fams, dict) else fams
     flag = {v["sku"]: v.get("tabletop") for f in fams for v in f["variants"]}
     assert flag[MICRO] is True and flag[FRIDGE] is False
+
+
+def test_mini_wine_cellar_sits_on_a_desk_but_auto_place_keeps_it_on_the_floor(c, pid):
+    desk = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:desk"}).json()["placement"]
+    body = {"sku": "W0082GLE", "center_xz": desk["center_xz"], "yaw_rad": desk["yaw_rad"], "snap": False}
+    pl = c.post(f"/api/projects/{pid}/placements", json=body).json()["placement"]
+    assert pl["on"] == desk["placement_id"] and pl["base_m"] == pytest.approx(desk["size_m"][1]) and pl["tabletop"] is True
+    assert pl["verdict"] != "no_fit", pl["reasons"]
+    auto = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "W0082GLE"}).json()["placement"]
+    assert auto["base_m"] == 0 and auto["verdict"] != "no_fit"
+
+
+def test_moving_from_the_floor_onto_a_desk_does_not_mark_the_desk_as_overlapped(c, pid):
+    import math
+    desk = c.post(f"/api/projects/{pid}/auto-place", json={"sku": "decor:desk"}).json()["placement"]
+    out = [desk["center_xz"][0] + math.cos(desk["yaw_rad"]) * 1.3, desk["center_xz"][1] + math.sin(desk["yaw_rad"]) * 1.3]
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": "W0082GLE", "center_xz": out, "yaw_rad": desk["yaw_rad"], "snap": False}).json()["placement"]
+    assert pl["base_m"] == 0
+    r = c.patch(f"/api/projects/{pid}/placements/{pl['placement_id']}", json={"center_xz": desk["center_xz"], "snap": False}).json()
+    assert r["placement"]["on"] == desk["placement_id"]
+    host = next(x for x in r["scene_state"]["placements"] if x["placement_id"] == desk["placement_id"])
+    assert "overlaps_placement" not in [q["code"] for q in host["reasons"]], host["reasons"]
