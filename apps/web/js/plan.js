@@ -107,6 +107,12 @@ export function placedSvg(p, sw, selected = false, ghost = false) {
     return `<g class="placed furn v-${v}${selected ? " sel" : ""}${ghost ? " ghost" : ""}" ${p.placement_id ? `data-pl="${esc(p.placement_id)}"` : ""} transform="rotate(${deg} ${x} ${y})">
     <rect x="${x - w_ / 2}" y="${y - d_ / 2}" width="${w_}" height="${d_}" rx="0.03" style="stroke-width:${sw(selected ? 2 : 1)}px"/>
     <g class="sym" transform="translate(${x} ${y})">${furnitureSymbol(kind, w_, d_)}</g></g>`;
+  // 장 칸에 끼운 빌트인: 위로 상판이 이어지므로 상판을 먼저 깔고, 그 아래 제품은 점선으로 (도면에서 상판 밑 가전을 그리는 방식)
+  const c = !ghost && p.slot;
+  if (c) return `<g class="placed under v-${v}${selected ? " sel" : ""}" ${p.placement_id ? `data-pl="${esc(p.placement_id)}"` : ""} transform="rotate(${deg} ${x} ${y})">
+    <rect class="counter" x="${x - w_ / 2 - c.left_m}" y="${y + c.off_m - c.depth_m / 2}" width="${w_ + c.left_m + c.right_m}" height="${c.depth_m}"/>
+    <rect x="${x - w_ / 2}" y="${y - d_ / 2}" width="${w_}" height="${d_}" style="stroke-width:${sw(selected ? 2 : 1)}px"/>
+    <line x1="${x - w_ / 2}" y1="${y + d_ / 2}" x2="${x + w_ / 2}" y2="${y + d_ / 2}" class="front" style="stroke-width:${sw(3)}px"/></g>`;
   return `<g class="placed v-${v}${selected ? " sel" : ""}${ghost ? " ghost" : ""}" ${p.placement_id ? `data-pl="${esc(p.placement_id)}"` : ""} transform="rotate(${deg} ${x} ${y})">
     <rect x="${x - w_ / 2}" y="${y - d_ / 2}" width="${w_}" height="${d_}" style="fill:${esc(p.hex || "#fff")};stroke-width:${sw(selected ? 3 : 2)}px"/>
     <line x1="${x - w_ / 2}" y1="${y + d_ / 2}" x2="${x + w_ / 2}" y2="${y + d_ / 2}" class="front" style="stroke-width:${sw(4)}px"/></g>`;

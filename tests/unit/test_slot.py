@@ -161,3 +161,53 @@ def test_no_cover_away_from_the_run_or_turned():
     assert cover(DW, Pose((2.9 + 0.299 + 0.2, FRONT_Y), UP), cabs) is None
     assert cover(DW, Pose((2.9 + 0.299, FRONT_Y + 0.2), UP), cabs) is None
     assert cover(DW, Pose((2.9 + 0.299, FRONT_Y), 0.0), cabs) is None
+
+
+# ---------- 싱크대·아일랜드 ----------
+def sink(pid, x, w=1.2):
+    return cab(pid, x, w, "decor:sink", h=0.88)
+
+
+def test_a_sink_gives_up_only_its_end_and_keeps_room_for_the_bowl():
+    s = slot_in(DW, Pose((2.0, 0.4), UP), [sink("s", 2.0, 1.6)])  # 한가운데에 놓아도 끝으로 비킨다
+    e = by_id(s)
+    assert set(e) == {"s"} and near(e["s"]["w"], 1.6 - 0.598)
+    assert near(abs(s.pose.center_xz[0] - 2.0), 0.8 - 0.299)
+
+
+def test_a_sink_too_narrow_to_cut_takes_it_right_beside():
+    s = slot_in(DW, Pose((2.1, 0.4), UP), [sink("s", 2.0, 1.0)])
+    assert s.edits == []
+    assert near(s.pose.center_xz[0] - 0.299, 2.5)
+
+
+def test_beside_a_sink_a_base_cabinet_still_gives_way():
+    s = slot_in(DW, Pose((2.1, 0.4), UP), [sink("s", 2.0, 1.0), cab("c1", 3.1, 1.2)])
+    e = by_id(s)
+    assert set(e) == {"c1"} and near(e["c1"]["w"], 1.2 - 0.598)
+
+
+def test_an_island_takes_it_on_its_front_side():
+    isl = cab("i", 3.0, 1.8, "decor:island", h=0.9, d=0.9, y=3.0)
+    s = slot_in(DW, Pose((3.0, 3.2), UP), [isl])
+    assert near(s.pose.center_xz[1], 3.0 + 0.45 - 0.02 - 0.567 / 2)
+    assert set(by_id(s)) == {"i", "new"}
+    left = by_id(s)["i"]
+    c = cover(DW, s.pose, [cab("i", left["center_xz"][0], left["w"], "decor:island", h=0.9, d=0.9, y=3.0)])
+    assert c["look"] == "island" and c["top_m"] == 0.9 and c["back_m"] == 0
+
+
+def test_an_island_table_keeps_the_knee_space_behind_it():
+    t = cab("t", 3.0, 1.8, "decor:islandtable", h=0.89, d=0.75, y=3.0)
+    s = slot_in(DW, Pose((3.0, 3.1), UP), [t])
+    assert near(s.pose.center_xz[1] - 0.567 / 2, 3.0 - 0.375 + 0.15)  # 몸통 등에 등을 맞춘다 (앞은 문짝과 거의 같은 면)
+    assert abs(s.pose.center_xz[1] + 0.567 / 2 - (3.0 + 0.375 - 0.035)) < 0.005
+    left = by_id(s)["t"]
+    c = cover(DW, s.pose, [cab("t", left["center_xz"][0], left["w"], "decor:islandtable", h=0.89, d=0.75, y=3.0)])
+    assert near(c["back_m"], 0.15)
+
+
+def test_a_scanned_box_has_no_door_inset():
+    box = cab("o1", 2.0, 1.8, door_m=0.0, scanned=True)
+    s = slot_in(DW, Pose((2.0, 0.4), UP), [box])
+    assert near(s.pose.center_xz[1], 0.35 + 0.3 - 0.567 / 2)

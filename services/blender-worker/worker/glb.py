@@ -83,7 +83,37 @@ def boxes_for_room(room: Room, state: dict | None = None) -> list[dict]:
                       "center": [pl["center_xz"][0], (pl.get("base_m") or 0.0) + h_ / 2, pl["center_xz"][1]], "size": [w_, h_, d_],
                       # placement yaw는 벽 안쪽 법선 방향 → 제품 정면 축과 맞추기 위해 90° 보정
                       "yaw": pl["yaw_rad"] - math.pi / 2, "color": pl.get("hex") or colors["product"]})
+        boxes.extend(cover_boxes(pl))
     return boxes
+
+
+STONE_HEX, CABINET_HEX = "#E8E4DC", "#F2F2F0"
+
+
+def cover_boxes(pl: dict) -> list[dict]:
+    """장 칸에 끼운 빌트인 위로 이어지는 상판(키큰장 줄이면 가림판)과, 제품 뒤가 비는 깊은 장의 뒤 막음판.
+    웹 3D(viewer.js coverParts)와 같은 모양. 웹은 직접 그리므로 kind는 product (화면에서 숨긴다)."""
+    c = pl.get("slot")
+    if not c:
+        return []
+    w, h, d = pl["size_m"]
+    yaw = pl["yaw_rad"]
+    ux, uz, fx, fz = math.cos(yaw - math.pi / 2), math.sin(yaw - math.pi / 2), math.cos(yaw), math.sin(yaw)
+    wide, tall, lx = w + c["left_m"] + c["right_m"], c["top_m"] - h, (c["right_m"] - c["left_m"]) / 2
+    base = pl.get("base_m") or 0.0
+
+    def at(lz: float, y: float) -> list[float]:
+        return [pl["center_xz"][0] + ux * lx + fx * lz, base + y, pl["center_xz"][1] + uz * lx + fz * lz]
+
+    body = c.get("hex") or CABINET_HEX
+    out = [{"name": f"cover:{pl['sku']}", "kind": "product", "part": "top", "center": at(c["off_m"], h + tall / 2),
+            "size": [wide, tall, c["depth_m"]], "yaw": yaw - math.pi / 2, "color": body if c["look"] == "tallcab" else STONE_HEX}]
+    back = c["off_m"] - c["depth_m"] / 2 + (c.get("back_m") or 0.0)
+    gap = -d / 2 - back
+    if gap > 0.03:
+        out.append({"name": f"cover:{pl['sku']}:back", "kind": "product", "part": "body", "center": at(back + gap / 2, h / 2),
+                    "size": [wide, h, gap], "yaw": yaw - math.pi / 2, "color": body})
+    return out
 
 
 def write_glb(boxes: Iterable[dict], out: str | Path) -> Path:

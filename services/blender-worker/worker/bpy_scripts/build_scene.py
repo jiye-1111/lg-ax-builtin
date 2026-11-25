@@ -390,6 +390,12 @@ def build(job):
             mat = principled(f"p_{pl['sku']}", lin(pl.get("hex") or "#F4F4F2"), rough=0.35)
             bevel(box(f"product_{pl['sku']}", Vector((x, -z, base + h_ / 2)), (w_, h_, d_), yaw, mat, coll), 0.01)
 
+    # 장 칸에 끼운 빌트인 위로 이어지는 상판과 뒤 막음판 (glb.cover_boxes)
+    for o in (b for b in boxes if b["name"].startswith("cover:")):
+        top = o.get("part") == "top"
+        mat = principled(f"cover_{o['color']}_{int(top)}", lin(o["color"]), rough=0.35 if top else 0.5)
+        bevel(box(o["name"], gl_to_bl(o["center"]), o["size"], o["yaw"], mat, coll), 0.003)
+
     # 천장: 카메라에는 안 보이고 그림자만 낸다. 해는 창으로만 들어온다
     if floor:
         w, _, d = floor["size"]

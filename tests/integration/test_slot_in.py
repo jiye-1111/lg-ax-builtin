@@ -154,3 +154,42 @@ def test_auto_place_cuts_into_the_run_when_there_is_no_room_beside_it(c, pid):
     assert abs(u) < 0.9
     assert abs(sum(p["size_m"][0] for p in placements(c, pid) if p["sku"] == "decor:basecab") + x["size_m"][0] - 1.8) < 3e-3
     assert r["slot_changes"]["resized"]
+
+
+# ---------- 싱크대·아일랜드·스캔한 장 ----------
+def test_a_sink_shrinks_from_its_end_and_is_never_split(c, pid):
+    s = cabinet(c, pid, "decor:sink", (1.6, 0.88, 0.6))
+    r = c.post(f"/api/projects/{pid}/placements", json={"sku": DISH, "center_xz": along(s, 0.0, 0.1), "yaw_rad": s["yaw_rad"]}).json()
+    x = r["placement"]
+    assert x["verdict"] != "no_fit", x["reasons"]
+    sinks = [p for p in placements(c, pid) if p["sku"] == "decor:sink"]
+    assert len(sinks) == 1 and abs(sinks[0]["size_m"][0] + x["size_m"][0] - 1.6) < 3e-3
+    assert x["slot"]["look"] == "sink" and x["slot"]["top_m"] == 0.88
+
+
+def test_an_island_takes_a_dishwasher_and_the_counter_runs_over_it(c, pid):
+    isl = cabinet(c, pid, "decor:island", (1.8, 0.9, 0.9))
+    x = c.post(f"/api/projects/{pid}/placements", json={"sku": DISH, "center_xz": along(isl, 0.0, 0.2), "yaw_rad": 0.0, "snap": False}).json()["placement"]
+    assert x["verdict"] != "no_fit", x["reasons"]
+    assert x["slot"]["look"] == "island" and x["slot"]["depth_m"] == 0.9
+    assert len([p for p in placements(c, pid) if p["sku"] == "decor:island"]) == 2
+
+
+def scanned_counter(c, pid):
+    hosts = c.get(f"/api/projects/{pid}").json()["scene_state"]["scan_hosts"]
+    return max(hosts, key=lambda h: h["size_m"][0]) if hosts else None
+
+
+def test_a_scanned_low_cabinet_gives_way_and_comes_back_as_base_cabinets(c):
+    with open(REAL.with_name("synthetic_room.usdz"), "rb") as f:
+        pid = c.post("/api/projects", files={"file": ("home.usdz", f)}, data={"scanned_by": "customer"}).json()["project_id"]
+    h = scanned_counter(c, pid)
+    assert h and h["size_m"][0] >= 0.9
+    r = c.post(f"/api/projects/{pid}/placements", json={"sku": DISH, "center_xz": h["center_xz"], "yaw_rad": h["yaw_rad"], "snap": False}).json()
+    x, ss = r["placement"], c.get(f"/api/projects/{pid}").json()["scene_state"]
+    assert "overlaps_object" not in codes(x) and "overlaps_placement" not in codes(x), x["reasons"]
+    assert h["placement_id"] in ss["hidden_objects"] and r["slot_changes"]["hidden"] == [h["placement_id"]]
+    cabs = [p for p in ss["placements"] if p["sku"] == "decor:basecab"]
+    assert cabs and abs(sum(p["size_m"][0] for p in cabs) + x["size_m"][0] - h["size_m"][0]) < 3e-3
+    assert sorted(r["slot_changes"]["added"]) == sorted(p["placement_id"] for p in cabs)
+    assert x["slot"]["top_m"] == h["size_m"][1]

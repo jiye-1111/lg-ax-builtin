@@ -285,6 +285,8 @@ button.sw.on { box-shadow: 0 0 0 2px var(--sheet), 0 0 0 4px var(--ink); }
 .plan .placed.v-unknown rect { stroke: var(--unk); }
 .plan .placed .front { stroke: var(--ink); stroke-linecap: round; }
 .plan .placed.sel rect { stroke: var(--lg); }
+.plan .placed.under > rect { fill: none; stroke-dasharray: .06 .04; }
+.plan .placed.under > rect.counter { fill: #fff; stroke: #8f867a; stroke-width: 1px; stroke-dasharray: none; vector-effect: non-scaling-stroke; }
 .plan .placed.dragging { opacity: .35; }
 .plan .placed.ghost { opacity: .75; pointer-events: none; }
 .plan .placed.ghost rect { stroke-dasharray: .08 .05; }

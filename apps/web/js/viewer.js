@@ -10,6 +10,7 @@ import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./wal
 import { lookYaw } from "./stops.js";
 import { pointerAngle, turnTo, snapTurn, degLabel } from "./rotring.js";
 import { reachOf, HANDLE_OUT_M } from "./stretch.js";
+import { DOOR_BACK_M } from "./slot.js";
 import { onPlane, grabOffset } from "./surfmove.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -205,6 +206,7 @@ export function makeViewer(el, handlers = {}) {
     rotRing.add(band, hit, arm);
   };
   // 장 끝 손잡이: 고른 장의 양 끝 바닥에 좌우 화살표. 끌면 그 끝만 움직여 길이가 늘거나 준다 (IKEA 플래너처럼)
+  // 아일랜드처럼 벽에서 떨어진 것(deep)은 앞뒤에도 손잡이가 있어 깊이도 늘린다. 손잡이 번호: 폭 ±1, 깊이 ±2 (+가 정면 쪽)
   const stretchG = new THREE.Group();
   stretchG.visible = false;
   stretchG.renderOrder = 5;
@@ -214,10 +216,11 @@ export function makeViewer(el, handlers = {}) {
     let order = 6; // 깊이를 안 보고 그리므로 테두리 → 흰 바탕 → 화살표 차례를 정해 준다
     const flat = (m, y) => { m.rotation.x = -Math.PI / 2; m.position.y = y; m.renderOrder = order++; return m; };
     const arrow = new THREE.Shape([new THREE.Vector2(0.05, 0), new THREE.Vector2(0.014, 0.03), new THREE.Vector2(0.014, -0.03)]);
-    for (const side of [-1, 1]) {
+    for (const side of [-1, 1, -2, 2]) {
       const h = new THREE.Group();
       order = 6;
       h.name = `end${side}`;
+      if (Math.abs(side) === 2) h.rotation.y = Math.PI / 2; // 화살표가 앞뒤를 보게
       const grip = new THREE.Mesh(new THREE.CircleGeometry(0.17, 24), new THREE.MeshBasicMaterial({ visible: false }));
       grip.userData.stretch = side;
       const right = new THREE.Mesh(new THREE.ShapeGeometry(arrow), knobRimMat), left = new THREE.Mesh(new THREE.ShapeGeometry(arrow), knobRimMat);
@@ -233,6 +236,11 @@ export function makeViewer(el, handlers = {}) {
     stretchG.position.set(i.xz[0], (i.y || 0) + 0.014, i.xz[1]);
     stretchG.rotation.y = -(i.yaw - Math.PI / 2);
     for (const side of [-1, 1]) stretchG.getObjectByName(`end${side}`).position.x = side * (i.w / 2 + HANDLE_OUT_M);
+    for (const side of [-1, 1]) {
+      const h = stretchG.getObjectByName(`end${side * 2}`);
+      h.visible = !!i.deep;
+      h.position.z = side * (i.d / 2 + HANDLE_OUT_M);
+    }
   };
   // 와이파이: 실제 크기 공유기 (집어 들어 옮기고 돌릴 수 있다)
   const routerG = new THREE.Group();
@@ -643,8 +651,7 @@ export function makeViewer(el, handlers = {}) {
     return out;
   };
   // 이어지는 상판·가림판 재질: 옆 장 모델의 상판(stone)·몸통(white) 재질을 그대로 쓴다
-  const coverMat = (look, hex) => {
-    const part = look === "basecab" ? "stone" : "white";
+  const coverMat = (look, hex, part = look === "tallcab" ? "white" : "stone") => {
     let m = null;
     const t = templates.get(`decor:${look}`);
     if (t) t.scene.traverse((o) => { if (!m && o.isMesh && o.material.name === part) m = o.material; });
@@ -652,6 +659,21 @@ export function makeViewer(el, handlers = {}) {
     m = m ? m.clone() : new THREE.MeshStandardMaterial({ color: part === "stone" ? 0xe8e4dc : 0xf2f2f0, roughness: 0.6 });
     if (part === "white" && hex) m.color.set(hex);
     return m;
+  };
+  // 장 칸에 끼운 빌트인 위를 덮는 판과, 제품 뒤가 비는 깊은 장(아일랜드)의 뒤 막음판. 제품 바닥 가운데 기준
+  const coverParts = (w, h, d, c, id) => {
+    const wide = w + c.left_m + c.right_m, tall = c.top_m - h, x = (c.right_m - c.left_m) / 2, out = [];
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(wide, tall, c.depth_m), coverMat(c.look, c.hex));
+    lid.position.set(x, h + tall / 2, c.off_m);
+    out.push(lid);
+    const back = c.off_m - c.depth_m / 2 + (c.back_m || 0), gap = -d / 2 - back; // 장 몸통 등에서 제품 등까지
+    if (gap > 0.03) {
+      const fill = new THREE.Mesh(new THREE.BoxGeometry(wide, h, gap), coverMat(c.look, c.hex, "white"));
+      fill.position.set(x, h / 2, back + gap / 2);
+      out.push(fill);
+    }
+    out.forEach((m) => { m.castShadow = m.receiveShadow = true; m.userData = { placementId: id, ownMaterial: true, cover: true }; });
+    return out;
   };
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
@@ -706,14 +728,7 @@ export function makeViewer(el, handlers = {}) {
       g.add(edges);
     }
     // 장 칸에 끼운 빌트인: 옆 장 상판이 그 위로 이어진다 (키큰장 줄이면 위 가림판)
-    if (p.slot && !preview) {
-      const c = p.slot, wide = w + c.left_m + c.right_m, tall = c.top_m - h;
-      const lid = new THREE.Mesh(new THREE.BoxGeometry(wide, tall, c.depth_m), coverMat(c.look, c.hex));
-      lid.position.set((c.right_m - c.left_m) / 2, h + tall / 2, c.off_m);
-      lid.castShadow = lid.receiveShadow = true;
-      lid.userData = { placementId: p.placement_id, ownMaterial: true, cover: true };
-      g.add(lid);
-    }
+    if (p.slot && !preview) g.add(...coverParts(w, h, d, p.slot, p.placement_id));
     // 바닥 판: 판정 색. 놓고 난 뒤에는 안 들어갈 때만 보이고, 들어가는 것은 옮기는 동안에만 보인다 (setDragVerdict)
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.08, d + 0.08),
       new THREE.MeshBasicMaterial({ color: vhex, transparent: true, opacity: selected ? 0.55 : 0.35, depthWrite: false }));
@@ -782,10 +797,9 @@ export function makeViewer(el, handlers = {}) {
   // 벽걸이 제품은 마우스가 가리키는 벽 자리를 따라간다 (계산은 handlers.hangPoint → js/wallmount.js)
   const wallPoint = (e) => { const p = floorPoint(e, 0.01); return handlers.hangPoint?.(ray.ray.origin.toArray(), ray.ray.direction.toArray(), p) || p; };
   // 장 칸에 끼우는 빌트인은 가리킨 장이 선 자리를 따라간다 (비스듬히 보면 장 윗면 너머 바닥은 벽 뒤다)
-  const SLOT_HOSTS = new Set(["decor:basecab", "decor:tallcab"]);
   const cabPoint = (e) => {
     setNdc(e);
-    const hit = ray.intersectObjects(products.children.filter((c) => SLOT_HOSTS.has(c.userData.sku)), true).find((h) => h.object.isMesh && h.object.visible);
+    const hit = ray.intersectObjects([...products.children.filter((c) => c.userData.sku in DOOR_BACK_M), carveG], true).find((h) => h.object.isMesh);
     return hit ? [hit.point.x, hit.point.z] : null;
   };
   const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf === "wall" ? wallPoint(e) : sf === "slot" ? cabPoint(e) || floorPoint(e) : sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
@@ -878,11 +892,34 @@ export function makeViewer(el, handlers = {}) {
     ringMat.color.setHex(RING_HEX); knobRimMat.color.setHex(RING_HEX); ringMat.opacity = 0.55;
     if (g.moved) { ringInfo = { ...ringInfo, yaw: g.yaw }; handlers.onRingEnd?.({ ...g.item, yaw: g.yaw }); }
   };
+  // ---- 끼워 넣기 미리 보기: 끄는 동안 장이 칸을 내준 모습 (저장은 놓을 때 서버가) ----
+  const carveG = new THREE.Group();
+  scene.add(carveG);
+  let carveKey = null, carveHid = [];
+  const setCarve = (c) => {
+    const key = c ? JSON.stringify(c) : null;
+    if (key === carveKey) return;
+    carveKey = key;
+    carveHid.forEach((o) => { o.visible = true; });
+    carveHid = [];
+    clear(carveG);
+    if (!c) return;
+    for (const g of products.children) if (c.hide.includes(g.userData.placementId)) { g.visible = false; carveHid.push(g); }
+    for (const id of c.hideObjects || []) for (const o of heldNodes({ kind: "object", id })) if (o.visible) { o.visible = false; carveHid.push(o); }
+    for (const q of c.pieces) carveG.add(productBox(q));
+    if (c.lid) {
+      const g = new THREE.Group();
+      g.add(...coverParts(c.lid.size_m[0], c.lid.size_m[1], c.lid.size_m[2], c.lid.slot, null));
+      g.position.set(c.lid.xz[0], 0, c.lid.xz[1]);
+      g.rotation.y = rotY("placement", c.lid.yaw);
+      carveG.add(g);
+    }
+  };
   // ---- 장 끝 손잡이 끌기 ----
   const stretchAt = (e) => {
     if (!stretchG.visible || !stretchInfo || walk) return 0;
     setNdc(e);
-    return ray.intersectObjects(stretchG.children, true).find((x) => x.object.userData.stretch)?.object.userData.stretch || 0;
+    return ray.intersectObjects(stretchG.children.filter((h) => h.visible), true).find((x) => x.object.userData.stretch)?.object.userData.stretch || 0;
   };
   const stretchPoint = (e) => {
     setNdc(e);
@@ -893,28 +930,31 @@ export function makeViewer(el, handlers = {}) {
   const startStretch = (e, side) => {
     const p = stretchPoint(e);
     if (!p) return;
-    const base = { ...stretchInfo, xz: [...stretchInfo.xz] };
-    stretchDrag = { base, side, off: reachOf(base, side, p) - base.w, now: null, moved: false };
+    // 깊이는 90° 돌려 놓은 장의 길이로 본다 (같은 계산을 쓴다)
+    const axis = Math.abs(side) === 2 ? "d" : "w", i = stretchInfo;
+    const base = axis === "d" ? { ...i, xz: [...i.xz], yaw: i.yaw + Math.PI / 2, w: i.d, d: i.w } : { ...i, xz: [...i.xz] };
+    side = Math.sign(side);
+    stretchDrag = { base, side, axis, off: reachOf(base, side, p) - base.w, now: null, moved: false };
     ctl.enabled = false;
     renderer.domElement.setPointerCapture?.(e.pointerId);
-    renderer.domElement.style.cursor = "ew-resize";
+    renderer.domElement.style.cursor = axis === "d" ? "ns-resize" : "ew-resize";
     knobRimMat.color.setHex(RING_ON_HEX);
   };
   const moveStretch = (e) => {
     const p = stretchPoint(e), g = stretchDrag;
     if (!p) return;
-    const r = handlers.stretch?.(g.base, g.side, reachOf(g.base, g.side, p) - g.off, e.altKey);
+    const r = handlers.stretch?.(g.base, g.side, reachOf(g.base, g.side, p) - g.off, e.altKey, g.axis);
     if (!r) return;
     g.now = r;
     g.moved = g.moved || Math.abs(r.w - g.base.w) > 1e-4;
-    stretchInfo = { ...stretchInfo, xz: r.xz, w: r.w };
+    stretchInfo = { ...stretchInfo, xz: r.xz, [g.axis]: r.w };
     placeStretch();
     const box = el.getBoundingClientRect();
     ringChip.textContent = `${Math.round(r.w * 1000).toLocaleString("ko-KR")} mm`;
     ringChip.style.left = `${e.clientX - box.left + 16}px`;
     ringChip.style.top = `${e.clientY - box.top - 34}px`;
     ringChip.hidden = false;
-    handlers.onStretchMove?.(g.base.id, r);
+    handlers.onStretchMove?.(g.base.id, r, g.axis);
   };
   const endStretch = () => {
     const g = stretchDrag;
@@ -923,7 +963,7 @@ export function makeViewer(el, handlers = {}) {
     ringChip.hidden = true;
     renderer.domElement.style.cursor = "";
     knobRimMat.color.setHex(RING_HEX);
-    if (g.moved && g.now) handlers.onStretchEnd?.(g.base, g.now);
+    if (g.moved && g.now) handlers.onStretchEnd?.(g.base, g.now, g.axis);
   };
   let wallPick = false; // 벽 철거: 벽을 눌러 고르는 중
   let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
@@ -1008,6 +1048,7 @@ export function makeViewer(el, handlers = {}) {
         // 벽·가전 옆에 가까이 가면 착 붙는다 (Alt를 누르고 있으면 붙지 않는다)
         // 벽에 붙으면서 돌아간 방향은 벽에서 떼면 원래대로 돌아온다 (지나가다 붙었다고 방향이 바뀐 채 남지 않게)
         const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.freeYaw ?? held.yaw);
+        setCarve(sn?.carve || null);
         if (sn) { held.freeYaw ??= held.yaw; held.xz = sn.xz; held.yaw = sn.yaw; }
         else if (held.freeYaw !== undefined) { held.yaw = held.freeYaw; held.freeYaw = undefined; }
         handlers.onHoldMove?.(held, held.xz);
@@ -1023,6 +1064,7 @@ export function makeViewer(el, handlers = {}) {
       if (dragging.moved) {
         const sn = !dragging.surface && !e.altKey && handlers.snap?.({ kind: "placement", id: dragging.id }, c, undefined);
         const at = sn ? sn.xz : c;
+        setCarve(sn?.carve || null);
         dragging.yaw = sn ? sn.yaw : undefined;
         if (sn && dragging.group) dragging.group.rotation.y = rotY("placement", sn.yaw);
         dragging.group?.position.set(at[0], topY(dragging.surface, at, dragging.id) ?? 0, at[1]);
@@ -1030,7 +1072,7 @@ export function makeViewer(el, handlers = {}) {
       }
       return;
     }
-    if (!down) renderer.domElement.style.cursor = stretchAt(e) ? "ew-resize" : ringAt(e) ? "grab" : "";
+    if (!down) renderer.domElement.style.cursor = Math.abs(stretchAt(e)) === 2 ? "ns-resize" : stretchAt(e) ? "ew-resize" : ringAt(e) ? "grab" : "";
     handlers.onHover?.(pointFor(e) || p);
     if (handlers.wantHoverHit?.()) handlers.onHoverHit?.(hoverHit(e));
   };
@@ -1142,6 +1184,7 @@ export function makeViewer(el, handlers = {}) {
       last = { ...last, list, selectedId };
       openWalls(list);
       if (dragging || (held?.kind === "placement" && !held.dropping)) return;
+      if (!last.ghost) setCarve(null); // 놓았거나 그만뒀으면 미리 보던 칸은 지운다
       // 바뀐 것만 다시 만든다. 놓을 때마다 전부 새로 만들면 가구가 많을수록 버벅인다
       const keep = new Map();
       for (const c of products.children) if (c.userData.key && !c.userData.dirty) keep.set(c.userData.key, c);
@@ -1182,7 +1225,8 @@ export function makeViewer(el, handlers = {}) {
     /** 미리 보기 상자 (pose-check 결과). null이면 지운다. */
     setGhost(res) {
       last = { ...last, ghost: res };
-      if (!res?.size_m) { clear(ghost); return; }
+      if (!res?.size_m) { clear(ghost); setCarve(null); return; }
+      setCarve(res.carve || null);
       // 카메라 바로 앞(화면 아래 끝)에 오면 반투명 상자가 화면을 하얗게 덮는다 → 그때는 그리지 않는다
       const [gx, gz] = res.pose.center_xz;
       const reach = Math.hypot(res.size_m[0], res.size_m[2]) / 2 + GHOST_NEAR_M;
@@ -1319,6 +1363,8 @@ export function makeViewer(el, handlers = {}) {
     },
     /** 바닥 점 [x, z]의 화면 좌표 (E2E 확인용) */
     /** 지금 보이는 판정 색 바닥 판 수 (점검용) */
+    /** 끄는 동안 미리 보이는 칸 조각 수 (점검용) */
+    carved: () => ({ pieces: carveG.children.length, hidden: carveHid.length }),
     shownPlates() { let n = 0; products.traverse((o) => { if (o.userData.verdictPlate && o.visible) n += 1; }); return n; },
     toScreen([x, z], y = 0) {
       const v = new THREE.Vector3(x, y, z).project(cam), r = dom.getBoundingClientRect();
@@ -1349,7 +1395,7 @@ export function makeViewer(el, handlers = {}) {
       rotRing.getObjectByName("arm").rotation.y = rotY(info.kind, info.yaw);
     },
     ringDragging: () => !!ringDrag,
-    /** 장 끝 손잡이 {id, xz, yaw, w, d, y}. null이면 숨긴다 */
+    /** 장 끝 손잡이 {id, xz, yaw, w, d, y, deep}. null이면 숨긴다. deep이면 앞뒤 손잡이도 낸다 */
     setStretch(info) {
       if (stretchDrag) return; // 늘리는 중에는 그대로
       stretchInfo = info || null;
@@ -1383,6 +1429,7 @@ export function makeViewer(el, handlers = {}) {
       if (!held) return;
       for (const { node, orig, rot } of held.nodes) { node.position.copy(orig); node.rotation.set(0, rot, 0); }
       held = null;
+      setCarve(null);
       if (grid) grid.visible = false;
     },
     /** 들고 있는 물건 바닥 판 색 (판정) */
