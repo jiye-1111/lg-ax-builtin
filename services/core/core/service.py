@@ -21,6 +21,7 @@ from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
 from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, MOUNT_SKUS, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
+from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
 from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
@@ -100,6 +101,7 @@ class Catalog:
             for f in self._families:
                 for v in f["variants"]:
                     v["tabletop"] = can_sit(self.get(v["sku"]))  # 식탁·아일랜드 위에 올려 둘 수 있는 가전
+                    v["mount"] = mount_kind(self.get(v["sku"]))  # 벽에 걸거나(wall) 붙여(flush·builtin) 설치하는 제품
                     v["thumb"] = f"img/products/{v['sku']}.webp" if (photos / f"{v['sku']}.webp").exists() else None
         return self._families
 
@@ -818,9 +820,24 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         gone = set((p or {}).get("scene_state", {}).get("hidden_walls") or [])
         if prod.sku in MOUNT_SKUS:  # 문·창은 스캔 벽이나 가벽 가운데 줄에 단다
             return snap_door(self._wall_lines(room, p, gone), pose, prod.product_dims_mm.w / 1000)
+        kind = mount_kind(prod)
+        if kind == WALL:  # 벽걸이: 어디를 눌러도 가장 가까운 벽(가벽 포함)에 건다
+            d = prod.product_dims_mm
+            return hang(self._wall_faces(room, p, gone), pose, d.w / 1000, d.d / 1000) or pose if d.w and d.d else pose
         if gone:  # 철거한 벽에는 붙지 않는다
             room = room.model_copy(update={"walls": [w for w in room.walls if w.wall_id not in gone]})
-        return snap_to_wall(room, prod, pose, self.fit_cfg)
+        return snap_to_wall(room, prod, pose, self.fit_cfg, reach_m=MOUNT_REACH_M if kind else None)
+
+    @staticmethod
+    def _wall_faces(room: Room, p: dict | None, gone: set[str]) -> list[tuple]:
+        """벽걸이 제품을 걸 수 있는 벽: 남아 있는 스캔 벽과 놓은 가벽 (시작, 끝, 두께, id)."""
+        faces = [(tuple(w.start), tuple(w.end), w.thickness_m or 0.1, w.wall_id) for w in room.walls if w.wall_id not in gone]
+        for x in (p or {}).get("scene_state", {}).get("placements", []):
+            if x.get("sku") == "decor:wall" and x.get("size_m"):
+                u, half = x["yaw_rad"] - math.pi / 2, x["size_m"][0] / 2
+                (cx, cz), dx, dz = x["center_xz"], math.cos(u) * half, math.sin(u) * half
+                faces.append(((cx - dx, cz - dz), (cx + dx, cz + dz), x["size_m"][2], x["placement_id"]))
+        return faces
 
     @staticmethod
     def _wall_lines(room: Room, p: dict | None, gone: set[str]) -> list[tuple[tuple[float, float], tuple[float, float]]]:
@@ -868,7 +885,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             return False
         return prod.category == "water_purifier" and (prod.install_type == "built_in" or prod.install_form == "빌트인")
 
-    def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
+    def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None, base_m: float | None = None):
         shut = set(p["scene_state"].get("hidden_openings") or [])
         if shut:  # 없앤 창은 가릴 일이 없다
             room = room.model_copy(update={"openings": [o for o in room.openings if o.opening_id not in shut]})
@@ -881,7 +898,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         elif prod.sku in self.CABINETS:
             others = [x for x in others if not self._inset(x.get("sku"))]
         host = surface_under(pose.center_xz, self._tops(room, p, prod, exclude)) if can_sit(prod) else None
-        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host)
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host, base_m=base_m)
 
     # 작은 가전을 올려 둘 수 있는 가구 (윗면이 SURFACE_MAX_M 이하일 때). 스캔 가구는 탁자·수납장
     HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:tvstand"})
@@ -994,28 +1011,35 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 prod = self._item(x["sku"], x.get("size_m"))
             except KeyError:
                 continue
-            r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"])
+            hung = mount_kind(prod) == WALL
+            r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"],
+                            base_m=x.get("base_m") if hung and x.get("hung") else None)
             self._seat(x, r)
             x["tabletop"] = can_sit(prod)
+            if hung:
+                x["hung"] = True  # 벽에 건 것: base_m이 고른 높이
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                   placement_id: str | None = None, size_m=None) -> dict:
+                   placement_id: str | None = None, size_m=None, base_m: float | None = None) -> dict:
         """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id)
-        r = self._judge(room, p, prod, pose, placement_id)
+        if base_m is None and placement_id:  # 걸어 둔 것을 옮겨 보는 중이면 지금 높이 그대로
+            cur = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None)
+            base_m = cur.get("base_m") if cur and cur.get("hung") else None
+        r = self._judge(room, p, prod, pose, placement_id, base_m=base_m)
         out = r.to_dict()
         out["gaps"] = self._gaps(room, p, prod, pose, placement_id, r.base_m)
         return out
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                 color: str | None = None, wall_id: str | None = None, size_m=None) -> dict:
+                 color: str | None = None, wall_id: str | None = None, size_m=None, base_m: float | None = None) -> dict:
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         opt = self._color_option(prod, color)
         pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p))
         if wall_id and not pose.wall_id:
             pose = Pose(pose.center_xz, pose.yaw_rad, wall_id)
-        r = self._judge(room, p, prod, pose)
+        r = self._judge(room, p, prod, pose, base_m=base_m)
         if r.size_m is None:
             raise Invalid("제품 치수 정보가 없어 놓을 수 없습니다")
         x = {"placement_id": self.db.next_id("pl"), "sku": sku, "zone_id": None,
@@ -1023,6 +1047,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
              "wall_id": pose.wall_id, "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
              "verdict": r.verdict.value, "reasons": r.reasons, "base_m": round(r.base_m, 3), "on": r.on,
              "tabletop": can_sit(prod)}
+        if mount_kind(prod) == WALL:
+            x["hung"] = True
         if is_decor(sku):
             x["kind"] = "decor"  # 꾸미기 가구: 주문·설치 신청에 넣지 않는다
         p["scene_state"]["placements"].append(x)
@@ -1077,12 +1103,13 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         prod = self._item(x["sku"], size)
         cx, cz = x["center_xz"]
         w = x["size_m"][0] if x.get("size_m") else 1.0
+        height = x.get("base_m") if x.get("hung") else None  # 벽에 건 것은 같은 높이로
         best = None
         for k in range(1, 9):  # 옆으로 조금씩 밀면서 처음으로 들어가는 자리
             for sgn in (1, -1):
                 ux, uz = math.cos(x["yaw_rad"] - math.pi / 2), math.sin(x["yaw_rad"] - math.pi / 2)
                 c = (cx + sgn * ux * (w + 0.05) * k, cz + sgn * uz * (w + 0.05) * k)
-                r = self._judge(room, p, prod, Pose(c, x["yaw_rad"], x.get("wall_id")))
+                r = self._judge(room, p, prod, Pose(c, x["yaw_rad"], x.get("wall_id")), base_m=height)
                 if r.verdict.value != "no_fit":
                     best = r
                     break
@@ -1092,7 +1119,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if best is None:
             raise Invalid("복사본을 놓을 빈자리가 없어요")
         return self.place_at(pid, x["sku"], list(best.pose.center_xz), best.pose.yaw_rad, snap=False, color=x.get("color"),
-                             wall_id=best.pose.wall_id, size_m=size)
+                             wall_id=best.pose.wall_id, size_m=size, base_m=height)
 
     def fit_gap(self, pid: str, placement_id: str) -> dict:
         """빈틈에 맞추기: 장·가벽의 폭을 양옆 벽·가전 사이에 꽉 차게 늘린다. 옆 가전이 요구하는 옆 여유는 남긴다."""
@@ -1182,9 +1209,12 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
                        snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None,
-                       hex: str | None = None) -> dict:
+                       hex: str | None = None, base_m: float | None = None) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
+        if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
+            if not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL:
+                x["base_m"], x["hung"] = float(base_m), True
         if hex is not None:
             # 색을 마음대로 고르는 건 꾸미기 가구만 (LG 제품 색은 카탈로그에 있는 색만)
             if not is_decor(x["sku"]):
@@ -1214,7 +1244,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             pose = self._settle(room, p, prod, pose, placement_id)
-            if center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3:  # 제자리에서 돌리기만 했으면
+            if mount_kind(prod) == WALL:
+                pass  # 벽에 건 것은 벽에서 떼지 않는다
+            elif center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3:  # 제자리에서 돌리기만 했으면
                 pose = self._off_wall(room, p, prod, pose, placement_id)
             self._carry(p, x, pose)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id

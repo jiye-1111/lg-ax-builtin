@@ -19,6 +19,8 @@ from core.models import Product, Room, Wall
 
 from . import geometry as g
 from .fit import DOOR_CATEGORIES, FitConfig, Verdict, front_space, worst
+from .mount import BUILTIN, CABINET_SCANNED, CABINET_SKUS, TOUCH_M, WALL, clamp_base, default_base, mount_kind
+from .mount import LABELS as MOUNT_LABELS
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -45,6 +47,7 @@ LABELS = {
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
     "surface_overhang": "올려 둔 가구 밖으로 나옴",
     "needs_counter": "하부장이나 아일랜드 위에 놓아야 해요",
+    "needs_wall": "벽에 붙여야 해요",
 }
 
 
@@ -176,7 +179,7 @@ def can_sit(p: Product) -> bool:
     d = p.product_dims_mm
     if needs_counter(p):
         return None not in (d.w, d.h, d.d)
-    if p.category not in TABLETOP or p.install_type == "built_in" or d.w is None or d.h is None or d.d is None:
+    if mount_kind(p) or p.category not in TABLETOP or p.install_type == "built_in" or d.w is None or d.h is None or d.d is None:
         return False
     if p.category == "tv":
         return True
@@ -219,8 +222,8 @@ def settle_on(s: dict, center: g.Pt, yaw_rad: float, w: float, d: float) -> g.Pt
 
 
 # ---------- snap ----------
-def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Pose:
-    """가까운 벽(FIT_SNAP_M 안)이 있으면 제품 등을 그 벽에 붙이고 앞쪽을 방 안으로 돌린다.
+def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig, reach_m: Optional[float] = None) -> Pose:
+    """가까운 벽(FIT_SNAP_M 안, reach_m을 주면 그 거리 안)이 있으면 제품 등을 그 벽에 붙이고 앞쪽을 방 안으로 돌린다.
     뒷면은 벽 안쪽 면 + 뒤 이격 + 마진 위치."""
     size = product_size(product)
     if size is None or not room.walls:
@@ -230,7 +233,7 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig) -> Po
     margin = cfg.margin_scanned_mm / 1000
     wall, dist = _nearest_wall(room, pose.center_xz)
     gap = dist - _thick(wall) / 2 - d_m / 2 - back
-    if gap > cfg.snap_m:
+    if gap > (cfg.snap_m if reach_m is None else reach_m):
         return pose
     f = _inward(room, wall)
     u, _ = f.to_local(pose.center_xz)
@@ -277,9 +280,11 @@ WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
 
 
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
-               others: Iterable[dict] = (), hidden: Iterable[str] = (), host: Optional[dict] = None) -> PoseResult:
+               others: Iterable[dict] = (), hidden: Iterable[str] = (), host: Optional[dict] = None,
+               base_m: Optional[float] = None) -> PoseResult:
     """host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
-    키가 그 윗면보다 낮은 바닥 물건은 걸리지 않는다. 윗면 밖으로 나오면 불가."""
+    키가 그 윗면보다 낮은 바닥 물건은 걸리지 않는다. 윗면 밖으로 나오면 불가.
+    base_m: 벽걸이 제품을 거는 높이(밑면). 안 주면 기본 높이. 벽걸이가 아니면 쓰지 않는다."""
     cfg = cfg or FitConfig()
     size = product_size(product)
     reasons: list[dict] = []
@@ -295,8 +300,13 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     w_m, h_m, d_m = size
     side, back, top, clear_unknown = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
-    base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
+    kind = mount_kind(product)
+    hung = kind == WALL
+    base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
+    if hung:  # 벽에 건 높이. 바닥과 천장 사이로 맞춘다
+        ceiling = _wall_height(_nearest_wall(room, c)[0]) if room.walls else h_m
+        base = clamp_base(default_base(product, ceiling) if base_m is None else float(base_m), h_m, ceiling)
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
     M = rect(c, yaw, w_m, d_m, left=side + margin, right=side + margin, back=back + margin, front=margin)
@@ -329,8 +339,24 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         sw, sh, sd = o["size_m"]
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
         lo = float(o.get("base_m") or 0.0)
-        kind = "wall" if mounted and o.get("sku") in WALL_LIKE else "placement"  # 문에게 가벽은 벽
-        obstacles.append((kind, o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
+        okind = "wall" if (mounted or hung) and o.get("sku") in WALL_LIKE else "placement"  # 문·벽걸이에게 가벽은 벽
+        obstacles.append((okind, o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
+    if kind:  # 붙여 설치하는 제품: 등이 벽에 닿았는지, 빌트인은 옆이나 뒤에 장이 있는지
+        reach = TOUCH_M + (0.0 if hung else back + margin)
+        behind = rect(c, yaw, w_m, d_m, back=reach, front=-d_m)
+        backs = [poly for okind, _, poly, _, _ in obstacles if okind == "wall"]
+        backs += [rect(tuple(o["center_xz"]), o.get("yaw_rad", 0.0) - math.pi / 2, o["size_m"][0], o["size_m"][2])
+                  for o in others if o.get("sku") in WALL_LIKE]
+        stuck = any(overlaps(behind, poly) for poly in backs)
+        if not stuck and kind == BUILTIN:
+            around = rect(c, yaw, w_m, d_m, left=side + margin + TOUCH_M, right=side + margin + TOUCH_M, back=reach)
+            cabs = [rect(tuple(o["center_xz"]), o.get("yaw_rad", 0.0) - math.pi / 2, o["size_m"][0], o["size_m"][2])
+                    for o in others if o.get("sku") in CABINET_SKUS]
+            cabs += [rect((o.position[0], o.position[2]), o.yaw_rad, o.bbox_m.w, o.bbox_m.d)
+                     for o in room.objects if o.category in CABINET_SCANNED and o.object_id not in hidden]
+            stuck = any(overlaps(around, poly) for poly in cabs)
+        if not stuck:
+            add("needs_wall", Verdict.NO_FIT, label=MOUNT_LABELS[kind])
     host_id = host["id"] if host else None
     if needs_counter(product) and host is None:
         add("needs_counter", Verdict.NO_FIT)
@@ -343,12 +369,16 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
 
     hit_code = {"wall": "hits_wall", "object": "overlaps_object", "placement": "overlaps_placement"}
     on_wall = False
-    for kind, ref, poly, _lo, _hi in obstacles:
-        if mounted and kind == "wall" and overlaps(F, poly):
+    for okind, ref, poly, _lo, _hi in obstacles:
+        if mounted and okind == "wall" and overlaps(F, poly):
             on_wall = True
             continue  # 문이 달린 벽
+        if hung and okind == "wall":  # 걸어 둔 벽은 겹치지만 않으면 된다 (벽과의 여유는 보지 않는다)
+            if overlaps(F, poly):
+                add("hits_wall", Verdict.NO_FIT, ref)
+            continue
         if overlaps(F, poly):
-            add(hit_code[kind], Verdict.NO_FIT, ref)
+            add(hit_code[okind], Verdict.NO_FIT, ref)
         elif overlaps(R, poly):
             add("clearance_blocked", Verdict.NO_FIT, ref)
         elif D is not None and overlaps(D, poly):
@@ -433,6 +463,7 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
     w_m, _, d_m = size
     side, back, _, _ = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
+    hung = mount_kind(product) == WALL
     best, best_key = None, None
 
     def away(c: g.Pt) -> float:  # 가장 가까운 조리대 끝에서 떨어진 거리 (10 cm 단위로 뭉쳐 본다)
@@ -446,7 +477,7 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
         if f.length < 2 * half:
             continue
         nx, ny = f.v_axis
-        v = _thick(wall) / 2 + back + margin + d_m / 2
+        v = _thick(wall) / 2 + d_m / 2 + (0.0 if hung else back + margin)  # 벽걸이는 벽에 바로 건다
         n = int((f.length - 2 * half) / step_m) + 1
         for i in range(n):
             u = half + i * step_m

@@ -22,12 +22,17 @@ def room(openings=(), objects=(), h=2.4):
     return Room(walls=walls, openings=list(openings), objects=list(objects))
 
 
-def fridge(w=900, h=1800, d=700, side=5, top=10, back=50, sku="T-RF"):
+def fridge(w=900, h=1800, d=700, side=5, top=10, back=50, sku="T-RF", category="refrigerator", install_type="built_in"):
     return Product(
-        sku=sku, name="테스트 냉장고", category="refrigerator", zone_fit=["kitchen"], install_type="built_in",
+        sku=sku, name="테스트 냉장고", category=category, zone_fit=["kitchen"], install_type=install_type,
         product_dims_mm=Dims(w=w, h=h, d=d), clearance_mm=Clearance(side=side, top=top, back=back),
         source_url=None, source_checked_at=None, demo_only=True,
     )
+
+
+def free(**kw):
+    """방 가운데에도 세울 수 있는 제품 (빌트인은 벽이나 장에 붙여야 해서 따로 본다: test_mount.py)."""
+    return fridge(category="air_purifier", install_type="freestanding", **kw)
 
 
 UP = math.pi / 2
@@ -36,7 +41,7 @@ codes = lambda r: {x["code"] for x in r.reasons}  # noqa: E731
 
 
 def test_open_floor_is_fit():
-    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    r = check_pose(room(), free(), Pose((2.0, 1.5), 0.0), CFG)
     assert r.verdict == Verdict.FIT and not r.reasons
 
 
@@ -69,9 +74,9 @@ def test_within_margin_is_conditional():
 
 def test_overlap_scanned_object_unless_hidden():
     chair = RoomObject(object_id="o1", category="chair", bbox_m=BBox(w=0.5, h=0.8, d=0.5), position=(2.0, 0.4, 1.5))
-    r = check_pose(room(objects=[chair]), fridge(), Pose((2.0, 1.5), 0.0), CFG)
+    r = check_pose(room(objects=[chair]), free(), Pose((2.0, 1.5), 0.0), CFG)
     assert r.verdict == Verdict.NO_FIT and "overlaps_object" in codes(r)
-    r = check_pose(room(objects=[chair]), fridge(), Pose((2.0, 1.5), 0.0), CFG, hidden={"o1"})
+    r = check_pose(room(objects=[chair]), free(), Pose((2.0, 1.5), 0.0), CFG, hidden={"o1"})
     assert r.verdict == Verdict.FIT
 
 
@@ -89,7 +94,7 @@ def test_ceiling_too_low():
 def test_door_swing_one_side_is_conditional_both_sides_no_fit():
     door = Opening(opening_id="d1", type="door", wall_id="w1", offset_m=1.0, width_m=0.9, height_m=2.1)
     # 문 안쪽(방 쪽) 열림 범위에만 걸침 → 반대쪽으로 열린다고 보고 조건부
-    r = check_pose(room(openings=[door]), fridge(w=600, d=600), Pose((1.45, 0.75), 0.0), CFG)
+    r = check_pose(room(openings=[door]), free(w=600, d=600), Pose((1.45, 0.75), 0.0), CFG)
     assert r.verdict == Verdict.CONDITIONAL and "door_swing_assumed" in codes(r)
 
 
@@ -126,7 +131,7 @@ def test_snap_ignores_far_walls():
 
 
 def test_result_is_serializable():
-    r = check_pose(room(), fridge(), Pose((2.0, 1.5), 0.0), CFG).to_dict()
+    r = check_pose(room(), free(), Pose((2.0, 1.5), 0.0), CFG).to_dict()
     assert r["verdict"] == "fit" and len(r["footprint"]) == 4 and r["pose"]["center_xz"] == [2.0, 1.5]
 
 
@@ -179,7 +184,7 @@ def door(width, oid="d1"):
 
 
 def test_product_wider_than_every_door_needs_entry_check():
-    r = check_pose(room(openings=[door(0.65)]), fridge(), Pose((2.0, 1.2), 0.0), CFG)  # 가장 얇은 쪽 0.7 m
+    r = check_pose(room(openings=[door(0.65)]), free(), Pose((2.0, 1.2), 0.0), CFG)  # 가장 얇은 쪽 0.7 m
     assert r.verdict == Verdict.CONDITIONAL and codes(r) == {"entry_narrow"}
     assert r.reasons[0]["ref"] == "d1"
 
