@@ -1413,7 +1413,7 @@ export function makeViewer(el, handlers = {}) {
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;
-      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, baseY: held.surface === "wall" ? held.y : held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
+      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, turned: !!held.turned, baseY: held.surface === "wall" ? held.y : held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
       held.dropping = true;
       const h = held;
       setTimeout(() => {

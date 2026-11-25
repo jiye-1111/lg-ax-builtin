@@ -504,7 +504,7 @@ export async function customer(pid) {
     snap: (h, xz, yaw) => {
       if (h.kind !== "placement") return null;
       const x = project?.scene_state.placements.find((q) => q.placement_id === h.id);
-      return x ? snapAt(x.sku, x.size_m, xz, yaw ?? x.yaw_rad, x.placement_id, !!h.turned) : null;
+      return x ? snapAt(x.sku, x.size_m, xz, yaw ?? x.yaw_rad, x.placement_id, !!h.turned || turnedIds.has(x.placement_id)) : null;
     },
     onHoldClick: () => putDown(),
     onDragMove: (id, c, yaw) => {
@@ -543,7 +543,7 @@ export async function customer(pid) {
       viewer.setPlacements(project.scene_state.placements, selPl);
     },
     onStretchEnd: (base, r, axis = "w") => stretchSave(base, r, axis),
-    onRingEnd: (it) => { drag3d = null; savePose(it); },
+    onRingEnd: (it) => { drag3d = null; markTurned(it); savePose(it); },
   });
   const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
   // 첫 화면 ‘최근에 만든 집’ 카드에 쓸 미리보기. 3D가 다 뜬 뒤와 화면을 떠날 때 찍는다
@@ -620,6 +620,9 @@ export async function customer(pid) {
     const sl = slotAt(sku, size, xz, skipId);
     return { slot: !!sl && Math.hypot(sl.xz[0] - xz[0], sl.xz[1] - xz[1]) < 2e-3 && Math.abs(Math.atan2(Math.sin(sl.yaw - yaw), Math.cos(sl.yaw - yaw))) < 1e-3 };
   };
+  // 직접 돌린 제품·가구: 벽에 붙을 때 방향을 다시 돌려놓지 않는다 (팀원 의견: 붙일 때 멋대로 가로로 돌아가서 불편)
+  const turnedIds = new Set(Array.isArray(saved.turned) ? saved.turned : []);
+  const markTurned = (it) => { if (it?.kind !== "placement" || turnedIds.has(it.id)) return; turnedIds.add(it.id); saveUiState(pid, { turned: [...turnedIds].slice(-200) }); };
   const snapAt = (sku, size, xz, yaw, skipId = null, keepYaw = false) => {
     if (!size || !room || !project || !snappable(sku)) return null;
     const sl = slotAt(sku, size, xz, skipId);
@@ -631,7 +634,7 @@ export async function customer(pid) {
       .map((q) => ({ xz: q.center_xz, yaw: q.yaw_rad, w: q.size_m[0], d: q.size_m[2], side: sideNeed(q.sku) }));
     const mid = walls.reduce((a, w) => [a[0] + (w.start[0] + w.end[0]) / 2 / walls.length, a[1] + (w.start[1] + w.end[1]) / 2 / walls.length], [0, 0]);
     const back = isDecor(sku) ? 0 : (prodOf(sku)?.clearance_mm?.back || 0) / 1000 + SNAP_MARGIN_M;
-    const r = snapPose({ xz, yaw, w: size[0], d: size[2], side: sideNeed(sku), backOff: back, keepYaw, ...(mountOf(sku) ? { reach: MOUNT_REACH_M } : {}) }, walls, others, mid);
+    const r = snapPose({ xz, yaw, w: size[0], d: size[2], side: sideNeed(sku), backOff: back, keepYaw, ...(mountOf(sku) ? { reach: MOUNT_REACH_M, mustBack: true } : {}) }, walls, others, mid);
     const sl2 = r.wall ? slotAt(sku, size, r.xz, skipId) : null; // 벽에 붙고 보니 장 줄 안이면 줄에 맞춘다
     if (sl2) return { xz: sl2.xz, yaw: sl2.yaw, wall: true, slot: true, carve: sl2.carve };
     return r.wall || r.side || r.yaw !== yaw ? r : null;
@@ -1294,6 +1297,7 @@ export async function customer(pid) {
     showGaps(null);
     const r = await post(`/api/projects/${pid}/placements`, sn ? { sku, center_xz: sn.xz, yaw_rad: sn.yaw, snap: false, slot: !!sn.slot } : { sku, center_xz: p, yaw_rad: yaw0 });
     remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
+    if (armed === sku && armedTurned) markTurned({ kind: "placement", id: r.placement.placement_id }); // 돌려서 놓은 것도 그 방향을 지킨다
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${nameOf(sku)}: ${LABEL[r.placement.verdict]}`);
     setHint(); renderLib();
@@ -1467,7 +1471,7 @@ export async function customer(pid) {
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
   });
-  const putDown = () => { const it = viewer.dropHold(); setHint(); if (it) savePose(it); };
+  const putDown = () => { const it = viewer.dropHold(); setHint(); if (it?.turned) markTurned(it); if (it) savePose(it); };
   const removeSelected = guard(async () => {
     viewer.cancelHold();
     if (selPl) { rememberRemoval(selPl); await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; toast("제품을 뺐어요"); }
@@ -1489,6 +1493,7 @@ export async function customer(pid) {
       if (!h) return;
       pendingKey = { ...it, xz: h.xz, yaw: h.yaw, baseY: h.base };
     } else pendingKey = { ...it, xz: [it.xz[0] + dx, it.xz[1] + dz], yaw: it.yaw + dyaw };
+    if (dyaw) markTurned(it);
     clearTimeout(keyTimer);
     keyTimer = setTimeout(() => { const p = pendingKey; pendingKey = null; savePose(p); }, 350);
   };
