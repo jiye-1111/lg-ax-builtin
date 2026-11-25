@@ -13,10 +13,11 @@ const corners = (c, ux, hw, hd) => {
   return [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]].map(([a, b]) => [c[0] + ux[0] * a + vx[0] * b, c[1] + ux[1] * a + vx[1] * b]);
 };
 
-/** item {xz, yaw, w, d, side, backOff, keepYaw} · walls [{start, end, t}] · others [{xz, yaw, w, d, side}] · center = 방 가운데 */
+/** item {xz, yaw, w, d, side, backOff, keepYaw, reach(벽에 끌려가는 거리, 없으면 SNAP_WALL_M)} · walls [{start, end, t}] · others [{xz, yaw, w, d, side}] · center = 방 가운데 */
 export function snapPose(item, walls = [], others = [], center = [0, 0]) {
   let [x, y] = item.xz, yaw = item.yaw;
   const { w, d } = item, side = item.side || 0, backOff = item.backOff || 0;
+  const reach = item.reach ?? SNAP_WALL_M;
   let wall = false, sideHit = false;
 
   // 1) 벽
@@ -32,7 +33,7 @@ export function snapPose(item, walls = [], others = [], center = [0, 0]) {
     if (along < 0 || along > L) continue;
     const dist = (x - wl.start[0]) * n[0] + (y - wl.start[1]) * n[1];
     const gap = dist - wl.t / 2 - d / 2 - backOff;
-    if (dist <= 0 || gap > SNAP_WALL_M) continue;
+    if (dist <= 0 || gap > reach) continue;
     if (item.keepYaw && angDiff(Math.atan2(n[1], n[0]), yaw) > SNAP_YAW) continue; // 직접 돌려 둔 방향은 지킨다
     if (!best || gap < best.gap) best = { gap, n, foot: [wl.start[0] + ux[0] * along, wl.start[1] + ux[1] * along], t: wl.t };
   }
