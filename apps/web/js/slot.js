@@ -74,6 +74,6 @@ export function slotPose(item, xz, cabinets = []) {
   }
   const at = v0(item, host);
   const cover = tall && tall.h - item.h >= 0.005
-    ? { top: tall.h, depth: tall.d, off: local(host, tall.xz)[1] - at, look: tall.sku.split(":")[1], hex: tall.hex || null, seat: seatOf(tall) } : null;
+    ? { top: tall.h, depth: tall.d, off: local(host, tall.xz)[1] - at, look: tall.sku.split(":")[1], hex: tall.hex || null, topHex: tall.topHex || null, seat: seatOf(tall) } : null;
   return { xz: world(host, s, at), yaw: host.yaw, host: host.id, edits, cover };
 }

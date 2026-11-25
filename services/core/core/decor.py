@@ -84,6 +84,10 @@ PRESETS: dict[str, list[dict]] = {
 }
 
 
+# 상판(stone 재질)이 따로 있어 상판 색을 고를 수 있는 가구. 웹의 furncolors.js TOPS와 같은 목록
+TOP_COLOUR_SKUS = frozenset(PREFIX + k for k in ("islandtable", "island", "basecab", "sink"))
+
+
 def is_decor(sku: str | None) -> bool:
     return bool(sku) and sku.startswith(PREFIX)
 

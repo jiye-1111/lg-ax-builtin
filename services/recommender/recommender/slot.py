@@ -193,4 +193,4 @@ def cover(size, pose: Pose, cabinets: Iterable[dict], side_m: float = 0.0, back_
     c, v = best
     # back_m: 장 등에서 몸통 등까지. 제품 뒤 빈 곳은 여기까지만 막는다 (아일랜드 식탁의 앉는 자리는 비워 둔다)
     return {"top_m": c["size_m"][1], "depth_m": c["size_m"][2], "off_m": round(-v, 4), "look": c["sku"].split(":")[1],
-            "hex": c.get("hex"), "back_m": round(_seat(c), 4), "left_m": round(sides[-1] or 0.0, 4), "right_m": round(sides[1] or 0.0, 4)}
+            "hex": c.get("hex"), "top_hex": c.get("top_hex"), "back_m": round(_seat(c), 4), "left_m": round(sides[-1] or 0.0, 4), "right_m": round(sides[1] or 0.0, 4)}

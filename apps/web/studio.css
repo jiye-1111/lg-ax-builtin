@@ -1025,6 +1025,9 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 /* 가구 색 고르기: 3D 메뉴가 색 점 한 줄로 바뀐다 */
 .act-bar.colouring { flex-direction: column; align-items: stretch; gap: 8px; padding: 12px 14px 10px; border-radius: 16px; }
 .act-bar.colouring.near::after { display: none; }
+.act-bar .cl-parts { display: flex; gap: 2px; padding: 2px; border-radius: 999px; background: rgba(60, 48, 30, .08); align-self: center; }
+.act-bar .cl-parts button { border: 0; background: transparent; padding: 5px 16px; border-radius: 999px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--ink-2, #6b625a); cursor: pointer; }
+.act-bar .cl-parts button.on { background: #fff; color: var(--ink, #1f1b18); box-shadow: 0 1px 2px rgba(0, 0, 0, .12); }
 .act-bar .cl-row { display: flex; gap: 8px; justify-content: center; }
 .act-bar .cl-dot { width: 30px; height: 30px; padding: 0; border-radius: 50%; border: 1px solid rgba(60, 48, 30, .18); background: var(--c); cursor: pointer; transition: transform .12s; }
 .act-bar .cl-dot:hover { transform: scale(1.12); }

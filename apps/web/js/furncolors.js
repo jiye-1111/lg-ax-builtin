@@ -19,6 +19,12 @@ const PAINT = [
 ];
 
 const METAL = [{ name: "스테인리스", hex: "#C5C8CB" }, { name: "화이트", hex: "#ECE9E3" }, { name: "블랙", hex: "#2E2D2C" }];
+// 상판: 주방 상판으로 많이 나오는 세라믹·인조대리석·원목 색
+const STONE = [
+  { name: "화이트", hex: "#E4E1DA" }, { name: "아이보리", hex: "#E3D9C6" }, { name: "베이지", hex: "#CDBFA8" },
+  { name: "라이트 그레이", hex: "#BEBDB8" }, { name: "콘크리트 그레이", hex: "#8C8B87" }, { name: "차콜", hex: "#3A3B3D" },
+  { name: "블랙", hex: "#232323" }, { name: "오크 원목", hex: "#B9996F" }, { name: "월넛 원목", hex: "#6F4E37" },
+];
 
 // 모델 → [칠할 재질 이름들, 팔레트]
 const PARTS = {
@@ -28,6 +34,12 @@ const PARTS = {
   storage: [["white"], PAINT], basecab: [["white"], PAINT], island: [["white"], PAINT], islandtable: [["island_wood"], WOOD], hood: [["steel"], METAL], islandhood: [["steel"], METAL], sink: [["white"], PAINT], tallcab: [["white"], PAINT],
   wardrobe: [["white"], PAINT], desk: [["white"], PAINT], wall: [["white", "plaster"], PAINT], window: [["white"], PAINT], glassdoor: [["white"], PAINT],
 };
+// 상판 색을 몸통과 따로 고르는 가구 (서버 decor.py TOP_COLOUR_SKUS와 같은 목록)
+const TOPS = { islandtable: [["stone"], STONE], island: [["stone"], STONE], basecab: [["stone"], STONE], sink: [["stone"], STONE] };
+/** 이 모델의 상판 재질 이름들. 상판이 없으면 [] */
+export const topParts = (model) => TOPS[model]?.[0] ?? [];
+/** 이 모델 상판에 고를 수 있는 색 [{name, hex}] */
+export const topColoursFor = (model) => TOPS[model]?.[1] ?? [];
 
 /** 이 모델에서 색을 입힐 재질 이름들. 칠할 데가 없으면 [] */
 export const paintParts = (model) => PARTS[model]?.[0] ?? [];

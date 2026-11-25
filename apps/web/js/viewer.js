@@ -747,13 +747,13 @@ export function makeViewer(el, handlers = {}) {
     if (t) t.scene.traverse((o) => { if (!m && o.isMesh && o.material.name === part) m = o.material; });
     else requestModel(`decor:${look}`);
     m = m ? m.clone() : new THREE.MeshStandardMaterial({ color: part === "stone" ? 0xe8e4dc : 0xf2f2f0, roughness: 0.6 });
-    if (part === "white" && hex) m.color.set(hex);
+    if (hex) m.color.set(hex);
     return m;
   };
   // 장 칸에 끼운 빌트인 위를 덮는 판과, 제품 뒤가 비는 깊은 장(아일랜드)의 뒤 막음판. 제품 바닥 가운데 기준
   const coverParts = (w, h, d, c, id) => {
     const wide = w + c.left_m + c.right_m, tall = c.top_m - h, x = (c.right_m - c.left_m) / 2, out = [];
-    const lid = new THREE.Mesh(new THREE.BoxGeometry(wide, tall, c.depth_m), coverMat(c.look, c.hex));
+    const lid = new THREE.Mesh(new THREE.BoxGeometry(wide, tall, c.depth_m), coverMat(c.look, c.look === "tallcab" ? c.hex : c.top_hex));
     lid.position.set(x, h + tall / 2, c.off_m);
     out.push(lid);
     const back = c.off_m - c.depth_m / 2 + (c.back_m || 0), gap = -d / 2 - back; // 장 몸통 등에서 제품 등까지
@@ -793,7 +793,7 @@ export function makeViewer(el, handlers = {}) {
           if (preview) Object.assign(o.material, { transparent: true, opacity: 0.5, depthWrite: false });
         }
       });
-      if (tmpl.decor && p.hex && !preview) tintFurniture(m, p.sku.slice(p.sku.indexOf(":") + 1), p.hex); // 고른 가구 색
+      if (tmpl.decor && (p.hex || p.top_hex) && !preview) tintFurniture(m, p.sku.slice(p.sku.indexOf(":") + 1), p.hex, p.top_hex); // 고른 가구 색·상판 색
       g.add(m);
       if (p.sku === DOOR_SKU) g.add(...doorExtras(m, p, { selected, preview }));
     } else {
@@ -1291,7 +1291,7 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku), p.base_m || 0,
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.top_hex, selected, templates.has(p.sku), p.base_m || 0,
           p.slot ? [p.slot, templates.has(`decor:${p.slot.look}`)] : 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }

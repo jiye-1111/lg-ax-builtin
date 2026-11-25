@@ -405,6 +405,9 @@ def build(job):
                     if slot.material and slot.material.name.startswith("finish") and pl.get("hex"):
                         slot.material = slot.material.copy()
                         slot.material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = lin(pl["hex"])
+                    elif slot.material and slot.material.name.split(".")[0] == "stone" and pl.get("top_hex"):  # 고른 상판 색
+                        slot.material = slot.material.copy()
+                        slot.material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = lin(pl["top_hex"])
                     dress(slot, pl.get("surface"))
             root.location, root.rotation_euler = (x, -z, base), (0, 0, -yaw)
         else:
