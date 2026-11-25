@@ -36,10 +36,10 @@ const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
 const triangles = (doc) => doc.getRoot().listMeshes().flatMap((m) => m.listPrimitives())
   .reduce((n, p) => n + (p.getIndices()?.getCount() ?? p.getAttribute("POSITION").getCount()) / 3, 0);
 
-const done = {}, skipped = [];
+const done = {}, skipped = [], index = {};
 for (const fam of library.families) {
   for (const v of fam.variants) {
-    const sku = v.sku.split(".")[0]; // 전달본은 DUE6BGE.AKOR, 우리 카탈로그는 DUE6BGE
+    const sku = v.sku.slice(0, v.sku.lastIndexOf(".")); // 전달본은 DUE6BGE.AKOR, 우리 카탈로그는 DUE6BGE
     if (!catalog.has(sku)) { skipped.push({ sku: v.sku, family_id: fam.family_id, label: fam.label, color: v.color_label, source_url: v.source_url }); continue; }
     const doc = await io.read(path.join(src, fam.glb));
     const variant = doc.getRoot().listExtensionsUsed().find((e) => e instanceof KHRMaterialsVariants);
@@ -75,6 +75,7 @@ for (const fam of library.families) {
     const size = [0, 1, 2].map((i) => Math.round((b.max[i] - b.min[i]) * 1000));
     if (size.some((x, i) => Math.abs(x - fam.whd_mm[i]) > 2)) throw new Error(`${sku}: 크기 ${size} / 전달본 ${fam.whd_mm}`);
     await io.write(path.join(OUT, `${sku}.glb`), doc);
+    index[sku] = { file: `${sku}.glb`, layout: "handoff", bbox_mm: { w: size[0], h: size[1], d: size[2] } };
     done[sku] = { package_id: library.package_id, family_id: fam.family_id, handoff_sku: v.sku, color: v.color_label,
       datum: fam.placement_datum.type, y0_mm: Math.round(b.min[1] * 1000), revision: fam.source_revision ?? null };
     console.log(sku, size.join("x"), `${before} -> ${triangles(doc)} tri`, doc.getRoot().listMeshes().flatMap((m) => m.listPrimitives()).length, "prims");
@@ -82,4 +83,7 @@ for (const fam of library.families) {
 }
 const note = "전달받은 모델 묶음에서 가져온 제품. 색은 모델에 들어 있어서 finish 재질이 없다. LG 공식 3D가 아니고 세부 모양과 색은 사진을 보고 맞춘 것이다";
 fs.writeFileSync(path.join(OUT, "handoff.json"), JSON.stringify({ note, models: done, not_in_catalog: skipped }, null, 1) + "\n");
+// 화면은 index.json에 있는 모델만 불러온다. 지금은 전달받은 모델만 쓴다 (직접 만든 모델은 archive/own-models-2026-11-24)
+fs.writeFileSync(path.join(OUT, "index.json"), JSON.stringify({ _note: "제품 3D 모델 목록. 전달받은 모델 묶음(LG-HANDOFF-01)만 쓴다. tools/catalog/import_lg_handoff.mjs가 만든다", models: index }, null, 1) + "\n");
+fs.writeFileSync(path.join(OUT, "companions.json"), JSON.stringify({ models: {} }) + "\n");
 console.log(Object.keys(done).length, "개 바꿈,", skipped.length, "개는 카탈로그에 없어 그대로 둠");

@@ -70,6 +70,8 @@ Fusion으로 직접 만들지 않은 판매 중 제품(`sale_status`가 ACTIVE·
 - 겉면 색: 재질 이름이 `finish`인 면을 웹이 카탈로그 `cmf_options[].hex_approx`로 칠한다. 그래서 색만 다른 모델은 glb 하나를 같이 쓴다 (`index.json`의 `file`)
 - 그 밖의 부품 색(본체, 조작부, 금속)은 `realize.py`의 `MATS` 표에 있는 근사값
 
+> 2026-11-25부터 화면은 전달받은 모델 묶음만 쓴다 (`docs/catalog-sources.md`). 이 방법으로 만든 모델은 `archive/own-models-2026-11-24/`에 있고, 아래 순서는 다시 만들 때를 위해 남겨 둔다.
+
 ### 만드는 순서
 
 ```bash

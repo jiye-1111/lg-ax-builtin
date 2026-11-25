@@ -1,4 +1,7 @@
 """모델 묶음 API + 놓은 제품의 색·재질(같은 모델 다른 SKU) 바꾸기."""
+import json
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -28,11 +31,12 @@ def placed(c):
 def test_families_endpoint_groups_real_products(c):
     fams = c.get("/api/catalog/families").json()
     real = [f for f in fams if not f["demo_only"]]
-    assert len(real) == 267  # 1,150개 제품 → 267개 모델
+    assert len(real) == 283  # 1,175개 제품
     fr = next(f for f in real if f["family_id"] == "G646GBB031")
     assert [v["sku"] for v in fr["variants"]][:3] == ["G646GBB031", "G646MEE021", "G646SVV031"]
     # 색마다 그 색으로 렌더한 제품 사진이 있다 (카드에서 사진을 눌러 고른다)
-    assert all(v["thumb"] == f"img/products/{v['sku']}.webp" for f in real for v in f["variants"])
+    shown = json.loads((Path(__file__).resolve().parents[2] / "data/catalog/lineup.json").read_text(encoding="utf-8"))["models"]
+    assert all(v["thumb"] == (f"img/products/{v['sku']}.webp" if v["sku"] in shown else None) for f in real for v in f["variants"])
 
 
 def test_switch_to_sibling_variant_changes_sku_and_color(c, placed):

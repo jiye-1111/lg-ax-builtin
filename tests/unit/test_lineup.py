@@ -28,9 +28,10 @@ def test_every_category_has_a_korean_label():
 
 
 def test_every_product_has_a_photo_rendered_from_its_model():
-    """제품 사진은 우리 3D 모델을 Blender로 렌더한 것 (LG 사진을 가져다 쓰지 않는다)."""
-    missing = [p["sku"] for p in CAT if not (WEB / "img/products" / f"{p['sku']}.webp").exists()]
-    assert not missing, missing
+    """제품 사진은 3D 모델을 Blender로 렌더한 것 (LG 사진을 가져다 쓰지 않는다). 내놓는 모델에만 둔다."""
+    shown = json.loads((ROOT / "data/catalog/lineup.json").read_text(encoding="utf-8"))["models"]
+    have = {f.stem for f in (WEB / "img/products").glob("*.webp")}
+    assert have == set(shown), sorted(have ^ set(shown))
 
 
 def test_product_drawer_picks_by_photo():
@@ -57,6 +58,6 @@ def test_catalog_records_lgecom_sale_status():
     products = json.loads((ROOT / "data/catalog/products.json").read_text(encoding="utf-8"))["products"]
     by = {p["sku"]: p for p in products}
     assert by["S834MEE111"]["sale_status"] == "ACTIVE" and by["S834MEE111"]["sale_checked_at"] == "2026-11-20"
-    assert all(p["sale_status"] in ("ACTIVE", "SOLD_OUT", "NOT_FOR_SALE", None) for p in products)
+    assert all(p["sale_status"] in ("ACTIVE", "SOLD_OUT", "NOT_FOR_SALE", "DISCONTINUED", None) for p in products)
     assert all((p["sale_status"] is None) == (p["sale_checked_at"] is None) for p in products)
     assert sum(p["sale_status"] == "ACTIVE" for p in products) >= 700

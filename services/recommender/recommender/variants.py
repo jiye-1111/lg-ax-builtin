@@ -62,6 +62,8 @@ def families(products: list[dict], shapes: dict[str, str | None]) -> list[dict]:
                 "install_type": p.get("install_type"),
                 "options": p.get("options") or {},
                 "sale_status": p.get("sale_status"),
+                "listed": p.get("listed", True),
+                "note": p.get("lineup_note"),
                 "price_krw": p.get("price_krw"),
             } for p in ps],
         })

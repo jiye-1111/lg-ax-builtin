@@ -47,7 +47,7 @@ class ComboMixin:
             d = p.product_dims_mm
             if p.category != category or p.price_krw is None or None in (d.w, d.h, d.d):
                 continue
-            if not p.demo_only and p.sale_status not in SELLABLE:
+            if not p.demo_only and (not p.listed or p.sale_status not in SELLABLE):
                 continue
             if d.w / 1000 > longest or d.h / 1000 > tall:
                 continue
