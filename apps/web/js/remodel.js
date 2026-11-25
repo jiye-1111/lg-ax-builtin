@@ -19,7 +19,7 @@ import { snapPose } from "./snap.js";
 import { slotPose, DOOR_BACK_M } from "./slot.js";
 import { stretchTo, handlesFor } from "./stretch.js";
 import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
-import { coloursFor, topColoursFor, lookOf, runOf } from "./furncolors.js";
+import { partsOf, partOfMaterial, partColours, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
@@ -490,6 +490,10 @@ export async function customer(pid) {
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (point && floorAction(point)) return;
       if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }
+      if (hit?.type === "placement" || hit?.type === "object") { // 누른 곳(등받이·헤드·상판)을 기억해 두면 색 버튼이 그 부위부터 연다
+        const same = hit.id === (hit.type === "placement" ? selPl : selObj), key = partHit(hit);
+        if (key || !same) colourPart = key;
+      }
       if (hit?.type === "placement") { selPl = hit.id; selObj = null; setTab("sel"); }
       else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
       else { selPl = null; selObj = null; }
@@ -1230,7 +1234,7 @@ export async function customer(pid) {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" });
       if (selPl === id) selPl = null;
-      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}), ...(x.top_hex ? { top_hex: x.top_hex } : {}) };
+      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}), ...(isDecor(x.sku) && x.part_colors ? { parts: { ...x.part_colors } } : {}), ...(x.top_hex ? { top_hex: x.top_hex } : {}) };
     }
     if (step.kind === "pose") {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
@@ -1240,6 +1244,7 @@ export async function customer(pid) {
     if (step.kind === "add") {
       const r = await post(`/api/projects/${pid}/placements`, step.body);
       if (step.hex || step.top_hex) await api(`/api/projects/${pid}/placements/${r.placement.placement_id}`, { method: "PATCH", body: JSON.stringify({ ...(step.hex ? { hex: step.hex } : {}), ...(step.top_hex ? { top_hex: step.top_hex } : {}) }) }); // 칠해 둔 장 색·상판 색
+      for (const [part, hex] of Object.entries(step.parts || {})) await api(`/api/projects/${pid}/placements/${r.placement.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex, part }) });
       undoIds[step.id] = r.placement.placement_id; selPl = r.placement.placement_id; selObj = null;
       return { kind: "remove", id: r.placement.placement_id };
     }
@@ -1794,7 +1799,6 @@ export async function customer(pid) {
   };
   // 색 고르기: 3D 메뉴가 색 점 줄로 바뀐다. 누르면 바로 입혀진다 (놓은 가구도, 스캔한 가구도)
   let colouring = null;
-  let colourPart = "body"; // 색을 바꾸는 곳: 몸통 | 상판
   const paintOf = (x, o) => (x ? x.sku.slice(x.sku.indexOf(":") + 1) : o ? lookOf(o.category, o.bbox_m.h) : null);
   // 설치한 LG 가전의 색: 그 모델에 실제로 있는 색만 (같은 사양에서 색만 다른 모델로 바꾼다)
   const lgColours = (x) => {
@@ -1806,18 +1810,26 @@ export async function customer(pid) {
     const list = names.map((n) => { const v = pool.find((q) => q.color === n && q.sku === x.sku) || pool.find((q) => q.color === n && same(q)) || pool.find((q) => q.color === n); return { name: n, hex: v.hex, sku: v.sku }; });
     return list.length > 1 ? list : [];
   };
+  // 가구는 부위별로 고른다 (상판·다리·쿠션 등). 3D에서 그 부위를 눌러도 바뀐다
+  let colourPart = null;
+  const savedColours = (x, o) => (x ? partColours(paintOf(x, null), x.hex, x.part_colors, x.top_hex)
+    : partColours(paintOf(null, o), (project.scene_state.object_colors || {})[o.object_id], (project.scene_state.object_part_colors || {})[o.object_id]));
   const colourBar = (x, o) => {
     const lg = lgColours(x);
-    const tops = !lg.length && x ? topColoursFor(paintOf(x, o)) : []; // 상판 색을 따로 고르는 가구 (놓은 가구만)
-    const top = tops.length > 0 && colourPart === "top";
-    const list = lg.length ? lg : top ? tops : coloursFor(paintOf(x, o));
-    const cur = lg.length ? lg.find((c) => c.sku === x.sku)?.hex || null : (x ? (top ? x.top_hex : x.hex) : (project.scene_state.object_colors || {})[o.object_id]) || null;
+    const parts = lg.length ? [] : partsOf(paintOf(x, o));
+    const part = parts.find((q) => q.key === colourPart) || parts[0];
+    const saved = lg.length ? {} : savedColours(x, o);
+    const list = lg.length ? lg : part.colours;
+    const cur = lg.length ? lg.find((c) => c.sku === x.sku)?.hex || null : saved[part.key] || null;
     actBar.classList.add("colouring");
-    actBar.innerHTML = `${tops.length ? `<div class="cl-parts" role="tablist" aria-label="색을 바꿀 곳"><button role="tab" data-part="body" aria-selected="${!top}" class="${top ? "" : "on"}">몸통</button><button role="tab" data-part="top" aria-selected="${top}" class="${top ? "on" : ""}">상판</button></div>` : ""}<div class="cl-row" role="radiogroup" aria-label="${top ? "상판 색" : "가구 색"}">${list.map((c) =>
-      `<button class="cl-dot${cur === c.hex ? " on" : ""}" data-hex="${c.hex}" role="radio" aria-checked="${cur === c.hex}" aria-label="${esc(c.name)}" title="${esc(c.name)}" style="--c:${c.hex}"></button>`).join("")}</div>
-      <div class="cl-foot"><span class="cl-name">${esc(list.find((c) => c.hex === cur)?.name || "원래 색")}</span><span class="spacer"></span>
+    const tabs = parts.length > 1 ? `<div class="cl-parts" role="tablist" aria-label="색을 바꿀 곳">${parts.map((q) =>
+      `<button class="cl-part${q === part ? " on" : ""}" data-part="${q.key}" role="tab" aria-selected="${q === part}">${saved[q.key] ? `<i style="--c:${esc(saved[q.key])}"></i>` : ""}${esc(q.label)}</button>`).join("")}</div>` : "";
+    actBar.innerHTML = `${tabs}<div class="cl-row" role="radiogroup" aria-label="${esc(part ? part.label + " 색" : "색")}">${list.map((c) =>
+      `<button class="cl-dot${cur === c.hex ? " on" : ""}${c.tex === "wood" ? " wood" : ""}${c.metal ? " metal" : ""}" data-hex="${c.hex}" role="radio" aria-checked="${cur === c.hex}" aria-label="${esc(c.name)}" title="${esc(c.name)}" style="--c:${c.hex}"></button>`).join("")}</div>
+      <div class="cl-foot"><span class="cl-name">${esc(list.find((c) => c.hex === cur)?.name || (cur ? "고른 색" : "원래 색"))}</span><span class="spacer"></span>
         ${cur && !lg.length ? `<button class="ghost small" id="clReset">원래 색으로</button>` : ""}<button class="primary small" id="clDone">완료</button></div>`;
     const apply = guard(async (hex) => {
+      const which = part && part !== parts[0] ? { part: part.key } : {}; // 맨 앞 부위는 대표 색 자리에 그대로
       if (lg.length) { // 색이 다른 같은 모델로 바꾼다 (가격이 다르면 합계도 바뀐다)
         const to = lg.find((c) => c.hex === hex);
         if (!to || to.sku === x.sku) return;
@@ -1825,14 +1837,21 @@ export async function customer(pid) {
         await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ sku: to.sku }) });
         const vs = familyOf(x.sku).variants, was = vs.find((v) => v.sku === x.sku)?.price_krw, now = vs.find((v) => v.sku === to.sku)?.price_krw;
         if (typeof now === "number" && now !== was) toast(`${to.name}은 ${now.toLocaleString("ko-KR")}원이에요`); // 색에 따라 값이 다르면 알려 준다
-      } else if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ [top ? "top_hex" : "hex"]: hex || "" }) });
-      else for (const oid of runOf(room.objects, o.object_id)) await put(`/api/projects/${pid}/objects/${oid}/color`, { hex: hex || null }); // 붙어 있는 한 줄은 같이
+      } else if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify(part.field ? { [part.field]: hex || "" } : { hex: hex || "", ...which }) });
+      else for (const oid of runOf(room.objects, o.object_id)) await put(`/api/projects/${pid}/objects/${oid}/color`, { hex: hex || null, ...which }); // 붙어 있는 한 줄은 같이
       await refresh(true);
     });
-    actBar.querySelectorAll("[data-hex]").forEach((b) => (b.onclick = () => apply(b.dataset.hex)));
     actBar.querySelectorAll("[data-part]").forEach((b) => (b.onclick = () => { colourPart = b.dataset.part; renderAct(); }));
+    actBar.querySelectorAll("[data-hex]").forEach((b) => (b.onclick = () => apply(b.dataset.hex)));
     document.getElementById("clReset")?.addEventListener("click", () => apply(null));
-    document.getElementById("clDone").onclick = () => { colouring = null; renderAct(); };
+    document.getElementById("clDone").onclick = () => { colouring = null; colourPart = null; renderAct(); };
+  };
+  // 3D에서 누른 면이 어느 부위인지 (의자 등받이, 침대 헤드 등). 색을 고르는 중이면 그 부위로 바로 넘어간다
+  const partHit = (hit) => {
+    const x = hit.type === "placement" && project.scene_state.placements.find((q) => q.placement_id === hit.id);
+    const o = hit.type === "object" && room.objects.find((q) => q.object_id === hit.id);
+    if ((x && !isDecor(x.sku)) || (!x && !o)) return null;
+    return partOfMaterial(paintOf(x || null, o), hit.mat)?.key || null;
   };
   // 빈틈에 맞추기: 장·가벽을 양옆 벽·가전 사이에 꽉 차게 (가전이 요구하는 옆 여유는 남긴다)
   const fitGap = guard(async (plid) => {
@@ -1874,7 +1893,7 @@ export async function customer(pid) {
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku), hung = x && hangs(x.sku);
     const obj = !x && room.objects.find((q) => q.object_id === selObj);
-    const paintable = x && !deco ? lgColours(x).length > 0 : (deco || obj) && coloursFor(paintOf(deco ? x : null, obj)).length > 0;
+    const paintable = x && !deco ? lgColours(x).length > 0 : (deco || obj) && partsOf(paintOf(deco ? x : null, obj)).length > 0;
     if (paintable && colouring === target.id) { colourBar(x || null, obj); return; }
     if (colouring !== target.id) colouring = null;
     // 고정한 물건은 옮기는 버튼을 빼고 '고정 풀기'만 앞에 둔다
@@ -1887,7 +1906,7 @@ export async function customer(pid) {
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); actBar.querySelector("[data-dim]")?.select(); });
-    document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; colourPart = "body"; renderAct(); });
+    document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; renderAct(); });
     document.getElementById("actFill")?.addEventListener("click", () => fitGap(x.placement_id));
     if (!locked) document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "wall" ? HANG_HINT : it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
     if (!locked && !hung) document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로
@@ -2607,9 +2626,9 @@ export async function customer(pid) {
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
-    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.hidden_openings, project.scene_state.object_colors, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
+    const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.hidden_openings, project.scene_state.object_colors, project.scene_state.object_part_colors, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
     thumbSoon();
-    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects, project.scene_state.object_colors); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
+    if (sceneKey !== lastSceneKey) { lastSceneKey = sceneKey; viewer.setObjects(room.objects, project.scene_state.object_colors, project.scene_state.object_part_colors); viewer.setFinishes(finishSet()); viewer.load(apiUrl(`/api/projects/${pid}/files/scene.glb`)); }
     document.getElementById("hud").textContent = `빈 곳 끌기 회전 · 휠 확대 · 휠 누르고 끌기 이동 · 누르면 집어 들기 · WASD 카메라 · ${project.scene.engine === "blender" ? "Blender 장면" : "스캔 치수 장면"}`;
   };
   setHint();

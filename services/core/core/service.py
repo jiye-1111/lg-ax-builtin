@@ -945,7 +945,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             cab = next(x for x in pls if x["placement_id"] == key)
             if e.get("remove"):
                 pls.remove(cab)
-                ch["removed"].append({k: cab.get(k) for k in ("sku", "center_xz", "yaw_rad", "size_m", "color", "hex", "top_hex")})
+                ch["removed"].append({k: cab.get(k) for k in ("sku", "center_xz", "yaw_rad", "size_m", "color", "hex", "top_hex", "part_colors")})
             elif "id" in e:
                 ch["resized"].append({"id": cab["placement_id"], "center_xz": list(cab["center_xz"]), "size_m": list(cab["size_m"])})
                 cab["center_xz"], cab["size_m"] = list(e["center_xz"]), [e["w"], *cab["size_m"][1:]]
@@ -1383,8 +1383,19 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         best = best or self._spot(room, p, prod) or self._middle(room, p, prod)
         if best is None:
             raise Invalid("복사본을 놓을 빈자리가 없어요")
-        return self.place_at(pid, x["sku"], list(best.pose.center_xz), best.pose.yaw_rad, snap=False, color=x.get("color"),
-                             wall_id=best.pose.wall_id, size_m=size, base_m=height)
+        r = self.place_at(pid, x["sku"], list(best.pose.center_xz), best.pose.yaw_rad, snap=False, color=x.get("color"),
+                          wall_id=best.pose.wall_id, size_m=size, base_m=height)
+        if is_decor(x["sku"]) and (x.get("hex") or x.get("part_colors") or x.get("top_hex")):  # 칠한 가구는 색도 그대로
+            p = self.get_project(pid)
+            twin = self._find_placement(p, r["placement"]["placement_id"])
+            twin["hex"] = x.get("hex")
+            if x.get("top_hex"):
+                twin["top_hex"] = x["top_hex"]
+            if x.get("part_colors"):
+                twin["part_colors"] = dict(x["part_colors"])
+            self._save_project(p)
+            r["placement"] = twin
+        return r
 
     def fit_gap(self, pid: str, placement_id: str) -> dict:
         """빈틈에 맞추기: 장·가벽의 폭을 양옆 벽·가전 사이에 꽉 차게 늘린다. 옆 가전이 요구하는 옆 여유는 남긴다."""
@@ -1494,7 +1505,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
                        snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None,
-                       hex: str | None = None, base_m: float | None = None, slot: bool = True, top_hex: str | None = None) -> dict:
+                       hex: str | None = None, base_m: float | None = None, slot: bool = True, top_hex: str | None = None,
+                       part: str | None = None) -> dict:
+        """part: 색을 바꿀 부위(상판·다리·쿠션 등). 없으면 가구의 대표 색(hex)."""
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
         changes = None
@@ -1511,7 +1524,14 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             # 색을 마음대로 고르는 건 꾸미기 가구만 (LG 제품 색은 카탈로그에 있는 색만)
             if not is_decor(x["sku"]):
                 raise Invalid("LG 제품은 제품에 있는 색만 고를 수 있어요")
-            x["hex"] = hex.upper() or None  # 빈 글자 = 원래 색
+            if part:  # 부위별 색은 part_colors에, 대표 색은 hex에 (예전에 칠한 가구와 같은 자리)
+                parts = x.setdefault("part_colors", {})
+                if hex:
+                    parts[part] = hex.upper()
+                else:
+                    parts.pop(part, None)
+            else:
+                x["hex"] = hex.upper() or None  # 빈 글자 = 원래 색
         if size_m is not None:
             # 크기 조절은 꾸미기 가구만 (LG 제품 치수는 LGE.COM 값 그대로)
             if not is_decor(x["sku"]):
@@ -1618,11 +1638,23 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         self._save_project(p)
         return self._rebuild(pid)
 
-    def set_object_color(self, pid: str, object_id: str, hex: str | None) -> dict:
-        """스캔 가구 색 바꾸기. 스캔 파일은 그대로 두고 scene_state.object_colors에만 적는다. None이면 원래 색."""
+    def set_object_color(self, pid: str, object_id: str, hex: str | None, part: str | None = None) -> dict:
+        """스캔 가구 색 바꾸기. 스캔 파일은 그대로 두고 scene_state.object_colors에만 적는다. None이면 원래 색.
+        part(상판·다리·쿠션 등)를 주면 그 부위 색만 scene_state.object_part_colors에 적는다."""
         room, p = self.get_room(pid), self.get_project(pid)
         if not any(o.object_id == object_id for o in room.objects):
             raise NotFound(f"가구 없음: {object_id}")
+        if part:
+            every = p["scene_state"].setdefault("object_part_colors", {})
+            mine = every.setdefault(object_id, {})
+            if hex is None:
+                mine.pop(part, None)
+            else:
+                mine[part] = hex.upper()
+            if not mine:
+                every.pop(object_id, None)
+            self._save_project(p)
+            return self.get_project(pid)
         colors = p["scene_state"].setdefault("object_colors", {})
         if hex is None:
             colors.pop(object_id, None)

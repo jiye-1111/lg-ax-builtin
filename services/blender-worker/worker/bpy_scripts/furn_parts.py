@@ -25,8 +25,8 @@ LOOK = {  # 이름: (색, 거칠기, 금속성)
     "fabric": ("#8E918C", 0.92, 0.0),
     "fabric_dark": ("#5E625F", 0.92, 0.0),
     "cushion": ("#B2ADA4", 0.9, 0.0),
-    "linen": ("#F2EFE9", 0.85, 0.0),
-    "duvet": ("#D9D3C8", 0.88, 0.0),
+    "linen": ("#DCD7CD", 0.88, 0.0),
+    "duvet": ("#CFC8BA", 0.9, 0.0),
     "white": ("#E8E5DF", 0.45, 0.0),
     "glass": ("#D6E6EE", 0.04, 0.0),  # 웹에서 비치게 바꾼다 (재질 이름 glass)
     "metal": ("#2F3134", 0.35, 0.8),
@@ -46,31 +46,87 @@ LOOK = {  # 이름: (색, 거칠기, 금속성)
     "door_leaf": ("#C4AD8E", 0.55, 0.0),
     # 천·쿠션 (밝은 웜톤 바탕에 포인트 색 조금)
     "seat": ("#CFC6B8", 0.93, 0.0),
-    "sofa": ("#BDB5A8", 0.95, 0.0),
+    "sofa": ("#B5AA97", 0.95, 0.0),
     "sofa_seat": ("#C8C1B5", 0.95, 0.0),
     "sage": ("#93A088", 0.95, 0.0),
     "clay": ("#BF8E76", 0.95, 0.0),
-    "blanket": ("#A9B0A2", 0.96, 0.0),
-    "headboard": ("#C9C0B2", 0.94, 0.0),
+    "blanket": ("#8E9A8B", 0.96, 0.0),
+    "headboard": ("#A89D8B", 0.94, 0.0),
     "book_a": ("#7B8A8E", 0.8, 0.0),
     "book_b": ("#C9B79C", 0.8, 0.0),
     "book_c": ("#8C5E4A", 0.8, 0.0),
     "screen": ("#15171A", 0.25, 0.0),
     "leaf_dark": ("#3F5A34", 0.55, 0.0),
+    # 2026-11 다시 만든 가구: 무광 문짝, 밝은 참나무, 부클·샤닐 천, 검은 무광 철물
+    "matte": ("#BDB5A7", 0.62, 0.0),        # 무광 문짝 (PET·도장)
+    "greige": ("#CFC7BA", 0.62, 0.0),
+    "oak_light": ("#BFA47E", 0.6, 0.0),
+    "teak": ("#8F6A45", 0.55, 0.0),
+    "boucle": ("#BDB5A8", 0.97, 0.0),
+    "caramel": ("#B07F52", 0.95, 0.0),
+    "black": ("#2A2A2B", 0.5, 0.3),         # 무광 검정 철물·다리
+    "shadow": ("#2B2B2C", 0.8, 0.0),        # 손끼움 홈·문 사이 틈
+    "quartz": ("#D8D4CC", 0.34, 0.0),
+    "ceramic": ("#D9D2C6", 0.55, 0.0),
+    "steel_white": ("#CFCCC5", 0.5, 0.2),   # 흰 분체도장 철제 다리
 }
 
 
+# 무늬 종류: 웹이 재질 extras.tex를 보고 나뭇결·천 짜임 무늬를 입힌다. 나머지는 민무늬
+WOODS = {"oak", "walnut", "ash", "island_wood", "door_leaf", "oak_light", "teak"}
+FABRICS = {"fabric", "fabric_dark", "cushion", "linen", "duvet", "wool", "seat", "sofa", "sofa_seat", "sage", "clay", "blanket",
+           "headboard", "shade", "boucle", "caramel"}
+
+
+def kind_of(look: str) -> str:
+    return "wood" if look in WOODS else "fabric" if look in FABRICS else ""
+
+
 def mat(name: str) -> bpy.types.Material:
-    if name not in MATS:
-        hex_, rough, metal = LOOK[name]
-        m = bpy.data.materials.new(name)
+    """재질. "부위:모양"으로 적으면 재질 이름은 부위(웹에서 색을 바꾸는 단위), 색·거칠기는 모양에서 가져온다.
+    예: "top:oak" → 이름 top, 참나무 색. 그냥 "oak"면 이름도 oak."""
+    role, _, look = name.rpartition(":")
+    role = role or look
+    if role not in MATS:
+        hex_, rough, metal = LOOK[look]
+        m = bpy.data.materials.new(role)
         m.use_nodes = True
         b = m.node_tree.nodes["Principled BSDF"]
         b.inputs["Base Color"].default_value = lin(hex_)
         b.inputs["Roughness"].default_value = rough
         b.inputs["Metallic"].default_value = metal
-        MATS[name] = m
-    return MATS[name]
+        if kind_of(look):
+            m["tex"] = kind_of(look)
+        MATS[role] = m
+    return MATS[role]
+
+
+WOOD_U, WOOD_V, CLOTH = 1.2, 0.4, 0.05  # 무늬 한 장이 덮는 길이 (m): 나뭇결 방향, 결 가로, 천
+
+
+def bake_uvs() -> None:
+    """모든 부품에 UV를 넣는다. 실제 길이(m) 기준으로 펴서 무늬 크기가 가구마다 같다.
+    나뭇결은 부품의 가장 긴 쪽을 따라 흐른다 (문짝은 세로, 상판은 가로)."""
+    bpy.context.view_layer.update()
+    for n, ob in enumerate(o for o in bpy.context.scene.objects if o.type == "MESH"):
+        me, mw = ob.data, ob.matrix_world
+        pts = [mw @ v.co for v in me.vertices]
+        size = [max(p[i] for p in pts) - min(p[i] for p in pts) for i in range(3)]
+        g = max(range(3), key=lambda i: size[i])
+        cloth = bool(me.materials) and me.materials[0].get("tex") == "fabric"
+        uv = me.uv_layers.new(name="UVMap")
+        rot = mw.to_3x3()
+        shift = (n * 0.37) % 1.0
+        for poly in me.polygons:
+            nrm = rot @ poly.normal
+            dom = max(range(3), key=lambda i: abs(nrm[i]))
+            if dom == g:
+                a, b = [i for i in range(3) if i != g]
+            else:
+                a, b = g, next(i for i in range(3) if i not in (g, dom))
+            for li in poly.loop_indices:
+                p = pts[me.loops[li].vertex_index]
+                uv.data[li].uv = (p[a] / CLOTH, p[b] / CLOTH) if cloth else (p[a] / WOOD_U + shift, p[b] / WOOD_V + shift)
 
 
 def part(name: str, m: str, x0: float, x1: float, z0: float, z1: float, y0: float, y1: float,
@@ -241,4 +297,31 @@ def leaf(name: str, m: str, root: tuple[float, float, float], tip: tuple[float, 
         v.co = Vector((v.co.x * width * s, v.co.y * width * 0.12, v.co.z * length))
     rot = (pb - pa).to_track_quat("Z", "Y").to_matrix().to_4x4()
     bmesh.ops.transform(bm, matrix=Matrix.Translation((pa + pb) / 2) @ rot, verts=list(bm.verts))
+    _emit(name, m, bm, rig)
+
+
+def slab(name: str, m: str, x0: float, x1: float, z0: float, z1: float, y0: float, y1: float, rig: str,
+         corner: float = 0.06, edge: float = 0.005, seg: int = 8) -> None:
+    """위에서 봤을 때 네 귀를 크게 굴린 판 (식탁·탁자 상판, 러그). corner = 귀 반지름, edge = 위아래 모서리 굴림."""
+    hx, hz = (x1 - x0) / 2, (z1 - z0) / 2
+    r = min(corner, hx * 0.98, hz * 0.98)
+    ring = []
+    for qx, qz, a0 in ((1, 1, 0), (-1, 1, 90), (-1, -1, 180), (1, -1, 270)):
+        for k in range(seg + 1):
+            a = math.radians(a0 + 90 * k / seg)
+            ring.append((qx * (hx - r) + r * math.cos(a), qz * (hz - r) + r * math.sin(a)))
+    bm = bmesh.new()
+    cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
+    lo = [bm.verts.new(_g2b(cx + x, y0, cz + z)) for x, z in ring]
+    hi = [bm.verts.new(_g2b(cx + x, y1, cz + z)) for x, z in ring]
+    n = len(ring)
+    for i in range(n):
+        bm.faces.new((lo[i], lo[(i + 1) % n], hi[(i + 1) % n], hi[i]))
+    bm.faces.new(hi)
+    bm.faces.new(lo[::-1])
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    e = min(edge, (y1 - y0) / 2.5)
+    if e > 0:
+        rim = [ed for ed in bm.edges if len(ed.link_faces) == 2 and ed.calc_face_angle(0) > math.radians(60)]
+        bmesh.ops.bevel(bm, geom=rim, offset=e, segments=3, profile=0.5, affect="EDGES")
     _emit(name, m, bm, rig)

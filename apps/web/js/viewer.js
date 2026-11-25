@@ -186,6 +186,7 @@ export function makeViewer(el, handlers = {}) {
   let grid = null, held = null; // 집어 든 물건 (건축 모드)
   let objectCats = {};           // 스캔 가구 id → 종류 (room.json)
   let objectColors = {};         // 스캔 가구 id → 고른 색
+  let objectPartColors = {};     // 스캔 가구 id → {부위: 색}
   let model = null, framed = false, keepCam = false, alive = true, walls = [], center = new THREE.Vector3();
   const tmp = new THREE.Vector3(), toCam = new THREE.Vector3();
 
@@ -735,7 +736,7 @@ export function makeViewer(el, handlers = {}) {
           if (preview) Object.assign(o.material, { transparent: true, opacity: 0.5, depthWrite: false });
         }
       });
-      if (tmpl.decor && (p.hex || p.top_hex) && !preview) tintFurniture(m, p.sku.slice(p.sku.indexOf(":") + 1), p.hex, p.top_hex); // 고른 가구 색·상판 색
+      if (tmpl.decor && !preview) tintFurniture(m, p.sku.slice(p.sku.indexOf(":") + 1), p.hex, p.part_colors, p.top_hex); // 고른 가구 색 (부위별)
       g.add(m);
       if (p.sku === DOOR_SKU) g.add(...doorExtras(m, p, { selected, preview }));
     } else {
@@ -859,8 +860,9 @@ export function makeViewer(el, handlers = {}) {
     while (o && !o.userData?.placementId && o.userData?.kind !== "object" && !o.userData?.router) o = o.parent;
     if (!o) return null;
     if (o.userData.router) return { type: "router", id: "router" };
-    if (o.userData.placementId) return { type: "placement", id: o.userData.placementId };
-    return { type: "object", id: o.name };
+    const mat = hit.object.material?.name || null; // 누른 면의 재질: 색 고르기에서 그 부위를 바로 고른다
+    if (o.userData.placementId) return { type: "placement", id: o.userData.placementId, mat };
+    return { type: "object", id: o.name, mat };
   };
   // 치우기에서 마우스가 올라간 스캔 가구·창. top = ✕를 띄울 자리(위쪽 가운데)
   const hoverHit = (e) => {
@@ -1212,7 +1214,7 @@ export function makeViewer(el, handlers = {}) {
         openWalls(last.list, true); // 창 자리 벽을 뚫고 그림자용 벽을 만든다 (dressRoom이 창 두께를 바꾸기 전에)
         walls.push(...dressRoom(model, finishSet));
         const mine = model;
-        furnish(model, () => alive && model === mine, (id) => objectCats[id], (id) => objectColors[id]);
+        furnish(model, () => alive && model === mine, (id) => objectCats[id], (id) => objectColors[id], (id) => objectPartColors[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
         if (!framed) { frame(keepCam); framed = true; }
@@ -1232,7 +1234,7 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.top_hex, selected, templates.has(p.sku), p.base_m || 0,
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.part_colors, p.top_hex, selected, templates.has(p.sku), p.base_m || 0,
           p.slot ? [p.slot, templates.has(`decor:${p.slot.look}`)] : 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }
@@ -1565,7 +1567,7 @@ export function makeViewer(el, handlers = {}) {
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
     /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
     setFinishes(f) { finishSet = f || {}; },
-    setObjects(objects, colors) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); objectColors = colors || {}; },
+    setObjects(objects, colors, partColors) { objectCats = Object.fromEntries((objects || []).map((o) => [o.object_id, o.category])); objectColors = colors || {}; objectPartColors = partColors || {}; },
     /** 화면에 그린 것 세기 (E2E 확인용) */
     stats() {
       let furniture = 0;

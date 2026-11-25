@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { finishTexture, tileMeters, BUMP, ROUGH } from "./finishes.js";
-import { paintParts, topParts, lookOf } from "./furncolors.js";
+import { partsOf, partColours, lookOf } from "./furncolors.js";
 
 const FURN_DIR = "models/furniture/";
 const PLANK_M = 2.4;          // 바닥 무늬 한 장이 덮는 길이 (m)
@@ -21,7 +21,10 @@ export function furnitureTemplate(cat) {
     furnTemplates.set(cat, furnIndex.then((idx) => {
       const e = idx.models?.[cat];
       if (!e) return null;
-      return loader.loadAsync(FURN_DIR + e.file).then((g) => ({ scene: g.scene, ref: e.ref_m }), () => null);
+      return loader.loadAsync(FURN_DIR + e.file).then((g) => {
+        g.scene.traverse((o) => { if (o.isMesh) dressMaterial(o.material, o.material.userData.tex); });
+        return { scene: g.scene, ref: e.ref_m };
+      }, () => null);
     }));
   }
   return furnTemplates.get(cat);
@@ -49,21 +52,87 @@ export function fitFurniture(tmpl, ref, size) {
   return g;
 }
 
-/** 스캔 가구 상자를 모델로 바꾼다. 상자는 안 보이게 두고 고르기(raycast)에만 쓴다. */
-/** 고른 색을 가구의 칠할 부분(천·문짝·나무)에 입힌다. 재질은 가구마다 따로 쓴다 */
-export function tintFurniture(group, look, hex, topHex = null) {
-  const jobs = [[paintParts(look), hex], [topParts(look), topHex]].filter(([parts, h]) => h && parts.length); // 몸통, 상판
-  if (!jobs.length) return;
+// ---------- 가구 무늬: 나뭇결과 천 짜임 (작은 그림 두 장을 모든 가구가 같이 쓴다) ----------
+let woodTex = null, clothTex = null;
+function canvasTexture(size, draw, colour) {
+  const cv = document.createElement("canvas");
+  cv.width = cv.height = size;
+  draw(cv.getContext("2d"), size);
+  const t = new THREE.CanvasTexture(cv);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  if (colour) t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+/** 밝은 회색 나뭇결: 재질 색에 곱해져서 어떤 나무 색에도 쓴다. 결은 가로(U)로 흐른다 */
+function woodTexture() {
+  return (woodTex ??= canvasTexture(512, (g, n) => {
+    g.fillStyle = "#f4f4f4";
+    g.fillRect(0, 0, n, n);
+    let seed = 11;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    for (let i = 0; i < 150; i++) { // 가는 결
+      const y = rnd() * n, a = 0.03 + rnd() * 0.09, wob = 1 + rnd() * 5, ph = rnd() * 6.28;
+      g.strokeStyle = `rgba(70,50,30,${a})`;
+      g.lineWidth = 0.6 + rnd() * 1.6;
+      g.beginPath();
+      for (let x = 0; x <= n; x += 16) g.lineTo(x, y + Math.sin((x / n) * 6.283 + ph) * wob);
+      g.stroke();
+    }
+    for (let i = 0; i < 9; i++) { // 넓은 띠: 판재마다 조금씩 다른 밝기
+      const y = rnd() * n, h = 18 + rnd() * 50;
+      g.fillStyle = rnd() > 0.5 ? "rgba(255,255,255,0.10)" : "rgba(60,40,20,0.05)";
+      g.fillRect(0, y, n, h);
+      if (y + h > n) g.fillRect(0, y - n, n, h); // 위아래가 이어지게
+    }
+  }, true));
+}
+/** 천 짜임: 씨줄·날줄이 엇갈린 옅은 무늬. 재질 색에 곱해진다 (울퉁불퉁 효과보다 가볍고 멀리서도 자글거리지 않는다) */
+function clothTexture() {
+  return (clothTex ??= canvasTexture(128, (g, n) => {
+    g.fillStyle = "#f6f6f6";
+    g.fillRect(0, 0, n, n);
+    const c = 8;
+    for (let y = 0; y < n; y += c) for (let x = 0; x < n; x += c) {
+      const over = ((x + y) / c) % 2 === 0;
+      const gr = over ? g.createLinearGradient(x, 0, x + c, 0) : g.createLinearGradient(0, y, 0, y + c);
+      gr.addColorStop(0, "rgba(40,36,30,0.16)"); gr.addColorStop(0.5, over ? "rgba(255,255,255,0.10)" : "rgba(40,36,30,0.03)"); gr.addColorStop(1, "rgba(40,36,30,0.16)");
+      g.fillStyle = gr;
+      g.fillRect(x, y, c, c);
+    }
+  }, true));
+}
+/** 재질에 무늬를 입힌다. tex: "wood" 나뭇결 · "fabric" 천 짜임 · 그 밖은 민무늬. metal: 금속 느낌 */
+export function dressMaterial(m, tex, metal = null) {
+  m.userData.base ??= { roughness: m.roughness, metalness: m.metalness };
+  const map = tex === "wood" ? woodTexture() : tex === "fabric" ? clothTexture() : null;
+  if (m.map !== map) { m.map = map; m.needsUpdate = true; }
+  if (metal !== null) {
+    m.metalness = metal ? 0.9 : Math.min(m.userData.base.metalness, 0.3);
+    m.roughness = metal ? 0.3 : m.userData.base.metalness > 0.5 ? 0.5 : m.userData.base.roughness;
+  }
+}
+
+/** 고른 색을 가구의 부위별로 입힌다 (천·문짝·상판·다리 등). 재질은 가구마다 따로 쓴다.
+ *  hex = 대표 부위 색, partColors = {부위: hex}. 나무 색을 고르면 나뭇결도 같이 입는다 */
+export function tintFurniture(group, look, hex, partColors = null, topHex = null) {
+  const chosen = partColours(look, hex, partColors, topHex);
+  const todo = partsOf(look).filter((q) => chosen[q.key]);
+  if (!todo.length) return;
   group.traverse((o) => {
     if (!o.isMesh) return;
-    const job = jobs.find(([parts]) => parts.includes(o.material.name));
-    if (!job) return;
+    const q = todo.find((t) => t.mats.includes(o.material.name));
+    if (!q) return;
     if (!o.userData.ownMaterial) { o.material = o.material.clone(); o.userData.ownMaterial = true; }
-    o.material.color.set(job[1]);
+    const c = q.colours.find((x) => x.hex === chosen[q.key]);
+    o.material.color.set(chosen[q.key]);
+    // 팔레트에 없는 예전 색은 무늬를 그대로 둔다
+    if (c) dressMaterial(o.material, c.tex || (o.material.userData.tex === "fabric" ? "fabric" : null), !!c.metal);
   });
 }
 
-export function furnish(model, isCurrent, categoryOf = () => null, colorOf = () => null) {
+/** 스캔 가구 상자를 모델로 바꾼다. 상자는 안 보이게 두고 고르기(raycast)에만 쓴다. */
+export function furnish(model, isCurrent, categoryOf = () => null, colorOf = () => null, partColorsOf = () => null) {
   const boxes = [];
   model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object") boxes.push(o); });
   for (const box of boxes) {
@@ -77,7 +146,7 @@ export function furnish(model, isCurrent, categoryOf = () => null, colorOf = () 
       const fitted = fitFurniture(t.scene, t.ref, box.scale);
       fitted.position.set(box.position.x, box.position.y - box.scale.y / 2, box.position.z);
       fitted.quaternion.copy(box.quaternion);
-      tintFurniture(fitted, look, colorOf(box.name));
+      tintFurniture(fitted, look, colorOf(box.name), partColorsOf(box.name));
       fitted.traverse((o) => { if (o.isMesh) { o.userData.kind = "object"; o.name = box.name; } });
       fitted.userData.objectId = box.name; // 집어 들 때 상자와 같이 움직인다
       box.material.visible = false;   // 그리지는 않고 고르기에만
