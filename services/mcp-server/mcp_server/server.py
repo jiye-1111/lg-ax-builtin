@@ -144,7 +144,7 @@ def search_catalog(
     query: Optional[str] = None,
 ) -> list[dict]:
     """LG 제품 카탈로그 검색. 치수(mm)·이격·색상 옵션·출처 URL 포함. null은 공개 정보 없음."""
-    return [p.model_dump() for p in svc().catalog.search(category, zone, query)]
+    return [p.model_dump() for p in svc().catalog.search(category, zone, query) if p.listed]
 
 
 @mcp.tool()

@@ -101,7 +101,7 @@ def space_fit(p: Product, space: dict, cfg: FitConfig) -> Optional[dict]:
 
 
 def _on_sale(p: Product) -> bool:
-    return p.demo_only or p.sale_status in ("ACTIVE", "SOLD_OUT")
+    return p.on_sale
 
 
 def _in_scope(p: Product, c: Conditions) -> bool:

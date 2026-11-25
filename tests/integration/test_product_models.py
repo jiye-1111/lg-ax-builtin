@@ -1,7 +1,7 @@
 """제품 3D 모델(apps/web/models/products/*.glb)이 카탈로그 치수와 맞는지 확인한다.
 
-모델은 services/blender-worker/worker/bpy_scripts/build_products.py로 Blender에서 만든다.
-치수는 카탈로그(LGE.COM) 값이고, 문 나눔·손잡이 같은 모양은 화면용 표현이다.
+지금 화면은 전달받은 모델 묶음(LG-HANDOFF-01)만 쓴다. tools/catalog/import_lg_handoff.mjs가 모델명별 파일로 풀어 둔다.
+치수는 카탈로그(LGE.COM) 값이고, 세부 모양과 색은 사진을 보고 맞춘 화면용 표현이다.
 """
 import json
 import struct
@@ -40,16 +40,22 @@ def bbox_mm(gltf: dict) -> dict:
             "y0": lo[1] * 1000, "cx": (hi[0] + lo[0]) * 500, "cz": (hi[2] + lo[2]) * 500}
 
 
+LINEUP = json.loads((ROOT / "data/catalog/lineup.json").read_text(encoding="utf-8"))["models"]
+SHOWN = [p for p in CATALOG if p["sku"] in LINEUP]  # 화면에 내놓는 모델. 직접 만든 모델은 archive/own-models-2026-11-24에 따로 둔다
+
+
 @pytest.fixture(scope="module")
 def index():
     return json.loads((MODELS / "index.json").read_text(encoding="utf-8"))
 
 
-def test_index_lists_every_catalog_product(index):
-    assert {p["sku"] for p in CATALOG} <= set(index["models"])
+def test_index_lists_exactly_the_lineup(index):
+    assert set(index["models"]) == set(LINEUP) == {p["sku"] for p in SHOWN}
+    assert {f.stem for f in MODELS.glob("*.glb")} == set(LINEUP)
+    assert all(e["layout"] == "handoff" for e in index["models"].values())
 
 
-@pytest.mark.parametrize("prod", CATALOG, ids=[p["sku"] for p in CATALOG])
+@pytest.mark.parametrize("prod", SHOWN, ids=[p["sku"] for p in SHOWN])
 def test_model_matches_catalog_dims(prod, index):
     entry = index["models"][prod["sku"]]
     gltf = read_glb(MODELS / entry["file"])
@@ -57,8 +63,8 @@ def test_model_matches_catalog_dims(prod, index):
     dims = prod["product_dims_mm"]
     for k in ("w", "h", "d"):
         assert abs(b[k] - dims[k]) <= TOL_MM, f"{prod['sku']} {k}: 모델 {b[k]:.1f} / 카탈로그 {dims[k]}"
-    # 바닥 가운데가 원점: 화면에서 center_xz에 그대로 놓는다
-    y0 = handoff().get(prod["sku"], {}).get("y0_mm", 0)  # 전달본 인덕션은 상판 아래로 들어가는 만큼 내려가 있다
+    # 가운데가 원점: 화면에서 center_xz에 그대로 놓는다. 높이 기준은 전달본 그대로 (handoff.json y0_mm)
+    y0 = handoff()[prod["sku"]]["y0_mm"]
     assert abs(b["y0"] - y0) <= 1 and abs(b["cx"]) <= TOL_MM and abs(b["cz"]) <= TOL_MM
 
 
@@ -71,7 +77,7 @@ def handoff() -> dict:
 def test_handoff_models_keep_their_datum_and_colour():
     """전달본 모델: 색 변형 확장은 풀어서 저장하고, 인덕션은 상판에 닿는 면이 0이라 55 mm가 아래로 들어간다."""
     models = handoff()
-    assert len(models) >= 31
+    assert set(models) == set(LINEUP) and len(models) == 56
     by_sku = {p["sku"]: p for p in CATALOG}
     for sku, info in models.items():
         gltf = read_glb(MODELS / f"{sku}.glb")
@@ -80,53 +86,20 @@ def test_handoff_models_keep_their_datum_and_colour():
         assert not names & {"finish", "glass"}, f"{sku}: 화면이 덧칠하는 재질 이름과 겹친다"
         b = bbox_mm(gltf)
         assert abs(b["y0"] - info["y0_mm"]) <= 1
-        assert (info["y0_mm"] == -55) == ("counter" in info["datum"]), sku
-        assert by_sku[sku]["category"] == "cooktop" if info["y0_mm"] else True
+        if "counter" in info["datum"]:
+            assert info["y0_mm"] == -55 and by_sku[sku]["category"] == "cooktop", sku
+        elif "ceiling" in info["datum"]:
+            assert info["y0_mm"] < 0, sku  # 천장에 닿는 면이 0이고 판넬이 그 아래로 내려온다
+        else:
+            assert info["y0_mm"] == 0, sku
         assert (ROOT / "apps/web/img/products" / f"{sku}.webp").exists()
 
 
-def companions() -> dict:
-    p = MODELS / "companions.json"
-    return json.loads(p.read_text(encoding="utf-8"))["models"] if p.exists() else {}
-
-
-@pytest.mark.parametrize("prod", CATALOG, ids=[p["sku"] for p in CATALOG])
-def test_model_has_recolorable_finish(prod, index):
-    """색 동그라미로 바꿀 finish 재질이 본체나 같이 놓이는 부품(companions.json) 중 하나에 있어야 한다."""
-    if prod["sku"] in handoff():
-        pytest.skip("전달본 모델은 색이 모델에 들어 있다")
-    files = [index["models"][prod["sku"]]["file"]]
-    if prod["sku"] in companions():
-        files.append(companions()[prod["sku"]]["file"])
-    names = {m["name"] for f in files for m in read_glb(MODELS / f)["materials"]}
-    assert "finish" in names
-
-
-def test_water_purifier_faucet_is_placed_with_body():
-    """정수기 색 옵션은 파우셋 색이다: 본체는 회색 고정, 파우셋(Ø48·높이 264·돌출 188 mm)이 finish를 가진다."""
-    comps = companions()
-    for sku in ("WU523AWB", "WU523ACB"):
-        c = comps[sku]
-        faucet = read_glb(MODELS / c["file"])
-        assert "finish" in {m["name"] for m in faucet["materials"]}
-        b = bbox_mm(faucet)
-        assert abs(b["h"] - 264) <= TOL_MM and abs(b["y0"]) <= 1
-        assert len(c["offset_m"]) == 3 and c["offset_m"][1] > 0.5  # 조리대 위
-        body = read_glb(MODELS / f"{sku}.glb")
-        assert "finish" not in {m["name"] for m in body["materials"]}
-
-
-def test_every_model_says_how_it_was_made():
-    """index.json의 layout: 제품군 틀 이름, fusion(직접 모델링한 것을 같이 씀), drawing(예전 도면 상자 모델).
-
-    판매 중인 제품은 도면 상자 모델(drawing)로 남아 있으면 안 된다. 직접 모델링했거나 전달받은 모델은 예외.
-    """
-    from worker import archetypes
-
-    index = json.loads((MODELS / "index.json").read_text(encoding="utf-8"))["models"]
-    hand_made = {p.name for p in (ROOT / "data/fusion").iterdir()} | set(handoff())
-    for prod in CATALOG:
-        layout = index[prod["sku"]]["layout"]
-        assert layout in ("drawing", "fusion") or hasattr(archetypes, layout), prod["sku"]
-        if prod.get("sale_status") in ("ACTIVE", "SOLD_OUT") and prod["sku"] not in hand_made:
-            assert layout != "drawing", f"{prod['sku']}: 판매 중인데 상자 모델이다"
+def test_own_models_are_kept_aside_not_deleted():
+    """직접 만든 모델과 사진은 지우지 않고 따로 둔다. 되돌리는 방법은 그 폴더의 README."""
+    kept = ROOT / "archive/own-models-2026-11-24"
+    assert (kept / "README.md").exists()
+    assert len(list((kept / "models/products").glob("*.glb"))) == 294
+    assert len(list((kept / "img/products").glob("*.webp"))) == 1119
+    old = json.loads((kept / "models/products/index.json").read_text(encoding="utf-8"))["models"]
+    assert len(old) == 1150

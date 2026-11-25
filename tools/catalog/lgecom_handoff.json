@@ -1,0 +1,342 @@
+{
+ "_note": "전달받은 묶음(LG-HANDOFF-01) 56개 모델의 LGE.COM 제품 페이지 값. 이름·모델명은 페이지 제품 정보(JSON-LD), 판매 상태는 modelStatus, 가격은 obsSellingPrice. 판매하지 않는 모델의 가격은 페이지에 남아 있는 값이고 0이면 null",
+ "checked_at": "2026-11-25",
+ "models": {
+  "DUE6BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bge"
+  },
+  "DUE6GLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 2240000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gle"
+  },
+  "BEI3ANHLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1740000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anhle"
+  },
+  "BEI3ANBLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1740000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anble"
+  },
+  "BEI3ANPLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 1740000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3anple"
+  },
+  "MLJ39EW.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "ACTIVE",
+   "price_krw": 399000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39ew"
+  },
+  "MLJ39CW.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 광파오븐",
+   "model_status": "DISCONTINUED",
+   "price_krw": 449000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mlj39cw"
+  },
+  "BEI3GQK.AKOR1": {
+   "name": "LG 디오스 인덕션 빌트인",
+   "model_status": "READY_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3gqk"
+  },
+  "MW23BDI.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 174000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23bdi"
+  },
+  "MW23GDI.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 172000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23gdi"
+  },
+  "MW23FDI.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 169000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23fdi"
+  },
+  "MW23WDI.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 166000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23wdi"
+  },
+  "B053S14.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 250000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b053s14"
+  },
+  "B053W14.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 220000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b053w14"
+  },
+  "B182W13.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 440000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b182w13"
+  },
+  "B182DS13.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 500000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b182ds13"
+  },
+  "M-X0140ABSB.ASM": {
+   "name": "LG 퓨리케어 시스템 공기청정기",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/system-air-purifier/m-x0140absb"
+  },
+  "W0082GLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 450000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gle"
+  },
+  "W0082GBE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 510000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gbe"
+  },
+  "W0082GPE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 510000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gpe"
+  },
+  "W0082GCB.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 480000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gcb"
+  },
+  "W0082GTB.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 와인셀러",
+   "model_status": "ACTIVE",
+   "price_krw": 480000,
+   "source_url": "https://www.lge.co.kr/product/winecellar/w0082gtb"
+  },
+  "BEI3ABWLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1790000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abwle"
+  },
+  "BEI3ABBLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1792000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3abble"
+  },
+  "B124W14.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 320000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b124w14"
+  },
+  "MW20CDN.CKOR": {
+   "name": "LG 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 145000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20cdn"
+  },
+  "MW20GDN.CKOR": {
+   "name": "LG 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 129000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw20gdn"
+  },
+  "MW30BDN.CKOR": {
+   "name": "LG 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 169000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30bdn"
+  },
+  "MW30EDN.CKOR": {
+   "name": "LG 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 169000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw30edn"
+  },
+  "BEI3HKHLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 759000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkhle"
+  },
+  "BEI3HKBLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 901000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hkble"
+  },
+  "BEI3HKSLE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 901000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hksle"
+  },
+  "MWJ20EDN.CKOR": {
+   "name": "LG 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 152000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj20edn"
+  },
+  "MWJ23EI.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 190000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23ei"
+  },
+  "MWJ23PI.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 190000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj23pi"
+  },
+  "BEI3HRBLE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 719000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hrble"
+  },
+  "BEI3HSBLE.AKOR": {
+   "name": "LG 디오스 인덕션",
+   "model_status": "ACTIVE",
+   "price_krw": 750000,
+   "source_url": "https://www.lge.co.kr/product/electric-ranges/bei3hsble"
+  },
+  "MWJ25E.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 260000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25e"
+  },
+  "MWJ25P.CKOR": {
+   "name": "LG 디오스 오브제컬렉션 전자레인지",
+   "model_status": "DISCONTINUED",
+   "price_krw": 239000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mwj25p"
+  },
+  "B245W22.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 540000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b245w22"
+  },
+  "B245DS22.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 560000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b245ds22"
+  },
+  "MW25B.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "ACTIVE",
+   "price_krw": 175000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw25b"
+  },
+  "DUE5BGE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1780000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bge"
+  },
+  "DUE5BGHE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1330000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due5bghe"
+  },
+  "MW22CA.CKOR": {
+   "name": "LG 디오스 전자레인지",
+   "model_status": "SOLD_OUT",
+   "price_krw": 179000,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ca"
+  },
+  "MW22EA.CKOR": {
+   "name": "LG 전자레인지",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ea"
+  },
+  "DUE6BGHE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "READY_FOR_SALE",
+   "price_krw": null,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bghe"
+  },
+  "DUE6GLHE.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "ACTIVE",
+   "price_krw": 1500000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6glhe"
+  },
+  "B312W31.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "SOLD_OUT",
+   "price_krw": 560000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b312w31"
+  },
+  "B312S31.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 800000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b312s31"
+  },
+  "B312DS31.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 800000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b312ds31"
+  },
+  "DUE6BG.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "SOLD_OUT",
+   "price_krw": 2140000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bg"
+  },
+  "DUE6GL.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기",
+   "model_status": "DISCONTINUED",
+   "price_krw": 2140000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6gl"
+  },
+  "DUE6BGH.AKOR": {
+   "name": "LG 디오스 오브제컬렉션 식기세척기 (빌트인/14인용)",
+   "model_status": "NOT_FOR_SALE",
+   "price_krw": 1254000,
+   "source_url": "https://www.lge.co.kr/product/dishwashers/due6bgh"
+  },
+  "B332W34.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 660000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b332w34"
+  },
+  "B332S34.AKOR": {
+   "name": "LG 일반냉장고",
+   "model_status": "ACTIVE",
+   "price_krw": 700000,
+   "source_url": "https://www.lge.co.kr/product/refrigerators/b332s34"
+  }
+ }
+}

@@ -130,8 +130,8 @@ class Product(_Strict):
     cmf_options: list[CmfOption] = Field(default_factory=list)
     source_url: Optional[str]
     source_checked_at: Optional[str]
-    # LGE.COM 제품 페이지의 판매 상태: ACTIVE(판매중) · SOLD_OUT(일시품절) · NOT_FOR_SALE(비매품). 확인 못 했으면 null
-    sale_status: Optional[Literal["ACTIVE", "SOLD_OUT", "NOT_FOR_SALE"]] = None
+    # LGE.COM 제품 페이지의 판매 상태: ACTIVE(판매중) · SOLD_OUT(일시품절) · NOT_FOR_SALE(비매품) · DISCONTINUED(단종). 확인 못 했으면 null
+    sale_status: Optional[Literal["ACTIVE", "SOLD_OUT", "NOT_FOR_SALE", "DISCONTINUED"]] = None
     sale_checked_at: Optional[str] = None
     # LGE.COM 제품 페이지의 판매가(원, 회원 로그인 전 화면에 보이는 값). 못 읽었으면 null. 자주 바뀌니 확인한 날을 같이 적는다
     price_krw: Optional[int] = None
@@ -142,3 +142,12 @@ class Product(_Strict):
     needs_drain: Optional[bool] = None  # 배수 호스 연결이 꼭 필요한지. 가이드에 없으면 null
     model_3d: Optional[str] = None
     demo_only: bool = False  # True면 LGE.COM 값이 아닌 시연·테스트용 가상 데이터
+    # 화면에 내놓는 모델인지. 카탈로그 파일에는 없고, 불러올 때 data/catalog/lineup.json을 보고 정한다 (core.service.Catalog)
+    listed: bool = True
+    lineup_family: Optional[str] = None  # 전달받은 묶음의 제품군. 같은 제품군은 목록에서 한 줄로 묶는다
+    lineup_note: Optional[str] = None  # 색이 같은데 구성이 다른 모델을 가르는 말 (예: 상단 글라이드 레일 있음)
+
+    @property
+    def on_sale(self) -> bool:
+        """목록·추천에 나와도 되는 제품: 내놓는 모델이고 LGE.COM에서 지금 파는 것 (가상 데이터는 늘 나온다)."""
+        return self.demo_only or (self.listed and self.sale_status in ("ACTIVE", "SOLD_OUT"))

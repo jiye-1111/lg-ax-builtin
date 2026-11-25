@@ -622,7 +622,7 @@ button.ghost:hover, .btn.ghost:hover { background: var(--warm-grey); border-colo
 .render-shot a.btn { text-decoration: none; display: inline-flex; align-items: center; }
 /* 상세 창: 같은 색 안의 모델 고르기 (칩에는 모델 번호를 붙이지 않는다) */
 .pd-model { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: var(--t-xs); color: var(--muted); }
-.pd-model select { width: auto; min-width: 0; padding: 4px 8px; font-size: var(--t-xs); border-radius: 8px; }
+.pd-model select { flex: 1 1 auto; width: auto; min-width: 0; max-width: 100%; padding: 4px 8px; font-size: var(--t-xs); border-radius: 8px; }
 
 /* ===== 왼쪽 제품 탐색 다시 짜기 (2026-11-21): 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 =====
    3D가 화면의 약 79%, 제품 탐색이 약 21%. 패널은 접을 수 있다 */

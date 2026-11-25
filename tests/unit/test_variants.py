@@ -22,8 +22,8 @@ def by_sku(fams):
 
 def test_lineup_products_group_into_models():
     fams = families(CAT, shapes())
-    assert len(fams) == 267
-    assert sum(len(f["variants"]) for f in fams) == 1150
+    assert len(fams) == 283  # 전달받은 묶음에서 새로 들어온 25개는 도면이 없어 따로 묶인다 (화면은 묶음의 제품군대로: test_lineup_only.py)
+    assert sum(len(f["variants"]) for f in fams) == 1175
 
 
 def test_same_body_different_finish_is_one_model():

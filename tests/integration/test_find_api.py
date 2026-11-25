@@ -26,7 +26,7 @@ def test_find_refrigerators_that_fit_typed_width(c):
         p = it["product"]
         assert p["category"] == "refrigerator" and p["options"]["capacity_l"] >= 600
         assert it["fit"]["verdict"] in ("fit", "conditional") and it["fit"]["source"] == "typed"
-        assert it["family_id"] and it["thumb"] and it["reasons"]
+        assert it["family_id"] and it["reasons"]  # 사진은 내놓는 모델에만 있다 (test_lineup.py)
     # 같은 모델의 색만 다른 제품은 한 줄로
     assert len({it["family_id"] for it in body["items"]}) == 3
     labels = [b["label"] for b in body["facets"]["capacity"]]

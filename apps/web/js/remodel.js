@@ -692,7 +692,7 @@ export async function customer(pid) {
   // 먼저 이 공간을 어떤 용도로 쓸지 묻고, 그 용도에 맞는 가전 종류부터 보여 준다 (카탈로그 zone_fit 기준)
   const ORDER = CATEGORY_GROUP.flatMap(([, , cs]) => cs);
   const rank = (c) => (ORDER.indexOf(c) < 0 ? 999 : ORDER.indexOf(c));
-  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || !catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT") && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
+  const catsFor = (pu) => [...new Set(catalog.filter((p) => (p.demo_only || (p.listed !== false && (!catalog.some((x) => x.sale_status) || p.sale_status === "ACTIVE" || p.sale_status === "SOLD_OUT"))) && (!pu || (p.zone_fit || []).includes(pu))).map((p) => p.category))].sort((a, b) => rank(a) - rank(b));
   const USES = Object.keys(USE).filter((k) => catsFor(k).length);
   let use = USES.includes(saved.use) ? saved.use : ""; // "": 용도를 안 골랐으면 전체
   let sel = saved.sel && typeof saved.sel === "object" ? saved.sel : {};
@@ -745,7 +745,8 @@ export async function customer(pid) {
   // 지금 LGE.COM에서 파는 제품만 고를 수 있다 (판매중·일시품절). 비매품과 판매 여부를 확인 못 한 제품은 목록에 넣지 않는다
   // (API 서버가 아직 판매 여부를 안 주는 옛 버전이면 전부 보여 준다)
   const saleKnown = families.some((f) => f.variants.some((v) => v.sale_status));
-  const sellable = (v) => !saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT";
+  // 내놓는 모델(listed)만: 지금은 전달받은 3D 모델이 있는 제품만 목록에 나온다 (서버 data/catalog/lineup.json)
+  const sellable = (v) => v.listed !== false && (!saleKnown || v.sale_status === "ACTIVE" || v.sale_status === "SOLD_OUT");
   const shop = families.map((f) => (f.demo_only ? f : { ...f, variants: f.variants.filter(sellable) })).filter((f) => f.variants.length);
   const stepsHtml = (steps) => steps.map((st) => `<li class="step ${st.picked ? "done" : ""}"><span class="step-l">${esc(st.label)}</span>
       <div class="chips">${st.values.map((v) => `<button class="chip ${st.picked === v.label ? "on" : ""}" data-step="${esc(st.key)}" data-val="${esc(v.label)}" aria-pressed="${st.picked === v.label}">${esc(v.label)} <i>${v.count}</i></button>`).join("")}</div></li>`).join("");
@@ -981,7 +982,7 @@ export async function customer(pid) {
         return `<button class="swatch ${on ? "on" : ""}" data-pd-variant="${esc(to)}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(g.k)}</button>`; }).join("")}</div>`
       : "";
     const models = mine.items.length > 1
-      ? `<label class="pd-model"><span>모델</span><select id="pdModel" aria-label="모델 고르기">${mine.items.map((x) => `<option value="${esc(x.sku)}" ${x.sku === sku ? "selected" : ""}>${esc(x.sku)}</option>`).join("")}</select></label>`
+      ? `<label class="pd-model"><span>모델</span><select id="pdModel" aria-label="모델 고르기">${mine.items.map((x) => `<option value="${esc(x.sku)}" ${x.sku === sku ? "selected" : ""}>${x.note ? esc(x.note) + " · " : ""}${esc(x.sku)}</option>`).join("")}</select></label>`
       : "";
     return chips + models;
   };

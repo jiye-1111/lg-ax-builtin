@@ -39,5 +39,14 @@ def catalog_paths() -> list[Path]:
     return paths
 
 
+def catalog_lineup() -> Path | None:
+    """화면에 내놓을 모델 목록 파일. CATALOG_LINEUP을 all로 두면 카탈로그 전체를 내놓는다."""
+    v = os.getenv("CATALOG_LINEUP", "data/catalog/lineup.json").strip()
+    if v in ("", "all"):
+        return None
+    p = Path(v)
+    return p if p.is_absolute() else ROOT / p
+
+
 def public_base_url() -> str:
     return os.getenv("PUBLIC_BASE_URL", f"http://localhost:{os.getenv('API_PORT', '8000')}").rstrip("/")

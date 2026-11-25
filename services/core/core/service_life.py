@@ -45,7 +45,7 @@ class LifeMixin:
         items, missing = [], []
         for n in todo:
             got = self.find(Conditions(category=n.category), pid)["items"]
-            sell = [it for it in got if self.catalog.get(it["product"]["sku"]).sale_status in SELLABLE]
+            sell = [it for it in got if (q := self.catalog.get(it["product"]["sku"])).listed and q.sale_status in SELLABLE]
             it = pick(n, sell, lambda x: x["product"].get("options") or {})
             if it is None:
                 missing.append(CATEGORY_KO.get(n.category, n.category))

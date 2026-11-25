@@ -59,7 +59,7 @@ def now() -> str:
 
 # ---------------- 카탈로그 ----------------
 class Catalog:
-    def __init__(self, paths: list[Path]):
+    def __init__(self, paths: list[Path], lineup: Path | None = None):
         self.products: list[Product] = []
         for p in paths:
             if not p.exists():
@@ -67,6 +67,14 @@ class Catalog:
             data = json.loads(p.read_text(encoding="utf-8"))
             items = data["products"] if isinstance(data, dict) else data
             self.products += [Product.model_validate(x) for x in items]
+        # 내놓는 모델 목록이 있으면 거기 적힌 것만 목록·추천에 나온다. 나머지는 전에 놓아 둔 집을 열 수 있게 남겨만 둔다
+        if lineup and lineup.exists():
+            models = json.loads(lineup.read_text(encoding="utf-8"))["models"]
+            for p in self.products:
+                m = models.get(p.sku)
+                p.listed = p.demo_only or m is not None
+                if m:
+                    p.lineup_family, p.lineup_note = m.get("family_id"), m.get("note")
 
     def get(self, sku: str) -> Product:
         for p in self.products:
@@ -95,6 +103,8 @@ class Catalog:
             for p in self.products:
                 f = config.ROOT / "data" / "drawings" / f"{p.sku}.json"
                 shapes[p.sku] = shape_key(json.loads(f.read_text(encoding="utf-8"))) if f.exists() else None
+                if p.lineup_family:  # 전달받은 묶음은 그쪽 제품군대로 묶는다 (치수가 같아도 모양이 다른 모델이 있다)
+                    shapes[p.sku] = "lineup:" + p.lineup_family
             self._families = families([p.model_dump() for p in self.products], shapes)
             # 제품 사진: 우리 3D 모델을 Blender로 렌더한 것 (웹 기준 상대 경로, 없으면 None)
             photos = config.ROOT / "apps" / "web" / "img" / "products"
@@ -117,7 +127,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         self.root = Path(storage or config.storage_dir())
         self.root.mkdir(parents=True, exist_ok=True)
         self.db = Store(self.root / "app.sqlite3")
-        self.catalog = catalog or Catalog(config.catalog_paths())
+        self.catalog = catalog or Catalog(config.catalog_paths(), config.catalog_lineup())
         self.fit_cfg = fit_cfg or FitConfig.from_env()
         self.finishes = load_finishes(config.ROOT / "data" / "finishes" / "finishes.json")
         self.stylist = stylist or interpret_style  # (prompt, catalog_brief) -> StyleIntent
