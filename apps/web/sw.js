@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v85"; // 아일랜드 식탁 + 인덕션 위 후드
+const VERSION = "lgb-shell-v86"; // 빌트인은 장 칸에 끼워 넣기 + 장 끝 손잡이 + 아일랜드 식탁·후드
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/snap.js", "./js/gapnote.js",
@@ -8,7 +8,7 @@ const SHELL = [
   "./vendor/three/three.module.min.js",
   "./vendor/three/addons/loaders/GLTFLoader.js",
   "./vendor/three/addons/controls/OrbitControls.js",
-  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js", "./js/stops.js", "./js/furncolors.js", "./js/camkeys.js", "./js/wallsnap.js", "./js/symbols.js", "./js/rotring.js", "./js/surfmove.js", "./js/wallmount.js",
+  "./vendor/three/addons/controls/PointerLockControls.js", "./js/walk.js", "./js/walker.js", "./js/stops.js", "./js/furncolors.js", "./js/camkeys.js", "./js/wallsnap.js", "./js/symbols.js", "./js/rotring.js", "./js/surfmove.js", "./js/wallmount.js", "./js/slot.js", "./js/stretch.js",
   "./vendor/three/addons/utils/SkeletonUtils.js", "./models/devices/router.glb", "./models/people/walker.glb",
   "./vendor/three/addons/environments/RoomEnvironment.js",
   "./models/products/index.json", "./models/furniture/index.json",

@@ -9,6 +9,7 @@ import { PointerLockControls } from "three/addons/controls/PointerLockControls.j
 import { EYE_H, RUN, WALK, isBlocked, moveVector, spawnPoint, step } from "./walk.js";
 import { lookYaw } from "./stops.js";
 import { pointerAngle, turnTo, snapTurn, degLabel } from "./rotring.js";
+import { reachOf, HANDLE_OUT_M } from "./stretch.js";
 import { onPlane, grabOffset } from "./surfmove.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
@@ -198,10 +199,40 @@ export function makeViewer(el, handlers = {}) {
     const grip = new THREE.Mesh(new THREE.CircleGeometry(0.16, 24), new THREE.MeshBasicMaterial({ visible: false }));
     grip.userData.ringPart = true; grip.userData.knob = true;
     rim.position.y = 0.001; knob.position.y = 0.002;
-    [rim, knob, grip].forEach((m) => { m.position.z = r; m.rotation.x = -Math.PI / 2; m.renderOrder = 6; arm.add(m); });
+    [rim, knob, grip].forEach((m, i) => { m.position.z = r; m.rotation.x = -Math.PI / 2; m.renderOrder = 6 + i; arm.add(m); }); // 테두리 위에 흰 손잡이
     [band, hit].forEach((m) => { m.rotation.x = -Math.PI / 2; m.renderOrder = 5; });
     arm.name = "arm";
     rotRing.add(band, hit, arm);
+  };
+  // 장 끝 손잡이: 고른 장의 양 끝 바닥에 좌우 화살표. 끌면 그 끝만 움직여 길이가 늘거나 준다 (IKEA 플래너처럼)
+  const stretchG = new THREE.Group();
+  stretchG.visible = false;
+  stretchG.renderOrder = 5;
+  scene.add(stretchG);
+  let stretchInfo = null, stretchDrag = null;
+  const buildStretch = () => {
+    let order = 6; // 깊이를 안 보고 그리므로 테두리 → 흰 바탕 → 화살표 차례를 정해 준다
+    const flat = (m, y) => { m.rotation.x = -Math.PI / 2; m.position.y = y; m.renderOrder = order++; return m; };
+    const arrow = new THREE.Shape([new THREE.Vector2(0.05, 0), new THREE.Vector2(0.014, 0.03), new THREE.Vector2(0.014, -0.03)]);
+    for (const side of [-1, 1]) {
+      const h = new THREE.Group();
+      order = 6;
+      h.name = `end${side}`;
+      const grip = new THREE.Mesh(new THREE.CircleGeometry(0.17, 24), new THREE.MeshBasicMaterial({ visible: false }));
+      grip.userData.stretch = side;
+      const right = new THREE.Mesh(new THREE.ShapeGeometry(arrow), knobRimMat), left = new THREE.Mesh(new THREE.ShapeGeometry(arrow), knobRimMat);
+      left.scale.x = -1;
+      h.add(flat(new THREE.Mesh(new THREE.CircleGeometry(0.095, 32), knobRimMat), 0.001), flat(new THREE.Mesh(new THREE.CircleGeometry(0.078, 32), knobMat), 0.002),
+        flat(right, 0.003), flat(left, 0.003), flat(grip, 0.004));
+      stretchG.add(h);
+    }
+  };
+  const placeStretch = () => {
+    const i = stretchInfo;
+    if (!i) return;
+    stretchG.position.set(i.xz[0], (i.y || 0) + 0.014, i.xz[1]);
+    stretchG.rotation.y = -(i.yaw - Math.PI / 2);
+    for (const side of [-1, 1]) stretchG.getObjectByName(`end${side}`).position.x = side * (i.w / 2 + HANDLE_OUT_M);
   };
   // 와이파이: 실제 크기 공유기 (집어 들어 옮기고 돌릴 수 있다)
   const routerG = new THREE.Group();
@@ -578,9 +609,10 @@ export function makeViewer(el, handlers = {}) {
   };
   function animateHeld() {
     need.visible = !held; // 들고 옮기는 동안에는 옛 자리 표시를 숨긴다
-    rotRing.visible = !!ringInfo && !held && !walk && !dragging && !grabbing; // 옮기는 동안에는 고리를 숨긴다
+    rotRing.visible = !!ringInfo && !held && !walk && !dragging && !grabbing && !stretchDrag; // 옮기는 동안에는 고리를 숨긴다
+    stretchG.visible = !!stretchInfo && !held && !walk && !dragging && !grabbing && !ringDrag;
     // 옮기거나 돌리는 동안에는 위에 뜨는 메뉴가 물건을 가리지 않게 (.canvas.moving-item)
-    const busy = !!(held && !held.dropping) || !!ringDrag || !!dragging?.moved;
+    const busy = !!(held && !held.dropping) || !!ringDrag || !!stretchDrag || !!dragging?.moved;
     if (busy !== wasBusy) { wasBusy = busy; el.closest(".canvas")?.classList.toggle("moving-item", busy); }
     if (!held) return;
     const target = held.dropping ? 0 : LIFT;
@@ -609,6 +641,17 @@ export function makeViewer(el, handlers = {}) {
       out.push(fan);
     }
     return out;
+  };
+  // 이어지는 상판·가림판 재질: 옆 장 모델의 상판(stone)·몸통(white) 재질을 그대로 쓴다
+  const coverMat = (look, hex) => {
+    const part = look === "basecab" ? "stone" : "white";
+    let m = null;
+    const t = templates.get(`decor:${look}`);
+    if (t) t.scene.traverse((o) => { if (!m && o.isMesh && o.material.name === part) m = o.material; });
+    else requestModel(`decor:${look}`);
+    m = m ? m.clone() : new THREE.MeshStandardMaterial({ color: part === "stone" ? 0xe8e4dc : 0xf2f2f0, roughness: 0.6 });
+    if (part === "white" && hex) m.color.set(hex);
+    return m;
   };
   const productBox = (p, { selected = false, preview = false } = {}) => {
     const [w, h, d] = p.size_m;
@@ -658,18 +701,27 @@ export function makeViewer(el, handlers = {}) {
     // 판정 색 테두리: 상자 모양일 때와 고른 제품·미리 보기일 때만 (모델 위에 늘 그리면 지저분하다)
     if (!tmpl || selected || preview) {
       const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(w + 0.01, h + 0.01, d + 0.01)),
-        new THREE.LineBasicMaterial({ color: vhex }));
+        new THREE.LineBasicMaterial({ color: !tmpl || preview || p.verdict === "no_fit" ? vhex : SELECT_HEX }));
       edges.position.y = h / 2;
       g.add(edges);
     }
-    // 바닥 판: 판정 색 (꾸미기 가구는 고른 때·안 들어갈 때만, 평소엔 깔끔하게)
-    const decor = p.sku?.startsWith("decor:");
+    // 장 칸에 끼운 빌트인: 옆 장 상판이 그 위로 이어진다 (키큰장 줄이면 위 가림판)
+    if (p.slot && !preview) {
+      const c = p.slot, wide = w + c.left_m + c.right_m, tall = c.top_m - h;
+      const lid = new THREE.Mesh(new THREE.BoxGeometry(wide, tall, c.depth_m), coverMat(c.look, c.hex));
+      lid.position.set((c.right_m - c.left_m) / 2, h + tall / 2, c.off_m);
+      lid.castShadow = lid.receiveShadow = true;
+      lid.userData = { placementId: p.placement_id, ownMaterial: true, cover: true };
+      g.add(lid);
+    }
+    // 바닥 판: 판정 색. 놓고 난 뒤에는 안 들어갈 때만 보이고, 들어가는 것은 옮기는 동안에만 보인다 (setDragVerdict)
     const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + 0.08, d + 0.08),
       new THREE.MeshBasicMaterial({ color: vhex, transparent: true, opacity: selected ? 0.55 : 0.35, depthWrite: false }));
     plate.rotation.x = -Math.PI / 2;
     plate.position.y = 0.006;
     plate.userData.verdictPlate = true;
-    if (!decor || selected || preview || p.verdict === "no_fit") g.add(plate);
+    plate.visible = preview || p.verdict === "no_fit";
+    if (selected || plate.visible) g.add(plate);
     // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
     g.position.set(p.center_xz[0], p.base_m || 0, p.center_xz[1]); // 가구 위에 올려 둔 것은 그 윗면 높이에
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
@@ -729,7 +781,14 @@ export function makeViewer(el, handlers = {}) {
   const planePoint = (e, h) => { setNdc(e); return onPlane(ray.ray.origin.toArray(), ray.ray.direction.toArray(), h); };
   // 벽걸이 제품은 마우스가 가리키는 벽 자리를 따라간다 (계산은 handlers.hangPoint → js/wallmount.js)
   const wallPoint = (e) => { const p = floorPoint(e, 0.01); return handlers.hangPoint?.(ray.ray.origin.toArray(), ray.ray.direction.toArray(), p) || p; };
-  const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf === "wall" ? wallPoint(e) : sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
+  // 장 칸에 끼우는 빌트인은 가리킨 장이 선 자리를 따라간다 (비스듬히 보면 장 윗면 너머 바닥은 벽 뒤다)
+  const SLOT_HOSTS = new Set(["decor:basecab", "decor:tallcab"]);
+  const cabPoint = (e) => {
+    setNdc(e);
+    const hit = ray.intersectObjects(products.children.filter((c) => SLOT_HOSTS.has(c.userData.sku)), true).find((h) => h.object.isMesh && h.object.visible);
+    return hit ? [hit.point.x, hit.point.z] : null;
+  };
+  const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf === "wall" ? wallPoint(e) : sf === "slot" ? cabPoint(e) || floorPoint(e) : sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
   const pick = (e) => {
     setNdc(e);
     const targets = [...products.children];
@@ -742,7 +801,8 @@ export function makeViewer(el, handlers = {}) {
       const wh = ray.intersectObjects(walls, false)[0];
       return wh ? { type: "wall", id: wh.object.name } : null;
     }
-    const hit = ray.intersectObjects(targets, true).find((h) => h.object.visible);
+    // 면만 맞힌다: 고른 물건의 테두리 선은 1 m 밖에서도 맞은 것으로 쳐서, 옆 물건을 눌러도 고른 물건이 다시 잡혔다
+    const hit = ray.intersectObjects(targets, true).find((h) => h.object.visible && h.object.isMesh);
     if (!hit) return null;
     let o = hit.object;
     while (o && !o.userData?.placementId && o.userData?.kind !== "object" && !o.userData?.router) o = o.parent;
@@ -818,6 +878,53 @@ export function makeViewer(el, handlers = {}) {
     ringMat.color.setHex(RING_HEX); knobRimMat.color.setHex(RING_HEX); ringMat.opacity = 0.55;
     if (g.moved) { ringInfo = { ...ringInfo, yaw: g.yaw }; handlers.onRingEnd?.({ ...g.item, yaw: g.yaw }); }
   };
+  // ---- 장 끝 손잡이 끌기 ----
+  const stretchAt = (e) => {
+    if (!stretchG.visible || !stretchInfo || walk) return 0;
+    setNdc(e);
+    return ray.intersectObjects(stretchG.children, true).find((x) => x.object.userData.stretch)?.object.userData.stretch || 0;
+  };
+  const stretchPoint = (e) => {
+    setNdc(e);
+    ringPlane.constant = -(stretchInfo?.y || 0);
+    const v = ray.ray.intersectPlane(ringPlane, new THREE.Vector3());
+    return v && [v.x, v.z];
+  };
+  const startStretch = (e, side) => {
+    const p = stretchPoint(e);
+    if (!p) return;
+    const base = { ...stretchInfo, xz: [...stretchInfo.xz] };
+    stretchDrag = { base, side, off: reachOf(base, side, p) - base.w, now: null, moved: false };
+    ctl.enabled = false;
+    renderer.domElement.setPointerCapture?.(e.pointerId);
+    renderer.domElement.style.cursor = "ew-resize";
+    knobRimMat.color.setHex(RING_ON_HEX);
+  };
+  const moveStretch = (e) => {
+    const p = stretchPoint(e), g = stretchDrag;
+    if (!p) return;
+    const r = handlers.stretch?.(g.base, g.side, reachOf(g.base, g.side, p) - g.off, e.altKey);
+    if (!r) return;
+    g.now = r;
+    g.moved = g.moved || Math.abs(r.w - g.base.w) > 1e-4;
+    stretchInfo = { ...stretchInfo, xz: r.xz, w: r.w };
+    placeStretch();
+    const box = el.getBoundingClientRect();
+    ringChip.textContent = `${Math.round(r.w * 1000).toLocaleString("ko-KR")} mm`;
+    ringChip.style.left = `${e.clientX - box.left + 16}px`;
+    ringChip.style.top = `${e.clientY - box.top - 34}px`;
+    ringChip.hidden = false;
+    handlers.onStretchMove?.(g.base.id, r);
+  };
+  const endStretch = () => {
+    const g = stretchDrag;
+    stretchDrag = null;
+    ctl.enabled = true;
+    ringChip.hidden = true;
+    renderer.domElement.style.cursor = "";
+    knobRimMat.color.setHex(RING_HEX);
+    if (g.moved && g.now) handlers.onStretchEnd?.(g.base, g.now);
+  };
   let wallPick = false; // 벽 철거: 벽을 눌러 고르는 중
   let look = null; // 둘러보기에서 마우스를 못 잠글 때(터치 등) 끌어서 둘러보기
   const onDown = (e) => {
@@ -833,6 +940,8 @@ export function makeViewer(el, handlers = {}) {
     }
     if (e.button !== undefined && e.button !== 0) return;
     if (held) { down = { x: e.clientX, y: e.clientY, hit: null, p: null, held: true }; return; }
+    const end = stretchAt(e);
+    if (end) { e.preventDefault(); startStretch(e, end); return; }
     if (ringAt(e)) { e.preventDefault(); startRing(e); return; }
     const hit = pick(e);
     down = { x: e.clientX, y: e.clientY, hit, p: floorPoint(e) };
@@ -863,6 +972,7 @@ export function makeViewer(el, handlers = {}) {
       }
       return;
     }
+    if (stretchDrag) { moveStretch(e); return; }
     if (ringDrag) { moveRing(e); return; }
     if (grabbing && !held && Math.hypot(e.clientX - down.x, e.clientY - down.y) > GRAB_PX) {
       const g = grabbing;
@@ -920,12 +1030,13 @@ export function makeViewer(el, handlers = {}) {
       }
       return;
     }
-    if (!down) renderer.domElement.style.cursor = ringAt(e) ? "grab" : "";
+    if (!down) renderer.domElement.style.cursor = stretchAt(e) ? "ew-resize" : ringAt(e) ? "grab" : "";
     handlers.onHover?.(pointFor(e) || p);
     if (handlers.wantHoverHit?.()) handlers.onHoverHit?.(hoverHit(e));
   };
   const onUp = (e) => {
     if (walk) { look = null; renderer.domElement.style.cursor = "grab"; return; }
+    if (stretchDrag) { down = null; endStretch(); return; }
     if (ringDrag) { down = null; endRing(); return; }
     const d = down;
     down = null;
@@ -958,7 +1069,7 @@ export function makeViewer(el, handlers = {}) {
   dom.addEventListener("drop", (e) => {
     e.preventDefault();
     const sku = e.dataTransfer.getData("text/sku");
-    const p = floorPoint(e);
+    const p = (handlers.slots?.(sku) && cabPoint(e)) || floorPoint(e);
     if (sku && p) handlers.onDropSku?.(sku, p);
   });
 
@@ -1038,7 +1149,8 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku), p.base_m || 0]);
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, selected, templates.has(p.sku), p.base_m || 0,
+          p.slot ? [p.slot, templates.has(`decor:${p.slot.look}`)] : 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }
         const g = productBox(p, { selected });
@@ -1095,7 +1207,10 @@ export function makeViewer(el, handlers = {}) {
       if (!g) return;
       g.userData.dirty = true; // 색을 바꿨으니 다음 그리기에서 새로 만든다
       const hex = VERDICT_HEX[verdict] ?? VERDICT_HEX.unknown;
-      g.children.forEach((c) => { if ((c.isLineSegments && !c.userData.dim) || c.userData.verdictPlate) c.material.color.setHex(hex); });
+      g.children.forEach((c) => {
+        if ((c.isLineSegments && !c.userData.dim) || c.userData.verdictPlate) c.material.color.setHex(hex);
+        if (c.userData.verdictPlate) c.visible = true; // 옮기는 동안에는 들어가는지 바닥 색으로 보여 준다
+      });
     },
     /** 공유기 자리 {center_xz, yaw_rad}. null이면 숨긴다. 들고 있는 동안에는 자리를 덮지 않는다 */
     setRouter(rt) {
@@ -1203,6 +1318,8 @@ export function makeViewer(el, handlers = {}) {
       img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
     },
     /** 바닥 점 [x, z]의 화면 좌표 (E2E 확인용) */
+    /** 지금 보이는 판정 색 바닥 판 수 (점검용) */
+    shownPlates() { let n = 0; products.traverse((o) => { if (o.userData.verdictPlate && o.visible) n += 1; }); return n; },
     toScreen([x, z], y = 0) {
       const v = new THREE.Vector3(x, y, z).project(cam), r = dom.getBoundingClientRect();
       return [r.left + ((v.x + 1) / 2) * r.width, r.top + ((1 - v.y) / 2) * r.height];
@@ -1232,6 +1349,16 @@ export function makeViewer(el, handlers = {}) {
       rotRing.getObjectByName("arm").rotation.y = rotY(info.kind, info.yaw);
     },
     ringDragging: () => !!ringDrag,
+    /** 장 끝 손잡이 {id, xz, yaw, w, d, y}. null이면 숨긴다 */
+    setStretch(info) {
+      if (stretchDrag) return; // 늘리는 중에는 그대로
+      stretchInfo = info || null;
+      stretchG.visible = !!info && !walk;
+      if (!info) return;
+      if (!stretchG.children.length) buildStretch();
+      placeStretch();
+    },
+    stretching: () => !!stretchDrag,
     held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, surface: held.surface, y: held.nodes[0]?.node.position.y ?? 0 },
     /** E를 누르고 있는지 (잡은 물건을 마우스로 돌리는 중) */
     spinKey(on) { rotKey = !!on && !!held; },

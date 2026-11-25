@@ -19,9 +19,10 @@ from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
+from recommender.slot import DOOR_BACK_M as SLOT_HOSTS, cover as slot_cover, slot_in, slotable
 from recommender.finder import Conditions, find_products
 from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
@@ -111,6 +112,7 @@ class Catalog:
             for f in self._families:
                 for v in f["variants"]:
                     v["tabletop"] = can_sit(self.get(v["sku"]))  # 식탁·아일랜드 위에 올려 둘 수 있는 가전
+                    v["slot"] = slotable(self.get(v["sku"]))  # 하부장·키큰장 칸에 끼워 넣는 빌트인
                     v["mount"] = mount_kind(self.get(v["sku"]))  # 벽에 걸거나(wall) 붙여(flush·builtin) 설치하는 제품
                     v["thumb"] = f"img/products/{v['sku']}.webp" if (photos / f"{v['sku']}.webp").exists() else None
         return self._families
@@ -869,6 +871,58 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             return pose
         return Pose(settle_on(host, pose.center_xz, pose.yaw_rad, size.w / 1000, size.d / 1000), pose.yaw_rad, pose.wall_id)
 
+    # ---- 장 칸에 끼워 넣기 (recommender/slot.py) ----
+    @staticmethod
+    def _slot_hosts(p: dict, exclude: str | None = None) -> list[dict]:
+        return [x for x in p["scene_state"]["placements"]
+                if x.get("sku") in SLOT_HOSTS and x.get("size_m") and x.get("placement_id") != exclude]
+
+    def _slot(self, p: dict, prod: Product, pose: Pose, exclude: str | None = None):
+        """빌트인을 가까운 하부장·키큰장 줄에 끼운 자리와 칸을 내줄 장들. 줄이 없으면 None."""
+        if is_decor(prod.sku) or not slotable(prod) or product_size(prod) is None:
+            return None
+        side, back, _, _ = _clear(prod)
+        # 고정한 장, 안에 정수기를 넣은 장은 자르지 않는다
+        keep = set(p["scene_state"].get("locked") or []) | {x["placement_id"] for x in p["scene_state"]["placements"] if x.get("host_of")}
+        return slot_in(product_size(prod), pose, self._slot_hosts(p, exclude), side, back, keep)
+
+    def _apply_slot(self, p: dict, slot, new_id=None) -> dict:
+        """칸을 내준다: 겹친 장을 줄이거나 가르거나 없앤다. 되돌릴 때 쓸 바뀌기 전 값을 돌려준다."""
+        pls = p["scene_state"]["placements"]
+        ch = {"resized": [], "added": [], "removed": []}
+        for e in slot.edits:
+            cab = next(x for x in pls if x["placement_id"] == (e.get("id") or e["like"]))
+            if e.get("remove"):
+                pls.remove(cab)
+                ch["removed"].append({k: cab.get(k) for k in ("sku", "center_xz", "yaw_rad", "size_m", "color", "hex")})
+            elif "id" in e:
+                ch["resized"].append({"id": cab["placement_id"], "center_xz": list(cab["center_xz"]), "size_m": list(cab["size_m"])})
+                cab["center_xz"], cab["size_m"] = list(e["center_xz"]), [e["w"], *cab["size_m"][1:]]
+            else:
+                # 갈라진 다른 쪽: 원래 장 크기는 resized에 남아 있다
+                more = {**cab, "placement_id": (new_id or (lambda: self.db.next_id("pl")))(), "center_xz": list(e["center_xz"]),
+                        "size_m": [e["w"], *cab["size_m"][1:]]}
+                pls.append(more)
+                ch["added"].append(more["placement_id"])
+        return ch
+
+    def _slot_covers(self, p: dict) -> None:
+        """끼워 넣은 제품에 위를 덮는 상판·가림판 정보를 적는다 (웹 3D가 그린다. 그 위에 물건도 올릴 수 있다)."""
+        for x in p["scene_state"]["placements"]:
+            x.pop("slot", None)
+            if is_decor(x.get("sku")) or x.get("zone_id") or not x.get("size_m"):
+                continue
+            try:
+                prod = self.catalog.get(x["sku"])
+            except KeyError:
+                continue
+            if not slotable(prod):
+                continue
+            side, back, _, _ = _clear(prod)
+            c = slot_cover(tuple(x["size_m"]), Pose(tuple(x["center_xz"]), x["yaw_rad"]), self._slot_hosts(p), side, back)
+            if c:
+                x["slot"] = c
+
     CABINETS = frozenset({"decor:basecab", "decor:island", "decor:islandtable"})
     COUNTER_SCANNED = frozenset({"storage"})  # 스캔한 낮은 수납장(싱크대·하부장)은 조리대로 본다
 
@@ -931,6 +985,15 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             if h <= PRODUCT_SURFACE_MAX_M:
                 out.append({"id": x["placement_id"], "center_xz": tuple(x["center_xz"]),
                             "yaw_rad": x.get("yaw_rad", math.pi / 2) - math.pi / 2, "w": w, "d": d, "top_m": float(h)})
+        for x in p["scene_state"].get("placements", []):  # 식기세척기 위로 이어진 상판
+            c = x.get("slot")
+            if not c or c["look"] != "basecab" or x.get("placement_id") == exclude or c["top_m"] > PRODUCT_SURFACE_MAX_M:
+                continue
+            a, u = x["yaw_rad"] - math.pi / 2, (c["right_m"] - c["left_m"]) / 2
+            out.append({"id": x["placement_id"], "yaw_rad": a, "w": x["size_m"][0] + c["left_m"] + c["right_m"], "d": c["depth_m"],
+                        "top_m": float(c["top_m"]),
+                        "center_xz": (x["center_xz"][0] + math.cos(a) * u + math.cos(x["yaw_rad"]) * c["off_m"],
+                                      x["center_xz"][1] + math.sin(a) * u + math.sin(x["yaw_rad"]) * c["off_m"])})
         hidden = set(self._blocked_off(p))
         for o in room.objects:
             top = o.position[1] + o.bbox_m.h / 2
@@ -1010,6 +1073,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
+        self._slot_covers(p)
         # 먼저 높이부터: 받치던 가구가 빠졌으면 바닥으로 내려온 것으로 보고 서로 판정한다
         for x in p["scene_state"]["placements"]:
             if x.get("on") and not x.get("zone_id"):
@@ -1108,25 +1172,36 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return next((x for x in pls if self._is_cooktop(x) and x["placement_id"] not in have), None)
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                   placement_id: str | None = None, size_m=None, base_m: float | None = None) -> dict:
+                   placement_id: str | None = None, size_m=None, base_m: float | None = None, slot: bool = True) -> dict:
         """저장하지 않고 판정만 (끌어서 옮기는 중 미리 보기)."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p), placement_id)
-        if base_m is None and placement_id:  # 걸어 둔 것을 옮겨 보는 중이면 지금 높이 그대로
-            cur = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None)
-            base_m = cur.get("base_m") if cur and cur.get("hung") else None
+        cur = next((y for y in p["scene_state"]["placements"] if y.get("placement_id") == placement_id), None) if placement_id else None
+        still = cur is not None and math.dist(pose.center_xz, cur["center_xz"]) < 1e-3  # 제자리 판정은 지금 자리 그대로
+        bay = self._slot(p, prod, pose, placement_id) if slot and not still else None
+        if bay:  # 장 칸에 끼운 모습으로 판정한다 (장은 저장할 때 자른다)
+            pose = bay.pose
+            p = {**p, "scene_state": {**p["scene_state"], "placements": [dict(x) for x in p["scene_state"]["placements"]]}}
+            self._apply_slot(p, bay, new_id=lambda: "preview")
+        if base_m is None and cur:  # 걸어 둔 것을 옮겨 보는 중이면 지금 높이 그대로
+            base_m = cur.get("base_m") if cur.get("hung") else None
         r = self._judge(room, p, prod, pose, placement_id, base_m=base_m)
         out = r.to_dict()
         out["gaps"] = self._gaps(room, p, prod, pose, placement_id, r.base_m)
         return out
 
     def place_at(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
-                 color: str | None = None, wall_id: str | None = None, size_m=None, base_m: float | None = None) -> dict:
+                 color: str | None = None, wall_id: str | None = None, size_m=None, base_m: float | None = None,
+                 slot: bool = True) -> dict:
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
         opt = self._color_option(prod, color)
         pose = self._settle(room, p, prod, self._pose(room, prod, center_xz, yaw_rad, snap, p))
         if wall_id and not pose.wall_id:
             pose = Pose(pose.center_xz, pose.yaw_rad, wall_id)
+        bay = self._slot(p, prod, pose) if slot else None
+        changes = None
+        if bay:  # 빌트인: 가까운 장 줄에 끼우고, 겹친 장은 칸을 내준다
+            pose, changes = bay.pose, self._apply_slot(p, bay)
         r = self._judge(room, p, prod, pose, base_m=base_m)
         if r.size_m is None:
             raise Invalid("제품 치수 정보가 없어 놓을 수 없습니다")
@@ -1146,6 +1221,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         self._save_project(p)
         out = self._rebuild(pid)
         out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == x["placement_id"])
+        if changes and any(changes.values()):
+            out["slot_changes"] = changes
         return out
 
     def _spot(self, room: Room, p: dict, prod: Product, exclude: str | None = None, step_m: float = 0.1):
@@ -1171,6 +1248,27 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 return r
         return None
 
+    def _bay(self, room: Room, p: dict, prod: Product):
+        """빌트인이 들어갈 장 칸: 넓은 장부터 양 끝을 내어 보고 들어가는 첫 자리. 없으면 None."""
+        if is_decor(prod.sku) or not slotable(prod) or product_size(prod) is None:
+            return None
+        w = product_size(prod)[0]
+        for cab in sorted(self._slot_hosts(p), key=lambda x: -x["size_m"][0]):
+            a, half = cab["yaw_rad"] - math.pi / 2, cab["size_m"][0] / 2 - w / 2
+            if half < 0:
+                continue
+            for u in (half, -half):
+                pose = Pose((cab["center_xz"][0] + math.cos(a) * u, cab["center_xz"][1] + math.sin(a) * u), cab["yaw_rad"])
+                bay = self._slot(p, prod, pose)
+                if bay is None:
+                    continue
+                q = {**p, "scene_state": {**p["scene_state"], "placements": [dict(x) for x in p["scene_state"]["placements"]]}}
+                self._apply_slot(q, bay, new_id=lambda: "preview")
+                r = self._judge(room, q, prod, bay.pose)
+                if r.verdict.value != "no_fit":
+                    return r
+        return None
+
     def auto_place(self, pid: str, sku: str, color: str | None = None, size_m=None) -> dict:
         """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다 (러그는 방 가운데). 어디에도 안 들어가면 Invalid."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
@@ -1190,6 +1288,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if r is None and needs_counter(prod):  # 조리대가 없으면 하부장 자리를 찾아 그 위에 (place_at이 하부장을 같이 놓는다)
             r = self._spot(room, p, decor_product("decor:basecab", self.SINK_CABINET_M))
         r = r or self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
+        if (r is None or self._slot(p, prod, r.pose) is None) and (bay := self._bay(room, p, prod)):
+            r = bay  # 장 줄 옆에 빈자리가 없으면 장 한 칸을 내어 그 안에
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color,
@@ -1309,9 +1409,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
                        snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None,
-                       hex: str | None = None, base_m: float | None = None) -> dict:
+                       hex: str | None = None, base_m: float | None = None, slot: bool = True) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
+        changes = None
         if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
             if x["sku"] == "decor:hood" or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
                 x["base_m"], x["hung"] = float(base_m), True
@@ -1346,9 +1447,13 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             pose = self._settle(room, p, prod, pose, placement_id)
             self._unlink_hood(p, x)
-            if floats(prod):
+            turned_only = center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3
+            bay = self._slot(p, prod, pose, placement_id) if slot and not turned_only else None
+            if bay:  # 빌트인을 장 줄로 옮겼으면 끼우고, 겹친 장은 칸을 내준다
+                pose, changes = bay.pose, self._apply_slot(p, bay)
+            elif floats(prod):
                 pass  # 벽에 건 것은 벽에서 떼지 않는다
-            elif center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3:  # 제자리에서 돌리기만 했으면
+            elif turned_only:  # 제자리에서 돌리기만 했으면
                 pose = self._off_wall(room, p, prod, pose, placement_id)
             self._carry(p, x, pose)
             x["center_xz"], x["yaw_rad"], x["wall_id"] = list(pose.center_xz), pose.yaw_rad, pose.wall_id
@@ -1362,6 +1467,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         out = self._rebuild(pid)
         out["placement"] = self._find_placement(out_p := self.get_project(pid), placement_id)
         out["scene_state"] = out_p["scene_state"]
+        if changes and any(changes.values()):
+            out["slot_changes"] = changes
         return out
 
     @staticmethod

@@ -314,6 +314,7 @@ class PlaceIn(BaseModel):
     color: Optional[str] = None
     size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
     base_m: Optional[float] = Field(None, ge=0, le=10, description="벽걸이 제품을 거는 높이 (바닥에서 밑면까지, m)")
+    slot: bool = Field(True, description="빌트인을 가까운 장 줄에 끼워 넣기 (겹친 장은 칸을 내준다)")
 
 
 class PoseIn(BaseModel):
@@ -325,6 +326,7 @@ class PoseIn(BaseModel):
     placement_id: Optional[str] = None
     size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
     base_m: Optional[float] = Field(None, ge=0, le=10, description="벽걸이 제품을 거는 높이 (바닥에서 밑면까지, m)")
+    slot: bool = Field(True, description="빌트인을 가까운 장 줄에 끼워 넣기 (겹친 장은 칸을 내준다)")
 
 
 class MoveIn(BaseModel):
@@ -337,6 +339,7 @@ class MoveIn(BaseModel):
     hex: Optional[str] = Field(None, pattern=r"^(#[0-9A-Fa-f]{6})?$", description="꾸미기 가구 색. 빈 글자면 원래 색으로")
     size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
     base_m: Optional[float] = Field(None, ge=0, le=10, description="벽걸이 제품을 거는 높이 (바닥에서 밑면까지, m)")
+    slot: bool = Field(True, description="빌트인을 가까운 장 줄에 끼워 넣기 (겹친 장은 칸을 내준다)")
 
 
 class SiteIn(BaseModel):
@@ -556,7 +559,7 @@ def apply_material(pid: str, body: MaterialIn, s: Service = S):
 @app.post("/api/projects/{pid}/placements")
 def place(pid: str, body: PlaceIn, s: Service = S):
     if body.center_xz is not None:
-        return s.place_at(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.color, size_m=body.size_m, base_m=body.base_m)
+        return s.place_at(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.color, size_m=body.size_m, base_m=body.base_m, slot=body.slot)
     if body.zone_id is None:
         raise HTTPException(422, "zone_id 또는 center_xz가 필요합니다")
     return s.place_product(pid, body.zone_id, body.sku, body.color)
@@ -628,12 +631,12 @@ def suggest(pid: str, body: SuggestIn, s: Service = S):
 
 @app.post("/api/projects/{pid}/pose-check")
 def pose_check(pid: str, body: PoseIn, s: Service = S):
-    return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id, body.size_m, body.base_m)
+    return s.pose_check(pid, body.sku, body.center_xz, body.yaw_rad, body.snap, body.placement_id, body.size_m, body.base_m, body.slot)
 
 
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
-    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m, body.hex, body.base_m)
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m, body.hex, body.base_m, body.slot)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")

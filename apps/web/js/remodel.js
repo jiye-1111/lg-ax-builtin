@@ -15,6 +15,8 @@ import { optionSteps, priceScale } from "./options.js";
 import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts, matchesQuery, parseManwon, wonText } from "./filters.js";
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
+import { slotPose, DOOR_BACK_M } from "./slot.js";
+import { stretchTo } from "./stretch.js";
 import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
 import { coloursFor, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
@@ -470,7 +472,8 @@ export async function customer(pid) {
       renderAct();
     },
     // 공유기는 책상·선반 윗면에도, 전자레인지·정수기 같은 작은 가전은 식탁·아일랜드·하부장 윗면에도 놓인다
-    onSurface: () => (armedRouter ? "router" : armed && hangs(armed) ? "wall" : armed && tabletop(armed) ? "product" : false),
+    onSurface: () => (armedRouter ? "router" : armed && hangs(armed) ? "wall" : armed && tabletop(armed) ? "product" : armed && slotOf(armed) ? "slot" : false),
+    slots: (sku) => slotOf(sku),
     // 벽걸이 제품: 마우스가 가리키는 벽 자리 (놓기 전 미리 보기 / 들고 옮길 때)
     hangPoint: (o, d, p) => { lastHang = armed && hangs(armed) ? hangPose(armed, armedSize(armed), o, d, p, lastHang?.base) : null; return lastHang?.xz || p; },
     hang: (h, o, d, p) => {
@@ -494,7 +497,7 @@ export async function customer(pid) {
     onHoldMove: (h, xz) => {
       if (h.kind !== "placement") return;
       const x = project.scene_state.placements.find((q) => q.placement_id === h.id);
-      if (x) preview({ sku: x.sku, center_xz: xz, yaw_rad: h.yaw, snap: false, placement_id: h.id, ...sizeArgs(x), ...(h.surface === "wall" ? { base_m: Math.max(0, h.y) } : {}) }, (r) => { viewer.holdVerdict(r.verdict); showGaps(r); });
+      if (x) preview({ sku: x.sku, center_xz: xz, yaw_rad: h.yaw, snap: false, placement_id: h.id, ...sizeArgs(x), ...slotArg(x.sku, x.size_m, xz, h.yaw, h.id), ...(h.surface === "wall" ? { base_m: Math.max(0, h.y) } : {}) }, (r) => { viewer.holdVerdict(r.verdict); showGaps(r); });
     },
     // 들고 옮기거나 끌 때 벽·가전 옆에 착 붙는 자리 (없으면 null)
     snap: (h, xz, yaw) => {
@@ -507,7 +510,7 @@ export async function customer(pid) {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       if (!x) return;
       drag3d = id; selPl = id; selObj = null;
-      preview({ sku: x.sku, center_xz: c, yaw_rad: yaw ?? x.yaw_rad, snap: false, placement_id: id, ...sizeArgs(x) }, (r) => { viewer.setDragVerdict(id, r.verdict); showGaps(r); });
+      preview({ sku: x.sku, center_xz: c, yaw_rad: yaw ?? x.yaw_rad, snap: false, placement_id: id, ...sizeArgs(x), ...slotArg(x.sku, x.size_m, c, yaw ?? x.yaw_rad, id) }, (r) => { viewer.setDragVerdict(id, r.verdict); showGaps(r); });
     },
     onDragEnd: (id, c, baseY, yaw) => {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
@@ -515,7 +518,7 @@ export async function customer(pid) {
       setTab("sel");
       if (x && baseY !== undefined) x.base_m = baseY; // 저장 응답이 오기 전에도 올려 둔 높이 그대로
       // 붙는 물건은 화면에서 본 자리 그대로 저장한다 (서버가 다시 벽에 맞추면 본 것과 달라진다)
-      if (x) patch(id, { center_xz: c, yaw_rad: yaw ?? x.yaw_rad, ...(snappable(x.sku) ? { snap: false } : {}) });
+      if (x) patch(id, { center_xz: c, yaw_rad: yaw ?? x.yaw_rad, ...(snappable(x.sku) ? { snap: false } : {}), ...slotArg(x.sku, x.size_m, c, yaw ?? x.yaw_rad, id) });
     },
     onDropSku: (sku, p) => placeAt(sku, p),
     // 회전 고리: 돌리는 동안 판정만 다시 보고, 놓으면 저장
@@ -524,8 +527,20 @@ export async function customer(pid) {
       const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
       if (!x) return;
       drag3d = it.id;
-      preview({ sku: x.sku, center_xz: it.xz, yaw_rad: it.yaw, snap: false, placement_id: it.id, ...sizeArgs(x) }, (r) => { viewer.setDragVerdict(it.id, r.verdict); showGaps(r); });
+      preview({ sku: x.sku, center_xz: it.xz, yaw_rad: it.yaw, snap: false, placement_id: it.id, slot: false, ...sizeArgs(x) }, (r) => { viewer.setDragVerdict(it.id, r.verdict); showGaps(r); });
     },
+    // 장 끝 손잡이: 끄는 동안 화면에서 바로 늘리고, 놓으면 저장
+    stretch: (base, side, want, free) => {
+      const x = project.scene_state.placements.find((q) => q.placement_id === base.id);
+      return x ? stretchTo(base, side, want, stretchStops(base.id), { min: SIZE_MIN.w / 1000, max: SIZE_MAX.w / 1000, free }) : null;
+    },
+    onStretchMove: (id, r) => {
+      const x = project.scene_state.placements.find((q) => q.placement_id === id);
+      if (!x) return;
+      x.center_xz = [...r.xz]; x.size_m = [r.w, x.size_m[1], x.size_m[2]];
+      viewer.setPlacements(project.scene_state.placements, selPl);
+    },
+    onStretchEnd: (base, r) => stretchSave(base, r),
     onRingEnd: (it) => { drag3d = null; savePose(it); },
   });
   const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
@@ -542,6 +557,7 @@ export async function customer(pid) {
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let tabletop = () => false; // 카탈로그를 받은 뒤 채운다
   let mountOf = () => null;   // 설치 방식: wall(벽에 건다) · flush(뒷면을 벽에) · builtin(벽이나 장에). 서버가 정한다
+  let slotOf = () => false;   // 하부장·키큰장 칸에 끼워 넣는 빌트인인지 (서버가 정한다)
   const hangs = (sku) => mountOf(sku) === "wall" || !!decorOf(sku)?.hang; // 벽걸이 제품과 벽 후드
   const hungId = (id) => hangs(project?.scene_state.placements.find((q) => q.placement_id === id)?.sku);
   let lastHang = null; // 벽걸이 제품을 들고 있을 때 마지막으로 가리킨 벽 자리 {xz, yaw, base, wall}
@@ -571,8 +587,23 @@ export async function customer(pid) {
     ? (decorOf(sku)?.group === "storage" && sku !== "decor:island" && !HOOD_SKUS.has(sku)) || SNAP_MORE.has(sku)
     : !!prodOf(sku) && !tabletop(sku) && !isPurifier(sku) && !hangs(sku));
   const sideNeed = (sku) => (isDecor(sku) ? 0 : (prodOf(sku)?.clearance_mm?.side || 0) / 1000);
+  // 빌트인을 하부장·키큰장 줄 가까이 가져가면 줄에 끼운 자리 (js/slot.js, 서버와 같은 계산). 장은 놓을 때 서버가 칸을 내준다
+  const slotAt = (sku, size, xz, skipId = null) => {
+    if (!size || !project || !slotOf(sku)) return null;
+    const c = prodOf(sku)?.clearance_mm || {};
+    const cabs = project.scene_state.placements.filter((q) => q.sku in DOOR_BACK_M && q.size_m && q.placement_id !== skipId)
+      .map((q) => ({ id: q.placement_id, sku: q.sku, xz: q.center_xz, yaw: q.yaw_rad, w: q.size_m[0], h: q.size_m[1], d: q.size_m[2], keep: isLocked(q.placement_id) || !!q.host_of }));
+    return slotPose({ w: size[0], h: size[1], d: size[2], side: (c.side || 0) / 1000, back: (c.back || 0) / 1000 }, xz, cabs);
+  };
+  // 저장·판정에 같이 보낸다: 화면에서 장 줄에 끼워 둔 자리일 때만 서버가 장을 자른다 (Alt로 그냥 둔 자리는 그대로)
+  const slotArg = (sku, size, xz, yaw, skipId = null) => {
+    const sl = slotAt(sku, size, xz, skipId);
+    return { slot: !!sl && Math.hypot(sl.xz[0] - xz[0], sl.xz[1] - xz[1]) < 2e-3 && Math.abs(Math.atan2(Math.sin(sl.yaw - yaw), Math.cos(sl.yaw - yaw))) < 1e-3 };
+  };
   const snapAt = (sku, size, xz, yaw, skipId = null, keepYaw = false) => {
     if (!size || !room || !project || !snappable(sku)) return null;
+    const sl = slotAt(sku, size, xz, skipId);
+    if (sl) return { xz: sl.xz, yaw: sl.yaw, wall: true, slot: true };
     const gone = new Set(project.scene_state.hidden_walls || []);
     const walls = room.walls.filter((w) => !gone.has(w.wall_id)).map((w) => ({ start: w.start, end: w.end, t: w.thickness_m || 0.1 }));
     const others = project.scene_state.placements
@@ -581,6 +612,8 @@ export async function customer(pid) {
     const mid = walls.reduce((a, w) => [a[0] + (w.start[0] + w.end[0]) / 2 / walls.length, a[1] + (w.start[1] + w.end[1]) / 2 / walls.length], [0, 0]);
     const back = isDecor(sku) ? 0 : (prodOf(sku)?.clearance_mm?.back || 0) / 1000 + SNAP_MARGIN_M;
     const r = snapPose({ xz, yaw, w: size[0], d: size[2], side: sideNeed(sku), backOff: back, keepYaw, ...(mountOf(sku) ? { reach: MOUNT_REACH_M } : {}) }, walls, others, mid);
+    const sl2 = r.wall ? slotAt(sku, size, r.xz, skipId) : null; // 벽에 붙고 보니 장 줄 안이면 줄에 맞춘다
+    if (sl2) return { xz: sl2.xz, yaw: sl2.yaw, wall: true, slot: true };
     return r.wall || r.side || r.yaw !== yaw ? r : null;
   };
   // 벽걸이 제품을 걸 수 있는 벽: 서 있는 스캔 벽(방 안쪽 면)과 놓은 가벽(양쪽 면)
@@ -735,6 +768,8 @@ export async function customer(pid) {
   tabletop = (sku) => onTops.has(sku); // 가구 위에 올려 둘 수 있는 가전 (서버가 정한다)
   const mounts = new Map(families.flatMap((f) => f.variants.filter((v) => v.mount).map((v) => [v.sku, v.mount])));
   mountOf = (sku) => mounts.get(sku) || null;
+  const slots = new Set(families.flatMap((f) => f.variants.filter((v) => v.slot).map((v) => v.sku)));
+  slotOf = (sku) => slots.has(sku);
   const pick = {}; // family_id → 고른 SKU
   const finishLabel = (v) => [v.color, v.material].filter(Boolean).join(" · ");
   // 목록 카드의 색 동그라미는 색마다 하나만
@@ -1103,7 +1138,7 @@ export async function customer(pid) {
     };
     const a = at();
     if (size) showFollow(a.xz, a.yaw, size, armedVerdict, armed);
-    preview({ sku: armed, center_xz: a.xz, yaw_rad: a.yaw, ...(a.snap === false ? { snap: false } : {}) }, (r) => { // 판정 색과 남는 틈
+    preview({ sku: armed, center_xz: a.xz, yaw_rad: a.yaw, ...(a.snap === false ? { snap: false, ...slotArg(armed, size, a.xz, a.yaw) } : {}) }, (r) => { // 판정 색과 남는 틈
       if (!armed || !hovering) return;
       armedVerdict = r.verdict;
       const b = lastHover && at();
@@ -1139,28 +1174,45 @@ export async function customer(pid) {
   const remember = (step) => { undoStack.push(step); if (undoStack.length > 30) undoStack.shift(); redoStack.length = 0; syncUndo(); };
   const rememberPlacement = (plid) => {
     const x = project.scene_state.placements.find((q) => q.placement_id === plid);
-    if (x && !x.zone_id) remember({ kind: "pose", id: plid, body: { center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, ...(isDecor(x.sku) ? sizeArgs(x) : { sku: x.sku }), ...(x.hung ? { base_m: x.base_m || 0 } : {}), snap: false } });
+    if (x && !x.zone_id) remember({ kind: "pose", id: plid, body: { center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, ...(isDecor(x.sku) ? sizeArgs(x) : { sku: x.sku }), ...(x.hung ? { base_m: x.base_m || 0 } : {}), snap: false, slot: false } });
+  };
+  // 빌트인을 장 칸에 끼우면서 서버가 장을 줄이거나 갈랐으면, 되돌릴 때 그 장들도 같이 되돌린다 (한 단계로 묶는다)
+  const withSlot = (step, r) => {
+    const ch = r?.slot_changes;
+    if (!ch) return step;
+    const yawOf = (id) => project.scene_state.placements.find((q) => q.placement_id === id)?.yaw_rad;
+    return { kind: "multi", steps: [step,
+      ...ch.added.map((id) => ({ kind: "remove", id })),
+      ...ch.resized.map((c) => ({ kind: "pose", id: c.id, body: { center_xz: c.center_xz, yaw_rad: yawOf(c.id), size_m: c.size_m, snap: false, slot: false } })),
+      ...ch.removed.map((c, i) => ({ kind: "add", id: `gone-${Date.now()}-${i}`, body: { sku: c.sku, center_xz: c.center_xz, yaw_rad: c.yaw_rad, size_m: c.size_m, snap: false, slot: false, ...(c.color ? { color: c.color } : {}) }, hex: c.hex })),
+    ] };
   };
   const rememberRemoval = (plid) => {
     const x = project.scene_state.placements.find((q) => q.placement_id === plid);
-    if (x && !x.zone_id) remember({ kind: "add", id: plid, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) } });
+    if (x && !x.zone_id) remember({ kind: "add", id: plid, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) } });
   };
   // 단계 하나를 되돌리고, 그 반대 단계를 돌려준다 (되돌리기 ↔ 다시 실행)
   const applyStep = async (step) => {
+    if (step.kind === "multi") { // 묶인 단계는 차례로 되돌리고, 다시 할 때는 거꾸로
+      const back = [];
+      for (const one of step.steps) { const b = await applyStep(one); if (b) back.unshift(b); }
+      return { kind: "multi", steps: back };
+    }
     const id = liveId(step.id);
     if (step.kind === "remove") {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" });
       if (selPl === id) selPl = null;
-      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) } };
+      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}) };
     }
     if (step.kind === "pose") {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       await api(`/api/projects/${pid}/placements/${id}`, { method: "PATCH", body: JSON.stringify(step.body) });
-      return x && { kind: "pose", id, body: { center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, ...(isDecor(x.sku) ? sizeArgs(x) : { sku: x.sku }), ...(x.hung ? { base_m: x.base_m || 0 } : {}), snap: false } };
+      return x && { kind: "pose", id, body: { center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, ...(isDecor(x.sku) ? sizeArgs(x) : { sku: x.sku }), ...(x.hung ? { base_m: x.base_m || 0 } : {}), snap: false, slot: false } };
     }
     if (step.kind === "add") {
       const r = await post(`/api/projects/${pid}/placements`, step.body);
+      if (step.hex) await api(`/api/projects/${pid}/placements/${r.placement.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: step.hex }) }); // 칠해 둔 장 색
       undoIds[step.id] = r.placement.placement_id; selPl = r.placement.placement_id; selObj = null;
       return { kind: "remove", id: r.placement.placement_id };
     }
@@ -1219,8 +1271,8 @@ export async function customer(pid) {
     }
     const sn = snapAt(sku, armedSize(sku), p, yaw0, null, armed === sku && armedTurned); // 미리 보기에서 붙어 있던 그 자리에 놓는다
     showGaps(null);
-    const r = await post(`/api/projects/${pid}/placements`, sn ? { sku, center_xz: sn.xz, yaw_rad: sn.yaw, snap: false } : { sku, center_xz: p, yaw_rad: yaw0 });
-    remember({ kind: "remove", id: r.placement.placement_id });
+    const r = await post(`/api/projects/${pid}/placements`, sn ? { sku, center_xz: sn.xz, yaw_rad: sn.yaw, snap: false, slot: !!sn.slot } : { sku, center_xz: p, yaw_rad: yaw0 });
+    remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${nameOf(sku)}: ${LABEL[r.placement.verdict]}`);
     setHint(); renderLib();
@@ -1228,7 +1280,8 @@ export async function customer(pid) {
   });
   const patch = guard(async (plid, body) => {
     rememberPlacement(plid);
-    await api(`/api/projects/${pid}/placements/${plid}`, { method: "PATCH", body: JSON.stringify(body) });
+    const r = await api(`/api/projects/${pid}/placements/${plid}`, { method: "PATCH", body: JSON.stringify(body) });
+    if (r?.slot_changes) undoStack.push(withSlot(undoStack.pop(), r));
     await refresh(true);
   });
 
@@ -1385,7 +1438,11 @@ export async function customer(pid) {
       if (simOn("wifi")) await runWifi();
       return;
     }
-    if (it.kind === "placement") await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false, ...(hungId(it.id) && it.baseY !== undefined ? { base_m: Math.max(0, it.baseY) } : {}) }) });
+    if (it.kind === "placement") {
+      const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
+      const r = await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false, ...(x ? slotArg(x.sku, x.size_m, it.xz, it.yaw, it.id) : {}), ...(hungId(it.id) && it.baseY !== undefined ? { base_m: Math.max(0, it.baseY) } : {}) }) });
+      if (r?.slot_changes) undoStack.push(withSlot(undoStack.pop(), r));
+    }
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
   });
@@ -1474,7 +1531,7 @@ export async function customer(pid) {
   const BADGE = { fit: "배치가 가능합니다!", conditional: "배치가 가능합니다!", no_fit: "이 자리에는 안 들어가요", unknown: "판정할 정보가 부족해요" };
   const autoPlace = guard(async (sku, size_m = null) => {
     const r = await post(`/api/projects/${pid}/auto-place`, { sku, ...(size_m ? { size_m } : {}) });
-    remember({ kind: "remove", id: r.placement.placement_id });
+    remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null);
     toast(`${nameOf(sku)}${eul(nameOf(sku))} 공간에 놓았어요. 위에 뜬 메뉴로 옮기거나 돌릴 수 있어요`);
     setHint(); renderLib();
@@ -1492,6 +1549,31 @@ export async function customer(pid) {
   const resizePlacement = guard(async (plid, size_m) => {
     rememberPlacement(plid);
     await api(`/api/projects/${pid}/placements/${plid}`, { method: "PATCH", body: JSON.stringify({ size_m, snap: false }) });
+    await refresh(true);
+  });
+  // 장 끝 손잡이로 늘릴 수 있는 것: 수납장·하부장·키큰장 같은 장과 가벽
+  const stretchable = (sku) => isDecor(sku) && (decorOf(sku)?.group === "storage" || LONG.has(sku));
+  // 늘리다가 닿으면 멈출 것: 벽과 바닥에 놓인 다른 가구·가전 (가전은 옆 여유만큼 띄운다)
+  const stretchStops = (skipId) => {
+    const gone = new Set(project.scene_state.hidden_walls || []);
+    const box = (c, yaw, w, d) => { const u = [Math.cos(yaw - Math.PI / 2), Math.sin(yaw - Math.PI / 2)], f = [Math.cos(yaw), Math.sin(yaw)];
+      return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => [c[0] + (u[0] * a * w) / 2 + (f[0] * b * d) / 2, c[1] + (u[1] * a * w) / 2 + (f[1] * b * d) / 2]); };
+    const out = room.walls.filter((w) => !gone.has(w.wall_id)).map((w) => {
+      const len = Math.hypot(w.end[0] - w.start[0], w.end[1] - w.start[1]);
+      return { pts: box([(w.start[0] + w.end[0]) / 2, (w.start[1] + w.end[1]) / 2], Math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0]) + Math.PI / 2, len, w.thickness_m || 0.1) };
+    });
+    for (const q of project.scene_state.placements) {
+      if (q.placement_id === skipId || !q.size_m || q.base_m > 0 || q.sku === "decor:rug" || isPurifier(q.sku)) continue;
+      out.push({ pts: box(q.center_xz, q.yaw_rad, q.size_m[0], q.size_m[2]), pad: sideNeed(q.sku) });
+    }
+    return out;
+  };
+  const stretchSave = guard(async (base, r) => {
+    const x = project.scene_state.placements.find((q) => q.placement_id === base.id);
+    if (!x) return;
+    const size_m = [r.w, x.size_m[1], x.size_m[2]];
+    remember({ kind: "pose", id: base.id, body: { center_xz: [...base.xz], yaw_rad: x.yaw_rad, size_m: [base.w, x.size_m[1], x.size_m[2]], snap: false, slot: false } });
+    await api(`/api/projects/${pid}/placements/${base.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: r.xz, yaw_rad: x.yaw_rad, size_m, snap: false }) });
     await refresh(true);
   });
   const setWallPick = (on) => {
@@ -1781,6 +1863,7 @@ export async function customer(pid) {
     const size = x ? [x.size_m?.[0], x.size_m?.[2]] : o?.bbox_m ? [o.bbox_m.w, o.bbox_m.d] : null;
     const onWall = x && (WALL_SKUS.has(x.sku) || hangs(x.sku));
     viewer.setRotateRing(it && size?.[0] && !onWall ? { kind: it.kind, id: it.id, xz: it.xz, yaw: it.yaw, r: +ringRadius(size[0], size[1]).toFixed(3), y: x?.base_m || 0 } : null);
+    viewer.setStretch(it && x && stretchable(x.sku) && !(x.base_m > 0) ? { id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, w: x.size_m[0], d: x.size_m[2], y: 0 } : null);
   };
   const OPT_SHORT = (p) => {
     const o = p.options || {};
