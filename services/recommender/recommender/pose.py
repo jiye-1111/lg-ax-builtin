@@ -161,7 +161,9 @@ def _clear(p: Product) -> tuple[float, float, float, bool]:
 
 # ---------- 가구 위에 올려 두기 ----------
 # 식탁·아일랜드·하부장 같은 가구 윗면에 올려 쓰는 가전. 규칙은 docs/specs/fit-rules.md '가구 위에 올려 두기'
-TABLETOP = frozenset({"water_purifier", "microwave", "oven", "humidifier", "air_purifier", "plant_grower", "tv"})
+TABLETOP = frozenset({"water_purifier", "microwave", "oven", "humidifier", "air_purifier", "plant_grower", "tv",
+                      "wine_cellar", "refrigerator"})  # 와인셀러·냉장고는 크기 제한에 걸려 미니만 올라간다
+FLOOR_FIRST = frozenset({"wine_cellar", "refrigerator"})  # 알맞은 자리에 놓기는 바닥부터 찾는다 (책상 위는 손으로 올릴 때)
 TABLETOP_MAX_MM = (700, 650, 700)  # 폭·높이·깊이가 이보다 작아야 올린다 (TV는 크기와 상관없이 거실장 위에)
 SURFACE_MAX_M = 1.2                # 이보다 높은 윗면에는 올리지 않는다 (손이 닿는 조리대·식탁 높이까지)
 
@@ -229,17 +231,30 @@ def snap_to_wall(room: Room, product: Product, pose: Pose, cfg: FitConfig, reach
     if size is None or not room.walls:
         return pose
     w_m, _, d_m = size
-    side, back, _, _ = _clear(product)
-    margin = cfg.margin_scanned_mm / 1000
+    _, back, _, _ = _clear(product)
     wall, dist = _nearest_wall(room, pose.center_xz)
     gap = dist - _thick(wall) / 2 - d_m / 2 - back
     if gap > (cfg.snap_m if reach_m is None else reach_m):
         return pose
+    return against_wall(room, product, wall, pose.center_xz, cfg)
+
+
+def against_wall(room: Room, product: Product, wall: Wall, near: g.Pt, cfg: FitConfig, shift_m: float = 0.0) -> Optional[Pose]:
+    """이 벽에 등을 붙인 자리. near에서 벽으로 곧장 간 곳이고, shift_m만큼 벽을 따라 옮긴다. 벽 밖으로 나가면 None."""
+    size = product_size(product)
+    if size is None:
+        return None
+    w_m, _, d_m = size
+    side, back, _, _ = _clear(product)
     f = _inward(room, wall)
-    u, _ = f.to_local(pose.center_xz)
+    u, _ = f.to_local(near)
     half = w_m / 2 + side
     u = min(max(u, half), f.length - half) if f.length >= 2 * half else f.length / 2
-    v = _thick(wall) / 2 + back + margin + d_m / 2
+    if shift_m:
+        u += shift_m
+        if f.length < 2 * half or u < half - EPS or u > f.length - half + EPS:
+            return None
+    v = _thick(wall) / 2 + back + cfg.margin_scanned_mm / 1000 + d_m / 2
     nx, ny = f.v_axis
     return Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
 

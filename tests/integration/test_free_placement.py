@@ -233,3 +233,29 @@ def test_suggest_returns_products_that_fit_this_home(c, pid):
     assert items[0]["verdict"] in {"fit", "conditional"} and items[0]["wall_id"]
     assert c.post(f"/api/projects/{pid}/suggest", json={"skus": [], "limit": 3}).json()["items"] == []
     assert c.post(f"/api/projects/{pid}/suggest", json={"skus": ["x"] * 61}).status_code == 422
+
+
+def test_auto_align_goes_to_the_nearest_wall_not_a_far_one(c, pid):
+    import math
+    c.put(f"/api/projects/{pid}/objects/hidden", json={"hidden": True})
+    room = c.get(f"/api/projects/{pid}/files/room.json").json()
+
+    def dist(p, w):
+        (ax, ay), (bx, by) = w["start"], w["end"]
+        t = max(0, min(1, ((p[0] - ax) * (bx - ax) + (p[1] - ay) * (by - ay)) / ((bx - ax) ** 2 + (by - ay) ** 2)))
+        return math.hypot(p[0] - ax - t * (bx - ax), p[1] - ay - t * (by - ay))
+
+    xs = [p[0] for w in room["walls"] for p in (w["start"], w["end"])]
+    zs = [p[1] for w in room["walls"] for p in (w["start"], w["end"])]
+    mid = [(min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2]
+    long = max(room["walls"], key=lambda w: math.dist(w["start"], w["end"]))
+    wm = [(long["start"][0] + long["end"][0]) / 2, (long["start"][1] + long["end"][1]) / 2]
+    k = 1.5 / math.dist(wm, mid)  # 긴 벽 가운데에서 방 안쪽으로 1.5 m: 붙는 거리(30 cm)보다 멀다
+    at = [wm[0] + (mid[0] - wm[0]) * k, wm[1] + (mid[1] - wm[1]) * k]
+    near = min(room["walls"], key=lambda w: dist(at, w))
+    pl = c.post(f"/api/projects/{pid}/placements", json={"sku": SKU, "center_xz": at, "yaw_rad": 0.3, "snap": False}).json()["placement"]
+    assert not pl["wall_id"]
+    moved = c.post(f"/api/projects/{pid}/placements/{pl['placement_id']}/auto-align").json()["placement"]
+    assert moved["wall_id"] == near["wall_id"]
+    assert math.dist(moved["center_xz"], at) < 1.6, "가까운 벽으로 곧장 가야 한다"
+    assert moved["verdict"] in {"fit", "conditional"}

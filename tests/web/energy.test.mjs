@@ -14,3 +14,12 @@ test("1~5등급은 등급 글자와 다섯 칸 눈금으로 보여 준다", () =
 test("등급이 없거나 범위 밖이면 아무것도 보여 주지 않는다", () => {
   for (const g of [null, undefined, 0, 6, "1", 1.5]) assert.equal(energyBadge(g), "");
 });
+
+test("등급이 둘인 제품은 이름을 붙여 나란히 보여 준다", () => {
+  const h = energyBadge(null, { 냉방: 1, 난방: 3 });
+  assert.match(h, /냉방 1등급/);
+  assert.match(h, /난방 3등급/);
+  assert.equal((h.match(/class="energy"/g) || []).length, 2);
+  assert.equal(energyBadge(null, {}), "");
+  assert.equal(energyBadge(null, { 냉방: 9 }), "");
+});

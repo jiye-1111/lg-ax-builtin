@@ -75,4 +75,21 @@ def test_energy_grade_reaches_the_product_list():
     from recommender.variants import families
     fams = families(REAL, {})
     v = next(v for f in fams for v in f["variants"] if v["sku"] == "DUE6BGE")
-    assert v["energy_grade"] == 1
+    assert v["energy_grade"] == 1 and v["energy_parts"] == {}
+
+
+def test_energy_parts_for_products_with_two_grades():
+    """에어컨(냉방·난방)과 워시타워(세탁·건조)는 등급이 둘이라 energy_parts에 나눠 적고, energy_grade는 비워 둔다."""
+    real = {p["sku"]: Product.model_validate(p) for p in REAL}
+    two = [p for p in real.values() if p.energy_parts]
+    assert two and all(p.energy_grade is None and p.energy_checked_at for p in two)
+    assert all(set(p.energy_parts) <= {"냉방", "난방", "세탁", "건조"} and all(v in (1, 2, 3, 4, 5) for v in p.energy_parts.values()) for p in two)
+    assert {p.category for p in two} <= {"air_conditioner", "wash_tower"}
+    assert real["FW16HDWWA1"].energy_parts == {"냉방": 4, "난방": 5}
+
+
+def test_every_real_product_was_checked_for_energy_grade():
+    real = [Product.model_validate(p) for p in REAL]
+    assert all(p.energy_checked_at for p in real)
+    # 전자레인지·오븐·정수기처럼 스펙 표에 등급이 없는 종류는 비어 있다
+    assert all(p.energy_grade is None and not p.energy_parts for p in real if p.category in ("microwave", "oven", "styler", "wine_cellar"))

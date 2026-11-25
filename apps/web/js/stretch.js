@@ -31,3 +31,16 @@ export function stretchTo(item, side, want, stops = [], { min = 0.1, max = 8, fr
   len = Math.min(max, Math.max(min, len));
   return { w: len, xz: [a[0] + (u[0] * len) / 2, a[1] + (u[1] * len) / 2], hit };
 }
+
+// 끌어서 늘릴 수 있는 가구. 장·가벽은 양옆으로, 벽에서 떨어져 쓰는 것(아일랜드·식탁·테이블·소파·침대·러그)은 앞뒤로도 늘린다.
+// 책상은 숫자 입력만 쓴다. 의자·조명·식물처럼 늘려서 쓸 일이 없는 것, 벽에 다는 문·창·후드도 뺀다.
+const LONG = new Set(["decor:wall", "decor:partition"]);
+const DEEP = new Set(["decor:island", "decor:islandtable", "decor:table", "decor:coffee", "decor:sofa", "decor:bed", "decor:rug"]);
+const FIXED = new Set(["decor:desk", "decor:hood", "decor:islandhood"]);
+
+/** sku와 가구 묶음(group) → 손잡이가 없으면 null, 있으면 {deep: 앞뒤 손잡이도 있는지} */
+export function handlesFor(sku, group) {
+  if (!String(sku || "").startsWith("decor:") || FIXED.has(sku)) return null;
+  if (DEEP.has(sku)) return { deep: true };
+  return group === "storage" || LONG.has(sku) ? { deep: false } : null;
+}

@@ -17,7 +17,7 @@ import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
 import { slotPose, DOOR_BACK_M } from "./slot.js";
-import { stretchTo } from "./stretch.js";
+import { stretchTo, handlesFor } from "./stretch.js";
 import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
 import { coloursFor, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
@@ -486,6 +486,7 @@ export async function customer(pid) {
     onHoverHit: (h) => furnHover(h),
     onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
+      if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (point && floorAction(point)) return;
       if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }
@@ -505,7 +506,7 @@ export async function customer(pid) {
     snap: (h, xz, yaw) => {
       if (h.kind !== "placement") return null;
       const x = project?.scene_state.placements.find((q) => q.placement_id === h.id);
-      return x ? snapAt(x.sku, x.size_m, xz, yaw ?? x.yaw_rad, x.placement_id, !!h.turned) : null;
+      return x ? snapAt(x.sku, x.size_m, xz, yaw ?? x.yaw_rad, x.placement_id, !!h.turned || turnedIds.has(x.placement_id)) : null;
     },
     onHoldClick: () => putDown(),
     onDragMove: (id, c, yaw) => {
@@ -544,7 +545,7 @@ export async function customer(pid) {
       viewer.setPlacements(project.scene_state.placements, selPl);
     },
     onStretchEnd: (base, r, axis = "w") => stretchSave(base, r, axis),
-    onRingEnd: (it) => { drag3d = null; savePose(it); },
+    onRingEnd: (it) => { drag3d = null; markTurned(it); savePose(it); },
   });
   const saveCamera = () => { try { saveUiState(pid, { cam: viewer.camera() }); } catch { /* 이미 닫힌 화면 */ } };
   // 첫 화면 ‘최근에 만든 집’ 카드에 쓸 미리보기. 3D가 다 뜬 뒤와 화면을 떠날 때 찍는다
@@ -621,6 +622,9 @@ export async function customer(pid) {
     const sl = slotAt(sku, size, xz, skipId);
     return { slot: !!sl && Math.hypot(sl.xz[0] - xz[0], sl.xz[1] - xz[1]) < 2e-3 && Math.abs(Math.atan2(Math.sin(sl.yaw - yaw), Math.cos(sl.yaw - yaw))) < 1e-3 };
   };
+  // 직접 돌린 제품·가구: 벽에 붙을 때 방향을 다시 돌려놓지 않는다 (팀원 의견: 붙일 때 멋대로 가로로 돌아가서 불편)
+  const turnedIds = new Set(Array.isArray(saved.turned) ? saved.turned : []);
+  const markTurned = (it) => { if (it?.kind !== "placement" || turnedIds.has(it.id)) return; turnedIds.add(it.id); saveUiState(pid, { turned: [...turnedIds].slice(-200) }); };
   const snapAt = (sku, size, xz, yaw, skipId = null, keepYaw = false) => {
     if (!size || !room || !project || !snappable(sku)) return null;
     const sl = slotAt(sku, size, xz, skipId);
@@ -632,7 +636,7 @@ export async function customer(pid) {
       .map((q) => ({ xz: q.center_xz, yaw: q.yaw_rad, w: q.size_m[0], d: q.size_m[2], side: sideNeed(q.sku) }));
     const mid = walls.reduce((a, w) => [a[0] + (w.start[0] + w.end[0]) / 2 / walls.length, a[1] + (w.start[1] + w.end[1]) / 2 / walls.length], [0, 0]);
     const back = isDecor(sku) ? 0 : (prodOf(sku)?.clearance_mm?.back || 0) / 1000 + SNAP_MARGIN_M;
-    const r = snapPose({ xz, yaw, w: size[0], d: size[2], side: sideNeed(sku), backOff: back, keepYaw, ...(mountOf(sku) ? { reach: MOUNT_REACH_M } : {}) }, walls, others, mid);
+    const r = snapPose({ xz, yaw, w: size[0], d: size[2], side: sideNeed(sku), backOff: back, keepYaw, ...(mountOf(sku) ? { reach: MOUNT_REACH_M, mustBack: true } : {}) }, walls, others, mid);
     const sl2 = r.wall ? slotAt(sku, size, r.xz, skipId) : null; // 벽에 붙고 보니 장 줄 안이면 줄에 맞춘다
     if (sl2) return { xz: sl2.xz, yaw: sl2.yaw, wall: true, slot: true, carve: sl2.carve };
     return r.wall || r.side || r.yaw !== yaw ? r : null;
@@ -1060,7 +1064,7 @@ export async function customer(pid) {
       ["용량", cap ? esc(String(cap)) : ""],
       ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
       ["색상", esc(finishLabel(v))],
-      ["에너지 효율", energyBadge(p.energy_grade)],
+      ["에너지 효율", energyBadge(p.energy_grade, p.energy_parts)],
     ].filter(([, val]) => val);
     pdModal.innerHTML = `
       <div class="pd-top">
@@ -1296,6 +1300,7 @@ export async function customer(pid) {
     showGaps(null);
     const r = await post(`/api/projects/${pid}/placements`, sn ? { sku, center_xz: sn.xz, yaw_rad: sn.yaw, snap: false, slot: !!sn.slot } : { sku, center_xz: p, yaw_rad: yaw0 });
     remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
+    if (armed === sku && armedTurned) markTurned({ kind: "placement", id: r.placement.placement_id }); // 돌려서 놓은 것도 그 방향을 지킨다
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
     toast(`${nameOf(sku)}: ${LABEL[r.placement.verdict]}`);
     setHint(); renderLib();
@@ -1469,7 +1474,7 @@ export async function customer(pid) {
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
   });
-  const putDown = () => { const it = viewer.dropHold(); setHint(); if (it) savePose(it); };
+  const putDown = () => { const it = viewer.dropHold(); setHint(); if (it?.turned) markTurned(it); if (it) savePose(it); };
   const removeSelected = guard(async () => {
     viewer.cancelHold();
     if (selPl) { rememberRemoval(selPl); await api(`/api/projects/${pid}/placements/${selPl}`, { method: "DELETE" }); selPl = null; toast("제품을 뺐어요"); }
@@ -1491,6 +1496,7 @@ export async function customer(pid) {
       if (!h) return;
       pendingKey = { ...it, xz: h.xz, yaw: h.yaw, baseY: h.base };
     } else pendingKey = { ...it, xz: [it.xz[0] + dx, it.xz[1] + dz], yaw: it.yaw + dyaw };
+    if (dyaw) markTurned(it);
     clearTimeout(keyTimer);
     keyTimer = setTimeout(() => { const p = pendingKey; pendingKey = null; savePose(p); }, 350);
   };
@@ -1576,8 +1582,9 @@ export async function customer(pid) {
   });
   // 장 끝 손잡이로 늘릴 수 있는 것: 수납장·하부장·키큰장 같은 장과 가벽
   // 아일랜드·아일랜드 식탁은 벽에서 떨어져 있어 앞뒤(깊이)로도 늘린다
-  const DEEP = new Set(["decor:island", "decor:islandtable"]), STRETCH_MIN_M = { w: 0.1, d: 0.3 };
-  const stretchable = (sku) => isDecor(sku) && (decorOf(sku)?.group === "storage" || LONG.has(sku) || DEEP.has(sku));
+  // 식탁·테이블·소파·침대·러그도 같은 손잡이로 늘린다 (어떤 가구인지는 js/stretch.js handlesFor)
+  const STRETCH_MIN_M = { w: 0.1, d: 0.3 };
+  const stretchOf = (sku) => handlesFor(sku, decorOf(sku)?.group);
   // 늘리다가 닿으면 멈출 것: 벽과 바닥에 놓인 다른 가구·가전 (가전은 옆 여유만큼 띄운다)
   const stretchStops = (skipId) => {
     const gone = new Set(project.scene_state.hidden_walls || []);
@@ -1587,6 +1594,7 @@ export async function customer(pid) {
       const len = Math.hypot(w.end[0] - w.start[0], w.end[1] - w.start[1]);
       return { pts: box([(w.start[0] + w.end[0]) / 2, (w.start[1] + w.end[1]) / 2], Math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0]) + Math.PI / 2, len, w.thickness_m || 0.1) };
     });
+    if (project.scene_state.placements.find((q) => q.placement_id === skipId)?.sku === "decor:rug") return out; // 러그는 가구 밑으로 들어가도 된다
     for (const q of project.scene_state.placements) {
       if (q.placement_id === skipId || !q.size_m || q.base_m > 0 || q.sku === "decor:rug" || isPurifier(q.sku)) continue;
       out.push({ pts: box(q.center_xz, q.yaw_rad, q.size_m[0], q.size_m[2]), pad: sideNeed(q.sku) });
@@ -1889,7 +1897,7 @@ export async function customer(pid) {
     const size = x ? [x.size_m?.[0], x.size_m?.[2]] : o?.bbox_m ? [o.bbox_m.w, o.bbox_m.d] : null;
     const onWall = x && (WALL_SKUS.has(x.sku) || hangs(x.sku));
     viewer.setRotateRing(it && size?.[0] && !onWall ? { kind: it.kind, id: it.id, xz: it.xz, yaw: it.yaw, r: +ringRadius(size[0], size[1]).toFixed(3), y: x?.base_m || 0 } : null);
-    viewer.setStretch(it && x && stretchable(x.sku) && !(x.base_m > 0) ? { id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, w: x.size_m[0], d: x.size_m[2], y: 0, deep: DEEP.has(x.sku) } : null);
+    viewer.setStretch(it && x && stretchOf(x.sku) && !(x.base_m > 0) ? { id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, w: x.size_m[0], d: x.size_m[2], y: 0, deep: stretchOf(x.sku).deep } : null);
   };
   const OPT_SHORT = (p) => {
     const o = p.options || {};
