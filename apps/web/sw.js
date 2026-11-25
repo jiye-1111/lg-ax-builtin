@@ -1,8 +1,8 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v87"; // 끄는 중에도 칸 미리 보기 + 싱크대·아일랜드·스캔 장에 끼우기 + 아일랜드 앞뒤 늘리기
+const VERSION = "lgb-shell-v88"; // 제품 상세에 에너지 소비효율등급
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/snap.js", "./js/gapnote.js",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",

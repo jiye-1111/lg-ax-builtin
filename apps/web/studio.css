@@ -1038,3 +1038,14 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
   background: var(--sheet, #fff); color: var(--ink); font: 600 13px/1.3 Pretendard, sans-serif; box-shadow: 0 2px 10px rgba(29, 28, 26, .16); }
 .canvas.moving-item .act-bar { opacity: 0; pointer-events: none; transition: opacity .12s; }
 .viewer { -webkit-user-select: none; user-select: none; } /* 3D에서 끌 때 주변 글자가 선택되지 않게 */
+
+/* 제품 상세의 에너지 소비효율등급: 라벨처럼 다섯 칸 눈금, 그 등급 칸만 칠한다 (LG 레드는 쓰지 않는다) */
+.energy { display: inline-flex; align-items: center; gap: 8px; --e: #1e7a4f; }
+.energy[data-grade="2"] { --e: #6f9a2c; }
+.energy[data-grade="3"] { --e: #c29400; }
+.energy[data-grade="4"] { --e: #cf7a1f; }
+.energy[data-grade="5"] { --e: #a4532b; }
+.energy-steps { display: inline-flex; gap: 2px; }
+.energy-steps i { width: 12px; height: 6px; border-radius: 2px; background: var(--line); }
+.energy-steps i.on { background: var(--e); height: 10px; margin-top: -2px; }
+.energy b { font-weight: 600; color: var(--ink); }
