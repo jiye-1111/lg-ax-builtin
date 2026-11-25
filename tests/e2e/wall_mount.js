@@ -100,8 +100,10 @@ const check = (name, ok, info = "") => { if (!ok) failed += 1; console.log(`${ok
   await page.click('[data-tab="lg"]');
   await page.fill("#q", AC);
   // 5) 목록에서 벽걸이 에어컨의 '배치하기'를 누르면 빈 벽을 찾아 천장 아래에 걸린다
-  await page.waitForFunction((sku) => !!document.querySelector(`#lib [data-place="${sku}"]`), AC, { timeout: 10000 });
-  await page.evaluate((sku) => document.querySelector(`#lib [data-place="${sku}"]`).click(), AC);
+  // (목록에 내놓지 않는 모델이면 같은 '알맞은 자리에 놓기'를 바로 부른다)
+  const listed = await page.waitForFunction((sku) => !!document.querySelector(`#lib [data-place="${sku}"]`), AC, { timeout: 10000 }).then(() => true, () => false);
+  if (listed) await page.evaluate((sku) => document.querySelector(`#lib [data-place="${sku}"]`).click(), AC);
+  else await api(`/api/projects/${pid}/auto-place`, { sku: AC });
   await page.waitForTimeout(2500);
   const ac = (await api(`/api/projects/${pid}`, null, "GET")).scene_state.placements.find((q) => q.sku === AC && q.placement_id !== ac2?.placement_id);
   check("에어컨이 걸렸다", !!ac);
