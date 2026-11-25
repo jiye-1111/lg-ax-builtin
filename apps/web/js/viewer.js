@@ -877,6 +877,7 @@ export function makeViewer(el, handlers = {}) {
       held.spin = (held.spin ?? held.yaw) + e.movementX * SPIN_RAD_PER_PX;
       held.yaw = e.shiftKey ? Math.round(held.spin / SNAP_RAD) * SNAP_RAD : held.spin;
       held.turned = true;
+      held.freeYaw = undefined;
       handlers.onHoldMove?.(held, held.xz);
       return;
     }
@@ -895,8 +896,10 @@ export function makeViewer(el, handlers = {}) {
       if (q) {
         held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]];
         // 벽·가전 옆에 가까이 가면 착 붙는다 (Alt를 누르고 있으면 붙지 않는다)
-        const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.yaw);
-        if (sn) { held.xz = sn.xz; held.yaw = sn.yaw; }
+        // 벽에 붙으면서 돌아간 방향은 벽에서 떼면 원래대로 돌아온다 (지나가다 붙었다고 방향이 바뀐 채 남지 않게)
+        const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.freeYaw ?? held.yaw);
+        if (sn) { held.freeYaw ??= held.yaw; held.xz = sn.xz; held.yaw = sn.yaw; }
+        else if (held.freeYaw !== undefined) { held.yaw = held.freeYaw; held.freeYaw = undefined; }
         handlers.onHoldMove?.(held, held.xz);
       }
       return;
@@ -1233,7 +1236,7 @@ export function makeViewer(el, handlers = {}) {
     /** E를 누르고 있는지 (잡은 물건을 마우스로 돌리는 중) */
     spinKey(on) { rotKey = !!on && !!held; },
     moveHeld(dx, dz) { if (held && held.surface !== "wall") { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
-    rotateHeld(dyaw) { if (held && held.surface !== "wall") { held.yaw += dyaw; held.turned = true; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
+    rotateHeld(dyaw) { if (held && held.surface !== "wall") { held.yaw += dyaw; held.turned = true; held.freeYaw = undefined; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;
