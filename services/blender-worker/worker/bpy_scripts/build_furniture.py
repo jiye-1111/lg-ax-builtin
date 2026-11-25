@@ -19,7 +19,7 @@ from pathlib import Path
 import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from furn_parts import MATS, ball, bar, bowed, cyl, leaf, part, rod, soft  # noqa: E402
+from furn_parts import MATS, bake_uvs, ball, bar, bowed, cyl, leaf, part, rod, slab, soft  # noqa: E402
 
 
 # ---------- 종류별 모양 ----------
@@ -27,162 +27,177 @@ CORNERS = [(-1, 1), (1, 1), (-1, -1), (1, -1)]  # 다리 네 개: (좌우, 앞�
 
 
 def chair(w, h, d):
-    """원목 식탁 의자: 가늘어지는 둥근 다리, 볼록한 천 방석, 몸을 감싸듯 굽은 등판."""
-    seat, pad = 0.45, 0.05
-    under = seat - pad  # 방석 밑 = 틀 윗면
-    # 앞다리: 아래로 갈수록 가늘고 살짝 벌어진다
+    """식탁 의자: 가는 원목 틀에 천을 씌운 방석과 몸을 감싸는 등받이 (요즘 많이 보이는 패브릭 다이닝 체어)."""
+    seat, pad = 0.46, 0.06
+    under = seat - pad
     for i, sx in enumerate((-1, 1)):
-        rod(f"leg_f{i}", "oak", (sx * (w / 2 - 0.028), 0, d / 2 - 0.035), (sx * (w / 2 - 0.055), under, d / 2 - 0.06),
-            0.013, 0.019, "ese")
-    # 뒷다리는 등판까지 한 줄로 올라가며 뒤로 눕는다
-    for i, sx in enumerate((-1, 1)):
-        rod(f"leg_b{i}", "oak", (sx * (w / 2 - 0.03), 0, -d / 2 + 0.03), (sx * (w / 2 - 0.05), under, -d / 2 + 0.085),
-            0.013, 0.019, "ese")
-        rod(f"post{i}", "oak", (sx * (w / 2 - 0.05), under, -d / 2 + 0.085), (sx * (w / 2 - 0.06), h - 0.06, -d / 2 + 0.04),
-            0.019, 0.014, "ese")
-    # 방석 틀과 방석
-    part("frame", "oak", -w / 2 + 0.03, w / 2 - 0.03, -d / 2 + 0.06, d / 2 - 0.03, under - 0.04, under, "sps", 0.008)
-    soft("seat", "seat", -w / 2, w / 2, -d / 2 + 0.05, d / 2, under, seat, "sps", r=0.024, puff=0.012)
-    # 굽은 등판 (가운데가 가장 뒤 = 깊이 끝)
-    t, bow = 0.02, 0.045
-    bowed("back", "oak", -w / 2 + 0.035, w / 2 - 0.035, h - 0.2, h, -d / 2 + bow + t / 2, bow, t, "sse")
-    bowed("back_low", "oak", -w / 2 + 0.05, w / 2 - 0.05, seat + 0.16, seat + 0.2, -d / 2 + bow + t / 2 + 0.01, bow, 0.016,
-          "sse")
-    # 옆 가로대
-    for i, sx in enumerate((-1, 1)):
-        rod(f"rail{i}", "oak", (sx * (w / 2 - 0.04), 0.19, -d / 2 + 0.05), (sx * (w / 2 - 0.04), 0.19, d / 2 - 0.045),
-            0.009, 0.009, "ees", 12)
+        rod(f"leg_f{i}", "frame:oak_light", (sx * (w / 2 - 0.03), 0.002, d / 2 - 0.04), (sx * (w / 2 - 0.06), under, d / 2 - 0.07),
+            0.012, 0.018, "ese")
+        rod(f"leg_b{i}", "frame:oak_light", (sx * (w / 2 - 0.035), 0.002, -d / 2 + 0.03), (sx * (w / 2 - 0.06), under, -d / 2 + 0.1),
+            0.012, 0.018, "ese")
+        rod(f"post{i}", "frame:oak_light", (sx * (w / 2 - 0.06), under, -d / 2 + 0.1), (sx * (w / 2 - 0.075), h - 0.1, -d / 2 + 0.055),
+            0.018, 0.013, "ese")
+    part("frame", "frame:oak_light", -w / 2 + 0.04, w / 2 - 0.04, -d / 2 + 0.08, d / 2 - 0.05, under - 0.035, under, "sps", 0.008)
+    soft("seat", "seat:boucle", -w / 2, w / 2, -d / 2 + 0.06, d / 2, under, seat, "sps", r=0.028, puff=0.014)
+    # 등받이: 굽은 판에 천을 씌운 모양 (가운데가 뒤로 들어간다)
+    bowed("back", "back:boucle", -w / 2 + 0.03, w / 2 - 0.03, h - 0.3, h, -d / 2 + 0.0725, 0.05, 0.045, "sse", edge=0.018)
 
 
 def table(w, h, d):
-    """원목 식탁: 모서리를 굴린 두툼한 상판, 안쪽으로 들인 틀, 가늘어지는 둥근 다리."""
-    top, inset = 0.036, 0.09
-    part("top", "oak", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.014)
+    """식탁: 네 귀를 굴린 얇은 상판, 안쪽으로 들인 틀, 아래로 가늘어지는 둥근 다리."""
+    top, inset = 0.03, 0.11
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.09, edge=0.008)
     for i, (sx, sz) in enumerate(CORNERS):
-        rod(f"leg{i}", "oak", (sx * (w / 2 - 0.055), 0, sz * (d / 2 - 0.055)),
-            (sx * (w / 2 - inset), h - top, sz * (d / 2 - inset)), 0.017, 0.028, "ese")
+        rod(f"leg{i}", "leg:oak_light", (sx * (w / 2 - 0.075), 0, sz * (d / 2 - 0.075)),
+            (sx * (w / 2 - inset), h - top, sz * (d / 2 - inset)), 0.016, 0.03, "ese")
     for i, sz in enumerate((-1, 1)):
         z = sz * (d / 2 - inset)
-        part(f"apron{i}", "oak", -w / 2 + inset, w / 2 - inset, z - 0.011, z + 0.011, h - top - 0.07, h - top, "see", 0.004)
+        part(f"apron{i}", "leg:oak_light", -w / 2 + inset, w / 2 - inset, z - 0.01, z + 0.01, h - top - 0.06, h - top, "see", 0.004)
     for i, sx in enumerate((-1, 1)):
         x = sx * (w / 2 - inset)
-        part(f"apron_s{i}", "oak", x - 0.011, x + 0.011, -d / 2 + inset, d / 2 - inset, h - top - 0.07, h - top, "ees", 0.004)
+        part(f"apron_s{i}", "leg:oak_light", x - 0.01, x + 0.01, -d / 2 + inset, d / 2 - inset, h - top - 0.06, h - top, "ees", 0.004)
+
+
+def _flat_doors(prefix, look, x0, x1, y0, y1, zf, n, t=0.02, gap=0.003, rig="sse"):
+    """손잡이 없는 납작한 문 n짝을 나란히. 문 사이에는 가는 틈만 보인다 (틈 뒤는 어둡게)."""
+    part(f"{prefix}_bed", "shadow", x0 + 0.002, x1 - 0.002, zf - t - 0.003, zf - 0.012, y0 + 0.002, y1 - 0.002, rig, 0.001)
+    step = (x1 - x0) / n
+    for i in range(n):
+        part(f"{prefix}{i}", look, x0 + i * step + gap, x0 + (i + 1) * step - gap, zf - t, zf, y0 + gap, y1 - gap, rig, 0.0025)
 
 
 def storage(w, h, d):
-    """수납장: 걸레받이, 문 두 짝, 얇은 덮개 판 (정면 +Z, 다른 장과 같은 방향)"""
-    base, hd, cap = 0.08, 0.018, 0.02  # 걸레받이 높이, 손잡이가 앞으로 나온 길이 (깊이 d 안에), 덮개 두께
-    front = d / 2 - hd  # 문 앞면
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, front - 0.05, 0, base, "ses", 0.003)
-    part("body", "white", -w / 2, w / 2, -d / 2, front - 0.02, base, h - cap, "sss", 0.004)
-    part("cap", "stone", -w / 2, w / 2, -d / 2, front + 0.004, h - cap, h, "ses", 0.005)
-    gap = 0.003
-    for i in range(2):
-        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
-        part(f"door{i}", "white", x0, x1, front - 0.02, front, base + gap, h - cap - gap, "sse", 0.004)
-        hx = x1 - 0.04 if i == 0 else x0 + 0.04
-        part(f"handle{i}", "brass", hx - 0.005, hx + 0.005, front, d / 2, h * 0.45, h * 0.45 + 0.16, "ppe", 0.005)
+    """수납장: 손잡이 없는 무광 문 위아래 + 가운데 뚫린 나무 칸 (요즘 붙박이 수납장 모양, 정면 +Z)."""
+    base, t = 0.07, 0.02
+    front = d / 2
+    lo, hi = base + (h - base) * 0.42, base + (h - base) * 0.6  # 뚫린 칸 아래·위
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, front - 0.06, 0, base, "ses", 0.003)
+    part("body_low", "white:matte", -w / 2, w / 2, -d / 2, front - t, base, lo, "sss", 0.003)
+    part("body_up", "white:matte", -w / 2, w / 2, -d / 2, front - t, hi, h, "sss", 0.003)
+    part("niche_back", "niche:oak_light", -w / 2 + 0.018, w / 2 - 0.018, -d / 2, -d / 2 + 0.02, lo, hi, "sss", 0.001)
+    for i, sx in enumerate((-1, 1)):
+        x0 = -w / 2 if sx < 0 else w / 2 - 0.018
+        part(f"niche_side{i}", "white:matte", x0, x0 + 0.018, -d / 2, front, lo, hi, "ess", 0.002)
+    part("niche_floor", "niche:oak_light", -w / 2 + 0.018, w / 2 - 0.018, -d / 2 + 0.02, front, lo - 0.001, lo + 0.018, "sps", 0.002)
+    _flat_doors("door_low", "white:matte", -w / 2, w / 2, base, lo, front, 2)
+    _flat_doors("door_up", "white:matte", -w / 2, w / 2, hi, h, front, 2)
 
 
 def sofa(w, h, d):
-    """패브릭 소파: 둥근 팔걸이, 볼록한 방석 두 장, 뒤로 살짝 누운 등쿠션, 포인트 쿠션, 원목 발."""
-    arm, foot, seat, back_t = 0.17, 0.09, 0.44, 0.16
+    """패브릭 소파: 낮고 깊은 몸통, 도톰한 팔걸이, 두툼한 방석 두 장과 등쿠션, 포인트 쿠션 둘, 낮은 발."""
+    arm, foot, seat, back_t = 0.2, 0.06, 0.43, 0.2
     for i, (sx, sz) in enumerate(CORNERS):
-        x, z = sx * (w / 2 - 0.07), sz * (d / 2 - 0.08)
-        rod(f"foot{i}", "walnut", (x, 0.002, z), (x - sx * 0.012, foot, z - sz * 0.012), 0.014, 0.022, "eee", 16)
-    soft("base", "sofa", -w / 2 + 0.02, w / 2 - 0.02, -d / 2 + 0.02, d / 2 - 0.03, foot, seat - 0.13, "sss", r=0.03)
+        x, z = sx * (w / 2 - 0.1), sz * (d / 2 - 0.1)
+        part(f"foot{i}", "leg:black", x - 0.025, x + 0.025, z - 0.025, z + 0.025, 0, foot + 0.01, "eee", 0.006)
+    soft("base", "fabric:sofa", -w / 2 + 0.01, w / 2 - 0.01, -d / 2 + 0.01, d / 2 - 0.02, foot, seat - 0.15, "sss", r=0.035)
     for i, sx in enumerate((-1, 1)):
         x0 = -w / 2 if sx < 0 else w / 2 - arm
-        soft(f"arm{i}", "sofa", x0, x0 + arm, -d / 2 + 0.01, d / 2 - 0.015, foot + 0.01, 0.63, "ess", r=0.07)
-    soft("back", "sofa", -w / 2 + 0.03, w / 2 - 0.03, -d / 2, -d / 2 + back_t, foot + 0.01, h - 0.07, "sse", r=0.06)
+        soft(f"arm{i}", "fabric:sofa", x0, x0 + arm, -d / 2, d / 2 - 0.01, foot + 0.005, 0.6, "ess", r=0.075)
+    soft("back", "fabric:sofa", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, -d / 2 + back_t, foot + 0.005, h - 0.13, "sse", r=0.07)
     inner = w - 2 * arm
     for i in range(2):
-        x0 = -w / 2 + arm + i * inner / 2 + 0.004
-        x1 = x0 + inner / 2 - 0.008
-        soft(f"cushion{i}", "sofa_seat", x0, x1, -d / 2 + back_t - 0.02, d / 2, seat - 0.14, seat, "sps", r=0.05, puff=0.022)
-        soft(f"pillow{i}", "sofa_seat", x0 + 0.01, x1 - 0.01, -d / 2 + back_t - 0.03, -d / 2 + back_t + 0.15, seat - 0.01, h,
-             "sse", r=0.065, lean=0.05)
-    # 포인트 쿠션 (크기는 그대로, 양 끝 팔걸이 옆)
-    for i, (sx, look) in enumerate(((-1, "sage"), (1, "clay"))):
-        xc = sx * (w / 2 - arm - 0.2)
-        soft(f"throw{i}", look, xc - 0.19, xc + 0.19, -d / 2 + back_t + 0.12, -d / 2 + back_t + 0.25, seat + 0.01, seat + 0.36,
-             "eee", r=0.06, lean=0.07)
+        x0 = -w / 2 + arm + i * inner / 2 + 0.003
+        x1 = x0 + inner / 2 - 0.006
+        soft(f"cushion{i}", "fabric:sofa", x0, x1, -d / 2 + back_t - 0.02, d / 2, seat - 0.16, seat, "sps", r=0.055, puff=0.025)
+        soft(f"pillow{i}", "fabric:sofa", x0 + 0.005, x1 - 0.005, -d / 2 + back_t - 0.05, -d / 2 + back_t + 0.17, seat - 0.01, h,
+             "sse", r=0.08, lean=0.06)
+    for i, (sx, look) in enumerate(((-1, "cushion:caramel"), (1, "cushion:caramel"))):
+        xc = sx * (w / 2 - arm - 0.21)
+        soft(f"throw{i}", look, xc - 0.2, xc + 0.2, -d / 2 + back_t + 0.13, -d / 2 + back_t + 0.26, seat + 0.01, seat + 0.38,
+             "eee", r=0.06, lean=0.08)
 
 
 def bed(w, h, d):
-    """침대: 천을 씌운 머리판, 낮은 원목 틀, 둥근 매트리스, 접어 내린 이불과 발치 담요, 베개 넷."""
-    leg, frame_top, mat_top = 0.12, 0.3, 0.54
+    """침대: 세로로 골이 진 패브릭 헤드, 천을 씌운 낮은 틀, 도톰한 이불과 발치 담요, 베개 넷."""
+    leg, frame_top, mat_top = 0.07, 0.3, 0.55
     for i, (sx, sz) in enumerate(CORNERS):
-        x, z = sx * (w / 2 - 0.09), sz * (d / 2 - 0.1)
-        rod(f"leg{i}", "walnut", (x, 0, z), (x, leg, z), 0.018, 0.028, "eee", 16)
-    part("frame", "walnut", -w / 2, w / 2, -d / 2 + 0.07, d / 2, leg, frame_top, "sps", 0.014)
-    soft("headboard", "headboard", -w / 2, w / 2, -d / 2, -d / 2 + 0.09, leg, h, "sse", r=0.04)
-    soft("mattress", "linen", -w / 2 + 0.035, w / 2 - 0.035, -d / 2 + 0.1, d / 2 - 0.03, frame_top - 0.02, mat_top, "sps",
+        x, z = sx * (w / 2 - 0.12), sz * (d / 2 - 0.14)
+        part(f"leg{i}", "leg:black", x - 0.03, x + 0.03, z - 0.03, z + 0.03, 0, leg + 0.01, "eee", 0.006)
+    soft("frame", "frame:headboard", -w / 2, w / 2, -d / 2 + 0.06, d / 2, leg, frame_top, "sps", r=0.035)
+    # 헤드: 세로로 긴 쿠션을 나란히 세운 모양
+    n = 6
+    for i in range(n):
+        x0 = -w / 2 + i * w / n
+        soft(f"head{i}", "head:headboard", x0 + 0.002, x0 + w / n - 0.002, -d / 2, -d / 2 + 0.11, leg, h, "sse", r=0.04, cuts=5)
+    soft("mattress", "linen", -w / 2 + 0.04, w / 2 - 0.04, -d / 2 + 0.12, d / 2 - 0.04, frame_top - 0.02, mat_top, "sps",
          r=0.06, puff=0.008)
-    soft("duvet", "duvet", -w / 2 + 0.015, w / 2 - 0.015, -d / 2 + 0.72, d / 2 - 0.015, mat_top - 0.12, mat_top + 0.05, "sps",
-         r=0.045, puff=0.02)
-    soft("duvet_fold", "linen", -w / 2 + 0.02, w / 2 - 0.02, -d / 2 + 0.6, -d / 2 + 0.86, mat_top + 0.005, mat_top + 0.075,
-         "spe", r=0.035)
-    soft("blanket", "blanket", -w / 2 + 0.005, w / 2 - 0.005, d / 2 - 0.62, d / 2 - 0.16, mat_top - 0.1, mat_top + 0.092, "spe",
+    soft("duvet", "bedding:duvet", -w / 2 + 0.01, w / 2 - 0.01, -d / 2 + 0.74, d / 2 - 0.02, mat_top - 0.14, mat_top + 0.055, "sps",
+         r=0.05, puff=0.025)
+    soft("duvet_fold", "linen", -w / 2 + 0.015, w / 2 - 0.015, -d / 2 + 0.62, -d / 2 + 0.88, mat_top + 0.005, mat_top + 0.08,
+         "spe", r=0.038)
+    soft("blanket", "throw:blanket", -w / 2 + 0.002, w / 2 - 0.002, d / 2 - 0.6, d / 2 - 0.18, mat_top - 0.12, mat_top + 0.1, "spe",
          r=0.03)
     for i, sx in enumerate((-1, 1)):
         x = sx * w / 4
-        soft(f"pillow{i}", "linen", x - w / 4.6, x + w / 4.6, -d / 2 + 0.13, -d / 2 + 0.5, mat_top - 0.01, mat_top + 0.13, "ppe",
-             r=0.06, puff=0.03)
-        soft(f"sham{i}", "sage" if i == 0 else "headboard", x - w / 6, x + w / 6, -d / 2 + 0.36, -d / 2 + 0.6, mat_top,
+        soft(f"pillow{i}", "linen", x - w / 4.6, x + w / 4.6, -d / 2 + 0.16, -d / 2 + 0.52, mat_top - 0.01, mat_top + 0.14, "ppe",
+             r=0.065, puff=0.03)
+        soft(f"sham{i}", "throw:blanket" if i == 0 else "bedding:duvet", x - w / 6, x + w / 6, -d / 2 + 0.38, -d / 2 + 0.6, mat_top,
              mat_top + 0.3, "ppe", r=0.055, lean=0.12)
 
 
 def desk(w, h, d):
-    """책상: 둥근 모서리 상판, 가늘어지는 다리, 오른쪽 서랍"""
-    top = 0.028
-    part("top", "ash", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.012)
+    """책상: 귀를 굴린 나무 상판 + 가는 철제 다리 틀, 상판 밑 얇은 서랍."""
+    top, leg = 0.026, 0.018
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.035, edge=0.006)
     for i, (sx, sz) in enumerate(CORNERS):
-        rod(f"leg{i}", "ash", (sx * (w / 2 - 0.045), 0, sz * (d / 2 - 0.045)),
-            (sx * (w / 2 - 0.07), h - top, sz * (d / 2 - 0.07)), 0.014, 0.024, "ese")
-    part("drawer", "white", w / 2 - 0.5, w / 2 - 0.1, -d / 2 + 0.08, d / 2 - 0.03, h - top - 0.12, h - top - 0.005, "pse", 0.006)
-    part("pull", "brass", w / 2 - 0.36, w / 2 - 0.24, d / 2 - 0.03, d / 2 - 0.018, h - top - 0.07, h - top - 0.058, "ppe", 0.004)
+        x, z = sx * (w / 2 - 0.05), sz * (d / 2 - 0.05)
+        part(f"leg{i}", "leg:steel_white", x - leg, x + leg, z - leg, z + leg, 0, h - top, "ese", 0.004)
+    for i, sz in enumerate((-1, 1)):
+        z = sz * (d / 2 - 0.05)
+        part(f"rail{i}", "leg:steel_white", -w / 2 + 0.05, w / 2 - 0.05, z - 0.012, z + 0.012, h - top - 0.045, h - top, "see", 0.003)
+    for i, sx in enumerate((-1, 1)):
+        x = sx * (w / 2 - 0.05)
+        part(f"rail_s{i}", "leg:steel_white", x - 0.012, x + 0.012, -d / 2 + 0.05, d / 2 - 0.05, h - top - 0.045, h - top, "ees", 0.003)
+    part("drawer", "leg:steel_white", w / 2 - 0.52, w / 2 - 0.09, -d / 2 + 0.09, d / 2 - 0.04, h - top - 0.1, h - top - 0.003, "pse", 0.005)
+    part("drawer_gap", "shadow", w / 2 - 0.515, w / 2 - 0.095, d / 2 - 0.041, d / 2 - 0.039, h - top - 0.018, h - top - 0.004, "ppe", 0.0)
 
 
 def shelf(w, h, d):
     """책장: 옆판·선반 다섯 단, 칸마다 책 몇 권과 소품"""
-    side = 0.022
+    side = 0.02
     for i, sx in enumerate((-1, 1)):
         x0 = -w / 2 if sx < 0 else w / 2 - side
-        part(f"side{i}", "oak", x0, x0 + side, -d / 2, d / 2, 0, h, "ess", 0.004)
-    part("back", "oak", -w / 2 + side, w / 2 - side, -d / 2, -d / 2 + 0.01, 0, h, "sse", 0.002)
+        part(f"side{i}", "body:oak_light", x0, x0 + side, -d / 2, d / 2, 0, h, "ess", 0.003)
+    part("back", "body:oak_light", -w / 2 + side, w / 2 - side, -d / 2, -d / 2 + 0.008, 0, h, "sse", 0.001)
     n = 5
-    ys = [0.05 + i * (h - 0.07) / (n - 1) for i in range(n)]
+    ys = [0.05 + i * (h - 0.06) / (n - 1) for i in range(n)]
     for i, y in enumerate(ys):
-        part(f"board{i}", "oak", -w / 2 + side, w / 2 - side, -d / 2 + 0.01, d / 2, y - 0.011, y + 0.011, "sps", 0.003)
-    looks = ("book_a", "book_b", "book_c", "white")
+        part(f"board{i}", "body:oak_light", -w / 2 + side, w / 2 - side, -d / 2 + 0.008, d / 2 - 0.004, y - 0.01, y + 0.01, "sps", 0.003)
+    looks = ("book_a", "book_b", "book_c", "matte")
     for row, y in enumerate(ys[:-1]):
         x = -w / 2 + side + 0.03 if row % 2 == 0 else w / 2 - side - 0.03 - 0.21
         for k in range(5):
             bw, bh = 0.028 + 0.008 * ((row + k) % 3), 0.2 + 0.03 * ((row * 2 + k) % 3)
-            part(f"book{row}_{k}", looks[(row + k) % 4], x, x + bw, -d / 2 + 0.03, d / 2 - 0.04, y + 0.011, y + 0.011 + bh,
+            part(f"book{row}_{k}", looks[(row + k) % 4], x, x + bw, -d / 2 + 0.03, d / 2 - 0.04, y + 0.01, y + 0.01 + bh,
                  "epe", 0.003)
             x += bw + 0.003
-    cyl("vase", "pot", w / 2 - side - 0.12, 0, 0.045, ys[0] + 0.011, ys[0] + 0.2, "epe", 24, 0.028)
+    cyl("vase", "ceramic", w / 2 - side - 0.12, 0, 0.045, ys[0] + 0.01, ys[0] + 0.2, "epe", 24, 0.028)
 
 
 def tvstand(w, h, d):
-    """거실장: 월넛 몸통에 문 세 짝, 가는 다리. 위에 얇은 TV 한 대"""
-    leg = 0.13
-    for i, (sx, sz) in enumerate(CORNERS):
-        x, z = sx * (w / 2 - 0.07), sz * (d / 2 - 0.06)
-        rod(f"leg{i}", "walnut", (x + sx * 0.012, 0, z), (x, leg, z), 0.011, 0.018, "eee", 16)
-    part("body", "walnut", -w / 2, w / 2, -d / 2, d / 2 - 0.012, leg, h, "sps", 0.008)
-    gap = 0.004
-    for i in range(3):
-        x0 = -w / 2 + i * w / 3 + gap
-        part(f"door{i}", "oak", x0, x0 + w / 3 - 2 * gap, d / 2 - 0.012, d / 2, leg + 0.012, h - 0.012, "sse", 0.004)
+    """거실장: 바닥에서 살짝 뜬 낮은 몸통, 세로 골이 촘촘한 템바보드 문 (손잡이 없음)."""
+    base, t, cap = 0.07, 0.02, 0.022
+    front = d / 2
+    part("plinth", "plinth", -w / 2 + 0.06, w / 2 - 0.06, -d / 2 + 0.03, front - 0.08, 0, base, "ses", 0.003)
+    part("body", "body:oak_light", -w / 2, w / 2, -d / 2, front - t, base, h - cap, "sss", 0.004)
+    slab("top", "body:oak_light", -w / 2, w / 2, -d / 2, front, h - cap, h, "ses", corner=0.012, edge=0.005)
+    part("door_bed", "shadow", -w / 2 + 0.004, w / 2 - 0.004, front - t, front - 0.009, base + 0.004, h - cap - 0.004, "sse", 0.001)
+    n = 44
+    rib = (w - 0.012) / n
+    for i in range(n):
+        x = -w / 2 + 0.006 + i * rib
+        part(f"rib{i}", "door:oak_light", x + rib * 0.11, x + rib * 0.89, front - 0.012, front, base + 0.005, h - cap - 0.005, "sse", 0.004)
 
 
 def island(w, h, d):
-    part("plinth", "plinth", -w / 2 + 0.05, w / 2 - 0.05, -d / 2 + 0.05, d / 2 - 0.05, 0, 0.1, "ses", 0.003)
-    part("body", "white", -w / 2 + 0.02, w / 2 - 0.02, -d / 2 + 0.02, d / 2 - 0.02, 0.1, h - 0.03, "sss", 0.004)
-    part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - 0.03, h, "ses", 0.006)
+    """아일랜드: 손잡이 없는 문 세 짝(상판 밑 손끼움 홈), 들인 걸레받이, 사방으로 살짝 내민 상판."""
+    base, top = 0.1, 0.03
+    zf = d / 2 - 0.02
+    part("plinth", "plinth", -w / 2 + 0.06, w / 2 - 0.06, -d / 2 + 0.06, d / 2 - 0.08, 0, base, "ses", 0.003)
+    part("body", "white:matte", -w / 2 + 0.02, w / 2 - 0.02, -d / 2 + 0.02, zf - 0.02, base, h - top, "sss", 0.003)
+    _channel("door", -w / 2 + 0.02, w / 2 - 0.02, h - top, zf)
+    _flat_doors("door", "white:matte", -w / 2 + 0.02, w / 2 - 0.02, base, h - top - 0.03, zf, 3)
+    part("top", "stone:quartz", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.004)
 
 
 def islandtable(w, h, d):
@@ -252,26 +267,26 @@ def islandhood(w, h, d):
 
 
 def rug(w, h, d):
-    part("rug", "wool", -w / 2, w / 2, -d / 2, d / 2, 0, h, "sss", 0.004)
+    slab("rug", "wool", -w / 2, w / 2, -d / 2, d / 2, 0, h, "sss", corner=0.03, edge=0.004)
 
 
 def lamp(w, h, d):
     """플로어 램프: 묵직한 받침, 가는 황동 기둥, 천 갓"""
     r = min(w, d) / 2
-    cyl("base", "metal", 0, 0, r * 0.62, 0, 0.018, "eee", 40)
-    cyl("base_top", "metal", 0, 0, r * 0.58, 0.018, 0.026, "eee", 40, r * 0.2)
-    cyl("pole", "brass", 0, 0, 0.009, 0.026, h - 0.3, "ese", 16)
-    cyl("collar", "brass", 0, 0, 0.02, h - 0.34, h - 0.3, "eee", 20)
+    cyl("base", "pole:black", 0, 0, r * 0.62, 0, 0.018, "eee", 40)
+    cyl("base_top", "pole:black", 0, 0, r * 0.58, 0.018, 0.026, "eee", 40, r * 0.2)
+    cyl("pole", "pole:black", 0, 0, 0.009, 0.026, h - 0.3, "ese", 16)
+    cyl("collar", "pole:black", 0, 0, 0.02, h - 0.34, h - 0.3, "eee", 20)
     cyl("shade", "shade", 0, 0, r, h - 0.3, h, "eee", 48, r * 0.72)
-    cyl("shade_rim", "brass", 0, 0, r + 0.002, h - 0.3, h - 0.292, "eee", 48)
+    cyl("shade_rim", "pole:black", 0, 0, r + 0.002, h - 0.3, h - 0.292, "eee", 48)
 
 
 def plant(w, h, d):
     """화분: 테가 있는 토분, 여러 줄기에서 뻗은 큰 잎"""
     r = min(w, d) / 2
     pot_h = h * 0.27
-    cyl("pot", "pot", 0, 0, r * 0.48, 0, pot_h, "eee", 40, r * 0.62)
-    cyl("pot_rim", "pot", 0, 0, r * 0.66, pot_h - 0.03, pot_h, "eee", 40)
+    cyl("pot", "pot:ceramic", 0, 0, r * 0.48, 0, pot_h, "eee", 40, r * 0.62)
+    cyl("pot_rim", "pot:ceramic", 0, 0, r * 0.66, pot_h - 0.03, pot_h, "eee", 40)
     cyl("soil", "soil", 0, 0, r * 0.58, pot_h - 0.012, pot_h - 0.006, "eee", 32)
     n = 11
     for i in range(n):
@@ -287,23 +302,22 @@ def plant(w, h, d):
 
 
 def coffee(w, h, d):
-    """낮은 탁자: 둥근 모서리 상판, 아래 선반, 가늘어지는 다리"""
-    top = 0.03
-    part("top", "oak", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.013)
-    part("shelf", "oak", -w / 2 + 0.09, w / 2 - 0.09, -d / 2 + 0.09, d / 2 - 0.09, 0.11, 0.128, "sps", 0.006)
-    for i, (sx, sz) in enumerate(CORNERS):
-        rod(f"leg{i}", "oak", (sx * (w / 2 - 0.045), 0, sz * (d / 2 - 0.045)),
-            (sx * (w / 2 - 0.075), h - top, sz * (d / 2 - 0.075)), 0.012, 0.021, "ese", 16)
+    """낮은 탁자: 귀를 크게 굴린 두툼한 상판 + 굵은 원기둥 다리 둘 (요즘 많이 보이는 둥근 소파 테이블)."""
+    top = 0.045
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.2, edge=0.012, seg=12)
+    r = 0.11
+    for i, sx in enumerate((-1, 1)):
+        cyl(f"leg{i}", "leg:oak_light", sx * (w / 2 - 0.24), 0, r, 0, h - top, "ese", 40)
 
 
 def partition(w, h, d):
     """세로 살 파티션: 위아래 틀 + 살. 폭을 늘리면 살 간격이 같이 늘어난다."""
-    part("bottom", "oak", -w / 2, w / 2, -d / 2, d / 2, 0, 0.04, "ses", 0.003)
-    part("top", "oak", -w / 2, w / 2, -d / 2, d / 2, h - 0.04, h, "sps", 0.003)
+    part("bottom", "oak:oak_light", -w / 2, w / 2, -d / 2, d / 2, 0, 0.04, "ses", 0.003)
+    part("top", "oak:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - 0.04, h, "sps", 0.003)
     n = 12
     for i in range(n):
         x = -w / 2 + 0.025 + i * (w - 0.05) / (n - 1)
-        part(f"slat{i}", "oak", x - 0.018, x + 0.018, -d / 2 + 0.005, d / 2 - 0.005, 0.04, h - 0.04, "psp", 0.003)
+        part(f"slat{i}", "oak:oak_light", x - 0.018, x + 0.018, -d / 2 + 0.005, d / 2 - 0.005, 0.04, h - 0.04, "psp", 0.003)
 
 
 def wall(w, h, d):
@@ -311,78 +325,82 @@ def wall(w, h, d):
     part("skirt", "white", -w / 2 - 0.004, w / 2 + 0.004, -d / 2 - 0.004, d / 2 + 0.004, 0, 0.08, "ses", 0.002)
 
 
+def _grooved(prefix, look, x0, x1, y0, y1, zf, rows, t=0.02, gap=0.0025, pull=0.016):
+    """손잡이 없는 서랍 rows단. 서랍 위에 손을 넣는 어두운 홈이 한 줄씩 보인다."""
+    part(f"{prefix}_groove", "shadow", x0 + 0.002, x1 - 0.002, zf - t - 0.004, zf - 0.012, y0 + 0.002, y1 - 0.002, "sse", 0.001)
+    step = (y1 - y0) / rows
+    for i in range(rows):
+        part(f"{prefix}{i}", look, x0 + gap, x1 - gap, zf - t, zf, y0 + i * step + gap, y0 + (i + 1) * step - pull, "sse", 0.0025)
+
+
 def dresser(w, h, d):
-    """서랍장: 서랍 4단, 가운데 손잡이 (정면 +Z, 거실장과 같은 방향)"""
-    base, gap, n = 0.06, 0.004, 4
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.03, 0, base, "ses", 0.003)
-    part("body", "oak", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
-    step = (h - base) / n
-    for i in range(n):
-        y0 = base + i * step + gap
-        part(f"drawer{i}", "oak", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, y0, y0 + step - 2 * gap, "sse", 0.003)
-        yc = y0 + step / 2
-        part(f"pull{i}", "metal", -0.08, 0.08, d / 2, d / 2 + 0.015, yc - 0.008, yc + 0.008, "ppe", 0.004)
+    """서랍장: 손잡이 없는 서랍 4단(위에 손끼움 홈), 살짝 내민 상판, 짧은 원목 다리 (정면 +Z)."""
+    leg, cap, t = 0.1, 0.022, 0.02
+    front = d / 2 - 0.006
+    for i, (sx, sz) in enumerate(CORNERS):
+        x, z = sx * (w / 2 - 0.06), sz * (d / 2 - 0.07)
+        rod(f"leg{i}", "leg:oak_light", (x + sx * 0.008, 0, z), (x, leg, z), 0.012, 0.02, "eee", 16)
+    part("body", "body:matte", -w / 2 + 0.004, w / 2 - 0.004, -d / 2, front - t, leg, h - cap, "sss", 0.003)
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - cap, h, "ses", corner=0.012, edge=0.006)
+    _grooved("drawer", "body:matte", -w / 2 + 0.004, w / 2 - 0.004, leg, h - cap, front, 4)
+
+
+def _channel(prefix, x0, x1, y_top, zf, drop=0.03):
+    """상판 바로 밑 손끼움 홈 (핸들리스 주방). 문 윗선이 그만큼 내려온다."""
+    part(f"{prefix}_channel", "shadow", x0 + 0.002, x1 - 0.002, zf - 0.03, zf - 0.012, y_top - drop, y_top, "sse", 0.001)
 
 
 def basecab(w, h, d):
-    """주방 하부장: 걸레받이 + 문 2짝 + 위 상판(앞으로 살짝 나옴)"""
-    base, top, gap = 0.1, 0.03, 0.003
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
-    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.04, base, h - top, "sss", 0.004)
-    for i in range(2):
-        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
-        part(f"door{i}", "white", x0, x1, d / 2 - 0.04, d / 2 - 0.02, base + gap, h - top - gap, "sse", 0.003)
-        hx = x1 - 0.05 if i == 0 else x0 + 0.05
-        part(f"handle{i}", "metal", hx - 0.006, hx + 0.006, d / 2 - 0.02, d / 2 - 0.005, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
-    part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.006)
+    """주방 하부장: 손잡이 없는 무광 문 두 짝(상판 밑 손끼움 홈), 들인 걸레받이, 앞으로 살짝 내민 얇은 상판."""
+    base, top = 0.1, 0.03
+    zf = d / 2 - 0.02
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.07, 0, base, "ses", 0.003)
+    part("body", "white:matte", -w / 2, w / 2, -d / 2, zf - 0.02, base, h - top, "sss", 0.003)
+    _channel("door", -w / 2, w / 2, h - top, zf)
+    _flat_doors("door", "white:matte", -w / 2, w / 2, base, h - top - 0.03, zf, 2)
+    part("top", "stone:quartz", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.004)
 
 
 def wardrobe(w, h, d):
-    """장롱: 걸레받이 + 키 큰 여닫이문 2짝, 가운데에 긴 손잡이 (정면 +Z)"""
-    base, gap = 0.07, 0.003
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.05, 0, base, "ses", 0.003)
-    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
-    for i in range(2):
-        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
-        part(f"door{i}", "white", x0, x1, d / 2 - 0.02, d / 2, base + gap, h - gap, "sse", 0.003)
-        hx = x1 - 0.035 if i == 0 else x0 + 0.035
-        part(f"handle{i}", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, h * 0.42, h * 0.42 + 0.3, "ppe", 0.004)
+    """장롱: 천장까지 닿는 손잡이 없는 무광 문 두 짝. 문이 만나는 가운데에 세로 손끼움 홈 (정면 +Z)."""
+    base = 0.06
+    zf = d / 2
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, zf - 0.05, 0, base, "ses", 0.003)
+    part("body", "white:matte", -w / 2, w / 2, -d / 2, zf - 0.02, base, h, "sss", 0.003)
+    _flat_doors("door", "white:matte", -w / 2, w / 2, base, h, zf, 2)
+    part("pull", "shadow", -0.011, 0.011, zf - 0.021, zf - 0.008, h * 0.36, h * 0.36 + 0.42, "ppe", 0.002)
 
 
 def tallcab(w, h, d):
-    """키큰장: 걸레받이 + 위아래 문 2짝 (냉장고 옆에 세우는 주방 장, 정면 +Z)"""
-    base, gap, split = 0.1, 0.003, 0.62
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
-    part("body", "white", -w / 2, w / 2, -d / 2, d / 2 - 0.02, base, h, "sss", 0.004)
+    """키큰장: 손잡이 없는 무광 문 위아래 두 짝, 사이에 가는 손끼움 홈 (냉장고 옆에 세우는 주방 장, 정면 +Z)."""
+    base, split = 0.1, 0.62
+    zf = d / 2
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, zf - 0.07, 0, base, "ses", 0.003)
+    part("body", "white:matte", -w / 2, w / 2, -d / 2, zf - 0.02, base, h, "sss", 0.003)
     ym = base + (h - base) * split
-    part("door_low", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, base + gap, ym - gap, "sse", 0.003)
-    part("door_up", "white", -w / 2 + gap, w / 2 - gap, d / 2 - 0.02, d / 2, ym + gap, h - gap, "sse", 0.003)
-    hx = w / 2 - 0.04
-    part("handle_low", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym - 0.3, ym - 0.06, "epe", 0.004)
-    part("handle_up", "metal", hx - 0.005, hx + 0.005, d / 2, d / 2 + 0.014, ym + 0.06, ym + 0.3, "epe", 0.004)
+    part("door_channel", "shadow", -w / 2 + 0.002, w / 2 - 0.002, zf - 0.024, zf - 0.012, ym - 0.012, ym + 0.012, "sse", 0.001)
+    part("door_low", "white:matte", -w / 2 + 0.0025, w / 2 - 0.0025, zf - 0.02, zf, base + 0.0025, ym - 0.012, "sse", 0.0025)
+    part("door_up", "white:matte", -w / 2 + 0.0025, w / 2 - 0.0025, zf - 0.02, zf, ym + 0.012, h - 0.0025, "sse", 0.0025)
 
 
 def sink(w, h, d):
-    """싱크대: 하부장 + 상판에 파인 개수대(오른쪽) + 거위목 수전. 상판은 개수대 둘레 네 조각"""
-    base, top, gap = 0.1, 0.03, 0.003
-    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.06, 0, base, "ses", 0.003)
+    """싱크대: 손잡이 없는 하부장 + 상판에 파인 개수대(오른쪽) + 검은 무광 거위목 수전. 상판은 개수대 둘레 네 조각"""
+    base, top = 0.1, 0.03
+    part("plinth", "plinth", -w / 2 + 0.02, w / 2 - 0.02, -d / 2, d / 2 - 0.07, 0, base, "ses", 0.003)
     # 개수대 자리 (오른쪽 반, 뒤에 수전 놓을 턱을 남긴다). 몸통은 개수대 바닥 아래까지만, 그 위는 둘레만 채운다
     bx0, bx1, bz0, bz1, deep = 0.02, w / 2 - 0.07, -d / 2 + 0.13, d / 2 - 0.08, 0.18
     neck, zf = h - deep - 0.004, d / 2 - 0.04
-    part("body", "white", -w / 2, w / 2, -d / 2, zf, base, neck, "sss", 0.004)
-    part("apron_l", "white", -w / 2, bx0, -d / 2, zf, neck, h - top, "ses", 0.002)
-    part("apron_r", "white", bx1, w / 2, -d / 2, zf, neck, h - top, "ses", 0.002)
-    part("apron_b", "white", bx0, bx1, -d / 2, bz0, neck, h - top, "ses", 0.002)
-    part("apron_f", "white", bx0, bx1, bz1, zf, neck, h - top, "ses", 0.002)
-    for i in range(2):
-        x0, x1 = -w / 2 + i * w / 2 + gap, -w / 2 + (i + 1) * w / 2 - gap
-        part(f"door{i}", "white", x0, x1, d / 2 - 0.04, d / 2 - 0.02, base + gap, h - top - gap, "sse", 0.003)
-        hx = x1 - 0.05 if i == 0 else x0 + 0.05
-        part(f"handle{i}", "metal", hx - 0.006, hx + 0.006, d / 2 - 0.02, d / 2 - 0.005, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
-    part("top_left", "stone", -w / 2, bx0, -d / 2, d / 2, h - top, h, "ses", 0.004)
-    part("top_right", "stone", bx1, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.004)
-    part("top_back", "stone", bx0, bx1, -d / 2, bz0, h - top, h, "ses", 0.004)
-    part("top_front", "stone", bx0, bx1, bz1, d / 2, h - top, h, "ses", 0.004)
+    part("body", "white:matte", -w / 2, w / 2, -d / 2, zf, base, neck, "sss", 0.003)
+    part("apron_l", "white:matte", -w / 2, bx0, -d / 2, zf, neck, h - top, "ses", 0.002)
+    part("apron_r", "white:matte", bx1, w / 2, -d / 2, zf, neck, h - top, "ses", 0.002)
+    part("apron_b", "white:matte", bx0, bx1, -d / 2, bz0, neck, h - top, "ses", 0.002)
+    part("apron_f", "white:matte", bx0, bx1, bz1, zf, neck, h - top, "ses", 0.002)
+    _channel("door", -w / 2, w / 2, h - top, d / 2 - 0.02)
+    _flat_doors("door", "white:matte", -w / 2, w / 2, base, h - top - 0.03, d / 2 - 0.02, 2)
+    part("top_left", "stone:quartz", -w / 2, bx0, -d / 2, d / 2, h - top, h, "ses", 0.004)
+    part("top_right", "stone:quartz", bx1, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.004)
+    part("top_back", "stone:quartz", bx0, bx1, -d / 2, bz0, h - top, h, "ses", 0.004)
+    part("top_front", "stone:quartz", bx0, bx1, bz1, d / 2, h - top, h, "ses", 0.004)
     t = 0.012
     part("basin_floor", "basin", bx0, bx1, bz0, bz1, h - deep, h - deep + t, "ses", 0.002)
     part("basin_l", "steel", bx0, bx0 + t, bz0, bz1, h - deep, h - 0.002, "ses", 0.002)
@@ -393,68 +411,65 @@ def sink(w, h, d):
     cyl("drain", "metal", cxb, czb, 0.035, h - deep + t, h - deep + t + 0.004, "pep", 24)
     # 수전: 뒤 턱 가운데에서 올라와 개수대 쪽으로 굽는다
     fz = -d / 2 + 0.065
-    cyl("faucet_base", "steel", cxb, fz, 0.026, h, h + 0.035, "pep", 28)
-    bar("faucet_riser", "steel", (cxb, h + 0.03, fz), (cxb, h + 0.30, fz), 0.012, "pep")
+    cyl("faucet_base", "faucet:black", cxb, fz, 0.024, h, h + 0.03, "pep", 28)
+    bar("faucet_riser", "faucet:black", (cxb, h + 0.03, fz), (cxb, h + 0.30, fz), 0.011, "pep")
     arc = [(h + 0.30, fz), (h + 0.345, fz + 0.03), (h + 0.36, fz + 0.08), (h + 0.345, fz + 0.14), (h + 0.30, fz + 0.17)]
     for i, ((y0, z0), (y1, z1)) in enumerate(zip(arc, arc[1:])):
-        bar(f"faucet_neck{i}", "steel", (cxb, y0, z0), (cxb, y1, z1), 0.012, "pep")
-        ball(f"faucet_joint{i}", "steel", cxb, y0, z0, 0.012, "pep")
-    ball("faucet_joint_end", "steel", cxb, arc[-1][0], arc[-1][1], 0.012, "pep")
-    bar("faucet_tip", "steel", (cxb, h + 0.30, fz + 0.17), (cxb, h + 0.255, fz + 0.17), 0.013, "pep")
-    bar("faucet_lever", "steel", (cxb + 0.026, h + 0.022, fz), (cxb + 0.085, h + 0.04, fz), 0.007, "pep")
+        bar(f"faucet_neck{i}", "faucet:black", (cxb, y0, z0), (cxb, y1, z1), 0.011, "pep")
+        ball(f"faucet_joint{i}", "faucet:black", cxb, y0, z0, 0.011, "pep")
+    ball("faucet_joint_end", "faucet:black", cxb, arc[-1][0], arc[-1][1], 0.011, "pep")
+    bar("faucet_tip", "faucet:black", (cxb, h + 0.30, fz + 0.17), (cxb, h + 0.255, fz + 0.17), 0.012, "pep")
+    bar("faucet_lever", "faucet:black", (cxb + 0.024, h + 0.02, fz), (cxb + 0.08, h + 0.038, fz), 0.006, "pep")
 
 
 def door(w, h, d):
-    """여닫이문: 문틀(양옆·위) + 문짝 + 손잡이·경첩. 문짝 부품 이름은 leaf로 시작한다 (웹이 경첩 축으로 돌려 연다).
-    경첩은 왼쪽(-x), 앞(+z)으로 열린다."""
-    jamb, head, t = 0.045, 0.045, 0.04
-    part("jamb_l", "white", -w / 2, -w / 2 + jamb, -d / 2, d / 2, 0, h, "ess", 0.004)
-    part("jamb_r", "white", w / 2 - jamb, w / 2, -d / 2, d / 2, 0, h, "ess", 0.004)
-    part("head", "white", -w / 2 + jamb, w / 2 - jamb, -d / 2, d / 2, h - head, h, "ses", 0.004)
+    """여닫이문: 가는 문틀(9mm 문선 느낌) + 무늬 없는 민자 문짝 + 검은 무광 레버 손잡이. 경첩은 숨긴다.
+    문짝 부품 이름은 leaf로 시작한다 (웹이 경첩 축으로 돌려 연다). 경첩은 왼쪽(-x), 앞(+z)으로 열린다."""
+    jamb, head, t = 0.022, 0.022, 0.04
+    part("jamb_l", "frame:matte", -w / 2, -w / 2 + jamb, -d / 2, d / 2, 0, h, "ess", 0.002)
+    part("jamb_r", "frame:matte", w / 2 - jamb, w / 2, -d / 2, d / 2, 0, h, "ess", 0.002)
+    part("head", "frame:matte", -w / 2 + jamb, w / 2 - jamb, -d / 2, d / 2, h - head, h, "ses", 0.002)
     x0, x1, y0, y1 = -w / 2 + jamb + 0.003, w / 2 - jamb - 0.003, 0.008, h - head - 0.003
-    part("leaf", "door_leaf", x0, x1, -t / 2, t / 2, y0, y1, "sse", 0.003)
-    # 문짝 무늬: 앞뒤로 얕게 도드라진 판 두 장
-    for side, z in (("f", t / 2), ("b", -t / 2 - 0.004)):
-        part(f"leaf_panel_top_{side}", "door_leaf", x0 + 0.09, x1 - 0.09, z, z + 0.004, 1.12, y1 - 0.1, "sse", 0.002)
-        part(f"leaf_panel_low_{side}", "door_leaf", x0 + 0.09, x1 - 0.09, z, z + 0.004, y0 + 0.12, 0.98, "sse", 0.002)
-    hx, hy = x1 - 0.06, 1.0
-    for side, s in (("f", 1), ("b", -1)):
-        z = s * t / 2
-        bar(f"leaf_rose_{side}", "steel", (hx, hy, z), (hx, hy, z + s * 0.01), 0.026, "eee")
-        bar(f"leaf_neck_{side}", "steel", (hx, hy, z), (hx, hy, z + s * 0.05), 0.009, "eee")
-        bar(f"leaf_lever_{side}", "steel", (hx + 0.008, hy, z + s * 0.05), (hx - 0.11, hy, z + s * 0.05), 0.009, "eee")
-        ball(f"leaf_lever_end_{side}", "steel", hx - 0.11, hy, z + s * 0.05, 0.009, "eee")
-    for i, y in enumerate((0.25, 1.05, 1.85)):
-        bar(f"hinge{i}", "metal", (x0 - 0.002, y - 0.045, t / 2 + 0.004), (x0 - 0.002, y + 0.045, t / 2 + 0.004), 0.007, "ees")
+    part("leaf", "door_leaf:matte", x0, x1, -t / 2, t / 2, y0, y1, "sse", 0.003)
+    hx, hy = x1 - 0.07, 1.0
+    for side, s_ in (("f", 1), ("b", -1)):
+        z = s_ * t / 2
+        bar(f"leaf_rose_{side}", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.008), 0.025, "eee")
+        bar(f"leaf_neck_{side}", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.048), 0.008, "eee")
+        part(f"leaf_lever_{side}", "handle:black", hx - 0.125, hx + 0.01, min(z + s_ * 0.042, z + s_ * 0.054), max(z + s_ * 0.042, z + s_ * 0.054),
+             hy - 0.009, hy + 0.009, "eee", 0.004)
 
 
-def _glazed(w, h, d, low, handles):
-    """창틀(양옆·위·아래) + 유리 + 가운데서 겹치는 미닫이 창짝 두 장. low = 아래 틀 높이."""
-    fr, sash, t = 0.05, 0.035, 0.03
-    part("jamb_l", "white", -w / 2, -w / 2 + fr, -d / 2, d / 2, 0, h, "ess", 0.004)
-    part("jamb_r", "white", w / 2 - fr, w / 2, -d / 2, d / 2, 0, h, "ess", 0.004)
-    part("head", "white", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, h - fr, h, "ses", 0.004)
-    part("sill", "white", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, 0, low, "ses", 0.004)
+def _glazed(w, h, d, low, handles, lock=False):
+    """가는 창틀(양옆·위·아래) + 유리 + 가운데서 겹치는 미닫이 창짝 두 장 (슬림 프레임). low = 아래 틀 높이."""
+    fr, sash, t = 0.035, 0.022, 0.028
+    part("jamb_l", "frame:matte", -w / 2, -w / 2 + fr, -d / 2, d / 2, 0, h, "ess", 0.003)
+    part("jamb_r", "frame:matte", w / 2 - fr, w / 2, -d / 2, d / 2, 0, h, "ess", 0.003)
+    part("head", "frame:matte", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, h - fr, h, "ses", 0.003)
+    part("sill", "frame:matte", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, 0, low, "ses", 0.003)
     part("glass", "glass", -w / 2 + fr, w / 2 - fr, -0.004, 0.004, low, h - fr, "sss", 0.0)
-    # 창짝 테: 가운데 겹치는 세로대 두 개(앞뒤로 어긋남), 위아래 가로대
-    part("meet_f", "white", -sash, 0.004, 0.006, 0.006 + t, low, h - fr, "pss", 0.003)
-    part("meet_b", "white", -0.004, sash, -0.006 - t, -0.006, low, h - fr, "pss", 0.003)
-    part("rail_top", "white", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, h - fr - sash, h - fr, "ses", 0.003)
-    part("rail_low", "white", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, low, low + sash, "ses", 0.003)
+    # 창짝 테: 가운데 겹치는 세로대 두 개(앞뒤로 어긋남), 양옆 세로대, 위아래 가로대
+    part("meet_f", "frame:matte", -sash, 0.003, 0.006, 0.006 + t, low, h - fr, "pss", 0.002)
+    part("meet_b", "frame:matte", -0.003, sash, -0.006 - t, -0.006, low, h - fr, "pss", 0.002)
+    part("stile_l", "frame:matte", -w / 2 + fr, -w / 2 + fr + sash, -t / 2, t / 2, low, h - fr, "ess", 0.002)
+    part("stile_r", "frame:matte", w / 2 - fr - sash, w / 2 - fr, -t / 2, t / 2, low, h - fr, "ess", 0.002)
+    part("rail_top", "frame:matte", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, h - fr - sash, h - fr, "ses", 0.002)
+    part("rail_low", "frame:matte", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, low, low + sash, "ses", 0.002)
     for name, x, z in handles:
-        bar(name, "steel", (x, 0.95, z), (x, 1.2, z), 0.008, "pee")
-        ball(name + "_a", "steel", x, 0.95, z, 0.008, "pee")
-        ball(name + "_b", "steel", x, 1.2, z, 0.008, "pee")
+        part(name, "handle:black", x - 0.007, x + 0.007, min(z, z + math.copysign(0.03, z)), max(z, z + math.copysign(0.03, z)),
+             0.9, 1.3, "pee", 0.005)
+    if lock:  # 가운데 잠금 손잡이 (크리센트)
+        part("lock", "handle:black", -0.012, 0.012, 0.006 + t, 0.006 + t + 0.016, h * 0.5 - 0.028, h * 0.5 + 0.028, "ppe", 0.005)
 
 
 def window(w, h, d):
     """미닫이 창문: 벽 속에 겹쳐 단다 (웹이 벽을 뚫고 유리를 비치게 그린다)."""
-    _glazed(w, h, d, 0.05, ())
+    _glazed(w, h, d, 0.035, (), lock=True)
 
 
 def glassdoor(w, h, d):
     """베란다 유리문: 바닥부터 달리는 큰 미닫이 유리문. 가운데 세로 손잡이. 아래 틀은 걸레받이를 가릴 만큼."""
-    _glazed(w, h, d, 0.09, (("pull_f", -0.016, 0.045), ("pull_b", 0.016, -0.045)))
+    _glazed(w, h, d, 0.09, (("pull_f", -0.011, 0.034), ("pull_b", 0.011, -0.034)))
 
 
 TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
@@ -493,6 +508,7 @@ def build(cat: str, out: Path) -> dict:
     MATS.clear()
     (w, h, d), fn = TEMPLATES[cat]
     fn(w, h, d)
+    bake_uvs()
     path = out / f"{cat}.glb"
     bpy.ops.export_scene.gltf(filepath=str(path), export_format="GLB", export_yup=True, export_apply=True,
                               export_extras=True, export_materials="EXPORT", export_cameras=False, export_lights=False)
