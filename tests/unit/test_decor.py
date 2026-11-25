@@ -61,3 +61,16 @@ def test_presets_are_real_products_with_source():
 def test_sink_and_door_are_in_the_library():
     assert DECOR["sink"]["group"] == "storage" and DECOR["sink"]["label"] == "싱크대"
     assert DECOR["door"]["group"] == "structure" and DECOR["door"]["label"] == "문"
+
+
+def test_island_table_and_hood_are_in_the_library_with_real_size_chips():
+    items = {it["sku"]: it for it in decor_items()}
+    isl = items["decor:islandtable"]
+    assert isl["label"] == "아일랜드 식탁" and isl["group"] == "furniture"
+    assert isl["size_mm"] == {"w": 1200, "h": 890, "d": 750}          # 한샘 모디 아일랜드식탁 120cm
+    assert {p["label"] for p in isl["presets"]} >= {"한샘 모디 120", "IKEA TORNVIKEN", "IKEA VADHOLMA"}
+    assert all(p["source_url"].startswith("https://") for p in isl["presets"])
+    hood = items["decor:hood"]
+    assert hood["label"] == "후드" and hood["hang"] is True and hood["size_mm"]["w"] == 600
+    assert items["decor:islandhood"]["listed"] is False             # 인덕션을 아일랜드에 놓을 때만 달린다
+    assert isl["listed"] is True

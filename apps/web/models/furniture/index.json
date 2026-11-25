@@ -184,6 +184,30 @@
     "h": 2.1,
     "d": 0.14
    }
+  },
+  "islandtable": {
+   "file": "islandtable.glb",
+   "ref_m": {
+    "w": 1.2,
+    "h": 0.89,
+    "d": 0.75
+   }
+  },
+  "hood": {
+   "file": "hood.glb",
+   "ref_m": {
+    "w": 0.6,
+    "h": 0.62,
+    "d": 0.471
+   }
+  },
+  "islandhood": {
+   "file": "islandhood.glb",
+   "ref_m": {
+    "w": 0.9,
+    "h": 0.8,
+    "d": 0.6
+   }
   }
  }
 }

@@ -136,6 +136,8 @@ LGE.COM 생활가전 카테고리 26곳의 제품 목록(1,480개)을 모두 열
 - IKEA METOD 키큰장 60x60x200 cm https://www.ikea.com/kr/ko/p/metod-high-cabinet-white-40270938/
 - IKEA METOD 하부장 40x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-20270883/ , 60x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-90270889/ , 80x60x80 cm https://www.ikea.com/kr/ko/p/metod-base-cabinet-white-10270893/ (40·80은 제품 이름의 치수)
 - IKEA MALM 4칸서랍장 80x48x100 cm https://www.ikea.com/kr/ko/p/malm-chest-of-4-drawers-white-20354646/ , 6칸서랍장 160x48x78 cm https://www.ikea.com/kr/ko/p/malm-chest-of-6-drawers-white-70354644/
+- (2026-11-25 추가) 아일랜드 식탁: 한샘 모디 주방수납 아일랜드식탁 120cm, 상판 120x75 cm, 높이 89 cm, 몸통 118.3x59.5 cm https://store.hanssem.com/goods/883389 (상세 페이지 '사이즈' 그림). IKEA TORNVIKEN 키친아일랜드 126x77x90 cm https://www.ikea.com/kr/ko/p/tornviken-kitchen-island-off-white-oak-30402246/ , IKEA VADHOLMA 키친아일랜드 126x79x90 cm https://www.ikea.com/kr/ko/p/vadholma-kitchen-island-black-oak-80359189/ . 기본 크기와 모델 비율은 한샘 모디 값이다.
+- (2026-11-25 추가) 후드: IKEA RYTMISK 벽고정레인지후드 폭 60, 깊이 47.1, 높이 62.0 ~ 99.5 cm, 덕트 덮개 16.7x16.9 cm https://www.ikea.com/kr/ko/p/rytmisk-wall-mounted-extractor-hood-stainless-steel-10508951/ . 아일랜드 위 천장 후드(90x60 cm)와 90 cm 폭 벽 후드는 특정 제품 치수가 아니라 흔한 규격으로 잡은 모양이다. LGE.COM에는 2026-11-25 기준 후드 제품이 없다.
 - 한샘·리바트 붙박이장은 폭을 집에 맞춰 주문하는 제품이라 고정 치수 칩으로 넣지 않았다. 폭·높이·깊이를 mm로 직접 적으면 된다.
 - 핏 앤 맥스 옆 4 mm는 카탈로그 값 그대로다. LG FIT&MAX Wiki(https://www.lge.co.kr/story/buying-guide/refrigerators-fit-max-wiki)도 좌우 최소 4 mm라고 적고 있다. 같은 글은 위 최소 15 mm라고 하는데 카탈로그에는 9 mm인 모델이 있어 확인이 필요하다 (값은 건드리지 않음).
 

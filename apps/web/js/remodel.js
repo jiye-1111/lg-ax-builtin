@@ -542,7 +542,7 @@ export async function customer(pid) {
   let mode = "move", draft = [], dragging = null, version = -1, zoneSel = null, project, room, zones, pv;
   let tabletop = () => false; // 카탈로그를 받은 뒤 채운다
   let mountOf = () => null;   // 설치 방식: wall(벽에 건다) · flush(뒷면을 벽에) · builtin(벽이나 장에). 서버가 정한다
-  const hangs = (sku) => mountOf(sku) === "wall";
+  const hangs = (sku) => mountOf(sku) === "wall" || !!decorOf(sku)?.hang; // 벽걸이 제품과 벽 후드
   const hungId = (id) => hangs(project?.scene_state.placements.find((q) => q.placement_id === id)?.sku);
   let lastHang = null; // 벽걸이 제품을 들고 있을 때 마지막으로 가리킨 벽 자리 {xz, yaw, base, wall}
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
@@ -563,11 +563,12 @@ export async function customer(pid) {
   const eul = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c < 0 || c > 11171 ? "을(를)" : c % 28 ? "을" : "를"; };
   // ---- 벽·가전 옆에 착 붙기 (js/snap.js). 장·소파·침대·책상과 바닥에 세우는 LG 가전만 붙는다 ----
   const SNAP_MORE = new Set(["decor:sofa", "decor:bed", "decor:desk"]);
+  const HOOD_SKUS = new Set(["decor:hood", "decor:islandhood"]); // 인덕션 위에 다는 것: 바닥 가구처럼 벽·옆에 붙이지 않는다
   const MOUNT_REACH_M = 0.6; // 벽에 붙여 설치하는 제품(월핏·핏 앤 맥스·빌트인)은 더 멀리서도 벽으로 끌려간다 (서버 mount.py와 같은 값)
   const SNAP_MARGIN_M = 0.03; // 가전은 벽에서 뒤 여유 + 이만큼 띄운다 (서버 '벽에 붙이기'와 같은 값)
   const isPurifier = (sku) => prodOf(sku)?.category === "water_purifier";
   const snappable = (sku) => (isDecor(sku)
-    ? (decorOf(sku)?.group === "storage" && sku !== "decor:island") || SNAP_MORE.has(sku)
+    ? (decorOf(sku)?.group === "storage" && sku !== "decor:island" && !HOOD_SKUS.has(sku)) || SNAP_MORE.has(sku)
     : !!prodOf(sku) && !tabletop(sku) && !isPurifier(sku) && !hangs(sku));
   const sideNeed = (sku) => (isDecor(sku) ? 0 : (prodOf(sku)?.clearance_mm?.side || 0) / 1000);
   const snapAt = (sku, size, xz, yaw, skipId = null, keepYaw = false) => {
@@ -601,7 +602,7 @@ export async function customer(pid) {
     const hit = o && hangAtRay(o, d, walls, item, mid);
     if (hit) return hit;
     const near = floorP && hangNear(floorP, walls, item, mid);
-    return near ? { ...near, base: base != null ? clampBase(base, item.h, near.h) : defaultBase(prodOf(sku)?.category, item.h, near.h) } : null;
+    return near ? { ...near, base: base != null ? clampBase(base, item.h, near.h) : defaultBase(HOOD_SKUS.has(sku) ? "hood" : prodOf(sku)?.category, item.h, near.h) } : null;
   };
   const sizeArgs = (x) => (isDecor(x?.sku) && x.size_m ? { size_m: [...x.size_m] } : {});
   const lgOnly = (pls) => pls.filter((x) => !isDecor(x.sku));
@@ -660,7 +661,7 @@ export async function customer(pid) {
     if (libTab === "finish") { renderFinishes(); return; }
     const groups = libTab === "all" ? SECTION : SECTION.filter(([g]) => g === libTab);
     box.innerHTML = libTab === "lg" ? "" : (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "") + groups.map(([g, title]) => {
-      const items = decorList.filter((d) => d.group === g);
+      const items = decorList.filter((d) => d.group === g && d.listed !== false);
       const tiles = (g === "structure" ? [items.find((d) => d.sku === "decor:wall")].filter(Boolean).map(tileHtml).join("") + wallTile() + items.filter((d) => d.sku !== "decor:wall").map(tileHtml).join("") : items.map(tileHtml).join(""));
       return `<section class="dsec"><h3>${esc(title)}</h3><div class="dgrid">${tiles}</div></section>`;
     }).join("");
@@ -1720,7 +1721,7 @@ export async function customer(pid) {
     toast(`빈틈에 맞췄어요 (폭 ${mm(Math.round(r.placement.size_m[0] * 1000))} mm)`);
     await refresh(true);
   });
-  const canFill = (sku) => ["storage", "structure"].includes(decorOf(sku)?.group) && sku !== "decor:island" && sku !== "decor:door";
+  const canFill = (sku) => ["storage", "structure"].includes(decorOf(sku)?.group) && sku !== "decor:island" && sku !== "decor:door" && !HOOD_SKUS.has(sku);
   renderAct = () => {
     if (!project) return;
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);

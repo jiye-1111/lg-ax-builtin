@@ -274,6 +274,20 @@ MOUNT_SKUS = frozenset({"decor:door", "decor:window", "decor:glassdoor"})
 WINDOW_SKU = "decor:window"
 SILL_M = {"decor_window": 0.9}  # 창문은 바닥에서 이만큼 띄워 단다
 WALL_LIKE = frozenset({"decor:wall", "decor:partition"})  # 문을 달 수 있는 배치
+# 후드: 인덕션 위 공중에 단다. 벽 후드는 벽에 걸고, 아일랜드 후드는 천장에서 내려온다 (docs/specs/fit-rules.md '인덕션 위 후드')
+WALL_HOOD, ISLAND_HOOD = "decor_hood", "decor_islandhood"
+HOODS = frozenset({WALL_HOOD, ISLAND_HOOD})
+HOOD_GAP_M = 0.7    # 인덕션 윗면에서 후드 밑면까지 (화면 기본값. 제품마다 설치 설명서 값이 다르다)
+HOOD_BASE_M = 1.6   # 인덕션 없이 벽에 걸 때의 밑면 높이 (조리대 0.9 + 0.7)
+
+
+def is_hood(p: Product) -> bool:
+    return p.category in HOODS
+
+
+def floats(p: Product) -> bool:
+    """바닥이 아니라 고른 높이(base_m)에 다는 것: 벽걸이 제품과 후드."""
+    return mount_kind(p) == WALL or is_hood(p)
 DOOR_SKU = "decor:door"
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
 WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
@@ -284,7 +298,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
                base_m: Optional[float] = None) -> PoseResult:
     """host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
     키가 그 윗면보다 낮은 바닥 물건은 걸리지 않는다. 윗면 밖으로 나오면 불가.
-    base_m: 벽걸이 제품을 거는 높이(밑면). 안 주면 기본 높이. 벽걸이가 아니면 쓰지 않는다."""
+    base_m: 벽걸이 제품·후드를 다는 높이(밑면). 안 주면 기본 높이. 그 밖의 것에는 쓰지 않는다."""
     cfg = cfg or FitConfig()
     size = product_size(product)
     reasons: list[dict] = []
@@ -302,11 +316,13 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     margin = cfg.margin_scanned_mm / 1000
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     kind = mount_kind(product)
-    hung = kind == WALL
+    hood = is_hood(product)
+    hung = kind == WALL or product.category == WALL_HOOD
     base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
-    if hung:  # 벽에 건 높이. 바닥과 천장 사이로 맞춘다
+    if hung or hood:  # 벽에 건 높이. 바닥과 천장 사이로 맞춘다
         ceiling = _wall_height(_nearest_wall(room, c)[0]) if room.walls else h_m
-        base = clamp_base(default_base(product, ceiling) if base_m is None else float(base_m), h_m, ceiling)
+        first = HOOD_BASE_M if hood else default_base(product, ceiling)
+        base = clamp_base(first if base_m is None else float(base_m), h_m, ceiling)
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)
     M = rect(c, yaw, w_m, d_m, left=side + margin, right=side + margin, back=back + margin, front=margin)
@@ -393,8 +409,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         add("passage_narrow", Verdict.CONDITIONAL, passage_ref,
             label=f"문을 열었을 때 앞 통로가 {cfg.passage_mm:.0f} mm보다 좁음")
 
-    # 천장: 가장 가까운 벽 높이
-    if room.walls:
+    # 천장: 가장 가까운 벽 높이 (후드는 천장에 닿게 다는 것이라 보지 않는다)
+    if room.walls and not hood:
         wall, _ = _nearest_wall(room, c)
         slack = _wall_height(wall) - (base + h_m + top)
         if slack < -EPS:
