@@ -17,7 +17,7 @@ import { SIZE_W, SIZE_H, appliedFilters, clearFilter, detailCount, installCounts
 import { startTour, tourSeen } from "./tour.js";
 import { snapPose } from "./snap.js";
 import { slotPose, DOOR_BACK_M } from "./slot.js";
-import { stretchTo } from "./stretch.js";
+import { stretchTo, handlesFor } from "./stretch.js";
 import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
 import { coloursFor, topColoursFor, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
@@ -1582,8 +1582,9 @@ export async function customer(pid) {
   });
   // 장 끝 손잡이로 늘릴 수 있는 것: 수납장·하부장·키큰장 같은 장과 가벽
   // 아일랜드·아일랜드 식탁은 벽에서 떨어져 있어 앞뒤(깊이)로도 늘린다
-  const DEEP = new Set(["decor:island", "decor:islandtable"]), STRETCH_MIN_M = { w: 0.1, d: 0.3 };
-  const stretchable = (sku) => isDecor(sku) && (decorOf(sku)?.group === "storage" || LONG.has(sku) || DEEP.has(sku));
+  // 식탁·테이블·소파·침대·러그도 같은 손잡이로 늘린다 (어떤 가구인지는 js/stretch.js handlesFor)
+  const STRETCH_MIN_M = { w: 0.1, d: 0.3 };
+  const stretchOf = (sku) => handlesFor(sku, decorOf(sku)?.group);
   // 늘리다가 닿으면 멈출 것: 벽과 바닥에 놓인 다른 가구·가전 (가전은 옆 여유만큼 띄운다)
   const stretchStops = (skipId) => {
     const gone = new Set(project.scene_state.hidden_walls || []);
@@ -1593,6 +1594,7 @@ export async function customer(pid) {
       const len = Math.hypot(w.end[0] - w.start[0], w.end[1] - w.start[1]);
       return { pts: box([(w.start[0] + w.end[0]) / 2, (w.start[1] + w.end[1]) / 2], Math.atan2(w.end[1] - w.start[1], w.end[0] - w.start[0]) + Math.PI / 2, len, w.thickness_m || 0.1) };
     });
+    if (project.scene_state.placements.find((q) => q.placement_id === skipId)?.sku === "decor:rug") return out; // 러그는 가구 밑으로 들어가도 된다
     for (const q of project.scene_state.placements) {
       if (q.placement_id === skipId || !q.size_m || q.base_m > 0 || q.sku === "decor:rug" || isPurifier(q.sku)) continue;
       out.push({ pts: box(q.center_xz, q.yaw_rad, q.size_m[0], q.size_m[2]), pad: sideNeed(q.sku) });
@@ -1899,7 +1901,7 @@ export async function customer(pid) {
     const size = x ? [x.size_m?.[0], x.size_m?.[2]] : o?.bbox_m ? [o.bbox_m.w, o.bbox_m.d] : null;
     const onWall = x && (WALL_SKUS.has(x.sku) || hangs(x.sku));
     viewer.setRotateRing(it && size?.[0] && !onWall ? { kind: it.kind, id: it.id, xz: it.xz, yaw: it.yaw, r: +ringRadius(size[0], size[1]).toFixed(3), y: x?.base_m || 0 } : null);
-    viewer.setStretch(it && x && stretchable(x.sku) && !(x.base_m > 0) ? { id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, w: x.size_m[0], d: x.size_m[2], y: 0, deep: DEEP.has(x.sku) } : null);
+    viewer.setStretch(it && x && stretchOf(x.sku) && !(x.base_m > 0) ? { id: x.placement_id, xz: [...x.center_xz], yaw: x.yaw_rad, w: x.size_m[0], d: x.size_m[2], y: 0, deep: stretchOf(x.sku).deep } : null);
   };
   const OPT_SHORT = (p) => {
     const o = p.options || {};

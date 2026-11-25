@@ -54,3 +54,12 @@ test("깊이는 90° 돌려 놓은 장으로 보면 같은 계산이다: 앞쪽 
   assert.ok(Math.abs(r.w - 1.2) < 1e-9);
   assert.ok(Math.abs(r.xz[0] - 3) < 1e-9 && Math.abs(r.xz[1] - 3.15) < 1e-9); // 뒤(y 2.55)는 그대로, 앞으로 0.3
 });
+
+test("늘릴 수 있는 가구에는 손잡이가 나오고, 책상·의자·소품에는 안 나온다", async () => {
+  const { handlesFor } = await import("../../apps/web/js/stretch.js");
+  for (const sku of ["decor:basecab", "decor:storage", "decor:wall"]) assert.deepEqual(handlesFor(sku, sku === "decor:wall" ? "structure" : "storage"), { deep: false });
+  for (const sku of ["decor:island", "decor:islandtable", "decor:table", "decor:coffee", "decor:sofa", "decor:bed"]) assert.deepEqual(handlesFor(sku, "furniture"), { deep: true }, sku);
+  assert.deepEqual(handlesFor("decor:rug", "decor"), { deep: true });
+  for (const [sku, group] of [["decor:desk", "furniture"], ["decor:chair", "furniture"], ["decor:lamp", "decor"], ["decor:plant", "decor"], ["decor:door", "structure"], ["decor:window", "structure"], ["decor:hood", "storage"], ["S834MEE111", undefined]])
+    assert.equal(handlesFor(sku, group), null, sku);
+});
