@@ -2216,6 +2216,7 @@ export async function customer(pid) {
   api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
 
   const draw = () => {
+    if (!project || !room) return; // 집을 다 받기 전에 3D를 누른 경우
     pv = planView(svg, room, { zones, placements: project.scene_state.placements, hidden: project.scene_state.hidden_objects, hiddenOpenings: project.scene_state.hidden_openings,
       selectedPl: selPl, selectedObj: selObj, overlay, northDeg: simOn("daylight") ? project.site?.north_deg ?? 0 : null });
     drawDraft();
