@@ -1049,3 +1049,4 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .energy-steps i { width: 12px; height: 6px; border-radius: 2px; background: var(--line); }
 .energy-steps i.on { background: var(--e); height: 10px; margin-top: -2px; }
 .energy b { font-weight: 600; color: var(--ink); }
+.energy-set { display: inline-flex; flex-wrap: wrap; gap: 6px 18px; }
