@@ -186,35 +186,45 @@ def island(w, h, d):
 
 
 def islandtable(w, h, d):
-    """아일랜드 식탁: 주방 쪽(정면 +Z)은 문 두 짝과 서랍 세 단, 반대쪽은 상판이 튀어나와 무릎이 들어가는 자리.
-    양옆은 상판에서 바닥까지 내려오는 원목 판. 기준 치수는 한샘 모디 아일랜드식탁 120cm (몸통 깊이 59.5, 상판 깊이 75)."""
-    top, base, side, gap = 0.03, 0.08, 0.022, 0.003
-    hang = d * 0.2          # 앉는 쪽으로 튀어나온 상판
-    back = -d / 2 + hang    # 몸통 뒷면
-    front = d / 2 - 0.035   # 문 앞면 (상판이 살짝 덮는다)
-    x0, x1 = -w / 2 + side, w / 2 - side
-    part("plinth", "plinth", x0 + 0.02, x1 - 0.02, back + 0.03, front - 0.05, 0, base, "ses", 0.003)
-    part("body", "white", x0, x1, back, front - 0.02, base, h - top, "sss", 0.004)
-    part("top", "stone", -w / 2 - 0.005, w / 2 + 0.005, -d / 2, d / 2, h - top, h, "ses", 0.008)
-    for i, sx in enumerate((-1, 1)):
-        xa = -w / 2 if sx < 0 else w / 2 - side
-        part(f"side{i}", "oak", xa, xa + side, -d / 2 + 0.012, d / 2 - 0.012, 0, h - top, "ess", 0.004)
-    # 앉는 쪽: 발을 올리는 가로대
-    rod("footrest", "metal", (x0, 0.2, -d / 2 + 0.07), (x1, 0.2, -d / 2 + 0.07), 0.011, 0.011, "see", 16)
-    # 주방 쪽: 왼쪽 문 두 짝, 오른쪽 서랍 세 단
-    mid = x0 + (x1 - x0) * 0.58
-    half = (mid - x0) / 2
+    """아일랜드 식탁: 두툼한 밝은 돌 상판 + 밝은 참나무 몸통. 주방 쪽(정면 +Z)은 손잡이 없는 문 두 짝과 서랍 세 단,
+    앉는 쪽과 양옆은 세로 골이 있는 템바보드. 상판은 앉는 쪽으로 튀어나와 무릎이 들어간다.
+    치수는 한샘 모디 아일랜드식탁 120cm (상판 120 x 75, 높이 89), 모양은 요즘 많이 팔리는 템바보드 홈바·아일랜드 식탁을 따랐다."""
+    top, base, reveal, gap = 0.045, 0.09, 0.018, 0.003
+    hang = d * 0.2            # 앉는 쪽으로 튀어나온 상판 (slot.py SEAT_RATIO와 같은 값)
+    back = -d / 2 + hang      # 몸통 뒷면
+    front = d / 2 - 0.035     # 문 앞면 (slot.py DOOR_BACK_M과 같은 값)
+    rib = 0.011               # 템바보드 살 하나의 반폭
+    proud = 0.009             # 살이 몸통에서 튀어나온 만큼
+    pull = 0.02               # 문·서랍 위쪽 손끼움 홈
+    x0, x1 = -w / 2 + 0.03, w / 2 - 0.03
+    y1 = h - top - reveal     # 몸통 윗면. 그 위로 상판과의 사이에 어두운 틈이 한 줄 돈다
+    part("plinth", "plinth", x0 + 0.045, x1 - 0.045, back + 0.045, front - 0.06, 0, base, "ses", 0.003)
+    part("reveal", "plinth", x0 + 0.014, x1 - 0.014, back + 0.014, front - 0.03, y1 - 0.002, h - top + 0.002, "ses", 0.002)
+    part("body", "island_wood", x0 + proud, x1 - proud, back + proud, front - 0.02, base, y1, "sss", 0.002)
+    part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", 0.014)
+    # 템바보드: 앉는 쪽 한 면과 양옆에 세로 살을 촘촘히 붙인다
+    n = max(2, round((x1 - x0 - 2 * rib) / (2 * rib + 0.007)))
+    for i in range(n + 1):
+        x = x0 + rib + (x1 - x0 - 2 * rib) * i / n
+        part(f"rib_b{i}", "island_wood", x - rib, x + rib, back, back + proud + 0.004, base + 0.004, y1 - 0.002, "ssp", 0.003)
+    m = max(2, round((front - 0.03 - back - 2 * rib) / (2 * rib + 0.007)))
+    for sx in (-1, 1):
+        for i in range(1, m + 1):
+            z = back + rib + (front - 0.03 - back - 2 * rib) * i / m
+            xa, xb = sorted((sx * (w / 2 - 0.03), sx * (w / 2 - 0.03 - proud - 0.004)))
+            part(f"rib_s{'l' if sx < 0 else 'r'}{i}", "island_wood", xa, xb, z - rib, z + rib, base + 0.004, y1 - 0.002, "ess", 0.003)
+    # 주방 쪽: 손잡이 없는 문 두 짝(왼쪽)과 서랍 세 단(오른쪽). 문·서랍 위에 손을 넣는 어두운 홈이 한 줄씩 있다
+    fx0, fx1 = x0 + proud, x1 - proud
+    part("groove", "plinth", fx0 + 0.002, fx1 - 0.002, front - 0.024, front - 0.012, base + 0.002, y1 - 0.002, "sse", 0.001)
+    mid = fx0 + (fx1 - fx0) * 0.6
+    half = (mid - fx0) / 2
     for i in range(2):
-        a, b = x0 + i * half + gap, x0 + (i + 1) * half - gap
-        part(f"door{i}", "white", a, b, front - 0.02, front, base + gap, h - top - gap, "sse", 0.003)
-        hx = b - 0.035 if i == 0 else a + 0.035
-        part(f"handle{i}", "metal", hx - 0.005, hx + 0.005, front, front + 0.014, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
-    step = (h - top - base) / 3
+        part(f"door{i}", "island_wood", fx0 + i * half + gap, fx0 + (i + 1) * half - gap, front - 0.02, front,
+             base + gap, y1 - pull, "sse", 0.0025)
+    step = (y1 - base) / 3
     for i in range(3):
         y0 = base + i * step + gap
-        part(f"drawer{i}", "white", mid + gap, x1 - gap, front - 0.02, front, y0, y0 + step - 2 * gap, "sse", 0.003)
-        yc = y0 + step - 0.045
-        part(f"pull{i}", "metal", (mid + x1) / 2 - 0.07, (mid + x1) / 2 + 0.07, front, front + 0.014, yc - 0.006, yc + 0.006, "ppe", 0.004)
+        part(f"drawer{i}", "island_wood", mid + gap, fx1 - gap, front - 0.02, front, y0, y0 + step - pull, "sse", 0.0025)
 
 
 def hood(w, h, d):
