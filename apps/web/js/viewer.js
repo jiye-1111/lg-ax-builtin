@@ -571,7 +571,8 @@ export function makeViewer(el, handlers = {}) {
     if (!held) return;
     const top = topY(held.surface, held.xz, held.id);
     for (const { node, baseY } of held.nodes) {
-      node.position.set(held.xz[0], (top ?? baseY) + held.lift, held.xz[1]);
+      // 벽에 건 것은 들어 올리지 않고 벽을 따라 그 높이 그대로 움직인다
+      node.position.set(held.xz[0], held.surface === "wall" ? held.y : (top ?? baseY) + held.lift, held.xz[1]);
       node.rotation.set(0, rotY(held.kind, held.yaw), 0);
     }
   };
@@ -672,7 +673,7 @@ export function makeViewer(el, handlers = {}) {
     // 치수선은 그리지 않는다: 놓을 때는 판정 색 테두리만 (치수는 제품 상세에서)
     g.position.set(p.center_xz[0], p.base_m || 0, p.center_xz[1]); // 가구 위에 올려 둔 것은 그 윗면 높이에
     g.rotation.y = -((p.yaw_rad ?? Math.PI / 2) - Math.PI / 2);
-    g.userData = { placementId: p.placement_id, sku: p.sku, surface: p.tabletop ? "product" : null };
+    g.userData = { placementId: p.placement_id, sku: p.sku, surface: p.hung ? "wall" : p.tabletop ? "product" : null };
     return g;
   };
   const clear = (grp) => {
@@ -726,7 +727,9 @@ export function makeViewer(el, handlers = {}) {
   };
   // 높이 h인 수평면에서 커서가 가리키는 점. 위에 올린 물건은 잡은 높이의 평면을 따라가야 바닥 먼 곳으로 튀지 않는다
   const planePoint = (e, h) => { setNdc(e); return onPlane(ray.ray.origin.toArray(), ray.ray.direction.toArray(), h); };
-  const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
+  // 벽걸이 제품은 마우스가 가리키는 벽 자리를 따라간다 (계산은 handlers.hangPoint → js/wallmount.js)
+  const wallPoint = (e) => { const p = floorPoint(e, 0.01); return handlers.hangPoint?.(ray.ray.origin.toArray(), ray.ray.direction.toArray(), p) || p; };
+  const pointFor = (e) => { const sf = handlers.onSurface?.(); return sf === "wall" ? wallPoint(e) : sf ? surfacePoint(e, sf === true ? "router" : sf) : floorPoint(e); };
   const pick = (e) => {
     setNdc(e);
     const targets = [...products.children];
@@ -870,14 +873,22 @@ export function makeViewer(el, handlers = {}) {
         if (held.surface) held.grab = grabOffset(held.xz, planePoint({ clientX: down.x, clientY: down.y }, held.plane)); // 누른 자리 그대로 잡는다
       } else ctl.enabled = true;
     }
-    if (held && !held.dropping && rotKey) { // E를 누른 채 마우스를 좌우로: 잡은 물건이 돈다 (Shift는 45°씩)
+    if (held && !held.dropping && rotKey && held.surface !== "wall") { // E를 누른 채 마우스를 좌우로: 잡은 물건이 돈다 (Shift는 45°씩)
       held.spin = (held.spin ?? held.yaw) + e.movementX * SPIN_RAD_PER_PX;
       held.yaw = e.shiftKey ? Math.round(held.spin / SNAP_RAD) * SNAP_RAD : held.spin;
       held.turned = true;
+      held.freeYaw = undefined;
       handlers.onHoldMove?.(held, held.xz);
       return;
     }
     if (held) held.spin = undefined;
+    if (held && !held.dropping && held.surface === "wall") {
+      // 벽걸이: 가리키는 벽 자리로. 위아래로 움직이면 높이가 바뀐다
+      const p = floorPoint(e, 0.01);
+      const m = handlers.hang?.(held, ray.ray.origin.toArray(), ray.ray.direction.toArray(), p);
+      if (m) { held.xz = m.xz; held.yaw = m.yaw; held.y = m.base; handlers.onHoldMove?.(held, held.xz); }
+      return;
+    }
     if (held && !held.dropping) {
       // 들고 있으면 커서를 그대로 따라온다 (1 cm). 칸 단위로 뚝뚝 끊기면 손에 안 붙는다. 맞추는 건 벽·가전 붙기가 한다
       // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
@@ -885,8 +896,10 @@ export function makeViewer(el, handlers = {}) {
       if (q) {
         held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]];
         // 벽·가전 옆에 가까이 가면 착 붙는다 (Alt를 누르고 있으면 붙지 않는다)
-        const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.yaw);
-        if (sn) { held.xz = sn.xz; held.yaw = sn.yaw; }
+        // 벽에 붙으면서 돌아간 방향은 벽에서 떼면 원래대로 돌아온다 (지나가다 붙었다고 방향이 바뀐 채 남지 않게)
+        const sn = !held.surface && !e.altKey && handlers.snap?.(held, held.xz, held.freeYaw ?? held.yaw);
+        if (sn) { held.freeYaw ??= held.yaw; held.xz = sn.xz; held.yaw = sn.yaw; }
+        else if (held.freeYaw !== undefined) { held.yaw = held.freeYaw; held.freeYaw = undefined; }
         handlers.onHoldMove?.(held, held.xz);
       }
       return;
@@ -1201,7 +1214,7 @@ export function makeViewer(el, handlers = {}) {
       if (!nodes.length) return false;
       nodes.forEach((n) => { if (n.userData.placementId) n.userData.dirty = true; }); // 들어 옮긴 것은 다시 그릴 때 새로 만든다
       held = { ...item, nodes: nodes.map((n) => ({ node: n, baseY: n.position.y, orig: n.position.clone(), rot: n.rotation.y })),
-        lift: 0, dropping: false,
+        lift: 0, dropping: false, y: nodes[0].position.y,
         // 윗면에 올린 물건은 잡은 높이의 평면을 따라간다 (끌어서 잡으면 누른 자리 차이는 onMove에서 잰다)
         plane: item.surface ? nodes[0].position.y : 0,
         grab: item.surface ? [0, 0] : grabOffset(item.xz, grabPoint) };
@@ -1219,15 +1232,15 @@ export function makeViewer(el, handlers = {}) {
       rotRing.getObjectByName("arm").rotation.y = rotY(info.kind, info.yaw);
     },
     ringDragging: () => !!ringDrag,
-    held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, y: held.nodes[0]?.node.position.y ?? 0 },
+    held: () => held && { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, surface: held.surface, y: held.nodes[0]?.node.position.y ?? 0 },
     /** E를 누르고 있는지 (잡은 물건을 마우스로 돌리는 중) */
     spinKey(on) { rotKey = !!on && !!held; },
-    moveHeld(dx, dz) { if (held) { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
-    rotateHeld(dyaw) { if (held) { held.yaw += dyaw; held.turned = true; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
+    moveHeld(dx, dz) { if (held && held.surface !== "wall") { held.xz = [held.xz[0] + dx, held.xz[1] + dz]; handlers.onHoldMove?.(held, held.xz); } },
+    rotateHeld(dyaw) { if (held && held.surface !== "wall") { held.yaw += dyaw; held.turned = true; held.freeYaw = undefined; handlers.onHoldMove?.(held, held.xz); } }, // 직접 돌렸으면 벽이 다시 돌려놓지 않는다
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;
-      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, baseY: held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
+      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, baseY: held.surface === "wall" ? held.y : held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
       held.dropping = true;
       const h = held;
       setTimeout(() => {
