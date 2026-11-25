@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { finishTexture, tileMeters, BUMP, ROUGH } from "./finishes.js";
-import { paintParts, lookOf } from "./furncolors.js";
+import { paintParts, topParts, lookOf } from "./furncolors.js";
 
 const FURN_DIR = "models/furniture/";
 const PLANK_M = 2.4;          // 바닥 무늬 한 장이 덮는 길이 (m)
@@ -51,13 +51,15 @@ export function fitFurniture(tmpl, ref, size) {
 
 /** 스캔 가구 상자를 모델로 바꾼다. 상자는 안 보이게 두고 고르기(raycast)에만 쓴다. */
 /** 고른 색을 가구의 칠할 부분(천·문짝·나무)에 입힌다. 재질은 가구마다 따로 쓴다 */
-export function tintFurniture(group, look, hex) {
-  const parts = paintParts(look);
-  if (!hex || !parts.length) return;
+export function tintFurniture(group, look, hex, topHex = null) {
+  const jobs = [[paintParts(look), hex], [topParts(look), topHex]].filter(([parts, h]) => h && parts.length); // 몸통, 상판
+  if (!jobs.length) return;
   group.traverse((o) => {
-    if (!o.isMesh || !parts.includes(o.material.name)) return;
+    if (!o.isMesh) return;
+    const job = jobs.find(([parts]) => parts.includes(o.material.name));
+    if (!job) return;
     if (!o.userData.ownMaterial) { o.material = o.material.clone(); o.userData.ownMaterial = true; }
-    o.material.color.set(hex);
+    o.material.color.set(job[1]);
   });
 }
 

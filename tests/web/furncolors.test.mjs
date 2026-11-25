@@ -47,3 +47,15 @@ test("의자·탁자처럼 따로 쓰는 가구는 붙어 있어도 고른 하�
   assert.deepEqual(runOf([chair("c1", 0.3), chair("c2", 0.78)], "c1"), ["c1"]);
   assert.deepEqual(runOf([table("t1", 0.6), table("t2", 1.8)], "t2"), ["t2"]);
 });
+
+test("상판이 있는 가구는 상판 색을 따로 고른다. 상판이 없으면 고를 색이 없다", async () => {
+  const { topParts, topColoursFor } = await import("../../apps/web/js/furncolors.js");
+  for (const m of ["islandtable", "island", "basecab", "sink"]) {
+    assert.deepEqual(topParts(m), ["stone"]);
+    const names = topColoursFor(m).map((c) => c.name);
+    assert.ok(names.length >= 6 && names.length <= 10 && new Set(names).size === names.length);
+    for (const c of topColoursFor(m)) assert.match(c.hex, /^#[0-9A-F]{6}$/);
+  }
+  assert.deepEqual(topParts("sofa"), []);
+  assert.deepEqual(topColoursFor("table"), []);
+});

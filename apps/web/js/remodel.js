@@ -19,7 +19,7 @@ import { snapPose } from "./snap.js";
 import { slotPose, DOOR_BACK_M } from "./slot.js";
 import { stretchTo, handlesFor } from "./stretch.js";
 import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
-import { coloursFor, lookOf, runOf } from "./furncolors.js";
+import { coloursFor, topColoursFor, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 
@@ -596,7 +596,7 @@ export async function customer(pid) {
     if (!size || !project || !slotOf(sku)) return null;
     const c = prodOf(sku)?.clearance_mm || {};
     const cabs = project.scene_state.placements.filter((q) => q.sku in DOOR_BACK_M && q.size_m && q.placement_id !== skipId)
-      .map((q) => ({ id: q.placement_id, sku: q.sku, xz: q.center_xz, yaw: q.yaw_rad, w: q.size_m[0], h: q.size_m[1], d: q.size_m[2], hex: q.hex, keep: isLocked(q.placement_id) || !!q.host_of }));
+      .map((q) => ({ id: q.placement_id, sku: q.sku, xz: q.center_xz, yaw: q.yaw_rad, w: q.size_m[0], h: q.size_m[1], d: q.size_m[2], hex: q.hex, topHex: q.top_hex, keep: isLocked(q.placement_id) || !!q.host_of }));
     // 스캔한 낮은 수납장도 하부장처럼 칸을 내준다 (앞뒤는 서버가 정해 준다)
     const gone = project.scene_state.hidden_objects || [];
     for (const h of project.scene_state.scan_hosts || []) {
@@ -611,9 +611,9 @@ export async function customer(pid) {
     sl.carve = {
       hide: ids.filter((id) => !by[id].scanned), hideObjects: ids.filter((id) => by[id].scanned),
       pieces: sl.edits.filter((e) => e.xz).map((e, i) => { const q = by[e.id || e.like];
-        return { placement_id: `carve-${i}`, sku: q.sku, center_xz: e.xz, yaw_rad: q.yaw, size_m: [e.w, q.h, q.d], hex: q.hex, verdict: "fit" }; }),
+        return { placement_id: `carve-${i}`, sku: q.sku, center_xz: e.xz, yaw_rad: q.yaw, size_m: [e.w, q.h, q.d], hex: q.hex, top_hex: q.topHex, verdict: "fit" }; }),
       lid: sl.cover && { xz: sl.xz, yaw: sl.yaw, size_m: [...size],
-        slot: { top_m: sl.cover.top, depth_m: sl.cover.depth, off_m: sl.cover.off, look: sl.cover.look, hex: sl.cover.hex, left_m: side, right_m: side, back_m: sl.cover.seat } },
+        slot: { top_m: sl.cover.top, depth_m: sl.cover.depth, off_m: sl.cover.off, look: sl.cover.look, hex: sl.cover.hex, top_hex: sl.cover.topHex, left_m: side, right_m: side, back_m: sl.cover.seat } },
     };
     return sl;
   };
@@ -1211,7 +1211,7 @@ export async function customer(pid) {
       ...ch.added.map((id) => ({ kind: "remove", id })),
       ...(ch.hidden || []).map((id) => ({ kind: "objShow", id })), // 칸을 내주느라 치운 스캔 장
       ...ch.resized.map((c) => ({ kind: "pose", id: c.id, body: { center_xz: c.center_xz, yaw_rad: yawOf(c.id), size_m: c.size_m, snap: false, slot: false } })),
-      ...ch.removed.map((c, i) => ({ kind: "add", id: `gone-${Date.now()}-${i}`, body: { sku: c.sku, center_xz: c.center_xz, yaw_rad: c.yaw_rad, size_m: c.size_m, snap: false, slot: false, ...(c.color ? { color: c.color } : {}) }, hex: c.hex })),
+      ...ch.removed.map((c, i) => ({ kind: "add", id: `gone-${Date.now()}-${i}`, body: { sku: c.sku, center_xz: c.center_xz, yaw_rad: c.yaw_rad, size_m: c.size_m, snap: false, slot: false, ...(c.color ? { color: c.color } : {}) }, hex: c.hex, top_hex: c.top_hex })),
     ] };
   };
   const rememberRemoval = (plid) => {
@@ -1230,7 +1230,7 @@ export async function customer(pid) {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
       await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" });
       if (selPl === id) selPl = null;
-      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}) };
+      return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}), ...(x.top_hex ? { top_hex: x.top_hex } : {}) };
     }
     if (step.kind === "pose") {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
@@ -1239,7 +1239,7 @@ export async function customer(pid) {
     }
     if (step.kind === "add") {
       const r = await post(`/api/projects/${pid}/placements`, step.body);
-      if (step.hex) await api(`/api/projects/${pid}/placements/${r.placement.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: step.hex }) }); // 칠해 둔 장 색
+      if (step.hex || step.top_hex) await api(`/api/projects/${pid}/placements/${r.placement.placement_id}`, { method: "PATCH", body: JSON.stringify({ ...(step.hex ? { hex: step.hex } : {}), ...(step.top_hex ? { top_hex: step.top_hex } : {}) }) }); // 칠해 둔 장 색·상판 색
       undoIds[step.id] = r.placement.placement_id; selPl = r.placement.placement_id; selObj = null;
       return { kind: "remove", id: r.placement.placement_id };
     }
@@ -1794,6 +1794,7 @@ export async function customer(pid) {
   };
   // 색 고르기: 3D 메뉴가 색 점 줄로 바뀐다. 누르면 바로 입혀진다 (놓은 가구도, 스캔한 가구도)
   let colouring = null;
+  let colourPart = "body"; // 색을 바꾸는 곳: 몸통 | 상판
   const paintOf = (x, o) => (x ? x.sku.slice(x.sku.indexOf(":") + 1) : o ? lookOf(o.category, o.bbox_m.h) : null);
   // 설치한 LG 가전의 색: 그 모델에 실제로 있는 색만 (같은 사양에서 색만 다른 모델로 바꾼다)
   const lgColours = (x) => {
@@ -1807,10 +1808,12 @@ export async function customer(pid) {
   };
   const colourBar = (x, o) => {
     const lg = lgColours(x);
-    const list = lg.length ? lg : coloursFor(paintOf(x, o));
-    const cur = lg.length ? lg.find((c) => c.sku === x.sku)?.hex || null : (x ? x.hex : (project.scene_state.object_colors || {})[o.object_id]) || null;
+    const tops = !lg.length && x ? topColoursFor(paintOf(x, o)) : []; // 상판 색을 따로 고르는 가구 (놓은 가구만)
+    const top = tops.length > 0 && colourPart === "top";
+    const list = lg.length ? lg : top ? tops : coloursFor(paintOf(x, o));
+    const cur = lg.length ? lg.find((c) => c.sku === x.sku)?.hex || null : (x ? (top ? x.top_hex : x.hex) : (project.scene_state.object_colors || {})[o.object_id]) || null;
     actBar.classList.add("colouring");
-    actBar.innerHTML = `<div class="cl-row" role="radiogroup" aria-label="가구 색">${list.map((c) =>
+    actBar.innerHTML = `${tops.length ? `<div class="cl-parts" role="tablist" aria-label="색을 바꿀 곳"><button role="tab" data-part="body" aria-selected="${!top}" class="${top ? "" : "on"}">몸통</button><button role="tab" data-part="top" aria-selected="${top}" class="${top ? "on" : ""}">상판</button></div>` : ""}<div class="cl-row" role="radiogroup" aria-label="${top ? "상판 색" : "가구 색"}">${list.map((c) =>
       `<button class="cl-dot${cur === c.hex ? " on" : ""}" data-hex="${c.hex}" role="radio" aria-checked="${cur === c.hex}" aria-label="${esc(c.name)}" title="${esc(c.name)}" style="--c:${c.hex}"></button>`).join("")}</div>
       <div class="cl-foot"><span class="cl-name">${esc(list.find((c) => c.hex === cur)?.name || "원래 색")}</span><span class="spacer"></span>
         ${cur && !lg.length ? `<button class="ghost small" id="clReset">원래 색으로</button>` : ""}<button class="primary small" id="clDone">완료</button></div>`;
@@ -1822,11 +1825,12 @@ export async function customer(pid) {
         await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ sku: to.sku }) });
         const vs = familyOf(x.sku).variants, was = vs.find((v) => v.sku === x.sku)?.price_krw, now = vs.find((v) => v.sku === to.sku)?.price_krw;
         if (typeof now === "number" && now !== was) toast(`${to.name}은 ${now.toLocaleString("ko-KR")}원이에요`); // 색에 따라 값이 다르면 알려 준다
-      } else if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ hex: hex || "" }) });
+      } else if (x) await api(`/api/projects/${pid}/placements/${x.placement_id}`, { method: "PATCH", body: JSON.stringify({ [top ? "top_hex" : "hex"]: hex || "" }) });
       else for (const oid of runOf(room.objects, o.object_id)) await put(`/api/projects/${pid}/objects/${oid}/color`, { hex: hex || null }); // 붙어 있는 한 줄은 같이
       await refresh(true);
     });
     actBar.querySelectorAll("[data-hex]").forEach((b) => (b.onclick = () => apply(b.dataset.hex)));
+    actBar.querySelectorAll("[data-part]").forEach((b) => (b.onclick = () => { colourPart = b.dataset.part; renderAct(); }));
     document.getElementById("clReset")?.addEventListener("click", () => apply(null));
     document.getElementById("clDone").onclick = () => { colouring = null; renderAct(); };
   };
@@ -1883,7 +1887,7 @@ export async function customer(pid) {
     document.getElementById("actInfo")?.addEventListener("click", () => openDetail(x.sku));
     document.getElementById("actCopy")?.addEventListener("click", () => copyPlacement(x.placement_id));
     document.getElementById("actSize")?.addEventListener("click", () => { sizing = x.placement_id; renderAct(); actBar.querySelector("[data-dim]")?.select(); });
-    document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; renderAct(); });
+    document.getElementById("actColor")?.addEventListener("click", () => { colouring = target.id; colourPart = "body"; renderAct(); });
     document.getElementById("actFill")?.addEventListener("click", () => fitGap(x.placement_id));
     if (!locked) document.getElementById("actMove").onclick = () => { const it = poseOf(target); if (it && viewer.hold(it)) setHint(it.surface === "wall" ? HANG_HINT : it.surface === "product" ? "옮길 자리를 누르세요 · 식탁·아일랜드·하부장 위를 가리키면 그 위로 올라가요 · Esc 취소" : "옮길 자리를 누르세요 · Esc 취소"); };
     if (!locked && !hung) document.getElementById("actRot").onclick = () => rotate(90); // 버튼은 직각으로. 조금씩 돌리는 건 키보드(R)로

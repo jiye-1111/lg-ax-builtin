@@ -32,7 +32,7 @@ from . import config
 from .ai_products import chat_message, interpret_products
 from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
-from .decor import MAX_MM as MAX_DECOR_MM, decor_product, is_decor, is_flat
+from .decor import MAX_MM as MAX_DECOR_MM, TOP_COLOUR_SKUS, decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .service_combos import ComboMixin
 from .service_life import LifeMixin
@@ -945,7 +945,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             cab = next(x for x in pls if x["placement_id"] == key)
             if e.get("remove"):
                 pls.remove(cab)
-                ch["removed"].append({k: cab.get(k) for k in ("sku", "center_xz", "yaw_rad", "size_m", "color", "hex")})
+                ch["removed"].append({k: cab.get(k) for k in ("sku", "center_xz", "yaw_rad", "size_m", "color", "hex", "top_hex")})
             elif "id" in e:
                 ch["resized"].append({"id": cab["placement_id"], "center_xz": list(cab["center_xz"]), "size_m": list(cab["size_m"])})
                 cab["center_xz"], cab["size_m"] = list(e["center_xz"]), [e["w"], *cab["size_m"][1:]]
@@ -1494,10 +1494,15 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
 
     def move_placement(self, pid: str, placement_id: str, center_xz=None, yaw_rad: float | None = None,
                        snap: bool = True, color: str | None = None, sku: str | None = None, size_m=None,
-                       hex: str | None = None, base_m: float | None = None, slot: bool = True) -> dict:
+                       hex: str | None = None, base_m: float | None = None, slot: bool = True, top_hex: str | None = None) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
         changes = None
+        if top_hex is not None:
+            # 상판 색은 상판이 있는 가구만 (아일랜드 식탁·아일랜드·하부장·싱크대)
+            if x["sku"] not in TOP_COLOUR_SKUS:
+                raise Invalid("상판이 있는 가구만 상판 색을 고를 수 있어요")
+            x["top_hex"] = top_hex.upper() or None  # 빈 글자 = 원래 상판
         if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
             if x["sku"] == "decor:hood" or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
                 x["base_m"], x["hung"] = float(base_m), True

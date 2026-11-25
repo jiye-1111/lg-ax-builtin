@@ -337,6 +337,7 @@ class MoveIn(BaseModel):
     color: Optional[str] = None
     sku: Optional[str] = Field(None, description="같은 모델의 다른 색·재질 SKU")
     hex: Optional[str] = Field(None, pattern=r"^(#[0-9A-Fa-f]{6})?$", description="꾸미기 가구 색. 빈 글자면 원래 색으로")
+    top_hex: Optional[str] = Field(None, pattern=r"^(#[0-9A-Fa-f]{6})?$", description="상판 색 (상판이 있는 가구만). 빈 글자면 원래 상판으로")
     size_m: Optional[list[float]] = Field(None, min_length=3, max_length=3, description="꾸미기 가구 크기 (m, 폭·높이·깊이)")
     base_m: Optional[float] = Field(None, ge=0, le=10, description="벽걸이 제품을 거는 높이 (바닥에서 밑면까지, m)")
     slot: bool = Field(True, description="빌트인을 가까운 장 줄에 끼워 넣기 (겹친 장은 칸을 내준다)")
@@ -636,7 +637,7 @@ def pose_check(pid: str, body: PoseIn, s: Service = S):
 
 @app.patch("/api/projects/{pid}/placements/{plid}")
 def move(pid: str, plid: str, body: MoveIn, s: Service = S):
-    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m, body.hex, body.base_m, body.slot)
+    return s.move_placement(pid, plid, body.center_xz, body.yaw_rad, body.snap, body.color, body.sku, body.size_m, body.hex, body.base_m, body.slot, body.top_hex)
 
 
 @app.delete("/api/projects/{pid}/placements/{plid}")
