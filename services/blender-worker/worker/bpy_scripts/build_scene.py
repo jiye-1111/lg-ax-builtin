@@ -177,6 +177,26 @@ def bevel(ob, width=0.004):
 
 
 # ---------- 모델 불러오기 ----------
+def dress(slot, look):
+    """카탈로그 재질(메탈·스테인리스·글라스)대로 문짝·앞판을 빛나게. 금속이면 몸통까지 (core/surface.py가 정한 값)"""
+    mat = slot.material
+    if not look or not mat or not mat.node_tree:
+        return
+    name = mat.name
+    door = "__door_finish" in name or "__trim_finish" in name or "__panel_" in name
+    if not (door or (look.get("case") and "__case_finish" in name)):
+        return
+    b = mat.node_tree.nodes.get("Principled BSDF")
+    if b is None:
+        return
+    for key, val in (("Metallic", look["metallic"]), ("Roughness", look["roughness"]),
+                     ("Coat Weight", look["coat"]), ("Coat Roughness", look["coat_roughness"])):
+        if key in b.inputs:
+            for link in list(b.inputs[key].links):
+                mat.node_tree.links.remove(link)
+            b.inputs[key].default_value = val
+
+
 def import_glb(path):
     before = set(bpy.data.objects)
     bpy.ops.import_scene.gltf(filepath=path)
@@ -388,6 +408,7 @@ def build(job):
                     elif slot.material and slot.material.name.split(".")[0] == "stone" and pl.get("top_hex"):  # 고른 상판 색
                         slot.material = slot.material.copy()
                         slot.material.node_tree.nodes["Principled BSDF"].inputs["Base Color"].default_value = lin(pl["top_hex"])
+                    dress(slot, pl.get("surface"))
             root.location, root.rotation_euler = (x, -z, base), (0, 0, -yaw)
         else:
             mat = principled(f"p_{pl['sku']}", lin(pl.get("hex") or "#F4F4F2"), rough=0.35)

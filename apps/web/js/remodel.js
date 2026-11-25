@@ -2,9 +2,10 @@
 import { ringRadius } from "./rotring.js";
 import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
-import { makeViewer } from "./viewer.js";
+import { makeViewer, setProductSurfaces } from "./viewer.js";
 import { gapNotes } from "./gapnote.js";
 import { energyBadge } from "./energy.js";
+import { materialLabel } from "./surface.js";
 import { buildWorld } from "./walk.js";
 import { tourStops, findPath, lookYaw, nearestStop, nearFree } from "./stops.js";
 import { planView, placedSvg } from "./plan.js";
@@ -697,6 +698,7 @@ export async function customer(pid) {
 
   // ---- 제품 서랍 ----
   catalog = await api("/api/catalog");
+  setProductSurfaces(catalog); // 재질대로 반짝이고 비치게
   decorList = (await api("/api/decor").catch(() => ({ items: [] }))).items;
   // ---- 공간 꾸미기 라이브러리: 전체 / LG 가전 / 가구 / 수납 / 소품. 벽체·구조 변경은 전체 맨 위 ----
   // 벽지·바닥 색 (탭을 집이 다 열리기 전에 눌러도 되게 탭보다 먼저 둔다)
@@ -1067,7 +1069,8 @@ export async function customer(pid) {
     const rows = [
       ["용량", cap ? esc(String(cap)) : ""],
       ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
-      ["색상", esc(finishLabel(v))],
+      ["색상", esc(v.color || "")],
+      ["재질", esc(materialLabel(p))],
       ["에너지 효율", energyBadge(p.energy_grade, p.energy_parts)],
     ].filter(([, val]) => val);
     pdModal.innerHTML = `
