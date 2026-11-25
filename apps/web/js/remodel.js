@@ -4,6 +4,7 @@ import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GR
   rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
 import { makeViewer } from "./viewer.js";
 import { gapNotes } from "./gapnote.js";
+import { energyBadge } from "./energy.js";
 import { buildWorld } from "./walk.js";
 import { tourStops, findPath, lookYaw, nearestStop, nearFree } from "./stops.js";
 import { planView, placedSvg } from "./plan.js";
@@ -1063,6 +1064,7 @@ export async function customer(pid) {
       ["용량", cap ? esc(String(cap)) : ""],
       ["크기", sized ? `${mm(d.w)} × ${mm(d.h)} × ${mm(d.d)} mm <span class="muted">(폭 × 높이 × 깊이)</span>` : ""],
       ["색상", esc(finishLabel(v))],
+      ["에너지 효율", energyBadge(p.energy_grade)],
     ].filter(([, val]) => val);
     pdModal.innerHTML = `
       <div class="pd-top">

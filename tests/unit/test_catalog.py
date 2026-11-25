@@ -57,3 +57,22 @@ def test_only_categories_without_lgecom_color_have_null_color():
     """색상 이름이 비어 있어도 되는 건 LGE.COM 스펙 표에 색상 항목이 없는 종류뿐이다."""
     no_color = {p["category"] for p in REAL if not p["cmf_options"][0]["color"]}
     assert no_color <= {"tv", "portable_tv", "massage_chair", "plant_grower"}
+
+
+def test_energy_grade_is_lgecom_value_or_null():
+    """에너지 소비효율등급은 LGE.COM 스펙 표에 적힌 1~5등급만 넣는다. 등급이 없는 제품과 확인 못 한 제품은 null."""
+    real = [Product.model_validate(p) for p in REAL]
+    graded = [p for p in real if p.energy_grade is not None]
+    assert graded and all(p.energy_grade in (1, 2, 3, 4, 5) and p.energy_checked_at for p in graded)
+    by = {p.sku: p for p in real}
+    assert by["B312S31"].energy_grade == 1 and by["B332W34"].energy_grade == 4
+    # 와인셀러는 표에 '해당없음', 전자레인지는 등급 항목이 없다
+    assert by["W0082GLE"].energy_grade is None and by["W0082GLE"].energy_checked_at
+    assert by["MW23BDI"].energy_grade is None
+
+
+def test_energy_grade_reaches_the_product_list():
+    from recommender.variants import families
+    fams = families(REAL, {})
+    v = next(v for f in fams for v in f["variants"] if v["sku"] == "DUE6BGE")
+    assert v["energy_grade"] == 1
