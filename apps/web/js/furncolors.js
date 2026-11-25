@@ -25,7 +25,7 @@ const PARTS = {
   sofa: [["sofa", "sofa_seat"], FABRIC], chair: [["seat"], FABRIC], bed: [["headboard"], FABRIC], rug: [["wool"], FABRIC], lamp: [["shade"], FABRIC],
   table: [["oak"], WOOD], coffee: [["oak"], WOOD], shelf: [["oak"], WOOD], dresser: [["oak"], WOOD], partition: [["oak"], WOOD],
   tvstand: [["walnut", "oak"], WOOD], door: [["door_leaf"], WOOD],
-  storage: [["white"], PAINT], basecab: [["white"], PAINT], island: [["white"], PAINT], islandtable: [["white"], PAINT], hood: [["steel"], METAL], islandhood: [["steel"], METAL], sink: [["white"], PAINT], tallcab: [["white"], PAINT],
+  storage: [["white"], PAINT], basecab: [["white"], PAINT], island: [["white"], PAINT], islandtable: [["island_wood"], WOOD], hood: [["steel"], METAL], islandhood: [["steel"], METAL], sink: [["white"], PAINT], tallcab: [["white"], PAINT],
   wardrobe: [["white"], PAINT], desk: [["white"], PAINT], wall: [["white", "plaster"], PAINT], window: [["white"], PAINT], glassdoor: [["white"], PAINT],
 };
 
