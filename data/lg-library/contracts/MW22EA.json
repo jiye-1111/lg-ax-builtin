@@ -1,0 +1,453 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "MW22-batch10",
+  "sku": "MW22EA.CKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    476,
+    272,
+    346
+  ],
+  "placement_datum": {
+    "type": "support_surface_center",
+    "local_y_m": 0,
+    "status": "official_nominal_envelope",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -238.0,
+        0,
+        -173.0
+      ],
+      "max": [
+        238.0,
+        272,
+        173.0
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+    "locator": "PDF p.4,11–12,39–40",
+    "document": "MFL68822520 Rev.22_090525",
+    "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+    "accessed": "2026-11-23",
+    "support_registration_dates": [
+      "2025.09.12"
+    ]
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/microwaves-and-ovens/mw22ea",
+        "locator": "스펙 > 크기/무게 · 정확한 모델명/색상/선반 사양",
+        "sha256": "4e4499dd41a8891584fce03da12b1f35347a662b58e6c9f1fffe98eef19b7bfc",
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            136.0,
+            0
+          ],
+          "size_mm": [
+            476,
+            272,
+            346
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 공칭 외형 직육면체. 실제 제품 표면 교차 인증 아님."
+    },
+    {
+      "id": "clearance_left",
+      "label": "left 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            -288.0,
+            136.0,
+            0
+          ],
+          "size_mm": [
+            100,
+            272,
+            346
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 벽 이격을 배치용 예약 영역으로 표현."
+    },
+    {
+      "id": "clearance_right",
+      "label": "right 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            288.0,
+            136.0,
+            0
+          ],
+          "size_mm": [
+            100,
+            272,
+            346
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 벽 이격을 배치용 예약 영역으로 표현."
+    },
+    {
+      "id": "clearance_rear",
+      "label": "rear 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            136.0,
+            -223.0
+          ],
+          "size_mm": [
+            476,
+            272,
+            100
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 벽 이격을 배치용 예약 영역으로 표현."
+    },
+    {
+      "id": "clearance_top",
+      "label": "top 환기 이격 200mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            372.0,
+            0
+          ],
+          "size_mm": [
+            476,
+            200,
+            346
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 벽 이격을 배치용 예약 영역으로 표현."
+    },
+    {
+      "id": "support_height_mm",
+      "label": "지지면 최소 높이(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "support_height_mm",
+      "value": 850,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "top_below_user_eye",
+      "label": "사용자 눈높이 이하",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "top_below_user_eye",
+      "value": true,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "enclosed_or_storage_cabinet",
+      "label": "수납장/밀폐공간 여부",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "enclosed_or_storage_cabinet",
+      "value": false,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "tv_audio_distance_mm",
+      "label": "TV/오디오 최소 거리(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "tv_audio_distance_mm",
+      "value": 4000,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+        "locator": "PDF p.4,11–12,39–40",
+        "document": "MFL68822520 Rev.22_090525",
+        "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2025.09.12"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "door_opening",
+      "label": "문 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "좌측 힌지 방향은 사진 확인. 정확한 회전축·각도·전체 궤적 미확인."
+      },
+      "depends_on": [],
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·바구니·접시 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문을 열고 회전 유리접시·회전링 분리 세척(p.12). 우측 내벽 운모판/커버 분리·교체(p.39–40). 인출 거리와 손/공구 작업 공간 수치는 미확인."
+      },
+      "depends_on": [
+        "door_opening"
+      ],
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "정비 부품 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문을 열고 회전 유리접시·회전링 분리 세척(p.12). 우측 내벽 운모판/커버 분리·교체(p.39–40). 인출 거리와 손/공구 작업 공간 수치는 미확인."
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "정량 작업 영역 미확인"
+      },
+      "depends_on": [
+        "maintenance_extraction"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "사용 자세와 여유폭·높이 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭·높이·경로 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "professional_installation_review_complete",
+      "label": "전기·접지·배관·지지면 현장 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "fact_key": "professional_installation_review_complete",
+      "value": null,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "현장 검토 기록 없음"
+      },
+      "operator": "eq"
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "configuration": "독립 설치 일반가전",
+    "clearances_mm": {
+      "left": 100,
+      "right": 100,
+      "rear": 100,
+      "top": 200
+    },
+    "cabinet_opening_mm": null,
+    "cutout_mm": null,
+    "plinth_height_mm": null,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ",
+      "locator": "PDF p.4,11–12,39–40",
+      "document": "MFL68822520 Rev.22_090525",
+      "sha256": "e558ec0e4f00af2f27911a4790930ce92e58746e923c94d35176aeab6dfc8f1e",
+      "accessed": "2026-11-23",
+      "support_registration_dates": [
+        "2025.09.12"
+      ]
+    },
+    "notes": [
+      "제품 외형과 설치 공간은 별도 필드. 공식 공칭 치수·규칙으로 판정하며 GLB 형상으로 공식 조건을 생성하지 않음.",
+      "일반가전. 수납장 또는 밀폐공간 설치 금지. 장에 들어간다고 빌트인으로 판정하지 않음.",
+      "상부200mm,좌우·후면100mm. 지지면 높이850mm 이상, 사용자 눈높이 이하. TV/오디오와4000mm 이상.",
+      "열기/물 튐을 피하고 전원 접근·접지 및 지지면 상태를 확인해야 함."
+    ],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "좌측 힌지 방향은 사진 확인. 정확한 회전축·각도·전체 궤적 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "unknown",
+      "notes": "문을 열고 회전 유리접시·회전링 분리 세척(p.12). 우측 내벽 운모판/커버 분리·교체(p.39–40). 인출 거리와 손/공구 작업 공간 수치는 미확인."
+    },
+    "maintenance": {
+      "notes": "문을 열고 회전 유리접시·회전링 분리 세척(p.12). 우측 내벽 운모판/커버 분리·교체(p.39–40). 인출 거리와 손/공구 작업 공간 수치는 미확인.",
+      "required_space_mm": null,
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "standalone_installation_manual_found": false,
+    "installation_evidence": "정확한 모델 고객지원 사용설명서의 설치 도면/설치하기 확인. 별도 설치설명서는 확인되지 않음",
+    "support_height_min_mm": 850,
+    "top_below_user_eye_required": true,
+    "enclosed_or_storage_cabinet_prohibited": true,
+    "tv_audio_min_distance_mm": 4000
+  },
+  "certifies_real_installation": false,
+  "handoff_source_revision": "color-library-batch10"
+}

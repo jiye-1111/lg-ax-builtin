@@ -1,0 +1,369 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "MX0140-batch03",
+  "sku": "M-X0140ABSB.ASM",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    730,
+    189,
+    510
+  ],
+  "placement_datum": {
+    "type": "ceiling_contact_center",
+    "local_y_m": 0,
+    "status": "CAD side-view derived panel back plane",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -365.0,
+        -39.0,
+        -255.0
+      ],
+      "max": [
+        365.0,
+        150.00000000000003,
+        255.0
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+    "document": "MBM67525404 Rev00_060926",
+    "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+    "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+    "support_registration_dates": [
+      "2026.06.15"
+    ],
+    "accessed": "2026-11-23"
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/system-air-purifier/m-x0140absb",
+        "locator": "Official panel dimensions plus retained manufacturer DWG body 150mm; assembled height189, not panel39",
+        "accessed": "2026-11-23",
+        "sha256": "071fee4fea24f5eb3e5f52bdd72e15e4822afd48e4332c7879d86389caac25c6"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            55.500000000000014,
+            0.0
+          ],
+          "size_mm": [
+            730,
+            189,
+            510
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "Conservative rectangular placement reservation; does not certify exact physical surface intersections."
+    },
+    {
+      "id": "ceiling_void_mm",
+      "label": "천장 내부 유효 공간(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "ceiling_void_mm",
+      "operator": "gte",
+      "value": 170,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "ceiling_cutout_width_mm",
+      "label": "천장 타공 폭(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "ceiling_cutout_width_mm",
+      "operator": "eq",
+      "value": 630,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "ceiling_cutout_depth_mm",
+      "label": "천장 타공 깊이(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "ceiling_cutout_depth_mm",
+      "operator": "eq",
+      "value": 430,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "wall_from_cutout_mm",
+      "label": "타공 가장자리~벽/에어컨(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "wall_from_cutout_mm",
+      "operator": "gte",
+      "value": 300,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "detector_distance_mm",
+      "label": "화재감지기 거리(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "detector_distance_mm",
+      "operator": "gte",
+      "value": 1500,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "cover_opening",
+      "label": "문/커버 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "applicable": true,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "외부 커버를 열어 필터 접근. 축·개방각·회전경로 미확인."
+      },
+      "reason": "외부 커버를 열어 필터 접근. 축·개방각·회전경로 미확인.",
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·선반·바스켓 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+        "document": "MBM67525404 Rev00_060926",
+        "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+        "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+        "support_registration_dates": [
+          "2026.06.15"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "applicable": false,
+      "reason": "사용용 인출 서랍 없음. 부속품 분리는 정비 항목에서 검토.",
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "필터·트레이·커버 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "외부 커버 개방 후 프리필터 분리 청소/탈취필터 교체(사용설명서p21). 필터 인출 방향은 아래 접근이지만 정량 경로·손/공구 영역 수치 미확인."
+      },
+      "boxes": null,
+      "depends_on": [
+        "cover_opening"
+      ]
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "제조사 작업 영역 수치 또는 프로젝트 정비 기준 미확인"
+      },
+      "boxes": null,
+      "depends_on": [
+        "maintenance_extraction"
+      ]
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "프로젝트 사용 자세/치수 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "cover_opening",
+        "drawer_opening"
+      ]
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭/높이/경로 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "cover_opening",
+        "drawer_opening",
+        "single_user"
+      ]
+    },
+    {
+      "id": "utilities_and_structure",
+      "label": "전기·배관·고정·지지구조 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "이 모델의 전체 시공조건을 검토한 현장 확인 기록 필요"
+      },
+      "fact_key": "professional_installation_review_complete",
+      "operator": "eq",
+      "value": null
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "cutout_mm": {
+      "width": 630,
+      "depth": 430
+    },
+    "cabinet_opening_mm": null,
+    "clearances_mm": {
+      "left": null,
+      "right": null,
+      "rear": null,
+      "top": null
+    },
+    "under_counter_required_height_mm": null,
+    "recessed_body_whd_mm": null,
+    "door_open_reference": null,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=UhV4s4vptdaMVvGVvORA",
+      "document": "MBM67525404 Rev00_060926",
+      "locator": "PDF sheet 1 panels 3,5; sheet 2 installation/cover sequence",
+      "sha256": "41f59e7752338701041bef04a42cc86d879a739e3cf932b4053fb7222dcfbaf2",
+      "support_registration_dates": [
+        "2026.06.15"
+      ],
+      "accessed": "2026-11-23"
+    },
+    "configuration": "기본 구성; 별도 케이스/페어 설치 제외",
+    "ceiling_void_min_mm": 170,
+    "wall_or_aircon_from_cutout_mm": 300,
+    "notes": [
+      "패널730×39×510과 매립본체475×150×412를 분리. 조립 외형730×189×510; 천장 접촉면 원점, 아래39/위150mm.",
+      "설치도150kg 표기는 천장 지지능력 조건이며 제품 무게가 아님. 구조 검토·앵커·수평·배선은 자동 판정하지 않음.",
+      "천장형 필터 접근은 하방 작업. 사다리와 사람 작업 공간 수치는 미확인.",
+      "설치도 높이/하부1m 도식은 적용 기준면을 별도 검토해야 하므로 자동 규칙으로 활성화하지 않음."
+    ],
+    "conflicts_and_resolutions": [],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "외부 커버를 열어 필터 접근. 축·개방각·회전경로 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "not_applicable",
+      "notes": "사용용 인출 서랍 없음. 회전접시·필터 등의 분리는 정비 항목에서 검토."
+    },
+    "maintenance": {
+      "required_space_mm": null,
+      "notes": "외부 커버 개방 후 프리필터 분리 청소/탈취필터 교체(사용설명서p21). 필터 인출 방향은 아래 접근이지만 정량 경로·손/공구 영역 수치 미확인.",
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "additional_sources": [
+      {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=OS9zGbY3AmAVkO9zi6H1Tg",
+        "document": "시스템 공기청정기 사용설명서",
+        "locator": "PDF p.21,32",
+        "sha256": "8bb3fafc1eb757b02f953945f45308038506825374f7ef184ac56d4b25bdc3a3",
+        "support_registration_dates": [
+          "2026.09.09"
+        ],
+        "accessed": "2026-11-23"
+      }
+    ]
+  },
+  "unverified_items": [
+    "door/cover pivot and travel",
+    "drawer/shelf extraction",
+    "maintenance volume",
+    "single user criterion",
+    "passage criterion",
+    "site utilities and structure"
+  ],
+  "certifies_real_installation": false,
+  "handoff_source_revision": "support-review-r1-20261123"
+}

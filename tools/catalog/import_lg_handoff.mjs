@@ -83,7 +83,7 @@ for (const fam of library.families) {
 }
 const note = "전달받은 모델 묶음에서 가져온 제품. 색은 모델에 들어 있어서 finish 재질이 없다. LG 공식 3D가 아니고 세부 모양과 색은 사진을 보고 맞춘 것이다";
 fs.writeFileSync(path.join(OUT, "handoff.json"), JSON.stringify({ note, models: done, not_in_catalog: skipped }, null, 1) + "\n");
-// 화면은 index.json에 있는 모델만 불러온다. 지금은 전달받은 모델만 쓴다 (직접 만든 모델은 archive/own-models-2026-11-24)
+// 화면은 index.json에 있는 모델만 불러온다. 지금은 전달받은 모델만 쓴다
 fs.writeFileSync(path.join(OUT, "index.json"), JSON.stringify({ _note: "제품 3D 모델 목록. 전달받은 모델 묶음(LG-HANDOFF-01)만 쓴다. tools/catalog/import_lg_handoff.mjs가 만든다", models: index }, null, 1) + "\n");
 fs.writeFileSync(path.join(OUT, "companions.json"), JSON.stringify({ models: {} }) + "\n");
 console.log(Object.keys(done).length, "개 바꿈,", skipped.length, "개는 카탈로그에 없어 그대로 둠");

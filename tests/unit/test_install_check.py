@@ -118,3 +118,19 @@ def test_unknown_sku_is_skipped():
 def test_narrow_passage_gets_its_own_line():
     it = run(placement("conditional", [reason("passage_narrow", "t1")]))["items"][0]
     assert check(it, "passage")["status"] == "check" and check(it, "space")["status"] == "ok"
+
+
+def test_manual_conditions_from_the_handed_over_contract_stay_site_checks():
+    """전달받은 묶음의 설치 계약: 설명서 조건과 수치 없는 항목은 '현장 확인'으로만 붙고, 전체 상태를 좋게도 나쁘게도 바꾸지 않는다."""
+    contract = {"rules": [
+        {"id": "opening_width_mm", "label": "개구 폭 최소(mm)", "kind": "fact", "fact_key": "opening_width_mm", "operator": "gte", "value": 600,
+         "source": {"status": "official", "reference": "manual"}},
+        {"id": "door_opening", "label": "문 전체 개방 경로", "kind": "motion", "motion": None},
+    ]}
+    plain = install_checklist(room(), [placement()], lambda s: prod())["items"][0]
+    it = install_checklist(room(), [placement()], lambda s: prod(), lambda s: contract)["items"][0]
+    added = [c for c in it["checks"] if c["code"] in ("manual", "unknown")]
+    assert [c["status"] for c in added] == ["site", "site"]
+    assert "개구 폭 600 mm 이상" in added[0]["detail"] and "문 전체 개방 경로" in added[1]["detail"]
+    assert it["status"] == plain["status"] == "ok"
+    assert [c for c in it["checks"] if c not in added] == plain["checks"]

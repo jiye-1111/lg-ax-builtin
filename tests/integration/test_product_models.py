@@ -41,7 +41,7 @@ def bbox_mm(gltf: dict) -> dict:
 
 
 LINEUP = json.loads((ROOT / "data/catalog/lineup.json").read_text(encoding="utf-8"))["models"]
-SHOWN = [p for p in CATALOG if p["sku"] in LINEUP]  # 화면에 내놓는 모델. 직접 만든 모델은 archive/own-models-2026-11-24에 따로 둔다
+SHOWN = [p for p in CATALOG if p["sku"] in LINEUP]  # 화면에 내놓는 모델
 
 
 @pytest.fixture(scope="module")
@@ -95,11 +95,8 @@ def test_handoff_models_keep_their_datum_and_colour():
         assert (ROOT / "apps/web/img/products" / f"{sku}.webp").exists()
 
 
-def test_own_models_are_kept_aside_not_deleted():
-    """직접 만든 모델과 사진은 지우지 않고 따로 둔다. 되돌리는 방법은 그 폴더의 README."""
-    kept = ROOT / "archive/own-models-2026-11-24"
-    assert (kept / "README.md").exists()
-    assert len(list((kept / "models/products").glob("*.glb"))) == 294
-    assert len(list((kept / "img/products").glob("*.webp"))) == 1119
-    old = json.loads((kept / "models/products/index.json").read_text(encoding="utf-8"))["models"]
-    assert len(old) == 1150
+def test_own_models_are_gone():
+    """직접 만든 모델은 쓰지 않기로 해서 저장소에 두지 않는다. 화면에는 전달받은 모델만 있다."""
+    assert not (ROOT / "archive/own-models-2026-11-24").exists()
+    index = json.loads((ROOT / "apps/web/models/products/index.json").read_text(encoding="utf-8"))["models"]
+    assert set(index) == set(LINEUP)

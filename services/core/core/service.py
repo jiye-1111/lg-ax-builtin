@@ -96,6 +96,13 @@ class Catalog:
             out = [p for p in out if q in p.name.lower() or q in p.sku.lower() or q in p.category]
         return out
 
+    def contract(self, sku: str) -> dict | None:
+        """전달받은 묶음의 설치 계약 (설명서에서 옮긴 설치 조건). 없는 모델은 None."""
+        f = config.ROOT / "data" / "lg-library" / "contracts" / f"{sku}.json"
+        if "/" in sku or "\\" in sku or not f.exists():
+            return None
+        return json.loads(f.read_text(encoding="utf-8"))
+
     def families(self) -> list[dict]:
         """같은 모델(종류·치수·도면 모양이 같음)의 색·재질 다른 SKU를 묶는다."""
         if not hasattr(self, "_families"):
@@ -1778,7 +1785,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         p, room = self.get_project(pid), self.get_room(pid)
         # 꾸미기 가구는 사는 물건이 아니라 빼고 LG 제품만 본다
         pls = [x for x in p["scene_state"]["placements"] if not is_decor(x.get("sku"))]
-        return install_checklist(room, pls, self.catalog.get)
+        return install_checklist(room, pls, self.catalog.get, self.catalog.contract)
 
     def results(self, pid: str) -> dict:
         """F10 결과 화면 데이터 한 번에."""

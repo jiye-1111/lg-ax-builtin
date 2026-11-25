@@ -1,0 +1,502 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "MW23-mirror",
+  "sku": "MW23GDI.CKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    476,
+    272,
+    369
+  ],
+  "placement_datum": {
+    "type": "support_plane_center",
+    "local_y_m": 0,
+    "status": "official_nominal_envelope",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -238.0,
+        0.0,
+        -184.5
+      ],
+      "max": [
+        238.0,
+        272.0,
+        184.5
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+    "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+    "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+    "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+    "support_registration_dates": [
+      "2026.09.29"
+    ],
+    "accessed": "2026-11-23"
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/microwaves-and-ovens/mw23gdi",
+        "locator": "스펙 > 크기/무게 (exact SKU)",
+        "accessed": "2026-11-23",
+        "sha256": "5763995d5a25a5733ecd46bf4b3f6c662d8ff802f73acb1e6b150c36d6ddd3f9"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            136.0,
+            0.0
+          ],
+          "size_mm": [
+            476,
+            272,
+            369
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "Conservative rectangular placement reservation; does not certify exact physical surface intersections."
+    },
+    {
+      "id": "support_height_mm",
+      "label": "지지면 높이(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "support_height_mm",
+      "operator": "gte",
+      "value": 850,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "below_eye_level",
+      "label": "사용자 눈높이 이하",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "below_eye_level",
+      "operator": "eq",
+      "value": true,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "tv_audio_distance_mm",
+      "label": "TV/오디오 거리(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "tv_audio_distance_mm",
+      "operator": "gte",
+      "value": 4000,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "storage_cabinet",
+      "label": "수납장 내부 설치",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "storage_cabinet",
+      "operator": "eq",
+      "value": false,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "enclosed_cabinet",
+      "label": "밀폐 공간 설치",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "enclosed_cabinet",
+      "operator": "eq",
+      "value": false,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "plug_accessible",
+      "label": "플러그 분리 접근 가능",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "plug_accessible",
+      "operator": "eq",
+      "value": true,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "clearance_left",
+      "label": "환기 예약영역 left 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            -288.0,
+            136.0,
+            0.0
+          ],
+          "size_mm": [
+            100,
+            272,
+            369
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 장/벽과의 배치용 예약영역으로 표현. 실제 환기 성능 인증 아님."
+    },
+    {
+      "id": "clearance_right",
+      "label": "환기 예약영역 right 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            288.0,
+            136.0,
+            0.0
+          ],
+          "size_mm": [
+            100,
+            272,
+            369
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 장/벽과의 배치용 예약영역으로 표현. 실제 환기 성능 인증 아님."
+    },
+    {
+      "id": "clearance_rear",
+      "label": "환기 예약영역 rear 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            136.0,
+            -234.5
+          ],
+          "size_mm": [
+            476,
+            272,
+            100
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 장/벽과의 배치용 예약영역으로 표현. 실제 환기 성능 인증 아님."
+    },
+    {
+      "id": "clearance_top",
+      "label": "환기 예약영역 top 200mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            372.0,
+            0.0
+          ],
+          "size_mm": [
+            476,
+            200,
+            369
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 장/벽과의 배치용 예약영역으로 표현. 실제 환기 성능 인증 아님."
+    },
+    {
+      "id": "door_opening",
+      "label": "문/커버 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "applicable": true,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "옆으로 여는 문; 정확한 축·최대 개방각·전체 회전 경로 미확인."
+      },
+      "reason": "옆으로 여는 문; 정확한 축·최대 개방각·전체 회전 경로 미확인.",
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·선반·바스켓 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+        "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+        "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+        "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+        "support_registration_dates": [
+          "2026.09.29"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "applicable": false,
+      "reason": "사용용 인출 서랍 없음. 부속품 분리는 정비 항목에서 검토.",
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "필터·트레이·커버 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문 개방 후 조리실·회전 유리접시/회전링 또는 부속품 청소. 인출/손/공구 공간 수치 미확인. 일반 서비스 분해는 사용자 작업으로 가정하지 않음."
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening"
+      ]
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "제조사 작업 영역 수치 또는 프로젝트 정비 기준 미확인"
+      },
+      "boxes": null,
+      "depends_on": [
+        "maintenance_extraction"
+      ]
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "프로젝트 사용 자세/치수 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ]
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭/높이/경로 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ]
+    },
+    {
+      "id": "utilities_and_structure",
+      "label": "전기·배관·고정·지지구조 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "이 모델의 전체 시공조건을 검토한 현장 확인 기록 필요"
+      },
+      "fact_key": "professional_installation_review_complete",
+      "operator": "eq",
+      "value": null
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "cutout_mm": null,
+    "cabinet_opening_mm": null,
+    "clearances_mm": {
+      "left": 100,
+      "right": 100,
+      "rear": 100,
+      "top": 200
+    },
+    "under_counter_required_height_mm": null,
+    "recessed_body_whd_mm": null,
+    "door_open_reference": null,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg",
+      "document": "MW23BDI/GDI/WDI HTML manual (2026.09.29)",
+      "locator": "ko-kr/topics/topic_2.html,topic_8.html,topic_46.html",
+      "sha256": "aaf7063d34186b0212fa5ae0303a10c2540fd8265ea24573e7baf7f177e0eaea",
+      "support_registration_dates": [
+        "2026.09.29"
+      ],
+      "accessed": "2026-11-23"
+    },
+    "configuration": "기본 구성; 별도 케이스/페어 설치 제외",
+    "notes": [
+      "일반형 전자레인지/광파오븐: 밀폐 공간과 수납장 내부 설치 금지. 외형과 환기공간만 맞아도 수납장 설치를 허용하지 않음.",
+      "철판 싱크대는 고무판, 열기/물 튐 회피, 내열 지지면과 전용 접지 전원 조건은 별도 확인."
+    ],
+    "conflicts_and_resolutions": [],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "옆으로 여는 문; 정확한 축·최대 개방각·전체 회전 경로 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "not_applicable",
+      "notes": "사용용 인출 서랍 없음. 회전접시·필터 등의 분리는 정비 항목에서 검토."
+    },
+    "maintenance": {
+      "required_space_mm": null,
+      "notes": "문 개방 후 조리실·회전 유리접시/회전링 또는 부속품 청소. 인출/손/공구 공간 수치 미확인. 일반 서비스 분해는 사용자 작업으로 가정하지 않음.",
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "additional_sources": []
+  },
+  "unverified_items": [
+    "door/cover pivot and travel",
+    "drawer/shelf extraction",
+    "maintenance volume",
+    "single user criterion",
+    "passage criterion",
+    "site utilities and structure"
+  ],
+  "certifies_real_installation": false,
+  "handoff_source_revision": "support-review-r1-20261123"
+}
