@@ -16,7 +16,10 @@ from .mount import BUILTIN, FLUSH, STANDOFF_M, mount_kind
 from .pose import Pose
 
 CATEGORIES = frozenset({"dishwasher", "refrigerator", "kimchi_refrigerator", "freezer"})
-DOOR_BACK_M = {"decor:basecab": 0.02, "decor:tallcab": 0.0}  # 문짝 앞면이 장 깊이보다 이만큼 안쪽 (build_furniture.py)
+# 칸을 내줄 수 있는 장과, 문짝 앞면이 장 깊이보다 얼마나 안쪽인지 (build_furniture.py)
+DOOR_BACK_M = {"decor:basecab": 0.02, "decor:sink": 0.02, "decor:island": 0.02, "decor:islandtable": 0.035, "decor:tallcab": 0.0}
+SOLID_MIN_M = {"decor:sink": 0.6}        # 가르거나 없앨 수 없는 장: 끝에서만 줄고, 이만큼은 남는다 (개수대 자리)
+SEAT_RATIO = {"decor:islandtable": 0.2}  # 뒤쪽으로 상판만 튀어나온 깊이 비율 (앉는 자리). 몸통 등은 그만큼 앞이다
 UNDER_MAX_M = 1.0    # 이보다 낮은 제품은 하부장 줄(상판 아래)에, 높은 제품은 키큰장 줄에 들어간다
 REACH_M = 0.3        # 장 줄에서 앞뒤로 이만큼 안에 오면 줄에 맞춘다
 EDGE_M = 0.15        # 장 끝에서 이만큼 안이면 끝에 맞춘다
@@ -60,6 +63,16 @@ def _world(c: dict, u: float, v: float) -> tuple[float, float]:
     return c["center_xz"][0] + ux * u + fx * v, c["center_xz"][1] + uy * u + fy * v
 
 
+def _door(c: dict) -> float:
+    """문짝 앞면이 장 앞 끝에서 들어간 깊이. 스캔한 장은 상자라 0 (door_m)."""
+    return c.get("door_m", DOOR_BACK_M[c["sku"]])
+
+
+def _seat(c: dict) -> float:
+    """장 등에서 몸통 등까지 (아일랜드 식탁의 앉는 자리). 다른 장은 0."""
+    return c["size_m"][2] * SEAT_RATIO.get(c["sku"], 0.0)
+
+
 def _hosts(size, cabinets: Iterable[dict]) -> list[dict]:
     """이 제품이 들어갈 수 있는 장: 낮은 제품은 하부장, 키 큰 제품은 그보다 큰 키큰장."""
     h = size[1]
@@ -76,10 +89,10 @@ def _hosts(size, cabinets: Iterable[dict]) -> list[dict]:
 def _v0(size, c: dict, back_m: float) -> float:
     """장 줄에서 제품 가운데의 앞뒤 자리. 장보다 얕으면 문짝 앞면에 맞추고, 깊으면 등을 장 등에 맞춘다(앞으로 나온다)."""
     d, cd = size[2], c["size_m"][2]
-    door = DOOR_BACK_M[c["sku"]]
-    if d <= cd - door + 1e-9:
+    door = _door(c)
+    if d <= cd - door - _seat(c) + 1e-9:
         return cd / 2 - door - d / 2
-    return -cd / 2 + back_m + STANDOFF_M + d / 2
+    return -cd / 2 + _seat(c) + back_m + STANDOFF_M + d / 2
 
 
 def _run(host: dict, hosts: list[dict]) -> list[tuple[float, float, dict]]:
@@ -126,6 +139,14 @@ def slot_in(size, pose: Pose, cabinets: Iterable[dict], side_m: float = 0.0, bac
                 if abs(d) <= EDGE_M and (shift is None or abs(d) < abs(shift) - 1e-9):
                     shift = d
     s += shift or 0.0
+    # 가를 수 없는 장(싱크대) 위라면 가까운 끝으로 비킨다. 끝을 내주고도 개수대 자리가 남으면 끝 안쪽, 아니면 바로 옆
+    for a, b, c in run:
+        least = SOLID_MIN_M.get(c["sku"])
+        if least is None or min(b, s + half) - max(a, s - half) <= 1e-4:
+            continue
+        ends = [a - half, b + half] + ([a + half, b - half] if b - a - 2 * half >= least - 1e-9 else [])
+        s = min(ends, key=lambda t: abs(t - s))
+        break
     lo, hi = s - half, s + half
     keep = set(keep)
     edits: list[dict] = []
@@ -135,6 +156,8 @@ def slot_in(size, pose: Pose, cabinets: Iterable[dict], side_m: float = 0.0, bac
         if c["placement_id"] in keep:
             return None
         pieces = [(x, y) for x, y in ((a, lo), (hi, b)) if y - x >= MIN_PIECE_M]
+        if c["sku"] in SOLID_MIN_M and (len(pieces) != 1 or pieces[0][1] - pieces[0][0] < SOLID_MIN_M[c["sku"]] - 1e-9):
+            return None
         if not pieces:
             edits.append({"id": c["placement_id"], "remove": True})
             continue
@@ -168,5 +191,6 @@ def cover(size, pose: Pose, cabinets: Iterable[dict], side_m: float = 0.0, back_
     if best is None or best[0]["size_m"][1] - h < COVER_MIN_M:
         return None
     c, v = best
+    # back_m: 장 등에서 몸통 등까지. 제품 뒤 빈 곳은 여기까지만 막는다 (아일랜드 식탁의 앉는 자리는 비워 둔다)
     return {"top_m": c["size_m"][1], "depth_m": c["size_m"][2], "off_m": round(-v, 4), "look": c["sku"].split(":")[1],
-            "hex": c.get("hex"), "left_m": round(sides[-1] or 0.0, 4), "right_m": round(sides[1] or 0.0, 4)}
+            "hex": c.get("hex"), "back_m": round(_seat(c), 4), "left_m": round(sides[-1] or 0.0, 4), "right_m": round(sides[1] or 0.0, 4)}

@@ -51,3 +51,18 @@ def test_floor_follows_the_outer_walls_when_the_home_is_not_a_rectangle(tmp_path
 def test_rectangular_home_has_no_outline_extra(tmp_path):
     *_, js = _read(room_to_glb(ROOM, tmp_path / "s.glb"))
     assert next(n for n in js["nodes"] if n["name"] == "floor")["extras"] == {"kind": "floor"}
+
+
+def test_slotted_builtin_gets_a_countertop_box_and_a_back_filler_when_the_cabinet_is_deeper():
+    import math
+    from worker.glb import cover_boxes
+    pl = {"sku": "DW", "center_xz": [2.0, 1.0], "yaw_rad": math.pi / 2, "size_m": [0.6, 0.815, 0.567],
+          "slot": {"top_m": 0.9, "depth_m": 0.9, "off_m": -0.1465, "look": "island", "hex": None, "left_m": 0.0, "right_m": 0.0, "back_m": 0.0}}
+    top, back = cover_boxes(pl)
+    assert top["size"] == [0.6, 0.9 - 0.815, 0.9] and abs(top["center"][1] - (0.815 + 0.0425)) < 1e-9
+    assert abs(top["center"][2] - (1.0 - 0.1465)) < 1e-9 and abs(top["center"][0] - 2.0) < 1e-9
+    assert abs(back["size"][2] - (0.9 - 0.02 - 0.567)) < 2e-3 and back["size"][1] == 0.815
+    assert abs(back["center"][2] - (1.0 - 0.1465 - 0.45 + back["size"][2] / 2)) < 1e-9
+    pl["slot"] = {**pl["slot"], "depth_m": 0.6, "off_m": 0.0035, "look": "basecab"}
+    assert len(cover_boxes(pl)) == 1
+    assert cover_boxes({**pl, "slot": None}) == []

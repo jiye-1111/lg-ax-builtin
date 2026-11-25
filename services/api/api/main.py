@@ -432,7 +432,7 @@ def delete_project(pid: str, t: Optional[str] = None, u: Optional[dict] = ME_OPT
 
 @app.get("/api/projects/{pid}")
 def get_project(pid: str, s: Service = S):
-    return s.get_project(pid)
+    return s.project_view(pid)
 
 
 @app.get("/api/projects/{pid}/version")

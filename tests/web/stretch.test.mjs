@@ -46,3 +46,11 @@ test("돌려 놓은 장도 제 방향으로 늘어난다", () => {
   near(reachOf(side, 1, [0.35, 0.3]), 1.8);
   near(anchorOf(side, 1)[1], 2.1);
 });
+
+test("깊이는 90° 돌려 놓은 장으로 보면 같은 계산이다: 앞쪽 손잡이를 끌면 뒤는 그대로", () => {
+  // 아일랜드 1.8 x 0.9, 정면 +y. 깊이 방향으로 보면 yaw + 90°, 길이 0.9, 폭 1.8
+  const base = { xz: [3, 3], yaw: Math.PI / 2 + Math.PI / 2, w: 0.9, d: 1.8 };
+  const r = stretchTo(base, 1, 1.2, []);
+  assert.ok(Math.abs(r.w - 1.2) < 1e-9);
+  assert.ok(Math.abs(r.xz[0] - 3) < 1e-9 && Math.abs(r.xz[1] - 3.15) < 1e-9); // 뒤(y 2.55)는 그대로, 앞으로 0.3
+});
