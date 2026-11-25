@@ -19,7 +19,7 @@ from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, FLOOR_FIRST, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, FLOOR_FIRST, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall, against_wall
 from sim.regions import REGIONS
 from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
 from recommender.geometry import point_segment_distance
@@ -1443,10 +1443,30 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         snapped = self._pose(room, prod, x["center_xz"], x["yaw_rad"], True, p)
         if snapped.wall_id and self._judge(room, p, prod, snapped, placement_id).verdict.value != "no_fit":
             return self.move_placement(pid, placement_id, list(snapped.center_xz), snapped.yaw_rad, snap=True)
+        near = self._near_wall_spot(room, p, prod, tuple(x["center_xz"]), placement_id)
+        if near:  # 멀리 떨어져 있어도 가장 가까운 벽으로 곧장 간다 (집 반대편의 '좋은 자리'로 보내지 않는다)
+            return self.move_placement(pid, placement_id, list(near.center_xz), near.yaw_rad, snap=True)
         r = self._spot(room, p, prod, placement_id)
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.move_placement(pid, placement_id, list(r.pose.center_xz), r.pose.yaw_rad, snap=True)
+
+    ALIGN_SLIDE_M = 1.5  # 곧장 간 자리가 막혔으면 그 벽을 따라 이만큼까지 옆으로 비켜 본다
+
+    def _near_wall_spot(self, room: Room, p: dict, prod: Product, at: tuple, exclude: str) -> Pose | None:
+        """벽에 붙이기: 가까운 벽부터, 곧장 간 자리와 그 옆(10 cm씩)에서 처음으로 들어가는 자리."""
+        if floats(prod) or prod.sku in MOUNT_SKUS or is_flat(prod.sku):
+            return None
+        gone = set(p["scene_state"].get("hidden_walls") or [])
+        walls = sorted((w for w in room.walls if w.wall_id not in gone),
+                       key=lambda w: point_segment_distance(at, tuple(w.start), tuple(w.end)))
+        steps = [0.0] + [s * i * 0.1 for i in range(1, int(self.ALIGN_SLIDE_M / 0.1) + 1) for s in (1, -1)]
+        for w in walls[:3]:
+            for shift in steps:
+                pose = against_wall(room, prod, w, at, self.fit_cfg, shift)
+                if pose and self._judge(room, p, prod, pose, exclude).verdict.value != "no_fit":
+                    return pose
+        return None
 
     def suggest(self, pid: str, skus: list[str], limit: int = 3) -> dict:
         """후보 제품 가운데 이 집 벽을 따라 실제로 들어가는 자리가 있는 것만 골라 준다 (적합 먼저)."""
