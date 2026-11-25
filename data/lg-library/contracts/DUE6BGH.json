@@ -1,0 +1,707 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "DUE6Legacy-batch12",
+  "sku": "DUE6BGH.AKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    598,
+    815,
+    567
+  ],
+  "placement_datum": {
+    "type": "floor_center",
+    "local_y_m": 0,
+    "status": "official_nominal_envelope",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -299.0,
+        0,
+        -283.5
+      ],
+      "max": [
+        299.0,
+        815,
+        283.5
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+    "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+    "document": "MFL71959103 Rev.05_040124",
+    "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+    "accessed": "2026-11-23",
+    "support_registration_dates": [
+      "2024.04.02"
+    ]
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/dishwashers/due6bgh",
+        "locator": "스펙 > 정확한 모델명·크기·색상·재질·구성",
+        "sha256": "c1451c82938370d1b82192acd1aec7ba4b0c82207bd6f0548d80a69b82707567",
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            407.5,
+            0
+          ],
+          "size_mm": [
+            598,
+            815,
+            567
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 공칭 외형 직육면체. 실제 제품 표면 교차 인증 아님."
+    },
+    {
+      "id": "opening_width_mm",
+      "label": "개구 폭 최소(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "opening_width_mm",
+      "value": 600,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "opening_width_max_mm",
+      "label": "개구 폭 최대(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "opening_width_mm",
+      "value": 605,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "lte"
+    },
+    {
+      "id": "opening_height_mm",
+      "label": "개구 높이 최소(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "opening_height_mm",
+      "value": 815,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "opening_height_max_mm",
+      "label": "개구 높이 최대(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "opening_height_mm",
+      "value": 880,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "lte"
+    },
+    {
+      "id": "opening_depth_mm",
+      "label": "개구 깊이 최소(mm)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "opening_depth_mm",
+      "value": 600,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "water_pressure_min_mpa",
+      "label": "급수 압력 최소(MPa)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "water_pressure_mpa",
+      "value": 0.05,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "gte"
+    },
+    {
+      "id": "water_pressure_max_mpa",
+      "label": "급수 압력 최대(MPa)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "water_pressure_mpa",
+      "value": 1.0,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "operator": "lte"
+    },
+    {
+      "id": "model_plinth_configuration_mm",
+      "label": "선택 모델 걸레받이 구성(mm; 현장 허용 범위 아님)",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "model_plinth_configuration_mm",
+      "value": 150,
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/dishwashers/due6bgh",
+        "locator": "스펙 > 정확한 모델명·크기·색상·재질·구성",
+        "sha256": "c1451c82938370d1b82192acd1aec7ba4b0c82207bd6f0548d80a69b82707567",
+        "accessed": "2026-11-23"
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "site_plinth_compatibility",
+      "label": "현장 걸레받이·문 궤적 적합성",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "site_plinth_compatibility",
+      "value": null,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "150mm 모델 분류만으로 현장 걸레받이의 허용 범위/문 간섭을 확정할 수 없음"
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "door_opening",
+      "label": "문 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "하단 방향 개방은 공식 사진 확인. 정확한 축/최대각/전체 궤적 미확인."
+      },
+      "depends_on": [],
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·바구니·접시 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문 열고 하단 바구니를 꺼낸 뒤 음식물 필터를 회전해 위로 분리(p37–38). 에어필터 캡을 회전해 열고 필터를 위로 들어 교체(p38–39). 상단 바구니를 꺼내 노즐 너트를 돌린 뒤 아래로 분리(p40). 모든 인출 거리/손·공구 공간은 수치 미확인."
+      },
+      "depends_on": [
+        "door_opening"
+      ],
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "정비 부품 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문 열고 하단 바구니를 꺼낸 뒤 음식물 필터를 회전해 위로 분리(p37–38). 에어필터 캡을 회전해 열고 필터를 위로 들어 교체(p38–39). 상단 바구니를 꺼내 노즐 너트를 돌린 뒤 아래로 분리(p40). 모든 인출 거리/손·공구 공간은 수치 미확인."
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "정량 작업 영역 미확인"
+      },
+      "depends_on": [
+        "maintenance_extraction"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "사용 자세와 여유폭·높이 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭·높이·경로 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "professional_installation_review_complete",
+      "label": "전기·접지·배관·지지면 현장 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "fact_key": "professional_installation_review_complete",
+      "value": null,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "현장 검토 기록 없음"
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "plug_accessible",
+      "label": "전원 플러그 분리 접근 가능",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "plug_accessible",
+      "value": true,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p3",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "rear_exposed",
+      "label": "설치 후 후면 노출 금지",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "rear_exposed",
+      "value": false,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p3",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "wet_location",
+      "label": "물·빗물·고습 장소 설치 금지",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "wet_location",
+      "value": false,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p3",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "supply_voltage_v",
+      "label": "전원220V",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "supply_voltage_v",
+      "value": 220,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p4",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "grounded_electrical_connection",
+      "label": "접지 연결",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "grounded_electrical_connection",
+      "value": true,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p4",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "electrical_outlet_requirement_met",
+      "label": "전용 벽 콘센트 또는 지정 조건의 멀티콘센트",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "electrical_outlet_requirement_met",
+      "value": true,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p4",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "plug_pinched_by_product",
+      "label": "제품 후면의 전원 플러그 눌림 금지",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "plug_pinched_by_product",
+      "value": false,
+      "operator": "eq",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p4",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "drain_hose_length_mm",
+      "label": "배수 호스6m 이상 재설치 점검",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "drain_hose_length_mm",
+      "value": 6000,
+      "operator": "lt",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    },
+    {
+      "id": "drain_outlet_height_mm",
+      "label": "배수 호스 끝1.2m 이상 재설치 점검",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "drain_outlet_height_mm",
+      "value": 1200,
+      "operator": "lt",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p43",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      }
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "configuration": "150mm 걸레받이용 빌트인, 닫힌 최소높이 상태",
+    "clearances_mm": {
+      "left": null,
+      "right": null,
+      "rear": null,
+      "top": null
+    },
+    "cabinet_opening_mm": {
+      "width_min": 600,
+      "width_max": 605,
+      "height_min": 815,
+      "height_max": 880,
+      "depth_min": 600,
+      "additional_clearance_already_included": true
+    },
+    "cutout_mm": null,
+    "plinth_height_mm": 150,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+      "locator": "PDF p54–55; care p37–40; safety p3–4; drain p43",
+      "document": "MFL71959103 Rev.05_040124",
+      "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+      "accessed": "2026-11-23",
+      "support_registration_dates": [
+        "2024.04.02"
+      ]
+    },
+    "notes": [
+      "150mm 걸레받이 구성. 닫힌 외형598×815×567mm.",
+      "개구W600–605/H815–880/D최소600mm; 이격 중복 가산 금지.",
+      "150mm는 모델 구성으로 현장 걸레받이 허용범위/문 간섭은 미확인.",
+      "최저 높이815mm 닫힌 상태; 조절발 확장 설치는 별도 검토.",
+      "상단 글라이드 레일: DUE6BG/GL 있음, DUE6BGH 없음. 닫힌 외관만 공통 사용."
+    ],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "하단 방향 개방은 공식 사진 확인. 정확한 축/최대각/전체 궤적 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "unknown",
+      "notes": "문 열고 하단 바구니를 꺼낸 뒤 음식물 필터를 회전해 위로 분리(p37–38). 에어필터 캡을 회전해 열고 필터를 위로 들어 교체(p38–39). 상단 바구니를 꺼내 노즐 너트를 돌린 뒤 아래로 분리(p40). 모든 인출 거리/손·공구 공간은 수치 미확인."
+    },
+    "maintenance": {
+      "notes": "문 열고 하단 바구니를 꺼낸 뒤 음식물 필터를 회전해 위로 분리(p37–38). 에어필터 캡을 회전해 열고 필터를 위로 들어 교체(p38–39). 상단 바구니를 꺼내 노즐 너트를 돌린 뒤 아래로 분리(p40). 모든 인출 거리/손·공구 공간은 수치 미확인.",
+      "required_space_mm": null,
+      "extraction_path": null,
+      "hand_tool_work_volume": null,
+      "tasks": [
+        {
+          "id": "food_filter",
+          "procedure": "문 열기→하단 바구니 인출→필터 회전 후 위로 분리",
+          "source": {
+            "status": "official",
+            "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+            "locator": "PDF p37–38",
+            "document": "MFL71959103 Rev.05_040124",
+            "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+            "accessed": "2026-11-23",
+            "support_registration_dates": [
+              "2024.04.02"
+            ]
+          },
+          "procedure_status": "official",
+          "extraction_distance_mm": null,
+          "work_volume_mm": null,
+          "verdict": "판정 불가"
+        },
+        {
+          "id": "air_filter",
+          "procedure": "내부 바닥 캡 회전→에어필터 위로 인출→교체 후 캡 잠금/초기화",
+          "source": {
+            "status": "official",
+            "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+            "locator": "PDF p38–39",
+            "document": "MFL71959103 Rev.05_040124",
+            "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+            "accessed": "2026-11-23",
+            "support_registration_dates": [
+              "2024.04.02"
+            ]
+          },
+          "procedure_status": "official",
+          "extraction_distance_mm": null,
+          "work_volume_mm": null,
+          "verdict": "판정 불가"
+        },
+        {
+          "id": "upper_spray_nozzle",
+          "procedure": "상단 바구니 인출→너트 회전→노즐 아래로 분리",
+          "source": {
+            "status": "official",
+            "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+            "locator": "PDF p40",
+            "document": "MFL71959103 Rev.05_040124",
+            "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+            "accessed": "2026-11-23",
+            "support_registration_dates": [
+              "2024.04.02"
+            ]
+          },
+          "procedure_status": "official",
+          "extraction_distance_mm": null,
+          "work_volume_mm": null,
+          "verdict": "판정 불가"
+        }
+      ]
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "standalone_installation_manual_found": false,
+    "installation_evidence": "정확한 모델 고객지원 사용설명서의 설치 도면/설치하기 확인. 별도 설치설명서는 확인되지 않음",
+    "supply_pressure_mpa": {
+      "min": 0.05,
+      "max": 1.0
+    },
+    "electrical_and_location_notes": {
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p3–4",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "requirements": [
+        "후면이 노출되지 않게 설치",
+        "물·빗물 또는 습기가 많은 곳 설치 금지",
+        "전원 플러그를 빼기 쉬운 장소",
+        "220V 접지 전용 벽 콘센트 우선; 불가능하면 접지16A 이상 새 멀티콘센트에 제품만 연결",
+        "전원 플러그가 제품 뒷면에 눌리지 않도록 배치"
+      ],
+      "numeric_access_space_mm": null
+    },
+    "drain_troubleshooting_thresholds": {
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg",
+        "locator": "PDF p43 OE 배수 문제",
+        "document": "MFL71959103 Rev.05_040124",
+        "sha256": "40614049eca6fe742fad6cdb98203477df569bd3fdc332969922320ec8659117",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2024.04.02"
+        ]
+      },
+      "hose_length_problem_at_or_above_mm": 6000,
+      "outlet_height_problem_at_or_above_mm": 1200,
+      "rule_scope": "설명서가 재설치를 요청하는 경계값 검사. 이 값 미만이라고 전체 배관 설치가 승인되는 것은 아님.",
+      "full_routing_verified": false
+    },
+    "html_corroboration": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=EkB5P5n790Q50L6PpVPUg",
+      "locator": "ko-kr/topics/topic_75.html; topic_57.html",
+      "document": "2026.04.03 바로보기; 규격과 에어필터 관리 대조",
+      "sha256": "f0867f53c3d36f22ceed024c614c2c399965d4c57e6a3c81cb14169f93650fb5",
+      "accessed": "2026-11-23",
+      "support_registration_dates": [
+        "2026.04.03"
+      ]
+    }
+  },
+  "certifies_real_installation": false,
+  "handoff_source_revision": "color-library-batch12"
+}

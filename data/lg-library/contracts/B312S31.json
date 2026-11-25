@@ -1,0 +1,491 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "B312-batch11",
+  "sku": "B312S31.AKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    600,
+    1640,
+    710
+  ],
+  "placement_datum": {
+    "type": "floor_center",
+    "local_y_m": 0,
+    "status": "official_nominal_envelope",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -300.0,
+        0,
+        -355.0
+      ],
+      "max": [
+        300.0,
+        1640,
+        355.0
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+    "locator": "PDF p16–17,19; care p10,12–15",
+    "document": "MFL71817230 Rev.00_032122",
+    "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+    "accessed": "2026-11-23",
+    "support_registration_dates": [
+      "2023.10.02"
+    ]
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/care-solutions/refrigerators/b312s31?subscCategoryKeyId=241821",
+        "locator": "스펙 > 크기·색상·정확한 모델명",
+        "sha256": "6e3d68518fcd4f5e6b5003101c08043da22cdcc8ac94dd28fe28e952b3ec8c21",
+        "accessed": "2026-11-23"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            820.0,
+            0
+          ],
+          "size_mm": [
+            600,
+            1640,
+            710
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "공식 공칭 외형의 보수적 직육면체 예약 영역. 실제 표면 교차 인증 아님."
+    },
+    {
+      "id": "clearance_left",
+      "label": "left 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            -350.0,
+            820.0,
+            0
+          ],
+          "size_mm": [
+            100,
+            1640,
+            710
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 배치용 예약 영역으로 표현; 추가 이격 중복 가산하지 않음."
+    },
+    {
+      "id": "clearance_right",
+      "label": "right 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            350.0,
+            820.0,
+            0
+          ],
+          "size_mm": [
+            100,
+            1640,
+            710
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 배치용 예약 영역으로 표현; 추가 이격 중복 가산하지 않음."
+    },
+    {
+      "id": "clearance_rear",
+      "label": "rear 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            820.0,
+            -405.0
+          ],
+          "size_mm": [
+            600,
+            1640,
+            100
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 배치용 예약 영역으로 표현; 추가 이격 중복 가산하지 않음."
+    },
+    {
+      "id": "clearance_top",
+      "label": "top 환기 이격 100mm",
+      "kind": "volume",
+      "group": "installation",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0,
+            1690.0,
+            0
+          ],
+          "size_mm": [
+            600,
+            100,
+            710
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "벽 이격 공식값을 배치용 예약 영역으로 표현; 추가 이격 중복 가산하지 않음."
+    },
+    {
+      "id": "ambient_min_c",
+      "label": "주위온도 하한 초과",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "ambient_temperature_c",
+      "value": 5,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "operator": "gt"
+    },
+    {
+      "id": "ambient_max_c",
+      "label": "주위온도 상한 미만",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "ambient_temperature_c",
+      "value": 43,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "operator": "lt"
+    },
+    {
+      "id": "support_level_and_stable",
+      "label": "평탄하고 견고한 지지면",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "support_level_and_stable",
+      "value": true,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "plug_accessible",
+      "label": "전원 플러그 접근 가능",
+      "kind": "fact",
+      "group": "installation",
+      "fact_key": "plug_accessible",
+      "value": null,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "전원·접지 현장 검토 필요. 이 설명서에서 접근 공간의 정량 기준은 확인하지 못함"
+      },
+      "operator": "eq"
+    },
+    {
+      "id": "door_opening",
+      "label": "문 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "우측 힌지는 공식 사진에서 방향만 확인. 정확한 축/최대각/전체 궤적 미확인."
+      },
+      "depends_on": [],
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·선반·접시 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문을 완전히 연 후 부품 분리(p10). 야채실은 앞으로 당긴 후 위로 들어 분리(p12). 선반은 들어 올린 뒤 앞으로, 바구니는 위로 분리(p13). 송풍기 구멍/패킹 청소(p15). 인출 거리와 손/공구 공간 수치 미확인. 공용설명서의 정수기/물탱크 절차는 해당 모델 기능 미확인으로 적용하지 않음."
+      },
+      "depends_on": [
+        "door_opening"
+      ],
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "정비 부품 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "문을 완전히 연 후 부품 분리(p10). 야채실은 앞으로 당긴 후 위로 들어 분리(p12). 선반은 들어 올린 뒤 앞으로, 바구니는 위로 분리(p13). 송풍기 구멍/패킹 청소(p15). 인출 거리와 손/공구 공간 수치 미확인. 공용설명서의 정수기/물탱크 절차는 해당 모델 기능 미확인으로 적용하지 않음."
+      },
+      "depends_on": [
+        "door_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "제조사 정량 작업 공간 미확인"
+      },
+      "depends_on": [
+        "maintenance_extraction"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "사용 자세·여유폭·높이 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭·높이·경로 프로젝트 기준 미지정"
+      },
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ],
+      "boxes": null
+    },
+    {
+      "id": "professional_installation_review_complete",
+      "label": "전기·접지·지지구조 현장 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "fact_key": "professional_installation_review_complete",
+      "value": null,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "현장 확인 기록 없음"
+      },
+      "operator": "eq"
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "configuration": "독립 설치, 일반 가전",
+    "clearances_mm": {
+      "left": 100,
+      "right": 100,
+      "rear": 100,
+      "top": 100
+    },
+    "cutout_mm": null,
+    "cabinet_opening_mm": null,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+      "locator": "PDF p16–17,19; care p10,12–15",
+      "document": "MFL71817230 Rev.00_032122",
+      "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+      "accessed": "2026-11-23",
+      "support_registration_dates": [
+        "2023.10.02"
+      ]
+    },
+    "notes": [
+      "일반 가전. 치수상 장에 들어가더라도 빌트인으로 판정하지 않음.",
+      "벽면100mm,천장·좌우100mm. 주위온도5℃ 초과43℃ 미만.",
+      "설명서 도식G1254/H1031은 전체 연속 궤적·사람 공간의 대체값이 아님.",
+      "2024 바로보기의860×1840×730mm 도표는 적용 제외. 제품 상세페이지와 PDF p16 type d의600×1640×710mm 일치 확인."
+    ],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "우측 힌지는 공식 사진에서 방향만 확인. 정확한 축/최대각/전체 궤적 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "unknown",
+      "notes": "문을 완전히 연 후 부품 분리(p10). 야채실은 앞으로 당긴 후 위로 들어 분리(p12). 선반은 들어 올린 뒤 앞으로, 바구니는 위로 분리(p13). 송풍기 구멍/패킹 청소(p15). 인출 거리와 손/공구 공간 수치 미확인. 공용설명서의 정수기/물탱크 절차는 해당 모델 기능 미확인으로 적용하지 않음."
+    },
+    "maintenance": {
+      "notes": "문을 완전히 연 후 부품 분리(p10). 야채실은 앞으로 당긴 후 위로 들어 분리(p12). 선반은 들어 올린 뒤 앞으로, 바구니는 위로 분리(p13). 송풍기 구멍/패킹 청소(p15). 인출 거리와 손/공구 공간 수치 미확인. 공용설명서의 정수기/물탱크 절차는 해당 모델 기능 미확인으로 적용하지 않음.",
+      "required_space_mm": null,
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "standalone_installation_manual_found": false,
+    "installation_evidence": "설치하기 장이 포함된 정확한 모델 고객지원 사용설명서; 별도 설치설명서는 확인되지 않음",
+    "door_open_reference": {
+      "diagram_letters_mm": {
+        "A": 600,
+        "B": 1640,
+        "C": 710,
+        "D": 625,
+        "E": 710,
+        "F": null,
+        "G": 1254,
+        "H": 1031
+      },
+      "applicability": "공용 PDF type d는 정확한 제품 외형과 일치. 실제 현품 스티커 확인 조건. 축/각도 미명시이므로 전체 궤적 검사에는 사용하지 않음.",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA",
+        "locator": "PDF p16–17,19; care p10,12–15",
+        "document": "MFL71817230 Rev.00_032122",
+        "sha256": "f892e2f0e8a35eafa0ed6d96f4e6da0e90b7b8dbcf0db5a93ba2e09c83130988",
+        "accessed": "2026-11-23",
+        "support_registration_dates": [
+          "2023.10.02"
+        ]
+      },
+      "full_sweep_verified": false
+    },
+    "source_conflicts": [
+      {
+        "affected_skus": [
+          "B312W31.AKOR",
+          "B312S31.AKOR",
+          "B312DS31.AKOR"
+        ],
+        "source_url": "https://gscs-b2c.lge.com/downloadFile?fileId=BOVpkhSlwpkf4dchY8yckQ",
+        "sha256": "89a644571b331ff7c9addb1623ceab1899668bb2d84bb9fea08129f8fcfcbb97",
+        "locator": "ko-kr/topics/topic_32.html",
+        "source_values_whd_mm": [
+          860,
+          1840,
+          730
+        ],
+        "exact_product_page_whd_mm": [
+          600,
+          1640,
+          710
+        ],
+        "resolution": "2024 바로보기 도표는 다른 크기로 적용 불가. 정확한 제품 상세페이지와 고객지원 PDF p16 type d가 일치하여 그 공칭규격을 사용. 2025 바로보기 type e도 같은 WHD이나 W31/DS31에만 연결되어 있음.",
+        "rejected_for_dimension_and_motion": true,
+        "manufacturer_clarification_received": false
+      }
+    ]
+  },
+  "certifies_real_installation": false,
+  "handoff_source_revision": "color-library-batch11"
+}

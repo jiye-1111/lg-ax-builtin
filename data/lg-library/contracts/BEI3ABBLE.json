@@ -1,0 +1,569 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "BEI3AB-batch05",
+  "sku": "BEI3ABBLE.AKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    575,
+    59,
+    515
+  ],
+  "placement_datum": {
+    "type": "countertop_contact_plane_center",
+    "local_y_m": 0,
+    "cad_z_min_mm": -55,
+    "cad_z_max_mm": 4,
+    "status": "공식 전체높이59/매입높이55 차이4mm를 상판 위 돌출로 적용한 명목 배치 기준. 유리/쿠션 개별 두께 실측값 아님",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -287.5,
+        -55.0,
+        -257.5
+      ],
+      "max": [
+        287.5,
+        4.0,
+        257.5
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+    "document": "MFL71922909/15",
+    "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+    "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+    "support_registration_dates": [
+      "2026.06.19"
+    ],
+    "accessed": "2026-11-23"
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/electric-ranges/bei3abble",
+        "locator": "스펙 > 크기/무게 (exact SKU)",
+        "accessed": "2026-11-23",
+        "sha256": "3f2835e1c968326041ea1a5ef7acc68c9f124d86f21fbaf0dfb26eaddc535101"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            -25.5,
+            0.0
+          ],
+          "size_mm": [
+            575,
+            59,
+            515
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "Conservative rectangular placement reservation; does not certify exact physical surface intersections."
+    },
+    {
+      "id": "cutout_width",
+      "label": "상판 타공 width(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "cutout_width",
+      "operator": "eq",
+      "value": 560,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "cutout_depth",
+      "label": "상판 타공 depth(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "cutout_depth",
+      "operator": "eq",
+      "value": 480,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "wall_left_mm",
+      "label": "벽 이격 left(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "wall_left_mm",
+      "operator": "gte",
+      "value": 50,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "wall_right_mm",
+      "label": "벽 이격 right(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "wall_right_mm",
+      "operator": "gte",
+      "value": 50,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "wall_rear_mm",
+      "label": "벽 이격 rear(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "wall_rear_mm",
+      "operator": "gte",
+      "value": 50,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "wall_front_mm",
+      "label": "벽 이격 front(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "wall_front_mm",
+      "operator": "gte",
+      "value": 50,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "hood_gap_mm",
+      "label": "상판~후드 간격(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "hood_gap_mm",
+      "operator": "gte",
+      "value": 600,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "countertop_heat_resistance_c",
+      "label": "상판 내열온도(℃)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "countertop_heat_resistance_c",
+      "operator": "gte",
+      "value": 100,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "support_board_mm",
+      "label": "받침 지판 두께(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "support_board_mm",
+      "operator": "gte",
+      "value": 5,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "cavity_height_mm",
+      "label": "상판 접촉면~하부 공간(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "cavity_height_mm",
+      "operator": "gte",
+      "value": 65,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "when": {
+        "key": "below_appliance",
+        "eq": "shelf_or_oven"
+      }
+    },
+    {
+      "id": "bottom_gap_mm",
+      "label": "제품 매립 본체 바닥~지판/오븐(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "bottom_gap_mm",
+      "operator": "gte",
+      "value": 10,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "when": {
+        "key": "below_appliance",
+        "eq": "shelf_or_oven"
+      }
+    },
+    {
+      "id": "bottom_gap_mm_dw",
+      "label": "제품 바닥~식기세척기(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "bottom_gap_mm",
+      "operator": "gte",
+      "value": 20,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "when": {
+        "key": "below_appliance",
+        "eq": "dishwasher"
+      }
+    },
+    {
+      "id": "cavity_height_mm_dw",
+      "label": "식기세척기 위 하부 공간(mm, 공식값 합산)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "cavity_height_mm",
+      "operator": "gte",
+      "value": 75,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23",
+        "calculation": "official embedded depth 55 + official dishwasher gap 20 = 75 mm; not 65+20",
+        "value_class": "derived_from_official_values"
+      },
+      "when": {
+        "key": "below_appliance",
+        "eq": "dishwasher"
+      }
+    },
+    {
+      "id": "below_configuration_supported",
+      "label": "하부 구성(지판/오븐/식기세척기)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "below_appliance",
+      "operator": "in",
+      "value": [
+        "shelf_or_oven",
+        "dishwasher"
+      ],
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "door_opening",
+      "label": "문/커버 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "applicable": false,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "reason": "인덕션 조리면에는 사용 문/서랍 없음. 제품 전체 인출 정비 공간은 별도 미확인.",
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·선반·바스켓 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+        "document": "MFL71922909/15",
+        "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+        "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+        "support_registration_dates": [
+          "2026.06.19"
+        ],
+        "accessed": "2026-11-23"
+      },
+      "applicable": false,
+      "reason": "사용용 인출 서랍 없음. 부속품 분리는 정비 항목에서 검토.",
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "필터·트레이·커버 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "유리 상판 청소는 상부 접근. 본체 인출·전기 접속 정비 작업 공간은 수치 미확인."
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening"
+      ]
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "제조사 작업 영역 수치 또는 프로젝트 정비 기준 미확인"
+      },
+      "boxes": null,
+      "depends_on": [
+        "maintenance_extraction"
+      ]
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "프로젝트 사용 자세/치수 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ]
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭/높이/경로 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ]
+    },
+    {
+      "id": "utilities_and_structure",
+      "label": "전기·배관·고정·지지구조 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "이 모델의 전체 시공조건을 검토한 현장 확인 기록 필요"
+      },
+      "fact_key": "professional_installation_review_complete",
+      "operator": "eq",
+      "value": null
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "cutout_mm": {
+      "width": 560,
+      "depth": 480
+    },
+    "cabinet_opening_mm": null,
+    "clearances_mm": {
+      "left": 50,
+      "right": 50,
+      "rear": 50,
+      "top": null
+    },
+    "under_counter_required_height_mm": 65,
+    "recessed_body_whd_mm": [
+      550,
+      55,
+      470
+    ],
+    "door_open_reference": null,
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg",
+      "document": "MFL71922909/15",
+      "locator": "ko-kr/topics/topic_8.html, topic_9.html, topic_34.html",
+      "sha256": "39e35bfd1c4d9f7b12c6869d25eb49e9b73f3cc4f3871ec8039d3fbb4105f429",
+      "support_registration_dates": [
+        "2026.06.19"
+      ],
+      "accessed": "2026-11-23"
+    },
+    "configuration": "기본 구성; 별도 케이스/페어 설치 제외",
+    "front_to_wall_min_mm": 50,
+    "hood_clearance_mm": 600,
+    "notes": [
+      "타공 560×480은 상판 외곽 치수와 별개. 이격을 타공 치수에 중복 가산하지 않음.",
+      "매립깊이55와 전체높이59의 차이4mm는 공칭 돌출 높이 유도값이며 유리 단품 두께 실측값 아님.",
+      "전원·접지·인접 열원 및 케이스 구성은 전문가 검토 필요."
+    ],
+    "conflicts_and_resolutions": [],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "인덕션 조리면에는 사용 문/서랍 없음. 제품 전체 인출 정비 공간은 별도 미확인."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "not_applicable",
+      "notes": "사용용 인출 서랍 없음. 회전접시·필터 등의 분리는 정비 항목에서 검토."
+    },
+    "maintenance": {
+      "required_space_mm": null,
+      "notes": "유리 상판 청소는 상부 접근. 본체 인출·전기 접속 정비 작업 공간은 수치 미확인.",
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "additional_sources": []
+  },
+  "unverified_items": [
+    "door/cover pivot and travel",
+    "drawer/shelf extraction",
+    "maintenance volume",
+    "single user criterion",
+    "passage criterion",
+    "site utilities and structure"
+  ],
+  "certifies_real_installation": false,
+  "handoff_source_revision": "support-review-r1-20261123"
+}

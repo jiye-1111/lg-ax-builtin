@@ -517,9 +517,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -533,7 +533,8 @@
         "d": null
       },
       "spec_notes": [
-        "설치타입: 빌트인전용. 설치 공간·이격은 제품 페이지에 없음 → null"
+        "설치타입: 빌트인전용. 설치 공간·이격은 제품 페이지에 없음 → null",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959117 Rev07_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -1359,9 +1360,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -1371,7 +1372,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 282 x 497 x 534: 제품 페이지 스펙 표",
-        "8병, 싱글존"
+        "8병, 싱글존",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MP16WIN31954 Rev03_021023 https://gscs-b2c.lge.com/open/downloadFile?fileId=18Xkpq8KgLZ281M3cffTw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "doors": "1도어",
@@ -1524,9 +1526,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -1536,7 +1538,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
-        "슬림형, 좌우도어. 설치환경: 윗면 20cm 이상, 측면/뒷면 벽과 10cm 이상"
+        "슬림형, 좌우도어. 설치환경: 윗면 20cm 이상, 측면/뒷면 벽과 10cm 이상",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822538 https://gscs-b2c.lge.com/open/downloadFile?fileId=uTblKnUavHksC4PsafxKeQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -5406,9 +5409,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -5418,7 +5421,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 600 x 1,640 x 710: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817230 Rev.00_032122 https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -5573,9 +5577,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -5585,7 +5589,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 555 x 1,573 x 637: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL05794615 Rev.01_060425 https://gscs-b2c.lge.com/open/downloadFile?fileId=dDKdobXaep3sEB3dUC68Q (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -7243,9 +7248,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
+        "side": 100,
         "top": null,
-        "back": null
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -7255,7 +7260,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 555 x 1,400 x 585: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100 (mm): 설치 설명서 MFL70548219 Rev00_072623 https://gscs-b2c.lge.com/open/downloadFile?fileId=ImNoab7btZxfOHlZ1rfhvw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -8190,9 +8196,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -8202,7 +8208,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 600 x 1,720 x 710: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817230 Rev.00_032122 https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -8469,9 +8476,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -8481,7 +8488,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 443 x 501 x 450: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL69140220 Rev06_240623 https://gscs-b2c.lge.com/open/downloadFile?fileId=MZtKFUFDpyYUOg55iw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -8579,9 +8587,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -8591,7 +8599,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 600 x 1,640 x 710: 제품 페이지 스펙 표",
-        "구분: 일반형"
+        "구분: 일반형",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817230 Rev.00_032122 https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -14138,9 +14147,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -14155,7 +14164,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 제품 페이지 스펙 표",
-        "구분: 14인용"
+        "구분: 14인용",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959118 Rev.08_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=PcDVhXACRZY2uBxQHWYECQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -14244,9 +14254,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -14261,7 +14271,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 제품 페이지 스펙 표",
-        "구분: 14인용"
+        "구분: 14인용",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959118 Rev.08_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=PcDVhXACRZY2uBxQHWYECQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -14350,9 +14361,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -14367,7 +14378,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 제품 페이지 스펙 표",
-        "구분: 14인용"
+        "구분: 14인용",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959117 Rev.07_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -14403,9 +14415,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -14420,7 +14432,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 제품 페이지 스펙 표",
-        "구분: 14인용"
+        "구분: 14인용",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959103 Rev.05_040124 https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -14456,9 +14469,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -14473,7 +14486,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 제품 페이지 스펙 표",
-        "구분: 14인용"
+        "구분: 14인용",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959103 Rev.05_040124 https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -58804,13 +58818,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 제품 페이지 스펙 표",
-        "구분: 인덕션"
+        "구분: 인덕션",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922909/15 https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -58910,13 +58925,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 제품 페이지 스펙 표",
-        "구분: 인덕션"
+        "구분: 인덕션",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922911 Rev07_062926 https://gscs-b2c.lge.com/open/downloadFile?fileId=uyxSE3R8m7wI5wTgqwXMA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -59811,13 +59827,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 575 x 59 x 515: 제품 페이지 스펙 표",
-        "구분: 인덕션"
+        "구분: 인덕션",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922911 Rev07_062926 https://gscs-b2c.lge.com/open/downloadFile?fileId=uyxSE3R8m7wI5wTgqwXMA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -59864,13 +59881,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 575 x 59 x 515: 제품 페이지 스펙 표",
-        "구분: 인덕션"
+        "구분: 인덕션",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922911 Rev07_062926 https://gscs-b2c.lge.com/open/downloadFile?fileId=uyxSE3R8m7wI5wTgqwXMA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -60553,13 +60571,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 575 x 59 x 515: 제품 페이지 스펙 표",
-        "구분: 인덕션"
+        "구분: 인덕션",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922909/15 https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -60877,9 +60896,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -60890,7 +60909,8 @@
       "spec_notes": [
         "크기 (WxHxD) 540 x 325 x 523: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 광파오븐"
+        "구분: 광파오븐",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MLJ39 product user manual (registered 2026.09.11) https://gscs-b2c.lge.com/open/downloadFile?fileId=h0RmmDe91TJX6J8jBEfUw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "광파오븐",
@@ -61269,9 +61289,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -61282,7 +61302,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822538 https://gscs-b2c.lge.com/open/downloadFile?fileId=uTblKnUavHksC4PsafxKeQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -61493,9 +61514,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -61506,7 +61527,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MW23BDI/GDI/WDI HTML manual (2026.09.29) https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -61549,9 +61571,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -61562,7 +61584,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MW23BDI/GDI/WDI HTML manual (2026.09.29) https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -61605,9 +61628,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -61618,7 +61641,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MW23BDI/GDI/WDI HTML manual (2026.09.29) https://gscs-b2c.lge.com/downloadFile?fileId=Nwci88rRKBPHbHVI49g0gg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -61997,9 +62021,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62010,7 +62034,8 @@
       "spec_notes": [
         "크기 (WxHxD) 508 x 290 x 400: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL71975601 Rev06_031126 https://gscs-b2c.lge.com/open/downloadFile?fileId=YvbEzv4uUqAGHWDgT7CA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -62053,9 +62078,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62066,7 +62091,8 @@
       "spec_notes": [
         "크기 (WxHxD) 454 x 261 x 328: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL71975601 Rev06_031126 https://gscs-b2c.lge.com/open/downloadFile?fileId=YvbEzv4uUqAGHWDgT7CA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -62109,9 +62135,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62122,7 +62148,8 @@
       "spec_notes": [
         "크기 (WxHxD) 454 x 261 x 328: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL71975601 Rev06_031126 https://gscs-b2c.lge.com/open/downloadFile?fileId=YvbEzv4uUqAGHWDgT7CA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지"
@@ -62219,9 +62246,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62232,7 +62259,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 370: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822540 Rev.00_040826 https://gscs-b2c.lge.com/open/downloadFile?fileId=hsYsF0eIFyeDgjPrRrt6lA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -62331,9 +62359,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62344,7 +62372,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 370: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822525 Rev07_090525 https://gscs-b2c.lge.com/open/downloadFile?fileId=mEn7jHmMdCixmSM2xLC8oA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -62387,9 +62416,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62400,7 +62429,8 @@
       "spec_notes": [
         "크기 (WxHxD) 454 x 261 x 328: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL71975601 Rev06_031126 https://gscs-b2c.lge.com/open/downloadFile?fileId=YvbEzv4uUqAGHWDgT7CA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -62443,9 +62473,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -62456,7 +62486,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 346: 제품 페이지 스펙 표",
         "스펙 표에 색상 표기 없음 (화면 색은 중립 회색)",
-        "구분: 전자레인지"
+        "구분: 전자레인지",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822520 Rev.22_090525 https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -63748,9 +63779,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -63766,7 +63797,8 @@
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6BGE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6BGE과 같게",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959117 Rev07_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -63813,14 +63845,15 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ANHLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ANHLE과 같게",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922909/15 https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -63867,14 +63900,15 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ANHLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ANHLE과 같게",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922909/15 https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -63915,9 +63949,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -63928,7 +63962,8 @@
       "spec_notes": [
         "크기 (WxHxD) 540 x 325 x 523: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 MLJ39EW과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 MLJ39EW과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MLJ39 product user manual (registered 2026.09.11) https://gscs-b2c.lge.com/open/downloadFile?fileId=h0RmmDe91TJX6J8jBEfUw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "광파오븐",
@@ -63977,13 +64012,14 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 575 x 59 x 515: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
-        "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표"
+        "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922901 Rev05_062626 https://gscs-b2c.lge.com/open/downloadFile?fileId=bHhgUHtKz2wt9gjV9pYC8A (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -64024,9 +64060,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64037,7 +64073,8 @@
       "spec_notes": [
         "크기 (WxHxD) 443 x 501 x 450: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 B053S14과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 B053S14과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL69140220 Rev06_240623 https://gscs-b2c.lge.com/open/downloadFile?fileId=MZtKFUFDpyYUOg55iw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -64079,9 +64116,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
+        "side": 100,
         "top": null,
-        "back": null
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64092,7 +64129,8 @@
       "spec_notes": [
         "크기 (WxHxD) 555 x 1400 x 585: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 B182W13과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 B182W13과 같게",
+        "환기 이격 양옆 100, 뒤 100 (mm): 설치 설명서 MFL70548219 Rev00_072623 https://gscs-b2c.lge.com/open/downloadFile?fileId=ImNoab7btZxfOHlZ1rfhvw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -64187,9 +64225,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64200,7 +64238,8 @@
       "spec_notes": [
         "크기 (WxHxD) 282 x 497 x 534: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MP16WIN31954 Rev03_021023 https://gscs-b2c.lge.com/open/downloadFile?fileId=18Xkpq8KgLZ281M3cffTw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "doors": "1도어",
@@ -64244,9 +64283,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64257,7 +64296,8 @@
       "spec_notes": [
         "크기 (WxHxD) 282 x 497 x 534: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MP16WIN31954 Rev03_021023 https://gscs-b2c.lge.com/open/downloadFile?fileId=18Xkpq8KgLZ281M3cffTw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "doors": "1도어",
@@ -64301,9 +64341,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64314,7 +64354,8 @@
       "spec_notes": [
         "크기 (WxHxD) 282 x 497 x 534: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MP16WIN31954 Rev03_021023 https://gscs-b2c.lge.com/open/downloadFile?fileId=18Xkpq8KgLZ281M3cffTw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "doors": "1도어",
@@ -64358,9 +64399,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64371,7 +64412,8 @@
       "spec_notes": [
         "크기 (WxHxD) 282 x 497 x 534: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 W0082GLE과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MP16WIN31954 Rev03_021023 https://gscs-b2c.lge.com/open/downloadFile?fileId=18Xkpq8KgLZ281M3cffTw (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "doors": "1도어",
@@ -64420,14 +64462,15 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 575 x 59 x 515: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ABWLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3ABWLE과 같게",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922909/15 https://gscs-b2c.lge.com/downloadFile?fileId=GRLbX0uqiEz2lwtzbzkWxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -64468,9 +64511,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64480,7 +64523,8 @@
       },
       "spec_notes": [
         "크기 (WxHxD) 475 x 1170 x 487: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
-        "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표"
+        "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817238 Rev00_062424 https://gscs-b2c.lge.com/open/downloadFile?fileId=ncCn5quZShaoroIqZIOWQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -64524,9 +64568,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64537,7 +64581,8 @@
       "spec_notes": [
         "크기 (WxHxD) 508 x 290 x 400: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 MW30EDN과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 MW30EDN과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL71975601 Rev06_031126 https://gscs-b2c.lge.com/open/downloadFile?fileId=YvbEzv4uUqAGHWDgT7CA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -64586,14 +64631,15 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3HKBLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3HKBLE과 같게",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922911 Rev07_062926 https://gscs-b2c.lge.com/open/downloadFile?fileId=uyxSE3R8m7wI5wTgqwXMA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -64640,14 +64686,15 @@
       },
       "door_swing_mm": null,
       "cutout_mm": {
-        "w": null,
+        "w": 560,
         "h": null,
-        "d": null
+        "d": 480
       },
       "spec_notes": [
         "크기 (WxHxD) 580 x 59 x 520: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3HKBLE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 BEI3HKBLE과 같게",
+        "상판 타공 폭 560, 깊이 480 (mm): 설치 설명서 MFL71922911 Rev07_062926 https://gscs-b2c.lge.com/open/downloadFile?fileId=uyxSE3R8m7wI5wTgqwXMA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "인덕션"
@@ -64688,9 +64735,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64701,7 +64748,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 369: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 MWJ23PI과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 MWJ23PI과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822538 https://gscs-b2c.lge.com/open/downloadFile?fileId=uTblKnUavHksC4PsafxKeQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -64744,9 +64792,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64757,7 +64805,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 370: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 MWJ25E과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 MWJ25E과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822525 Rev07_090525 https://gscs-b2c.lge.com/open/downloadFile?fileId=mEn7jHmMdCixmSM2xLC8oA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -64800,9 +64849,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64813,7 +64862,8 @@
       "spec_notes": [
         "크기 (WxHxD) 555 x 1573 x 637: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 B245W22과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 B245W22과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL05794615 Rev.01_060425 https://gscs-b2c.lge.com/open/downloadFile?fileId=dDKdobXaep3sEB3dUC68Q (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -64857,9 +64907,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 200,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64870,7 +64920,8 @@
       "spec_notes": [
         "크기 (WxHxD) 476 x 272 x 346: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 MW22CA과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 MW22CA과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 200 (mm): 설치 설명서 MFL68822520 Rev.22_090525 https://gscs-b2c.lge.com/open/downloadFile?fileId=4sC92FxavmzZ2zqt4S0YoQ (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "전자레인지",
@@ -64908,9 +64959,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -64926,7 +64977,8 @@
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6GLHE과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6GLHE과 같게",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959117 Rev.07_030626 https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -64967,9 +65019,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -64980,7 +65032,8 @@
       "spec_notes": [
         "크기 (WxHxD) 600 x 1640 x 710: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 B312W31과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 B312W31과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817230 Rev.00_032122 https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",
@@ -65018,9 +65071,9 @@
         "d": 567
       },
       "required_space_mm": {
-        "w": null,
-        "h": null,
-        "d": null
+        "w": 600,
+        "h": 815,
+        "d": 600
       },
       "clearance_mm": {
         "side": null,
@@ -65036,7 +65089,8 @@
       "spec_notes": [
         "크기 (WxHxD) 598 x 815 x 567: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6BG과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 DUE6BG과 같게",
+        "장 개구 최소 폭 600, 높이 815, 깊이 600 (mm): 설치 설명서 MFL71959103 Rev.05_040124 https://gscs-b2c.lge.com/open/downloadFile?fileId=1foeEAxrZSvGlee7cRT6mg (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "capacity": "14인용"
@@ -65077,9 +65131,9 @@
         "d": null
       },
       "clearance_mm": {
-        "side": null,
-        "top": null,
-        "back": null
+        "side": 100,
+        "top": 100,
+        "back": 100
       },
       "door_swing_mm": null,
       "cutout_mm": {
@@ -65090,7 +65144,8 @@
       "spec_notes": [
         "크기 (WxHxD) 600 x 1720 x 710: 전달받은 모델 묶음(LG-HANDOFF-01)에 적힌 LGE.COM 스펙 기록",
         "이름·판매 상태·가격·옵션: LGE.COM 제품 페이지와 스펙 표",
-        "종류·설치 방식: 색만 다른 같은 제품군 모델 B332S34과 같게"
+        "종류·설치 방식: 색만 다른 같은 제품군 모델 B332S34과 같게",
+        "환기 이격 양옆 100, 뒤 100, 위 100 (mm): 설치 설명서 MFL71817230 Rev.00_032122 https://gscs-b2c.lge.com/open/downloadFile?fileId=8DX3wkvc1dzwuKQ2ZJHdA (전달받은 묶음의 설치 계약)"
       ],
       "options": {
         "kind": "일반형",

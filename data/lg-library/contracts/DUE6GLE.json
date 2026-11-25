@@ -1,0 +1,375 @@
+{
+  "schema": "homescape.installation/1.1",
+  "family_id": "DUE6-150",
+  "sku": "DUE6GLE.AKOR",
+  "units": "mm",
+  "axis": "Y-up,+Z-front",
+  "product_whd_mm": [
+    598,
+    815,
+    567
+  ],
+  "placement_datum": {
+    "type": "floor_center",
+    "local_y_m": 0,
+    "status": "official_nominal_envelope",
+    "verified_local_bounds_yup_mm": {
+      "min": [
+        -299.0,
+        0.0,
+        -283.5
+      ],
+      "max": [
+        299.0,
+        815.0,
+        283.5
+      ]
+    }
+  },
+  "source": {
+    "status": "official",
+    "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+    "document": "MFL71959117 Rev07_030626",
+    "locator": "PDF p.57–58; maintenance p.39–42",
+    "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+    "support_registration_dates": [
+      "2026.03.11"
+    ],
+    "accessed": "2026-11-23"
+  },
+  "rules": [
+    {
+      "id": "closed_envelope",
+      "label": "공식 외형 예약 영역",
+      "kind": "volume",
+      "group": "closed_body",
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/product/dishwashers/due6gle",
+        "locator": "스펙 > 크기/무게 (exact SKU)",
+        "accessed": "2026-11-23",
+        "sha256": "dafaef13fe309f501e26211fd068de61ae2e852b877983911e8b27c9ee73a53b"
+      },
+      "boxes": [
+        {
+          "center_mm": [
+            0.0,
+            407.5,
+            0.0
+          ],
+          "size_mm": [
+            598,
+            815,
+            567
+          ],
+          "yaw_deg": 0
+        }
+      ],
+      "interpretation": "Conservative rectangular placement reservation; does not certify exact physical surface intersections."
+    },
+    {
+      "id": "opening_width_mm",
+      "label": "개구 폭 최소(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "opening_width_mm",
+      "operator": "gte",
+      "value": 600,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+        "document": "MFL71959117 Rev07_030626",
+        "locator": "PDF p.57–58; maintenance p.39–42",
+        "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+        "support_registration_dates": [
+          "2026.03.11"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "opening_width_max_mm",
+      "label": "개구 폭 최대(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "opening_width_mm",
+      "operator": "lte",
+      "value": 605,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+        "document": "MFL71959117 Rev07_030626",
+        "locator": "PDF p.57–58; maintenance p.39–42",
+        "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+        "support_registration_dates": [
+          "2026.03.11"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "opening_height_mm",
+      "label": "개구 높이 최소(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "opening_height_mm",
+      "operator": "gte",
+      "value": 815,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+        "document": "MFL71959117 Rev07_030626",
+        "locator": "PDF p.57–58; maintenance p.39–42",
+        "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+        "support_registration_dates": [
+          "2026.03.11"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "opening_height_max_mm",
+      "label": "개구 높이 최대(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "opening_height_mm",
+      "operator": "lte",
+      "value": 880,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+        "document": "MFL71959117 Rev07_030626",
+        "locator": "PDF p.57–58; maintenance p.39–42",
+        "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+        "support_registration_dates": [
+          "2026.03.11"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "opening_depth_mm",
+      "label": "개구 깊이 최소(mm)",
+      "group": "installation",
+      "kind": "fact",
+      "fact_key": "opening_depth_mm",
+      "operator": "gte",
+      "value": 600,
+      "source": {
+        "status": "official",
+        "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+        "document": "MFL71959117 Rev07_030626",
+        "locator": "PDF p.57–58; maintenance p.39–42",
+        "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+        "support_registration_dates": [
+          "2026.03.11"
+        ],
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "door_front_space_mm",
+      "label": "DU* 문 개방 전면 예약 길이(mm; 전체 회전경로 아님)",
+      "group": "opening",
+      "kind": "fact",
+      "fact_key": "door_front_space_mm",
+      "operator": "gte",
+      "value": 590,
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/story/user-guide/dishwashers-install-guide",
+        "locator": "DU* 일반 빌트인 / 문 개방 590mm 그림",
+        "accessed": "2026-11-23"
+      }
+    },
+    {
+      "id": "door_opening",
+      "label": "문/커버 전체 개방 경로",
+      "kind": "motion",
+      "group": "opening",
+      "applicable": true,
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "아래로 열리는 문. 정확한 경첩 축·각도·전체 궤적 미확인;590mm 길이만으로 충돌 판정하지 않음."
+      },
+      "reason": "아래로 열리는 문. 정확한 경첩 축·각도·전체 궤적 미확인;590mm 길이만으로 충돌 판정하지 않음.",
+      "motion": null
+    },
+    {
+      "id": "drawer_opening",
+      "label": "서랍·선반·바스켓 인출",
+      "kind": "motion",
+      "group": "drawer",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "인출 거리/방향/부품 치수 미확인"
+      },
+      "applicable": true,
+      "reason": "선반/트레이 등을 포함한 접근 검토 필요",
+      "motion": null
+    },
+    {
+      "id": "maintenance_extraction",
+      "label": "필터·트레이·커버 분리 경로",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "거름필터 청소를 위해 하단 바스켓을 빼고 필터를 돌려 분리(p39). 세척 날개 등 관리 절차는 있으나 작업/인출 거리 미확인. 에어필터 등 일부 모델 전용 항목은 적용 여부 미확인."
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening"
+      ]
+    },
+    {
+      "id": "maintenance_work",
+      "label": "정비 손·공구·작업자 공간",
+      "kind": "volume",
+      "group": "maintenance",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "제조사 작업 영역 수치 또는 프로젝트 정비 기준 미확인"
+      },
+      "boxes": null,
+      "depends_on": [
+        "maintenance_extraction"
+      ]
+    },
+    {
+      "id": "single_user",
+      "label": "1인 사용 공간",
+      "kind": "human_space",
+      "group": "human_use",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "프로젝트 사용 자세/치수 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening"
+      ]
+    },
+    {
+      "id": "passage",
+      "label": "사용 중 통행 공간",
+      "kind": "human_space",
+      "group": "passage",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "통행 폭/높이/경로 기준 미지정"
+      },
+      "boxes": null,
+      "depends_on": [
+        "door_opening",
+        "drawer_opening",
+        "single_user"
+      ]
+    },
+    {
+      "id": "utilities_and_structure",
+      "label": "전기·배관·고정·지지구조 검토",
+      "kind": "fact",
+      "group": "site_conditions",
+      "source": {
+        "status": "unknown",
+        "reference": null,
+        "reason": "이 모델의 전체 시공조건을 검토한 현장 확인 기록 필요"
+      },
+      "fact_key": "professional_installation_review_complete",
+      "operator": "eq",
+      "value": null
+    }
+  ],
+  "installation_notes": {
+    "verdict": "판정 불가",
+    "site_verified": false,
+    "cutout_mm": null,
+    "cabinet_opening_mm": {
+      "width_min": 600,
+      "width_max": 605,
+      "height_min": 815,
+      "height_max": 880,
+      "depth_min": 600
+    },
+    "clearances_mm": {
+      "left": null,
+      "right": null,
+      "rear": null,
+      "top": null
+    },
+    "under_counter_required_height_mm": null,
+    "recessed_body_whd_mm": null,
+    "door_open_reference": {
+      "front_space_mm": 590,
+      "source": {
+        "status": "official",
+        "reference": "https://www.lge.co.kr/story/user-guide/dishwashers-install-guide",
+        "locator": "DU* 일반 빌트인 / 문 개방 590mm 그림",
+        "accessed": "2026-11-23"
+      },
+      "full_sweep_verified": false
+    },
+    "source": {
+      "status": "official",
+      "reference": "https://gscs-b2c.lge.com/open/downloadFile?fileId=47eEeOZ5yQ3pVzw1uosMxg",
+      "document": "MFL71959117 Rev07_030626",
+      "locator": "PDF p.57–58; maintenance p.39–42",
+      "sha256": "ff60f78ab8326c40b9a3446f11b49531b8f0c823a310ba98366716b633ba63f5",
+      "support_registration_dates": [
+        "2026.03.11"
+      ],
+      "accessed": "2026-11-23"
+    },
+    "configuration": "기본 구성; 별도 케이스/페어 설치 제외",
+    "notes": [
+      "150mm 걸레받이형. 조절발 높이·걸레받이 간섭은 별도 확인.",
+      "설명서 개구깊이600mm를 사용. 일반 가이드의567~600은 배관 등 조건부로 임의 완화하지 않음.",
+      "문 앞590mm에 사람 사용/통행 여유가 포함됐다고 보지 않음.",
+      "급배수·전기·고정·증기 영향은 별도 시공 검토."
+    ],
+    "conflicts_and_resolutions": [],
+    "door_or_cover": {
+      "motion": null,
+      "notes": "아래로 열리는 문. 정확한 경첩 축·각도·전체 궤적 미확인;590mm 길이만으로 충돌 판정하지 않음."
+    },
+    "drawer_or_shelf": {
+      "motion": null,
+      "status": "unknown"
+    },
+    "maintenance": {
+      "required_space_mm": null,
+      "notes": "거름필터 청소를 위해 하단 바스켓을 빼고 필터를 돌려 분리(p39). 세척 날개 등 관리 절차는 있으나 작업/인출 거리 미확인. 에어필터 등 일부 모델 전용 항목은 적용 여부 미확인.",
+      "extraction_path": null,
+      "hand_tool_work_volume": null
+    },
+    "single_user": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "passage": {
+      "required_space_mm": null,
+      "criterion": null,
+      "verdict": "판정 불가"
+    },
+    "additional_sources": []
+  },
+  "unverified_items": [
+    "door/cover pivot and travel",
+    "drawer/shelf extraction",
+    "maintenance volume",
+    "single user criterion",
+    "passage criterion",
+    "site utilities and structure"
+  ],
+  "certifies_real_installation": false,
+  "handoff_source_revision": "support-review-r1-20261123"
+}

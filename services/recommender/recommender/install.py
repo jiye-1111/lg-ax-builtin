@@ -12,6 +12,7 @@ from typing import Callable, Iterable
 
 from core.models import Product, Room
 
+from .contract import site_lines
 from .fit import FitConfig, front_space
 
 # 급수·배수 연결이 필요한 제품군
@@ -69,7 +70,7 @@ def _water_purifier_lines(p: Product) -> list[dict]:
     return out
 
 
-def _item(room: Room, x: dict, p: Product) -> dict:
+def _item(room: Room, x: dict, p: Product, contract: dict | None = None) -> dict:
     d = p.product_dims_mm
     reasons = x.get("reasons") or []
     by_code = {r["code"]: r for r in reasons}
@@ -113,6 +114,8 @@ def _item(room: Room, x: dict, p: Product) -> dict:
     if p.category in NEEDS_WATER:
         checks.append(_line("water", "급수·배수 연결 위치", "site", _water_detail(p)))
     checks += _water_purifier_lines(p)
+    if contract:  # 전달받은 묶음의 설치 계약: 설명서 조건은 현장 값이 있어야 알 수 있어 모두 '현장 확인'
+        checks += [_line(c["code"], c["label"], c["status"], c["detail"]) for c in site_lines(contract)]
 
     status = max((c["status"] for c in checks), key=_RANK.get)
     return {"placement_id": x.get("placement_id"), "sku": p.sku, "name": p.name, "category": p.category,
@@ -120,14 +123,15 @@ def _item(room: Room, x: dict, p: Product) -> dict:
             "status": "ok" if status == "site" else status, "checks": checks, "_measure": need}
 
 
-def install_checklist(room: Room, placements: Iterable[dict], get_product: Callable[[str], Product]) -> dict:
+def install_checklist(room: Room, placements: Iterable[dict], get_product: Callable[[str], Product],
+                      get_contract: Callable[[str], dict | None] | None = None) -> dict:
     items = []
     for x in placements:
         try:
             p = get_product(x["sku"])
         except KeyError:
             continue
-        items.append(_item(room, x, p))
+        items.append(_item(room, x, p, get_contract(p.sku) if get_contract else None))
     walls = sorted({w for it in items for w in it.pop("_measure")})
     count = lambda s: sum(1 for it in items if it["status"] == s)  # noqa: E731
     return {"summary": {"products": len(items), "ok": count("ok"), "check": count("check"), "blocked": count("blocked"),
