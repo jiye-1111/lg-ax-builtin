@@ -1,1 +1,64 @@
-{"models":{}}
+{
+ "models": {
+  "WU523AWB": {
+   "file": "WU523-faucet-component-reuse-r1-part.glb",
+   "variant": "WU523AWB.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "WU523 파우셋 48x264x188 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  },
+  "WU523ACB": {
+   "file": "WU523-faucet-component-reuse-r1-part.glb",
+   "variant": "WU523ACB.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "WU523 파우셋 48x264x188 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  },
+  "WU823AS": {
+   "file": "WU-dual-faucet-b66-part.glb",
+   "variant": "WU823AS.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "듀얼 정수기 상판 출수부 52x264x190 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  },
+  "WU923ACB": {
+   "file": "WU-dual-faucet-b66-part.glb",
+   "variant": "WU923ACB.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "듀얼 정수기 상판 출수부 52x264x190 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  },
+  "WU923AS": {
+   "file": "WU-dual-faucet-b66-part.glb",
+   "variant": "WU923AS.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "듀얼 정수기 상판 출수부 52x264x190 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  },
+  "WU923AWB": {
+   "file": "WU-dual-faucet-b66-part.glb",
+   "variant": "WU923AWB.AKOR",
+   "offset_m": [
+    0,
+    0.85,
+    -0.1
+   ],
+   "note": "듀얼 정수기 상판 출수부 52x264x190 mm. 조리대 높이 850mm(국내 표준 주방 높이로 가정) 위, 본체 가운데에서 100mm 뒤에 놓는다. 실제 타공 자리는 현장마다 다르다"
+  }
+ }
+}

@@ -1,8 +1,9 @@
 {
- "_note": "제품 3D 모델 목록. 전달받은 모델 묶음(LG-HANDOFF-01)만 쓴다. tools/catalog/import_lg_handoff.mjs가 만든다",
+ "_note": "제품 3D 모델 목록. 전달받은 모델 묶음(LG-WEB-DEVELOPER-01)만 쓴다. 색만 다른 모델은 파일 하나를 같이 쓰고 variant로 색을 고른다. tools/catalog/import_lg_handoff.mjs가 만든다",
  "models": {
   "DUE6BGE": {
-   "file": "DUE6BGE.glb",
+   "file": "DUE6-150-407298.glb",
+   "variant": "DUE6BGE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -11,7 +12,8 @@
    }
   },
   "DUE6GLE": {
-   "file": "DUE6GLE.glb",
+   "file": "DUE6-150-407298.glb",
+   "variant": "DUE6GLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -20,7 +22,8 @@
    }
   },
   "BEI3ANHLE": {
-   "file": "BEI3ANHLE.glb",
+   "file": "BEI3AN-10bcf3.glb",
+   "variant": "BEI3ANHLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -29,7 +32,8 @@
    }
   },
   "BEI3ANBLE": {
-   "file": "BEI3ANBLE.glb",
+   "file": "BEI3AN-10bcf3.glb",
+   "variant": "BEI3ANBLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -38,7 +42,8 @@
    }
   },
   "BEI3ANPLE": {
-   "file": "BEI3ANPLE.glb",
+   "file": "BEI3AN-10bcf3.glb",
+   "variant": "BEI3ANPLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -47,34 +52,17 @@
    }
   },
   "MLJ39EW": {
-   "file": "MLJ39EW.glb",
+   "file": "MLJ39-c2f00c.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 540,
     "h": 325,
     "d": 523
-   }
-  },
-  "MLJ39CW": {
-   "file": "MLJ39CW.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 540,
-    "h": 325,
-    "d": 523
-   }
-  },
-  "BEI3GQK": {
-   "file": "BEI3GQK.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 575,
-    "h": 59,
-    "d": 515
    }
   },
   "MW23BDI": {
-   "file": "MW23BDI.glb",
+   "file": "MW23-mirror-1ef5c2.glb",
+   "variant": "MW23BDI.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -83,7 +71,8 @@
    }
   },
   "MW23GDI": {
-   "file": "MW23GDI.glb",
+   "file": "MW23-mirror-1ef5c2.glb",
+   "variant": "MW23GDI.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -92,7 +81,8 @@
    }
   },
   "MW23FDI": {
-   "file": "MW23FDI.glb",
+   "file": "MW23-mirror-1ef5c2.glb",
+   "variant": "MW23FDI.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -101,7 +91,7 @@
    }
   },
   "MW23WDI": {
-   "file": "MW23WDI.glb",
+   "file": "MW23-window-9f48a3.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -110,7 +100,8 @@
    }
   },
   "B053S14": {
-   "file": "B053S14.glb",
+   "file": "B053-batch03-ea7ed6.glb",
+   "variant": "B053S14.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 443,
@@ -119,7 +110,8 @@
    }
   },
   "B053W14": {
-   "file": "B053W14.glb",
+   "file": "B053-batch03-ea7ed6.glb",
+   "variant": "B053W14.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 443,
@@ -128,7 +120,8 @@
    }
   },
   "B182W13": {
-   "file": "B182W13.glb",
+   "file": "B182-batch03-12f19e.glb",
+   "variant": "B182W13.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 555,
@@ -137,7 +130,8 @@
    }
   },
   "B182DS13": {
-   "file": "B182DS13.glb",
+   "file": "B182-batch03-12f19e.glb",
+   "variant": "B182DS13.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 555,
@@ -145,17 +139,9 @@
     "d": 585
    }
   },
-  "M-X0140ABSB": {
-   "file": "M-X0140ABSB.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 730,
-    "h": 189,
-    "d": 510
-   }
-  },
   "W0082GLE": {
-   "file": "W0082GLE.glb",
+   "file": "W0082-batch04-6c482c.glb",
+   "variant": "W0082GLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 282,
@@ -164,7 +150,8 @@
    }
   },
   "W0082GBE": {
-   "file": "W0082GBE.glb",
+   "file": "W0082-batch04-6c482c.glb",
+   "variant": "W0082GBE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 282,
@@ -173,7 +160,8 @@
    }
   },
   "W0082GPE": {
-   "file": "W0082GPE.glb",
+   "file": "W0082-batch04-6c482c.glb",
+   "variant": "W0082GPE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 282,
@@ -182,7 +170,8 @@
    }
   },
   "W0082GCB": {
-   "file": "W0082GCB.glb",
+   "file": "W0082-batch04-6c482c.glb",
+   "variant": "W0082GCB.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 282,
@@ -191,7 +180,8 @@
    }
   },
   "W0082GTB": {
-   "file": "W0082GTB.glb",
+   "file": "W0082-batch04-6c482c.glb",
+   "variant": "W0082GTB.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 282,
@@ -199,26 +189,8 @@
     "d": 534
    }
   },
-  "BEI3ABWLE": {
-   "file": "BEI3ABWLE.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 575,
-    "h": 59,
-    "d": 515
-   }
-  },
-  "BEI3ABBLE": {
-   "file": "BEI3ABBLE.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 575,
-    "h": 59,
-    "d": 515
-   }
-  },
   "B124W14": {
-   "file": "B124W14.glb",
+   "file": "B124W-batch06-da9ef6.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 475,
@@ -227,7 +199,8 @@
    }
   },
   "MW20CDN": {
-   "file": "MW20CDN.glb",
+   "file": "MW20-batch06-a04bc5.glb",
+   "variant": "MW20CDN.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 454,
@@ -236,7 +209,8 @@
    }
   },
   "MW20GDN": {
-   "file": "MW20GDN.glb",
+   "file": "MW20-batch06-a04bc5.glb",
+   "variant": "MW20GDN.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 454,
@@ -245,7 +219,8 @@
    }
   },
   "MW30BDN": {
-   "file": "MW30BDN.glb",
+   "file": "MW30-batch06-9d482e.glb",
+   "variant": "MW30BDN.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 508,
@@ -254,7 +229,8 @@
    }
   },
   "MW30EDN": {
-   "file": "MW30EDN.glb",
+   "file": "MW30-batch06-9d482e.glb",
+   "variant": "MW30EDN.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 508,
@@ -263,7 +239,8 @@
    }
   },
   "BEI3HKHLE": {
-   "file": "BEI3HKHLE.glb",
+   "file": "BEI3HK-batch07-5989a1.glb",
+   "variant": "BEI3HKHLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -272,7 +249,8 @@
    }
   },
   "BEI3HKBLE": {
-   "file": "BEI3HKBLE.glb",
+   "file": "BEI3HK-batch07-5989a1.glb",
+   "variant": "BEI3HKBLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -281,7 +259,8 @@
    }
   },
   "BEI3HKSLE": {
-   "file": "BEI3HKSLE.glb",
+   "file": "BEI3HK-batch07-5989a1.glb",
+   "variant": "BEI3HKSLE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 580,
@@ -290,7 +269,7 @@
    }
   },
   "MWJ20EDN": {
-   "file": "MWJ20EDN.glb",
+   "file": "MWJ20-batch07-c50d1c.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 454,
@@ -299,7 +278,8 @@
    }
   },
   "MWJ23EI": {
-   "file": "MWJ23EI.glb",
+   "file": "MWJ23I-batch07-d042ef.glb",
+   "variant": "MWJ23EI.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -308,7 +288,8 @@
    }
   },
   "MWJ23PI": {
-   "file": "MWJ23PI.glb",
+   "file": "MWJ23I-batch07-d042ef.glb",
+   "variant": "MWJ23PI.CKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -317,7 +298,7 @@
    }
   },
   "BEI3HRBLE": {
-   "file": "BEI3HRBLE.glb",
+   "file": "BEI3HR-batch08-7a2c05.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 575,
@@ -326,7 +307,7 @@
    }
   },
   "BEI3HSBLE": {
-   "file": "BEI3HSBLE.glb",
+   "file": "BEI3HS-batch08-703eb6.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 575,
@@ -335,16 +316,7 @@
    }
   },
   "MWJ25E": {
-   "file": "MWJ25E.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 476,
-    "h": 272,
-    "d": 370
-   }
-  },
-  "MWJ25P": {
-   "file": "MWJ25P.glb",
+   "file": "MWJ25-batch08-325b15.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -353,7 +325,8 @@
    }
   },
   "B245W22": {
-   "file": "B245W22.glb",
+   "file": "B245-batch09-9b3491.glb",
+   "variant": "B245W22.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 555,
@@ -362,7 +335,8 @@
    }
   },
   "B245DS22": {
-   "file": "B245DS22.glb",
+   "file": "B245-batch09-9b3491.glb",
+   "variant": "B245DS22.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 555,
@@ -371,7 +345,7 @@
    }
   },
   "MW25B": {
-   "file": "MW25B.glb",
+   "file": "MW25-batch09-21e0b3.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
@@ -380,7 +354,8 @@
    }
   },
   "DUE5BGE": {
-   "file": "DUE5BGE.glb",
+   "file": "DUE5-batch10-a10e32.glb",
+   "variant": "DUE5BGE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -389,7 +364,8 @@
    }
   },
   "DUE5BGHE": {
-   "file": "DUE5BGHE.glb",
+   "file": "DUE5-batch10-a10e32.glb",
+   "variant": "DUE5BGHE.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -398,34 +374,16 @@
    }
   },
   "MW22CA": {
-   "file": "MW22CA.glb",
+   "file": "MW22-batch10-314eec.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 476,
     "h": 272,
     "d": 346
-   }
-  },
-  "MW22EA": {
-   "file": "MW22EA.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 476,
-    "h": 272,
-    "d": 346
-   }
-  },
-  "DUE6BGHE": {
-   "file": "DUE6BGHE.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 598,
-    "h": 815,
-    "d": 567
    }
   },
   "DUE6GLHE": {
-   "file": "DUE6GLHE.glb",
+   "file": "DUE6H-batch11-93b431.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -434,7 +392,8 @@
    }
   },
   "B312W31": {
-   "file": "B312W31.glb",
+   "file": "B312-batch11-02f1a7.glb",
+   "variant": "B312W31.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 600,
@@ -443,7 +402,8 @@
    }
   },
   "B312S31": {
-   "file": "B312S31.glb",
+   "file": "B312-batch11-02f1a7.glb",
+   "variant": "B312S31.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 600,
@@ -452,7 +412,8 @@
    }
   },
   "B312DS31": {
-   "file": "B312DS31.glb",
+   "file": "B312-batch11-02f1a7.glb",
+   "variant": "B312DS31.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 600,
@@ -461,25 +422,7 @@
    }
   },
   "DUE6BG": {
-   "file": "DUE6BG.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 598,
-    "h": 815,
-    "d": 567
-   }
-  },
-  "DUE6GL": {
-   "file": "DUE6GL.glb",
-   "layout": "handoff",
-   "bbox_mm": {
-    "w": 598,
-    "h": 815,
-    "d": 567
-   }
-  },
-  "DUE6BGH": {
-   "file": "DUE6BGH.glb",
+   "file": "DUE6Legacy-batch12-439c3b.glb",
    "layout": "handoff",
    "bbox_mm": {
     "w": 598,
@@ -488,7 +431,8 @@
    }
   },
   "B332W34": {
-   "file": "B332W34.glb",
+   "file": "B332-batch12-bd6664.glb",
+   "variant": "B332W34.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 600,
@@ -497,12 +441,3580 @@
    }
   },
   "B332S34": {
-   "file": "B332S34.glb",
+   "file": "B332-batch12-bd6664.glb",
+   "variant": "B332S34.AKOR",
    "layout": "handoff",
    "bbox_mm": {
     "w": 600,
     "h": 1720,
     "d": 710
+   }
+  },
+  "B103S14": {
+   "file": "B103-batch13-d361fd.glb",
+   "variant": "B103S14.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 463,
+    "h": 820,
+    "d": 482
+   }
+  },
+  "B103W14": {
+   "file": "B103-batch13-d361fd.glb",
+   "variant": "B103W14.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 463,
+    "h": 820,
+    "d": 482
+   }
+  },
+  "B315W11": {
+   "file": "B315-batch14-eac942.glb",
+   "variant": "B315W11.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1640,
+    "d": 710
+   }
+  },
+  "B315DS11": {
+   "file": "B315-batch14-eac942.glb",
+   "variant": "B315DS11.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1640,
+    "d": 710
+   }
+  },
+  "DUE4BGE": {
+   "file": "DUE4-batch14-753ec4.glb",
+   "variant": "DUE4BGE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE4BGL1E": {
+   "file": "DUE4-batch14-753ec4.glb",
+   "variant": "DUE4BGL1E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "G646GBB031": {
+   "file": "G646-team-r1-54b4c2.glb",
+   "variant": "G646GBB031.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646MEE021": {
+   "file": "G646-team-r1-54b4c2.glb",
+   "variant": "G646MEE021.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646SVV031": {
+   "file": "G646-team-r1-54b4c2.glb",
+   "variant": "G646SVV031.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GQQ031": {
+   "file": "G646-team-r1-54b4c2.glb",
+   "variant": "G646GQQ031.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "Z386GBB281": {
+   "file": "Z386-team-r1-81e399.glb",
+   "variant": "Z386GBB281.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386MEE221": {
+   "file": "Z386-team-r1-81e399.glb",
+   "variant": "Z386MEE221.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386SLL281": {
+   "file": "Z386-team-r1-81e399.glb",
+   "variant": "Z386SLL281.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386GQQ281": {
+   "file": "Z386-team-r1-81e399.glb",
+   "variant": "Z386GQQ281.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386SVV281": {
+   "file": "Z386-team-r1-81e399.glb",
+   "variant": "Z386SVV281.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "M616GBB0M1": {
+   "file": "M616-team-r1-b0352a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 698
+   }
+  },
+  "D646GBB041": {
+   "file": "D646-team-r1-527dff.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "Z484GBB172": {
+   "file": "Z484-team-r1-c534f3.glb",
+   "variant": "Z484GBB172.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GGG172S": {
+   "file": "Z484-team-r1-c534f3.glb",
+   "variant": "Z484GGG172S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GGA172S": {
+   "file": "Z484-team-r1-c534f3.glb",
+   "variant": "Z484GGA172S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GAG172S": {
+   "file": "Z484-team-r1-c534f3.glb",
+   "variant": "Z484GAG172S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GQQ172S": {
+   "file": "Z484-team-r1-c534f3.glb",
+   "variant": "Z484GQQ172S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "BEI3QKBLOE": {
+   "file": "BEI3QK-team-r1-335922.glb",
+   "variant": "BEI3QKBLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3QKHLOE": {
+   "file": "BEI3QK-team-r1-335922.glb",
+   "variant": "BEI3QKHLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3AMB4E": {
+   "file": "BEF3A-team-r1-5f524b.glb",
+   "variant": "BEF3AMB4E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEF3ASMLE": {
+   "file": "BEF3A-team-r1-5f524b.glb",
+   "variant": "BEF3ASMLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "WU523AWB": {
+   "file": "WU523-reuse-r1-3c87ee.glb",
+   "variant": "WU523AWB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "WU523ACB": {
+   "file": "WU523-reuse-r1-3c87ee.glb",
+   "variant": "WU523ACB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "W1213GG": {
+   "file": "W121-reuse-r1-84faf4.glb",
+   "variant": "W1213GG.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1488,
+    "d": 585
+   }
+  },
+  "W1212GB": {
+   "file": "W121-reuse-r1-84faf4.glb",
+   "variant": "W1212GB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1488,
+    "d": 585
+   }
+  },
+  "FX24KNTR": {
+   "file": "FX24-reuse-r1-6a866a.glb",
+   "variant": "FX24KNTR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX24ENER": {
+   "file": "FX24-reuse-r1-6a866a.glb",
+   "variant": "FX24ENER.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX24GNGR": {
+   "file": "FX24-reuse-r1-6a866a.glb",
+   "variant": "FX24GNGR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX24WNR": {
+   "file": "FX24-reuse-r1-6a866a.glb",
+   "variant": "FX24WNR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX24WSR": {
+   "file": "FX24-reuse-r1-6a866a.glb",
+   "variant": "FX24WSR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "SC5GMR80S": {
+   "file": "SC5-reuse-r1-b6d2fd.glb",
+   "variant": "SC5GMR80S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MBR80S": {
+   "file": "SC5-reuse-r1-b6d2fd.glb",
+   "variant": "SC5MBR80S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MSR82A": {
+   "file": "SC5-reuse-r1-b6d2fd.glb",
+   "variant": "SC5MSR82A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SS4RHS60E": {
+   "file": "SS4R-reuse-r1-dd6d0b.glb",
+   "variant": "SS4RHS60E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 380,
+    "h": 1008,
+    "d": 390
+   }
+  },
+  "SS4RWS60E": {
+   "file": "SS4R-reuse-r1-dd6d0b.glb",
+   "variant": "SS4RWS60E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 380,
+    "h": 1008,
+    "d": 390
+   }
+  },
+  "WL21WDU": {
+   "file": "WL21-reuse-r1-2ca0b5.glb",
+   "variant": "WL21WDU.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 1890,
+    "d": 830
+   }
+  },
+  "WL21EGZU": {
+   "file": "WL21-reuse-r1-2ca0b5.glb",
+   "variant": "WL21EGZU.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 1890,
+    "d": 830
+   }
+  },
+  "DUE6EWL2E": {
+   "file": "DUE6EWL2E-reuse-r1-4d1297.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "Y323MEF": {
+   "file": "Y323MEF-reuse-r1-14f64e.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Z323MEF": {
+   "file": "Z323MEF-reuse-r1-779380.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "X323MEF": {
+   "file": "X323MEF-reuse-r1-4bb9b7.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Y324GB7": {
+   "file": "Y324GB7-reuse-r1-e55c23.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X324GB7": {
+   "file": "X324GB7-reuse-r1-a6fb3a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "MLJ32ERS": {
+   "file": "MLJ32ERS-reuse-r1-b244f5.glb",
+   "variant": "MLJ32ERS.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MLJ32MRS": {
+   "file": "MLJ32ERS-reuse-r1-b244f5.glb",
+   "variant": "MLJ32MRS.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MLJ32PRS": {
+   "file": "MLJ32ERS-reuse-r1-b244f5.glb",
+   "variant": "MLJ32PRS.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MLJ32HWS": {
+   "file": "MLJ32ERS-reuse-r1-b244f5.glb",
+   "variant": "MLJ32HWS.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MLJ32HRS": {
+   "file": "MLJ32ERS-reuse-r1-b244f5.glb",
+   "variant": "MLJ32HRS.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MLJ39ER": {
+   "file": "MLJ39ER-reuse-r1-b96727.glb",
+   "variant": "MLJ39ER.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ39PR": {
+   "file": "MLJ39ER-reuse-r1-b96727.glb",
+   "variant": "MLJ39PR.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ39KR": {
+   "file": "MLJ39ER-reuse-r1-b96727.glb",
+   "variant": "MLJ39KR.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "FH25KA": {
+   "file": "FH25KA-reuse-r1-8babfd.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "RD20KNTR": {
+   "file": "RD20KNTR-reuse-r1-f1994f.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "RD21ESER": {
+   "file": "RD21ESER-reuse-r1-5abe7e.glb",
+   "variant": "RD21ESER.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "RD21GSGR": {
+   "file": "RD21ESER-reuse-r1-5abe7e.glb",
+   "variant": "RD21GSGR.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "OLED65C5ENA": {
+   "file": "OLED65C5ENA-reuse-r1-509b06.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1441,
+    "h": 826,
+    "d": 45
+   }
+  },
+  "65QNED65BBA": {
+   "file": "65QNED65BBA-reuse-r1-ba5c1c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1447,
+    "h": 901,
+    "d": 269
+   }
+  },
+  "OLED77B6BNA": {
+   "file": "OLED77B6BNA-reuse-r1-f4c942.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1719,
+    "h": 1057,
+    "d": 268
+   }
+  },
+  "27LX6TPGA": {
+   "file": "27LX6TPGA-reuse-r1-7fa348.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 623,
+    "h": 1265,
+    "d": 398
+   }
+  },
+  "32LX6BPGA": {
+   "file": "32LX6BPGA-reuse-r1-e128c6.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 724,
+    "h": 1308,
+    "d": 420
+   }
+  },
+  "AS305DWWL": {
+   "file": "AS305DWWL-reuse-r1-314f02.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "AS356NSMA": {
+   "file": "AS356NSMA-reuse-r1-ef1795.glb",
+   "variant": "AS356NSMA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 377,
+    "h": 1100,
+    "d": 377
+   }
+  },
+  "AS356NGMA": {
+   "file": "AS356NSMA-reuse-r1-ef1795.glb",
+   "variant": "AS356NGMA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 377,
+    "h": 1100,
+    "d": 377
+   }
+  },
+  "AS186HWWL": {
+   "file": "AS186HWWL-reuse-r1-94408d.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 315,
+    "h": 511,
+    "d": 315
+   }
+  },
+  "HY706RWUAB": {
+   "file": "HY706RWUAB-reuse-r1-b1fc54.glb",
+   "variant": "HY706RWUAB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 310,
+    "h": 986,
+    "d": 310
+   }
+  },
+  "HY706RSUAB": {
+   "file": "HY706RWUAB-reuse-r1-b1fc54.glb",
+   "variant": "HY706RSUAB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 310,
+    "h": 986,
+    "d": 310
+   }
+  },
+  "DQ235MWGA": {
+   "file": "DQ235MWGA-reuse-r1-e66f4d.glb",
+   "variant": "DQ235MWGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "DQ235MEGA": {
+   "file": "DQ235MWGA-reuse-r1-e66f4d.glb",
+   "variant": "DQ235MEGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "BEI3AMB4E": {
+   "file": "BEI3A-framed-b19-5720fd.glb",
+   "variant": "BEI3AMB4E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASB4E": {
+   "file": "BEI3A-framed-b19-5720fd.glb",
+   "variant": "BEI3ASB4E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASMLE": {
+   "file": "BEI3ASML-b19-d7d048.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ANHLOE": {
+   "file": "BEI3AN-O-b20-5fd90c.glb",
+   "variant": "BEI3ANHLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3ANBLOE": {
+   "file": "BEI3AN-O-b20-5fd90c.glb",
+   "variant": "BEI3ANBLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3ANPLOE": {
+   "file": "BEI3AN-O-b20-5fd90c.glb",
+   "variant": "BEI3ANPLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3ANSLOE": {
+   "file": "BEI3AN-O-b20-5fd90c.glb",
+   "variant": "BEI3ANSLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3AMBLOE": {
+   "file": "BEI3AMBLO-b20-9fb68f.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASB2OE": {
+   "file": "BEI3ASB2O-b20-d4802f.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASS4E": {
+   "file": "BEI3ASS4-b22-58245c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASMLOE": {
+   "file": "BEI3ASML-O-b22-039a3c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "RD21ENR": {
+   "file": "RD21ENR-b23-d21ac5.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "BEF3ANHLE": {
+   "file": "BEF3AN-b23-c113df.glb",
+   "variant": "BEF3ANHLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3ANBLE": {
+   "file": "BEF3AN-b23-c113df.glb",
+   "variant": "BEF3ANBLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3ANPLE": {
+   "file": "BEF3AN-b23-c113df.glb",
+   "variant": "BEF3ANPLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3ANSLE": {
+   "file": "BEF3AN-b23-c113df.glb",
+   "variant": "BEF3ANSLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "SC5GMR60S": {
+   "file": "SC5-60-b24-b969f7.glb",
+   "variant": "SC5GMR60S.BKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MBR60S": {
+   "file": "SC5-60-b24-b969f7.glb",
+   "variant": "SC5MBR60S.BKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MFR60S": {
+   "file": "SC5-60-b24-b969f7.glb",
+   "variant": "SC5MFR60S.BKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MHR60S": {
+   "file": "SC5-60-b24-b969f7.glb",
+   "variant": "SC5MHR60S.BKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "AS186HWWA": {
+   "file": "AS186-A-b24-c2ac48.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 315,
+    "h": 511,
+    "d": 315
+   }
+  },
+  "AS305DWWA": {
+   "file": "AS305-A-b24-125b34.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "BEF3ANHLOE": {
+   "file": "BEF3AN-O-b24-f144bd.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3ASMLOE": {
+   "file": "BEF3ASML-O-b24-67edf4.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "DUE6BGL3E": {
+   "file": "DUE6-L3-b25-596f86.glb",
+   "variant": "DUE6BGL3E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE6PFL3E": {
+   "file": "DUE6-L3-b25-596f86.glb",
+   "variant": "DUE6PFL3E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DQ256MEGA": {
+   "file": "DQ256-b25-f6bba1.glb",
+   "variant": "DQ256MEGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "DQ256MWGA": {
+   "file": "DQ256-b25-f6bba1.glb",
+   "variant": "DQ256MWGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "AS156HWWC": {
+   "file": "AS156-b25-50102c.glb",
+   "variant": "AS156HWWC.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 315,
+    "h": 511,
+    "d": 315
+   }
+  },
+  "AS156HWWL": {
+   "file": "AS156-b25-50102c.glb",
+   "variant": "AS156HWWL.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 315,
+    "h": 511,
+    "d": 315
+   }
+  },
+  "BEI3QEBLOE": {
+   "file": "BEI3QE-QM-b25-5d7e14.glb",
+   "variant": "BEI3QEBLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3QMBLOE": {
+   "file": "BEI3QE-QM-b25-5d7e14.glb",
+   "variant": "BEI3QMBLOE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "FX23ENER": {
+   "file": "FX23-b26-c19c6d.glb",
+   "variant": "FX23ENER.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX23GNGR": {
+   "file": "FX23-b26-c19c6d.glb",
+   "variant": "FX23GNGR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX23WNAR": {
+   "file": "FX23-b26-c19c6d.glb",
+   "variant": "FX23WNAR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "RD20ENER": {
+   "file": "RD20-b26-fc524b.glb",
+   "variant": "RD20ENER.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "RD20GNGR": {
+   "file": "RD20-b26-fc524b.glb",
+   "variant": "RD20GNGR.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "RD20WNR": {
+   "file": "RD20-b26-fc524b.glb",
+   "variant": "RD20WNR.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 824
+   }
+  },
+  "DQ154MWGA": {
+   "file": "DQ154-185-214-b26-639d75.glb",
+   "variant": "DQ154MWGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "DQ214MWGA": {
+   "file": "DQ154-185-214-b26-639d75.glb",
+   "variant": "DQ214MWGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "BEI3CSQE": {
+   "file": "BEI3CSQE-b26-b65ae0.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3QRBLE": {
+   "file": "BEI3QRBLE-b26-614cfd.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "FX25ENR": {
+   "file": "FX25-b27-43ecbf.glb",
+   "variant": "FX25ENR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX25GNR": {
+   "file": "FX25-b27-43ecbf.glb",
+   "variant": "FX25GNR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX25WSQR": {
+   "file": "FX25-b27-43ecbf.glb",
+   "variant": "FX25WSQR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX25EAR": {
+   "file": "FX25-b27-43ecbf.glb",
+   "variant": "FX25EAR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "FX25GAR": {
+   "file": "FX25-b27-43ecbf.glb",
+   "variant": "FX25GAR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "SC5GMR4ES": {
+   "file": "SC5-R4-b27-bc72b4.glb",
+   "variant": "SC5GMR4ES.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MBR4ES": {
+   "file": "SC5-R4-b27-bc72b4.glb",
+   "variant": "SC5MBR4ES.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MBR42S": {
+   "file": "SC5-R4-b27-bc72b4.glb",
+   "variant": "SC5MBR42S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MRR42S": {
+   "file": "SC5-R4-b27-bc72b4.glb",
+   "variant": "SC5MRR42S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "OLED77B6SNA": {
+   "file": "OLED77B6S-b27-33b1dd.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1719,
+    "h": 1057,
+    "d": 268
+   }
+  },
+  "OLED55B6BNA": {
+   "file": "OLED55B6-b28-0c11e6.glb",
+   "variant": "OLED55B6BS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1228,
+    "h": 776,
+    "d": 218
+   }
+  },
+  "OLED55B6ENA": {
+   "file": "OLED55B6-b28-0c11e6.glb",
+   "variant": "OLED55B6ES.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1228,
+    "h": 776,
+    "d": 218
+   }
+  },
+  "OLED55B6KNA": {
+   "file": "OLED55B6-b28-0c11e6.glb",
+   "variant": "OLED55B6KS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1228,
+    "h": 776,
+    "d": 218
+   }
+  },
+  "OLED65B6BNA": {
+   "file": "OLED65B6-b28-23a02c.glb",
+   "variant": "OLED65B6BS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1449,
+    "h": 900,
+    "d": 218
+   }
+  },
+  "OLED65B6ENA": {
+   "file": "OLED65B6-b28-23a02c.glb",
+   "variant": "OLED65B6ES.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1449,
+    "h": 900,
+    "d": 218
+   }
+  },
+  "OLED65B6SNA": {
+   "file": "OLED65B6-b28-23a02c.glb",
+   "variant": "OLED65B6SS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1449,
+    "h": 900,
+    "d": 218
+   }
+  },
+  "SC5MSR40S": {
+   "file": "SC5MSR40S-b28-144baa.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MSR42CS": {
+   "file": "SC5MSR42CS-b28-cdb9b8.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "SC5MSR42S": {
+   "file": "SC5MSR42S-b28-d62bc4.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1965,
+    "d": 620
+   }
+  },
+  "65QNED65BNA": {
+   "file": "QNED65B6-b28-82ee1e.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1447,
+    "h": 901,
+    "d": 269
+   }
+  },
+  "55QNED65BEA": {
+   "file": "QNED55B6-b28-4f0400.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1228,
+    "h": 776,
+    "d": 230
+   }
+  },
+  "75QNED65BBA": {
+   "file": "QNED75-65B-b29-8fcc61.glb",
+   "variant": "75QNED65BBS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1669,
+    "h": 1026,
+    "d": 361
+   }
+  },
+  "75QNED65BNA": {
+   "file": "QNED75-65B-b29-8fcc61.glb",
+   "variant": "75QNED65BNS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1669,
+    "h": 1026,
+    "d": 361
+   }
+  },
+  "85QNED65BBA": {
+   "file": "QNED85-65B-b29-0b59c9.glb",
+   "variant": "85QNED65BBS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1890,
+    "h": 1148,
+    "d": 362
+   }
+  },
+  "85QNED65BNA": {
+   "file": "QNED85-65B-b29-0b59c9.glb",
+   "variant": "85QNED65BNS.AKRG",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 1890,
+    "h": 1148,
+    "d": 362
+   }
+  },
+  "DUE6BGL1E": {
+   "file": "DUE6-L12-b29-f9b2e3.glb",
+   "variant": "DUE6BGL1E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE6BGL2E": {
+   "file": "DUE6-L12-b29-f9b2e3.glb",
+   "variant": "DUE6BGL2E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DQ205PEGA": {
+   "file": "DQ205-b30-086100.glb",
+   "variant": "DQ205PEGA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 415,
+    "h": 715,
+    "d": 296
+   }
+  },
+  "DQ205PSVA": {
+   "file": "DQ205-b30-086100.glb",
+   "variant": "DQ205PSVA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 415,
+    "h": 715,
+    "d": 296
+   }
+  },
+  "AS185DWWD": {
+   "file": "AS185-195-b30-3c55af.glb",
+   "variant": "AS185DWWD.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 343,
+    "h": 587,
+    "d": 343
+   }
+  },
+  "AS195DWWA": {
+   "file": "AS185-195-b30-3c55af.glb",
+   "variant": "AS195DWWA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 343,
+    "h": 587,
+    "d": 343
+   }
+  },
+  "DUE1BGL1E": {
+   "file": "DUE1-12-b31-fa0104.glb",
+   "variant": "DUE1BGL1E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE1BGLE": {
+   "file": "DUE1-12-b31-fa0104.glb",
+   "variant": "DUE1BGLE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE5BGL1E": {
+   "file": "DUE5-14-b31-2305b4.glb",
+   "variant": "DUE5BGL1E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE5BGL2E": {
+   "file": "DUE5-14-b31-2305b4.glb",
+   "variant": "DUE5BGL2E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE5MBL2E": {
+   "file": "DUE5-14-b31-2305b4.glb",
+   "variant": "DUE5MBL2E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE6BGLE": {
+   "file": "DUE6-GLE-b31-7d5f18.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "AS235DWSA": {
+   "file": "AS235-285-b31-399545.glb",
+   "variant": "AS235DWSA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "AS285DWWA": {
+   "file": "AS235-285-b31-399545.glb",
+   "variant": "AS285DWWA.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "AS285DWWC": {
+   "file": "AS235-285-b31-399545.glb",
+   "variant": "AS285DWWC.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "AS285DWWD": {
+   "file": "AS235-285-b31-399545.glb",
+   "variant": "AS285DWWD.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 376,
+    "h": 1073,
+    "d": 376
+   }
+  },
+  "AS185LGAA": {
+   "file": "WallFit-LG-b32-9cc0a1.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 560,
+    "h": 624,
+    "d": 180
+   }
+  },
+  "AS186LSAA": {
+   "file": "WallFit-LS-b32-bdeb23.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 560,
+    "h": 624,
+    "d": 180
+   }
+  },
+  "AS206NSHA": {
+   "file": "AS206-b32-eec922.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 347,
+    "h": 612,
+    "d": 347
+   }
+  },
+  "AS356NSLL": {
+   "file": "AS356-LL-b32-575ef6.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 377,
+    "h": 1100,
+    "d": 377
+   }
+  },
+  "HY505RWLAH": {
+   "file": "HY505-b32-8c652d.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 270,
+    "h": 750,
+    "d": 270
+   }
+  },
+  "DFE5BGE": {
+   "file": "DFE5-b33-56f3f0.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 845,
+    "d": 600
+   }
+  },
+  "DFE6BGE": {
+   "file": "DFE6-b33-ccc931.glb",
+   "variant": "DFE6BGE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 845,
+    "d": 600
+   }
+  },
+  "DFE6BGHE": {
+   "file": "DFE6-b33-ccc931.glb",
+   "variant": "DFE6BGHE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 845,
+    "d": 600
+   }
+  },
+  "DUB61TBE": {
+   "file": "DUB61-b33-578ec2.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DEE6BGE": {
+   "file": "DEE6-b34-7831e8.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "BEY3GS2E": {
+   "file": "BEY-GS2-b34-7e33fb.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "BEY3GSU1E": {
+   "file": "BEY-Frame-b34-94b56a.glb",
+   "variant": "BEY3GSU1E.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "BEY3MSE": {
+   "file": "BEY-Frame-b34-94b56a.glb",
+   "variant": "BEY3MSE.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "BEY3SRBLE": {
+   "file": "BEY-Plain-b34-682555.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "HEI1V9E": {
+   "file": "HEI1-b34-853cb0.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 300,
+    "h": 40,
+    "d": 410
+   }
+  },
+  "ML39BW": {
+   "file": "ML39-Classic-b34-ad45fa.glb",
+   "variant": "ML39BW.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ39EWO": {
+   "file": "ML39-Classic-b34-ad45fa.glb",
+   "variant": "MLJ39EWO.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ39WW": {
+   "file": "ML39-Classic-b34-ad45fa.glb",
+   "variant": "MLJ39WW.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ28ERN": {
+   "file": "MLJ28-b34-429a60.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 512,
+    "h": 311,
+    "d": 488
+   }
+  },
+  "MLJ39HW": {
+   "file": "MLJ39-HW-b34-fa4c27.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 540,
+    "h": 325,
+    "d": 523
+   }
+  },
+  "MLJ32EWSO": {
+   "file": "MLJ32-b34-086fb3.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 527,
+    "h": 394,
+    "d": 480
+   }
+  },
+  "MW23BPI": {
+   "file": "MW23-b34-1b6758.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "MWE25HD": {
+   "file": "MWE25-b34-83c169.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 355
+   }
+  },
+  "D646GBB021": {
+   "file": "D646-b35-45fe9d.glb",
+   "variant": "D646GBB021.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "D646GBB091": {
+   "file": "D646-b35-45fe9d.glb",
+   "variant": "D646GBB091.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "D646MEE021": {
+   "file": "D646-b35-45fe9d.glb",
+   "variant": "D646MEE021.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "D646SLL041": {
+   "file": "D646-b35-45fe9d.glb",
+   "variant": "D646SLL041.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "D646SLL091": {
+   "file": "D646-b35-45fe9d.glb",
+   "variant": "D646SLL091.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "Z386GBB221": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386GBB221.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386GQQ261": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386GQQ261.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386MEE241": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386MEE241.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386MQQ221": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386MQQ221.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386SLL261": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386SLL261.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z386SVV261": {
+   "file": "Z386-b35-52ce76.glb",
+   "variant": "Z386SVV261.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 697,
+    "h": 1860,
+    "d": 696
+   }
+  },
+  "Z484GBB123": {
+   "file": "Z484-b35-57735b.glb",
+   "variant": "Z484GBB123.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GBB152": {
+   "file": "Z484-b35-57735b.glb",
+   "variant": "Z484GBB152.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GBB173": {
+   "file": "Z484-b35-57735b.glb",
+   "variant": "Z484GBB173.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484GQQ123S": {
+   "file": "Z484-b35-57735b.glb",
+   "variant": "Z484GQQ123S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z484SVV123S": {
+   "file": "Z484-b35-57735b.glb",
+   "variant": "Z484SVV123S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "G646GBB021": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646GBB021.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GBB032": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646GBB032.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GBB071": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646GBB071.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GBB081": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646GBB081.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GBB091": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646GBB091.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646MEE032": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646MEE032.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646SLL031": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646SLL031.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646SLL091": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646SLL091.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646SVV091": {
+   "file": "G646-b36-f9a2d3.glb",
+   "variant": "G646SVV091.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "G646GBB341": {
+   "file": "G646-KnockOn-b36-e3f079.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 914,
+    "h": 1860,
+    "d": 709
+   }
+  },
+  "M516GBB012S": {
+   "file": "M516-b36-a2dd6a.glb",
+   "variant": "M516GBB012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516MQQ012S": {
+   "file": "M516-b36-a2dd6a.glb",
+   "variant": "M516MQQ012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516SVV012S": {
+   "file": "M516-b36-a2dd6a.glb",
+   "variant": "M516SVV012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z495GBB212": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495GBB212.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495GBB261": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495GBB261.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495GBB271": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495GBB271.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495GQQ251": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495GQQ251.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495MQQ212": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495MQQ212.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495MQQ261": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495MQQ261.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z495SVV271": {
+   "file": "Z495-b37-31bc04.glb",
+   "variant": "Z495SVV271.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 838
+   }
+  },
+  "Z330MEEF11": {
+   "file": "Z330-b38-9b0608.glb",
+   "variant": "Z330MEEF11.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 666,
+    "h": 1787,
+    "d": 737
+   }
+  },
+  "Z330MQQF21": {
+   "file": "Z330-b38-9b0608.glb",
+   "variant": "Z330MQQF21.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 666,
+    "h": 1787,
+    "d": 737
+   }
+  },
+  "Z330MRRF21": {
+   "file": "Z330-b38-9b0608.glb",
+   "variant": "Z330MRRF21.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 666,
+    "h": 1787,
+    "d": 737
+   }
+  },
+  "Z334SGS171": {
+   "file": "Z334-b39-23b888.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 666,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "Z509MEEF33": {
+   "file": "Z509-b39-512790.glb",
+   "variant": "Z509MEEF33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1787,
+    "d": 730
+   }
+  },
+  "Z509MHHF23": {
+   "file": "Z509-b39-512790.glb",
+   "variant": "Z509MHHF23.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1787,
+    "d": 730
+   }
+  },
+  "Z509MPSF13": {
+   "file": "Z509-b39-512790.glb",
+   "variant": "Z509MPSF13.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1787,
+    "d": 730
+   }
+  },
+  "X321GB3S": {
+   "file": "X321-b40-031ac6.glb",
+   "variant": "X321GB3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "X321MB3S": {
+   "file": "X321-b40-031ac6.glb",
+   "variant": "X321MB3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "X321SG3S": {
+   "file": "X321-b40-031ac6.glb",
+   "variant": "X321SG3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Y321GB3S": {
+   "file": "Y321-b40-d8b828.glb",
+   "variant": "Y321GB3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Y321MW3S": {
+   "file": "Y321-b40-d8b828.glb",
+   "variant": "Y321MW3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Y321SS3S": {
+   "file": "Y321-b40-d8b828.glb",
+   "variant": "Y321SS3S.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Z321GC3CS": {
+   "file": "Z321-b40-24e995.glb",
+   "variant": "Z321GC3CS.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "Z321SG3CS": {
+   "file": "Z321-b40-24e995.glb",
+   "variant": "Z321SG3CS.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 707
+   }
+  },
+  "X324GB3": {
+   "file": "X324-b41-fa86b4.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y324GB3": {
+   "file": "Y324-b41-2f49e1.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z324GB7": {
+   "file": "Z324-b41-832708.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GB3": {
+   "file": "X326-b41-0a818b.glb",
+   "variant": "X326GB3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GB7": {
+   "file": "X326-b41-0a818b.glb",
+   "variant": "X326GB7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GB3": {
+   "file": "Y326-b41-342f9c.glb",
+   "variant": "Y326GB3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GB7": {
+   "file": "Y326-b41-342f9c.glb",
+   "variant": "Y326GB7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GB3": {
+   "file": "Z326-b41-863bc7.glb",
+   "variant": "Z326GB3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GB7": {
+   "file": "Z326-b41-863bc7.glb",
+   "variant": "Z326GB7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GG3": {
+   "file": "X326-b41-d0701e.glb",
+   "variant": "X326GG3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GG7": {
+   "file": "X326-b41-d0701e.glb",
+   "variant": "X326GG7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GQ3": {
+   "file": "X326-b41-d0701e.glb",
+   "variant": "X326GQ3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X326GQ7": {
+   "file": "X326-b41-d0701e.glb",
+   "variant": "X326GQ7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GG3": {
+   "file": "Y326-b41-63bd9f.glb",
+   "variant": "Y326GG3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GG7": {
+   "file": "Y326-b41-63bd9f.glb",
+   "variant": "Y326GG7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GQ3": {
+   "file": "Y326-b41-63bd9f.glb",
+   "variant": "Y326GQ3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y326GQ7": {
+   "file": "Y326-b41-63bd9f.glb",
+   "variant": "Y326GQ7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GG3": {
+   "file": "Z326-b41-a67c93.glb",
+   "variant": "Z326GG3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GG7": {
+   "file": "Z326-b41-a67c93.glb",
+   "variant": "Z326GG7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GQ3": {
+   "file": "Z326-b41-a67c93.glb",
+   "variant": "Z326GQ3.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z326GQ7": {
+   "file": "Z326-b41-a67c93.glb",
+   "variant": "Z326GQ7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "X324GB5": {
+   "file": "X324-b41-e290cc.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Y324GB5": {
+   "file": "Y324-b41-692534.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "Z324GB5": {
+   "file": "Z324-b41-84af80.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 1860,
+    "d": 670
+   }
+  },
+  "D215MEE13": {
+   "file": "D215-b44-a7e3c0.glb",
+   "variant": "D215MEE13.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 555,
+    "h": 1445,
+    "d": 637
+   }
+  },
+  "D215MHH13": {
+   "file": "D215-b44-a7e3c0.glb",
+   "variant": "D215MHH13.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 555,
+    "h": 1445,
+    "d": 637
+   }
+  },
+  "D265MEE22": {
+   "file": "D265-b44-19ae09.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 555,
+    "h": 1680,
+    "d": 637
+   }
+  },
+  "D312MBE31": {
+   "file": "D312-b44-03f3eb.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1640,
+    "d": 710
+   }
+  },
+  "D315MHH31": {
+   "file": "D315-b44-64e255.glb",
+   "variant": "D315MHH31.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1640,
+    "d": 710
+   }
+  },
+  "D315MPS31": {
+   "file": "D315-b44-64e255.glb",
+   "variant": "D315MPS31.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1640,
+    "d": 710
+   }
+  },
+  "D332MBE34": {
+   "file": "D332-b44-860dc6.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 600,
+    "h": 1720,
+    "d": 710
+   }
+  },
+  "D463MEE33": {
+   "file": "D463-b45-d75a6b.glb",
+   "variant": "D463MEE33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 1845,
+    "d": 725
+   }
+  },
+  "D463MHH33": {
+   "file": "D463-b45-d75a6b.glb",
+   "variant": "D463MHH33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 1845,
+    "d": 725
+   }
+  },
+  "D463MRR33": {
+   "file": "D463-b45-d75a6b.glb",
+   "variant": "D463MRR33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 1845,
+    "d": 725
+   }
+  },
+  "D502MEE33": {
+   "file": "D502-33-b45-914d4d.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 780,
+    "h": 1800,
+    "d": 730
+   }
+  },
+  "D502MEE53": {
+   "file": "D502-53-b45-419b6d.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 780,
+    "h": 1800,
+    "d": 730
+   }
+  },
+  "D604MEE33": {
+   "file": "D604-33-b45-96d0e1.glb",
+   "variant": "D604MEE33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "D604MPS33": {
+   "file": "D604-33-b45-96d0e1.glb",
+   "variant": "D604MPS33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "D604MQQ33": {
+   "file": "D604-33-b45-96d0e1.glb",
+   "variant": "D604MQQ33.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "D604MEE52": {
+   "file": "D604-52-b45-526651.glb",
+   "variant": "D604MEE52.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "D604MPS52": {
+   "file": "D604-52-b45-526651.glb",
+   "variant": "D604MPS52.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "D604MQQ52": {
+   "file": "D604-52-b45-526651.glb",
+   "variant": "D604MQQ52.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 831,
+    "h": 1860,
+    "d": 741
+   }
+  },
+  "DF165ME": {
+   "file": "DF165-b46-26f729.glb",
+   "variant": "DF165ME.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 530,
+    "h": 1300,
+    "d": 600
+   }
+  },
+  "DF165MH": {
+   "file": "DF165-b46-26f729.glb",
+   "variant": "DF165MH.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 530,
+    "h": 1300,
+    "d": 600
+   }
+  },
+  "DL195ME": {
+   "file": "DL195-b46-1c79aa.glb",
+   "variant": "DL195ME.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 525,
+    "h": 1295,
+    "d": 555
+   }
+  },
+  "DL195MH": {
+   "file": "DL195-b46-1c79aa.glb",
+   "variant": "DL195MH.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 525,
+    "h": 1295,
+    "d": 555
+   }
+  },
+  "DEE6EWE": {
+   "file": "DEE6-b34-348257.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DUE2BGE": {
+   "file": "DUE2-b46-552e5a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 598,
+    "h": 815,
+    "d": 567
+   }
+  },
+  "DQ134MWEC": {
+   "file": "DQ134-b47-e15735.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 410,
+    "h": 640,
+    "d": 210
+   }
+  },
+  "MW23BD": {
+   "file": "MW23Mirror-b48-449012.glb",
+   "variant": "MW23BD.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "MW23GD": {
+   "file": "MW23Mirror-b48-449012.glb",
+   "variant": "MW23GD.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "MW23BP": {
+   "file": "MW23Window-b48-7dd26e.glb",
+   "variant": "MW23BP.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "MW23WD": {
+   "file": "MW23Window-b48-7dd26e.glb",
+   "variant": "MW23WD.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "MW23FD": {
+   "file": "MW23FD-b48-74e321.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 476,
+    "h": 272,
+    "d": 369
+   }
+  },
+  "M301S31": {
+   "file": "M301-b49-c6add9.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1720,
+    "d": 677
+   }
+  },
+  "M336DS123": {
+   "file": "M336-b49-34ae22.glb",
+   "variant": "M336DS123.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 597,
+    "h": 1860,
+    "d": 674
+   }
+  },
+  "M336MB122": {
+   "file": "M336-b49-34ae22.glb",
+   "variant": "M336MB122.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 597,
+    "h": 1860,
+    "d": 674
+   }
+  },
+  "M344MB14": {
+   "file": "M344-b49-fe194a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 595,
+    "h": 1860,
+    "d": 682
+   }
+  },
+  "M451MC53": {
+   "file": "M451-b49-75af02.glb",
+   "variant": "M451MC53.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 705,
+    "h": 1850,
+    "d": 740
+   }
+  },
+  "M451PS53": {
+   "file": "M451-b49-75af02.glb",
+   "variant": "M451PS53.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 705,
+    "h": 1850,
+    "d": 740
+   }
+  },
+  "M516GAG012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516GAG012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516GCB012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516GCB012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516GGA012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516GGA012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516GGG012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516GGG012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516GQQ012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516GQQ012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516MNQ012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516MNQ012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516MRQ012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516MRQ012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "M516SGS012S": {
+   "file": "M516-b36-2577a8.glb",
+   "variant": "M516SGS012S.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 835,
+    "h": 1860,
+    "d": 685
+   }
+  },
+  "AS206NGHA": {
+   "file": "AS206-b32-ddd6fb.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 347,
+    "h": 612,
+    "d": 347
+   }
+  },
+  "AS356NSHH": {
+   "file": "AS356-LL-b32-f1ce2c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 377,
+    "h": 1100,
+    "d": 377
+   }
+  },
+  "DQ205PBBC": {
+   "file": "DQ205-b30-edc82c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 415,
+    "h": 715,
+    "d": 296
+   }
+  },
+  "AS105GWJC": {
+   "file": "AS105-b54-818b4a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 240,
+    "h": 500,
+    "d": 240
+   }
+  },
+  "AS155GWDL": {
+   "file": "AS155-b54-c494a2.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 240,
+    "h": 997,
+    "d": 240
+   }
+  },
+  "AS076MWHC": {
+   "file": "AS076-b55-9b9f9d.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 250,
+    "h": 360,
+    "d": 250
+   }
+  },
+  "AS405BWRP": {
+   "file": "AS405-b56-522be5.glb",
+   "variant": "AS405BWRP.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 1840,
+    "d": 320
+   }
+  },
+  "AS405BWRR": {
+   "file": "AS405-b56-522be5.glb",
+   "variant": "AS405BWRR.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 1840,
+    "d": 320
+   }
+  },
+  "AS520HA": {
+   "file": "AS5-Air-b57-4ef835.glb",
+   "variant": "AS520HA.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 251,
+    "h": 1026,
+    "d": 242
+   }
+  },
+  "AS520WA": {
+   "file": "AS5-Air-b57-4ef835.glb",
+   "variant": "AS520WA.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 251,
+    "h": 1026,
+    "d": 242
+   }
+  },
+  "AS527WA": {
+   "file": "AS5-Air-b57-4ef835.glb",
+   "variant": "AS527WA.CKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 251,
+    "h": 1026,
+    "d": 242
+   }
+  },
+  "AS720WA": {
+   "file": "AS720-b57-0d4181.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 250,
+    "h": 1120,
+    "d": 260
+   }
+  },
+  "TR10MV4": {
+   "file": "TR10-13-b58-8c02bb.glb",
+   "variant": "TR10MV4.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 965,
+    "d": 610
+   }
+  },
+  "TR10WV4": {
+   "file": "TR10-13-b58-8c02bb.glb",
+   "variant": "TR10WV4.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 965,
+    "d": 610
+   }
+  },
+  "TR13MV4": {
+   "file": "TR10-13-b58-8c02bb.glb",
+   "variant": "TR13MV4.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 965,
+    "d": 610
+   }
+  },
+  "TR13WV4": {
+   "file": "TR10-13-b58-8c02bb.glb",
+   "variant": "TR13WV4.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 590,
+    "h": 965,
+    "d": 610
+   }
+  },
+  "TR15DV5": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR15DV5.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "TR15MV5": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR15MV5.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "TR15WV5": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR15WV5.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "TR16DV6": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR16DV6.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "TR16MV6": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR16MV6.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "TR16WV6": {
+   "file": "TR15-16-b58-f518f9.glb",
+   "variant": "TR16WV6.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 970,
+    "d": 670
+   }
+  },
+  "T18DX7": {
+   "file": "T18-b59-0b0ad1.glb",
+   "variant": "T18DX7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T18MX7": {
+   "file": "T18-b59-0b0ad1.glb",
+   "variant": "T18MX7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T18MX7A": {
+   "file": "T18-b59-0b0ad1.glb",
+   "variant": "T18MX7A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19DX7": {
+   "file": "T19-X-b60-e4b90b.glb",
+   "variant": "T19DX7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19DX8": {
+   "file": "T19-X-b60-e4b90b.glb",
+   "variant": "T19DX8.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19MX7": {
+   "file": "T19-X-b60-e4b90b.glb",
+   "variant": "T19MX7.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19MX7A": {
+   "file": "T19-X-b60-e4b90b.glb",
+   "variant": "T19MX7A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19MX8A": {
+   "file": "T19-X-b60-e4b90b.glb",
+   "variant": "T19MX8A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 632,
+    "h": 1040,
+    "d": 670
+   }
+  },
+  "T19OZ0": {
+   "file": "T19-OZ-b60-45a1e3.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 651,
+    "h": 1060,
+    "d": 680
+   }
+  },
+  "T21MX9A": {
+   "file": "T21-25-X-b61-39578f.glb",
+   "variant": "T21MX9A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 690,
+    "h": 1070,
+    "d": 730
+   }
+  },
+  "T23PX9": {
+   "file": "T21-25-X-b61-39578f.glb",
+   "variant": "T23PX9.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 690,
+    "h": 1070,
+    "d": 730
+   }
+  },
+  "T23PX9A": {
+   "file": "T21-25-X-b61-39578f.glb",
+   "variant": "T23PX9A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 690,
+    "h": 1070,
+    "d": 730
+   }
+  },
+  "T25PX9A": {
+   "file": "T21-25-X-b61-39578f.glb",
+   "variant": "T25PX9A.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 690,
+    "h": 1070,
+    "d": 730
+   }
+  },
+  "T21GZ9": {
+   "file": "T21-22-Z9-b61-70e783.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 686,
+    "h": 1092,
+    "d": 721
+   }
+  },
+  "T25OZ0": {
+   "file": "T25-OZ0-b61-d21440.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 686,
+    "h": 1092,
+    "d": 721
+   }
+  },
+  "T18PZ7": {
+   "file": "T18PZ7-b62-54443a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 651,
+    "h": 1060,
+    "d": 680
+   }
+  },
+  "F17CTPR": {
+   "file": "F17-TPR-b63-24edb8.glb",
+   "variant": "F17CTPR.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 650,
+    "h": 950,
+    "d": 780
+   }
+  },
+  "F17HTPR": {
+   "file": "F17-TPR-b63-24edb8.glb",
+   "variant": "F17HTPR.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 650,
+    "h": 950,
+    "d": 780
+   }
+  },
+  "F17ITPR": {
+   "file": "F17-TPR-b63-24edb8.glb",
+   "variant": "F17ITPR.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 650,
+    "h": 950,
+    "d": 780
+   }
+  },
+  "F17NTPR": {
+   "file": "F17-TPR-b63-24edb8.glb",
+   "variant": "F17NTPR.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 650,
+    "h": 950,
+    "d": 780
+   }
+  },
+  "F19WDLPR": {
+   "file": "F19-21-D-glass-b63-e81863.glb",
+   "variant": "F19WDLPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 770
+   }
+  },
+  "F21VDSKR": {
+   "file": "F19-21-D-glass-b63-e81863.glb",
+   "variant": "F21VDSKR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 770
+   }
+  },
+  "F21WDLPR": {
+   "file": "F19-21-D-glass-b63-e81863.glb",
+   "variant": "F21WDLPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 770
+   }
+  },
+  "F19WDWPR": {
+   "file": "F19-WDW-round-b63-4edeae.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 770
+   }
+  },
+  "F24VDLPR": {
+   "file": "F24-D-glass-b64-9e8fab.glb",
+   "variant": "F24VDLPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "F24VDSPR": {
+   "file": "F24-D-glass-b64-9e8fab.glb",
+   "variant": "F24VDSPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "F24WDLPR": {
+   "file": "F24-D-glass-b64-9e8fab.glb",
+   "variant": "F24WDLPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "F24WDWPR": {
+   "file": "F24-D-glass-b64-9e8fab.glb",
+   "variant": "F24WDWPR.AKOR2",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 700,
+    "h": 990,
+    "d": 830
+   }
+  },
+  "WU823AS": {
+   "file": "WU-dual-body-b66-facec5.glb",
+   "variant": "WU823AS.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "WU923ACB": {
+   "file": "WU-dual-body-b66-facec5.glb",
+   "variant": "WU923ACB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "WU923AS": {
+   "file": "WU-dual-body-b66-facec5.glb",
+   "variant": "WU923AS.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "WU923AWB": {
+   "file": "WU-dual-body-b66-facec5.glb",
+   "variant": "WU923AWB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 170,
+    "h": 420,
+    "d": 410
+   }
+  },
+  "BEI3AMB4": {
+   "file": "BEI3AMB4-b67-823e9a.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEF3AMB4": {
+   "file": "BEF3AMB4-b67-5c83b2.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ASML": {
+   "file": "BEI3ASML-b67-4469db.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEI3ANBL": {
+   "file": "BEI3AN-b68-1f6b02.glb",
+   "variant": "BEI3ANBL.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEI3ANHLO": {
+   "file": "BEI3AN-b68-1f6b02.glb",
+   "variant": "BEI3ANHLO.AKOR1",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3ANPL": {
+   "file": "BEF3ANPL-b68-3b66f3.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEF3MQ1": {
+   "file": "BEF3MQ1-b69-008c61.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 59,
+    "d": 515
+   }
+  },
+  "BEF3WBQT": {
+   "file": "BEF3WBQT-b70-25001c.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 580,
+    "h": 59,
+    "d": 520
+   }
+  },
+  "BEY3GS2": {
+   "file": "BEY3GS2-b70-93dfc0.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "BEY3MS": {
+   "file": "BEY3MS-b70-4064fc.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "BEY3SRBL": {
+   "file": "BEY3SRBL-b70-a569f2.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 575,
+    "h": 54,
+    "d": 515
+   }
+  },
+  "HW300BBB": {
+   "file": "HW300-b71-2641b5.glb",
+   "variant": "HW300BBB.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 320,
+    "h": 370,
+    "d": 320
+   }
+  },
+  "HW300DBL": {
+   "file": "HW300-b71-2641b5.glb",
+   "variant": "HW300DBL.AKOR",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 320,
+    "h": 370,
+    "d": 320
+   }
+  },
+  "HW500DAS": {
+   "file": "HW500-b71-100e75.glb",
+   "layout": "handoff",
+   "bbox_mm": {
+    "w": 390,
+    "h": 395,
+    "d": 350
    }
   }
  }

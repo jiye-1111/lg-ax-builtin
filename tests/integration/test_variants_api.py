@@ -31,7 +31,7 @@ def placed(c):
 def test_families_endpoint_groups_real_products(c):
     fams = c.get("/api/catalog/families").json()
     real = [f for f in fams if not f["demo_only"]]
-    assert len(real) == 283  # 1,175개 제품
+    assert len(real) == 307  # 1,240개 제품
     fr = next(f for f in real if f["family_id"] == "G646GBB031")
     assert [v["sku"] for v in fr["variants"]][:3] == ["G646GBB031", "G646MEE021", "G646SVV031"]
     # 색마다 그 색으로 렌더한 제품 사진이 있다 (카드에서 사진을 눌러 고른다)

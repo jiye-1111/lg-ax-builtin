@@ -30,7 +30,7 @@ def test_side_per_side_still_doubles():
 
 
 def test_every_water_purifier_has_guide_source_and_type():
-    assert len(WP) == 29
+    assert len(WP) == 30  # 2026-11-25 묶음에서 WU923AWB가 들어왔다
     for p in WP.values():
         assert p.install_form in ("데스크", "스탠드", "빌트인"), p.sku
         assert any("lg-water-purifiers-install-guide" in n for n in p.spec_notes), p.sku
