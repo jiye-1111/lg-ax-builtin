@@ -57,6 +57,8 @@ const DRAW = {
   sofa, chair, table, coffee: table, desk: table, bed, plant, lamp, rug,
   storage: cabinet, wardrobe: cabinet, tallcab: cabinet, tvstand: cabinet, shelf: cabinet, dresser: cabinet,
   basecab: (w, d) => cabinet(w, d, { counter: true }), island: (w, d) => cabinet(w, d, { counter: true }),
+  islandtable: (w, d) => cabinet(w, d, { counter: true }),
+  hood: (w, d) => box(-w / 2, -d / 2, w, d, 0.03, "ln dash"), islandhood: (w, d) => box(-w / 2, -d / 2, w, d, 0.03, "ln dash"),
   sink: (w, d) => cabinet(w, d, { counter: true, bowl: true }),
 };
 

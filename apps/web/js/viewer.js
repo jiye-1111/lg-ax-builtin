@@ -28,7 +28,7 @@ const CLICK_PX = 6; // 이 이하로 움직이면 클릭으로 본다
 const SURFACE_MAX_M = 2.2; // 공유기를 올릴 수 있는 가장 높은 윗면 (선반 꼭대기까지). 서버 Service.SURFACE_MAX_M과 같게
 const NOT_SURFACE = new Set(["decor:wall", "decor:partition", "decor:rug", "decor:plant", "decor:lamp"]); // 서버 NOT_SURFACE와 같게
 // 작은 가전(전자레인지·정수기 등)을 올려 둘 수 있는 가구와 높이. 서버 Service.HOSTS, pose.SURFACE_MAX_M과 같게
-const PRODUCT_HOSTS = new Set(["decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:tvstand"]);
+const PRODUCT_HOSTS = new Set(["decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:islandtable", "decor:tvstand"]);
 const PRODUCT_SURFACE_MAX_M = 1.2;
 const SCANNED_TOPS = new Set(["table", "storage"]);
 const skuOf = (o) => { while (o && !o.userData?.sku) o = o.parent; return o?.userData?.sku; };

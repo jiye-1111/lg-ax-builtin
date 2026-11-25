@@ -17,7 +17,7 @@ WALL, FLUSH, BUILTIN = "wall", "flush", "builtin"
 LABELS = {WALL: "벽에 걸어야 해요", FLUSH: "뒷면을 벽에 붙여야 해요", BUILTIN: "벽이나 장에 붙여야 해요"}
 
 # 빌트인 가전이 맞물릴 수 있는 장 (놓은 가구 / 스캔한 가구 종류)
-CABINET_SKUS = frozenset({"decor:basecab", "decor:island", "decor:tallcab", "decor:sink", "decor:storage", "decor:wardrobe"})
+CABINET_SKUS = frozenset({"decor:basecab", "decor:island", "decor:islandtable", "decor:tallcab", "decor:sink", "decor:storage", "decor:wardrobe"})
 CABINET_SCANNED = frozenset({"storage"})
 
 REACH_M = 0.6    # 붙여야 하는 제품은 이 거리 안의 벽으로 끌려간다

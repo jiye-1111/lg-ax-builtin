@@ -185,6 +185,62 @@ def island(w, h, d):
     part("top", "stone", -w / 2, w / 2, -d / 2, d / 2, h - 0.03, h, "ses", 0.006)
 
 
+def islandtable(w, h, d):
+    """아일랜드 식탁: 주방 쪽(정면 +Z)은 문 두 짝과 서랍 세 단, 반대쪽은 상판이 튀어나와 무릎이 들어가는 자리.
+    양옆은 상판에서 바닥까지 내려오는 원목 판. 기준 치수는 한샘 모디 아일랜드식탁 120cm (몸통 깊이 59.5, 상판 깊이 75)."""
+    top, base, side, gap = 0.03, 0.08, 0.022, 0.003
+    hang = d * 0.2          # 앉는 쪽으로 튀어나온 상판
+    back = -d / 2 + hang    # 몸통 뒷면
+    front = d / 2 - 0.035   # 문 앞면 (상판이 살짝 덮는다)
+    x0, x1 = -w / 2 + side, w / 2 - side
+    part("plinth", "plinth", x0 + 0.02, x1 - 0.02, back + 0.03, front - 0.05, 0, base, "ses", 0.003)
+    part("body", "white", x0, x1, back, front - 0.02, base, h - top, "sss", 0.004)
+    part("top", "stone", -w / 2 - 0.005, w / 2 + 0.005, -d / 2, d / 2, h - top, h, "ses", 0.008)
+    for i, sx in enumerate((-1, 1)):
+        xa = -w / 2 if sx < 0 else w / 2 - side
+        part(f"side{i}", "oak", xa, xa + side, -d / 2 + 0.012, d / 2 - 0.012, 0, h - top, "ess", 0.004)
+    # 앉는 쪽: 발을 올리는 가로대
+    rod("footrest", "metal", (x0, 0.2, -d / 2 + 0.07), (x1, 0.2, -d / 2 + 0.07), 0.011, 0.011, "see", 16)
+    # 주방 쪽: 왼쪽 문 두 짝, 오른쪽 서랍 세 단
+    mid = x0 + (x1 - x0) * 0.58
+    half = (mid - x0) / 2
+    for i in range(2):
+        a, b = x0 + i * half + gap, x0 + (i + 1) * half - gap
+        part(f"door{i}", "white", a, b, front - 0.02, front, base + gap, h - top - gap, "sse", 0.003)
+        hx = b - 0.035 if i == 0 else a + 0.035
+        part(f"handle{i}", "metal", hx - 0.005, hx + 0.005, front, front + 0.014, h - top - 0.2, h - top - 0.06, "ppe", 0.004)
+    step = (h - top - base) / 3
+    for i in range(3):
+        y0 = base + i * step + gap
+        part(f"drawer{i}", "white", mid + gap, x1 - gap, front - 0.02, front, y0, y0 + step - 2 * gap, "sse", 0.003)
+        yc = y0 + step - 0.045
+        part(f"pull{i}", "metal", (mid + x1) / 2 - 0.07, (mid + x1) / 2 + 0.07, front, front + 0.014, yc - 0.006, yc + 0.006, "ppe", 0.004)
+
+
+def hood(w, h, d):
+    """벽 후드: 얇은 스테인리스 갓 + 벽을 타고 올라가는 덕트 덮개 (등 = -Z가 벽, 밑면이 원점 높이).
+    기준 치수는 IKEA RYTMISK 60 (갓 60 x 47.1, 덕트 덮개 16.7 x 16.9). 높이를 늘리면 덕트 덮개만 길어진다."""
+    lip, step = 0.045, 0.03
+    part("filter", "plinth", -w / 2 + 0.04, w / 2 - 0.04, -d / 2 + 0.05, d / 2 - 0.06, -0.001, 0.006, "ses", 0.002)
+    part("lamp0", "shade", -w / 2 + 0.07, -w / 2 + 0.15, d / 2 - 0.05, d / 2 - 0.025, -0.002, 0.004, "eee", 0.002)
+    part("lamp1", "shade", w / 2 - 0.15, w / 2 - 0.07, d / 2 - 0.05, d / 2 - 0.025, -0.002, 0.004, "eee", 0.002)
+    part("canopy", "steel", -w / 2, w / 2, -d / 2, d / 2, 0.002, lip, "ses", 0.006)
+    part("shoulder", "steel", -w / 2 + 0.05, w / 2 - 0.05, -d / 2, d / 2 - 0.07, lip, lip + step, "ses", 0.008)
+    part("keys", "plinth", -0.07, 0.07, d / 2 - 0.004, d / 2 + 0.001, 0.016, 0.03, "pee", 0.002)
+    part("duct", "steel", -0.0835, 0.0835, -d / 2, -d / 2 + 0.169, 0.01, h, "pse", 0.004)
+
+
+def islandhood(w, h, d):
+    """아일랜드 후드: 조리대 위 천장에서 내려오는 네모 갓 + 가운데 덕트 덮개 (밑면이 원점 높이, 윗면이 천장)."""
+    lip = 0.07
+    part("filter", "plinth", -w / 2 + 0.05, w / 2 - 0.05, -d / 2 + 0.05, d / 2 - 0.05, -0.001, 0.006, "ses", 0.002)
+    for i, sx in enumerate((-1, 1)):
+        part(f"lamp{i}", "shade", sx * (w / 2 - 0.11) - 0.04, sx * (w / 2 - 0.11) + 0.04, -0.03, 0.03, -0.002, 0.004, "eep", 0.002)
+    part("canopy", "steel", -w / 2, w / 2, -d / 2, d / 2, 0.002, lip, "ses", 0.008)
+    part("keys", "plinth", -0.07, 0.07, d / 2 - 0.004, d / 2 + 0.001, 0.028, 0.042, "pee", 0.002)
+    part("duct", "steel", -0.15, 0.15, -0.125, 0.125, 0.01, h, "psp", 0.004)
+
+
 def rug(w, h, d):
     part("rug", "wool", -w / 2, w / 2, -d / 2, d / 2, 0, h, "sss", 0.004)
 
@@ -402,6 +458,9 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "shelf": ((0.8, 1.8, 0.3), shelf),
     "tvstand": ((1.6, 0.45, 0.4), tvstand),
     "island": ((1.8, 0.9, 0.9), island),
+    "islandtable": ((1.2, 0.89, 0.75), islandtable),
+    "hood": ((0.6, 0.62, 0.471), hood),
+    "islandhood": ((0.9, 0.8, 0.6), islandhood),
     "rug": ((2.0, 0.012, 1.4), rug),
     "lamp": ((0.4, 1.6, 0.4), lamp),
     "plant": ((0.5, 1.2, 0.5), plant),

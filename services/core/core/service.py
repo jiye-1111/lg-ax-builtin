@@ -19,7 +19,7 @@ from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, MOUNT_SKUS, _clear, product_size, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
 from recommender.slot import DOOR_BACK_M as SLOT_HOSTS, cover as slot_cover, slot_in, slotable
@@ -832,8 +832,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         gone = set((p or {}).get("scene_state", {}).get("hidden_walls") or [])
         if prod.sku in MOUNT_SKUS:  # 문·창은 스캔 벽이나 가벽 가운데 줄에 단다
             return snap_door(self._wall_lines(room, p, gone), pose, prod.product_dims_mm.w / 1000)
-        kind = mount_kind(prod)
-        if kind == WALL:  # 벽걸이: 어디를 눌러도 가장 가까운 벽(가벽 포함)에 건다
+        kind = WALL if prod.category == WALL_HOOD else mount_kind(prod)
+        if kind == WALL:  # 벽걸이·벽 후드: 어디를 눌러도 가장 가까운 벽(가벽 포함)에 건다
             d = prod.product_dims_mm
             return hang(self._wall_faces(room, p, gone), pose, d.w / 1000, d.d / 1000) or pose if d.w and d.d else pose
         if gone:  # 철거한 벽에는 붙지 않는다
@@ -923,7 +923,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             if c:
                 x["slot"] = c
 
-    CABINETS = frozenset({"decor:basecab", "decor:island"})
+    CABINETS = frozenset({"decor:basecab", "decor:island", "decor:islandtable"})
     COUNTER_SCANNED = frozenset({"storage"})  # 스캔한 낮은 수납장(싱크대·하부장)은 조리대로 본다
 
     def _inset(self, sku: str | None) -> bool:
@@ -965,7 +965,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host, base_m=base_m)
 
     # 작은 가전을 올려 둘 수 있는 가구 (윗면이 SURFACE_MAX_M 이하일 때). 스캔 가구는 탁자·수납장
-    HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:tvstand"})
+    HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:islandtable",
+                       "decor:tvstand"})
 
     def _tops(self, room: Room, p: dict, prod: Product, exclude: str | None = None) -> list[dict]:
         """이 제품을 올릴 수 있는 윗면. 인덕션은 조리대(하부장·아일랜드·스캔한 낮은 수납장)에만."""
@@ -1085,13 +1086,90 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 prod = self._item(x["sku"], x.get("size_m"))
             except KeyError:
                 continue
-            hung = mount_kind(prod) == WALL
+            up = floats(prod)
             r = self._judge(room, p, prod, Pose(tuple(x["center_xz"]), x["yaw_rad"], x.get("wall_id")), x["placement_id"],
-                            base_m=x.get("base_m") if hung and x.get("hung") else None)
+                            base_m=x.get("base_m") if up and (x.get("hung") or x.get("float")) else None)
             self._seat(x, r)
             x["tabletop"] = can_sit(prod)
-            if hung:
-                x["hung"] = True  # 벽에 건 것: base_m이 고른 높이
+            if up:
+                x["float" if prod.category == ISLAND_HOOD else "hung"] = True  # 걸거나 매단 것: base_m이 고른 높이
+        self._sync_hoods(room, p)
+
+    # ---- 인덕션 위 후드 (docs/specs/fit-rules.md '인덕션 위 후드') ----
+    HOOD_WALL_REACH_M = 0.35          # 인덕션 가운데가 벽 후드 가운데에서 이 안이면 벽에 건다. 멀면 천장에서 내린다
+    HOOD_WIDE_OVER_M = 0.62           # 인덕션이 이보다 넓으면 90 cm 후드
+    HOOD_H_M = (0.62, 0.995)          # 벽 후드 높이 범위 (IKEA RYTMISK 60의 덕트 덮개를 가장 짧게·길게 뺐을 때)
+
+    def _is_cooktop(self, x: dict) -> bool:
+        return bool(x.get("size_m")) and x.get("on") and self._inset(x.get("sku")) and not self._undersink(x.get("sku"))
+
+    def _hood_spec(self, room: Room, p: dict, x: dict, old: dict | None) -> dict:
+        """이 인덕션 위에 달 후드의 종류·자리·크기. 뒤에 벽이 있으면 벽 후드, 없으면 천장에서 내려오는 아일랜드 후드."""
+        from recommender.pose import _nearest_wall, _wall_height
+        c, yaw = tuple(x["center_xz"]), x["yaw_rad"]
+        ceiling = _wall_height(_nearest_wall(room, c)[0]) if room.walls else 2.4
+        base = round(float(x.get("base_m") or 0) + x["size_m"][1] + HOOD_GAP_M, 3)
+        wide = 0.9 if x["size_m"][0] > self.HOOD_WIDE_OVER_M else 0.6
+        gone = set(p["scene_state"].get("hidden_walls") or [])
+        back = None  # 인덕션 등 뒤의 벽 가운데 가장 가까운 것
+        for a, b, t, wid in self._wall_faces(room, p, gone):
+            L2 = (b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2 or 1e-9
+            k = min(max(((c[0] - a[0]) * (b[0] - a[0]) + (c[1] - a[1]) * (b[1] - a[1])) / L2, 0.0), 1.0)
+            q = (a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k)
+            dist = math.dist(c, q)
+            if dist < 1e-6 or ((c[0] - q[0]) * math.cos(yaw) + (c[1] - q[1]) * math.sin(yaw)) / dist < 0.7:
+                continue
+            if back is None or dist < back[0]:
+                back = (dist, (a, b, t, wid))
+        w_m, _, d_m = (old["size_m"] if old and old["sku"] == "decor:hood" else (wide, 0, 0.471))
+        w_m = max(w_m, wide) if not old else w_m
+        at = hang([back[1]], Pose(c, yaw), w_m, d_m) if back else None
+        if at and math.dist(at.center_xz, c) <= self.HOOD_WALL_REACH_M:
+            lo, hi = self.HOOD_H_M
+            base = min(base, ceiling - lo)
+            return {"sku": "decor:hood", "center_xz": list(at.center_xz), "yaw_rad": at.yaw_rad, "wall_id": at.wall_id,
+                    "size_m": [w_m, round(min(max(ceiling - base, lo), hi), 3), d_m], "base_m": base, "hung": True}
+        w_m, _, d_m = (old["size_m"] if old and old["sku"] == "decor:islandhood" else (0.9, 0, 0.6))
+        base = min(base, ceiling - 0.4)
+        return {"sku": "decor:islandhood", "center_xz": list(c), "yaw_rad": yaw, "wall_id": None,
+                "size_m": [w_m, round(ceiling - base, 3), d_m], "base_m": base, "float": True}
+
+    def _sync_hoods(self, room: Room, p: dict) -> None:
+        """인덕션마다 그 위 후드를 맞춘다: 없으면 달고, 인덕션이 움직였으면 따라가고, 인덕션이 빠졌으면 같이 뺀다.
+        손으로 뗀 후드(no_hood)는 다시 달지 않는다. 이미 위에 다른 후드가 있으면 그대로 둔다."""
+        from recommender.pose import overlaps, rect
+        pls = p["scene_state"]["placements"]
+        cooks = {x["placement_id"]: x for x in pls if self._is_cooktop(x)}
+        pls[:] = [y for y in pls if not y.get("over") or (y["over"] in cooks and not cooks[y["over"]].get("no_hood"))]
+        for cid, x in cooks.items():
+            if x.get("no_hood"):
+                continue
+            old = next((y for y in pls if y.get("over") == cid), None)
+            mine = rect(tuple(x["center_xz"]), x["yaw_rad"] - math.pi / 2, x["size_m"][0], x["size_m"][2])
+            if old is None and any(y["sku"] in ("decor:hood", "decor:islandhood") and y.get("size_m") and overlaps(
+                    mine, rect(tuple(y["center_xz"]), y["yaw_rad"] - math.pi / 2, y["size_m"][0], y["size_m"][2])) for y in pls):
+                continue
+            spec = self._hood_spec(room, p, x, old)
+            hood = old or {"placement_id": self.db.next_id("pl"), "zone_id": None, "color": None, "hex": None, "kind": "decor",
+                           "over": cid, "tabletop": False, "on": None}
+            if old and old["sku"] != spec["sku"]:  # 벽 후드 ↔ 아일랜드 후드로 바뀌면 걸린 방식도 바뀐다
+                old.pop("hung", None), old.pop("float", None)
+            hood.update(spec)
+            if x.get("combo"):
+                hood["combo"] = x["combo"]
+            r = self._judge(room, p, decor_product(hood["sku"], hood["size_m"]),
+                            Pose(tuple(hood["center_xz"]), hood["yaw_rad"], hood["wall_id"]), hood["placement_id"], base_m=hood["base_m"])
+            hood["verdict"], hood["reasons"] = r.verdict.value, r.reasons
+            if old is None:
+                if r.verdict.value == "no_fit":
+                    continue  # 달 자리가 안 나오면 (키 큰 가구 아래 등) 억지로 달지 않는다
+                pls.append(hood)
+
+    def _hoodless(self, p: dict) -> dict | None:
+        """후드가 안 달린 인덕션 (손으로 뗀 것 포함)."""
+        pls = p["scene_state"]["placements"]
+        have = {y.get("over") for y in pls}
+        return next((x for x in pls if self._is_cooktop(x) and x["placement_id"] not in have), None)
 
     def pose_check(self, pid: str, sku: str, center_xz, yaw_rad: float = 0.0, snap: bool = True,
                    placement_id: str | None = None, size_m=None, base_m: float | None = None, slot: bool = True) -> dict:
@@ -1132,8 +1210,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
              "wall_id": pose.wall_id, "color": opt.color if opt else None, "hex": opt.hex_approx if opt else None,
              "verdict": r.verdict.value, "reasons": r.reasons, "base_m": round(r.base_m, 3), "on": r.on,
              "tabletop": can_sit(prod)}
-        if mount_kind(prod) == WALL:
-            x["hung"] = True
+        if floats(prod):
+            x["float" if prod.category == ISLAND_HOOD else "hung"] = True
         if is_decor(sku):
             x["kind"] = "decor"  # 꾸미기 가구: 주문·설치 신청에 넣지 않는다
         p["scene_state"]["placements"].append(x)
@@ -1194,6 +1272,18 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
     def auto_place(self, pid: str, sku: str, color: str | None = None, size_m=None) -> dict:
         """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다 (러그는 방 가운데). 어디에도 안 들어가면 Invalid."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
+        if is_hood(prod):  # 후드: 후드 없는 인덕션이 있으면 그 위에 단다
+            cook = self._hoodless(p)
+            if cook is not None:
+                cook.pop("no_hood", None)
+                self._rejudge_all(room, p)
+                hood = next((y for y in p["scene_state"]["placements"] if y.get("over") == cook["placement_id"]), None)
+                if hood is None:
+                    raise Invalid("인덕션 위에 후드를 달 자리가 없어요")
+                self._save_project(p)
+                out = self._rebuild(pid)
+                out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == hood["placement_id"])
+                return out
         r = self._on_top(room, p, prod)
         if r is None and needs_counter(prod):  # 조리대가 없으면 하부장 자리를 찾아 그 위에 (place_at이 하부장을 같이 놓는다)
             r = self._spot(room, p, decor_product("decor:basecab", self.SINK_CABINET_M))
@@ -1213,7 +1303,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         prod = self._item(x["sku"], size)
         cx, cz = x["center_xz"]
         w = x["size_m"][0] if x.get("size_m") else 1.0
-        height = x.get("base_m") if x.get("hung") else None  # 벽에 건 것은 같은 높이로
+        height = x.get("base_m") if x.get("hung") or x.get("float") else None  # 걸거나 매단 것은 같은 높이로
         best = None
         for k in range(1, 9):  # 옆으로 조금씩 밀면서 처음으로 들어가는 자리
             for sgn in (1, -1):
@@ -1324,8 +1414,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         x = self._find_placement(p, placement_id)
         changes = None
         if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
-            if not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL:
+            if x["sku"] == "decor:hood" or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
                 x["base_m"], x["hung"] = float(base_m), True
+                self._unlink_hood(p, x)
         if hex is not None:
             # 색을 마음대로 고르는 건 꾸미기 가구만 (LG 제품 색은 카탈로그에 있는 색만)
             if not is_decor(x["sku"]):
@@ -1355,11 +1446,12 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             pose = self._pose(room, prod, center_xz if center_xz is not None else x["center_xz"],
                               yaw_rad if yaw_rad is not None else x["yaw_rad"], snap, p)
             pose = self._settle(room, p, prod, pose, placement_id)
+            self._unlink_hood(p, x)
             turned_only = center_xz is None or math.dist(pose.center_xz, x["center_xz"]) < 1e-3
             bay = self._slot(p, prod, pose, placement_id) if slot and not turned_only else None
             if bay:  # 빌트인을 장 줄로 옮겼으면 끼우고, 겹친 장은 칸을 내준다
                 pose, changes = bay.pose, self._apply_slot(p, bay)
-            elif mount_kind(prod) == WALL:
+            elif floats(prod):
                 pass  # 벽에 건 것은 벽에서 떼지 않는다
             elif turned_only:  # 제자리에서 돌리기만 했으면
                 pose = self._off_wall(room, p, prod, pose, placement_id)
@@ -1392,9 +1484,17 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             y["yaw_rad"] = y["yaw_rad"] + turn
             y["wall_id"] = None
 
+    @staticmethod
+    def _unlink_hood(p: dict, hood: dict) -> None:
+        """후드를 손으로 옮기거나 떼면 그때부터 인덕션을 따라가지 않는다 (인덕션에 다시 달리지도 않는다)."""
+        cid = hood.pop("over", None)
+        for y in p["scene_state"]["placements"]:
+            if cid and y.get("placement_id") == cid:
+                y["no_hood"] = True
+
     def delete_placement(self, pid: str, placement_id: str) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
-        self._find_placement(p, placement_id)
+        self._unlink_hood(p, self._find_placement(p, placement_id))
         # 빌트인 정수기와 같이 놓은 하부장도 같이 뺀다
         p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"]
                                           if y.get("placement_id") != placement_id and y.get("host_of") != placement_id]
