@@ -29,6 +29,10 @@ def test_which_products_can_sit():
     assert can_sit(small("microwave")) and can_sit(small("water_purifier", form="데스크")) and can_sit(small("oven"))
     assert can_sit(small("tv", w=1450, h=900, d=260))            # TV는 거실장 위에
     assert not can_sit(fridge())                                   # 큰 가전
+    assert can_sit(small("wine_cellar", w=282, h=497, d=534))      # 미니 와인셀러
+    assert can_sit(small("refrigerator", w=443, h=501, d=450))     # 미니 냉장고
+    assert not can_sit(small("wine_cellar", w=595, h=838, d=580))  # 큰 와인셀러는 바닥에
+    assert not can_sit(small("dehumidifier", w=410, h=640, d=210)) # 바닥에 두는 것
     assert not can_sit(small("water_purifier", install="built_in", form="빌트인"))  # 하부장 안에 들어가는 것
     assert not can_sit(small("water_purifier", h=1200, form="스탠드"))
     assert not can_sit(small("vacuum"))                            # 바닥에 두는 것

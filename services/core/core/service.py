@@ -19,7 +19,7 @@ from recommender.finishes import TEXTURE_KO, load_finishes, rank_finishes
 from recommender.fit import FitConfig, check_fit
 from recommender.install import install_checklist
 from recommender.gaps import fill_width, measure as measure_gaps
-from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
+from recommender.pose import SURFACE_MAX_M as PRODUCT_SURFACE_MAX_M, FLOOR_FIRST, HOOD_GAP_M, ISLAND_HOOD, MOUNT_SKUS, _clear, product_size, WALL_HOOD, floats, is_hood, WALL_LIKE, can_sit, needs_counter, settle_on, surface_under, Pose, check_pose, find_spot, snap_door, snap_to_wall
 from sim.regions import REGIONS
 from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
 from recommender.geometry import point_segment_distance
@@ -1127,10 +1127,22 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
         self._slot_covers(room, p)
         # 먼저 높이부터: 받치던 가구가 빠졌으면 바닥으로 내려온 것으로 보고 서로 판정한다
+        # 바닥에 있다가 방금 책상 위로 올라간 것도 여기서 높이를 적어야, 받친 책상이 "겹침"으로 잘못 나오지 않는다
         for x in p["scene_state"]["placements"]:
-            if x.get("on") and not x.get("zone_id"):
+            if x.get("zone_id") or x.get("hung") or x.get("float"):
+                continue
+            if x.get("on"):
                 host = surface_under(tuple(x["center_xz"]), self._surfaces(room, p, x["placement_id"], counters=self._inset(x["sku"])))
                 x["base_m"], x["on"] = (host["top_m"], host["id"]) if host else (0.0, None)
+                continue
+            try:
+                prod = self._item(x["sku"], x.get("size_m"))
+            except KeyError:
+                continue
+            if can_sit(prod) and not floats(prod):
+                host = surface_under(tuple(x["center_xz"]), self._tops(room, p, prod, x["placement_id"]))
+                if host:
+                    x["base_m"], x["on"] = host["top_m"], host["id"]
         for x in p["scene_state"]["placements"]:
             if x.get("zone_id"):
                 continue
@@ -1336,7 +1348,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 out = self._rebuild(pid)
                 out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == hood["placement_id"])
                 return out
-        r = self._on_top(room, p, prod)
+        floor_first = prod.category in FLOOR_FIRST  # 미니 와인셀러·냉장고: 바닥 자리가 없을 때만 가구 위
+        r = (self._spot(room, p, prod) if floor_first else None) or self._on_top(room, p, prod)
         if r is None and needs_counter(prod):  # 조리대가 없으면 하부장 자리를 찾아 그 위에 (place_at이 하부장을 같이 놓는다)
             r = self._spot(room, p, decor_product("decor:basecab", self.SINK_CABINET_M))
         r = r or self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)

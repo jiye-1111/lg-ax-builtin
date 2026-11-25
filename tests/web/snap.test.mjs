@@ -67,7 +67,35 @@ test("맞은편에 앞뒤로 떨어진 가구에는 붙지 않는다", () => {
   assert.ok(!r.side && near(r.xz[0], 2.65));
 });
 
-test("직접 돌려 둔 방향은 벽이 다시 돌려놓지 않는다", () => {
-  const r = snapPose(cab([2, 0.5], { yaw: 0, keepYaw: true }), walls, [], C);
+test("직접 돌려 둔 방향은 벽이 다시 돌려놓지 않는다: 옆면을 벽에 붙인다", () => {
+  // 폭 0.9 깊이 0.7 냉장고를 옆으로 돌려(yaw 0) 아래 벽에 가져간다 → 방향은 그대로, 옆면이 옆 여유만큼 띄워 붙는다
+  const r = snapPose({ xz: [2, 0.6], yaw: 0, w: 0.9, d: 0.7, side: 0.004, backOff: 0.03, keepYaw: true }, walls, [], C);
+  assert.ok(r.wall && near(r.yaw, 0));
+  assert.ok(near(r.xz[1], 0.05 + 0.004 + 0.45), `y=${r.xz[1]}`);
+});
+
+test("돌려 둔 것이 등을 벽 쪽으로 하고 있으면 전처럼 등을 붙인다", () => {
+  const r = snapPose(cab([2, 0.5], { yaw: UP + 0.2, keepYaw: true, backOff: 0.03 }), walls, [], C);
+  assert.ok(r.wall && near(r.yaw, UP) && near(r.xz[1], 0.05 + 0.03 + 0.3));
+});
+
+test("정면이 벽을 보게 돌려 둔 것도 그대로 둔다", () => {
+  const r = snapPose(cab([2, 0.5], { yaw: -UP, keepYaw: true, backOff: 0.03 }), walls, [], C);
+  assert.ok(r.wall && near(Math.abs(Math.atan2(Math.sin(r.yaw + UP), Math.cos(r.yaw + UP))), 0) && near(r.xz[1], 0.05 + 0.3));
+});
+
+test("비스듬히 돌려 둔 것은 벽에 붙이지 않는다", () => {
+  const r = snapPose(cab([2, 0.5], { yaw: UP + Math.PI / 4, keepYaw: true }), walls, [], C);
+  assert.ok(!r.wall && near(r.yaw, UP + Math.PI / 4) && near(r.xz[1], 0.5));
+});
+
+test("등을 벽에 대야 하는 제품은 옆으로 돌려 두면 벽에 붙지 않는다", () => {
+  const r = snapPose(cab([2, 0.5], { yaw: 0, keepYaw: true, mustBack: true }), walls, [], C);
   assert.ok(!r.wall && near(r.yaw, 0) && near(r.xz[1], 0.5));
 });
+
+test("돌린 적 없는 것은 전처럼 정면을 방 안으로 돌린다", () => {
+  const r = snapPose({ xz: [2, 0.6], yaw: 0, w: 0.9, d: 0.7, side: 0.004, backOff: 0.03 }, walls, [], C);
+  assert.ok(r.wall && near(r.yaw, UP) && near(r.xz[1], 0.05 + 0.03 + 0.35));
+});
+

@@ -778,7 +778,7 @@ export function makeViewer(el, handlers = {}) {
   };
   // 가구 윗면(책상·선반·식탁)을 가리키면 그 윗면 자리. 공유기·작은 가전처럼 위에 올려놓는 물건을 놓거나 옮길 때 쓴다
   // surface: "router"(선반 꼭대기까지) | "product"(식탁·아일랜드·하부장 높이까지), skipId: 지금 들고 있는 것(자기 자신은 받침이 아니다)
-  const surfacePoint = (e, surface = "router", skipId = null) => {
+  const surfaceHit = (e, surface, skipId) => {
     setNdc(e);
     const max = surface === "product" ? PRODUCT_SURFACE_MAX_M : SURFACE_MAX_M;
     const ok = (sku) => (surface === "product" ? PRODUCT_HOSTS.has(sku) : !NOT_SURFACE.has(sku));
@@ -788,9 +788,13 @@ export function makeViewer(el, handlers = {}) {
     });
     const hit = ray.intersectObjects(targets, true).find((h) => h.object.isMesh && h.face && h.point.y <= max + 0.01
       && tmp.copy(h.face.normal).transformDirection(h.object.matrixWorld).y > 0.7);
-    if (!hit) return floorPoint(e);
+    return hit ? hit.point : null;
+  };
+  const surfacePoint = (e, surface = "router", skipId = null) => {
+    const pt = surfaceHit(e, surface, skipId);
+    if (!pt) return floorPoint(e);
     const snap = (v) => Math.round(v / 0.05) * 0.05;
-    return surface === "product" ? [snap(hit.point.x), snap(hit.point.z)] : [hit.point.x, hit.point.z];
+    return surface === "product" ? [snap(pt.x), snap(pt.z)] : [pt.x, pt.z];
   };
   // 높이 h인 수평면에서 커서가 가리키는 점. 위에 올린 물건은 잡은 높이의 평면을 따라가야 바닥 먼 곳으로 튀지 않는다
   const planePoint = (e, h) => { setNdc(e); return onPlane(ray.ray.origin.toArray(), ray.ray.direction.toArray(), h); };
@@ -1042,6 +1046,9 @@ export function makeViewer(el, handlers = {}) {
     if (held && !held.dropping) {
       // 들고 있으면 커서를 그대로 따라온다 (1 cm). 칸 단위로 뚝뚝 끊기면 손에 안 붙는다. 맞추는 건 벽·가전 붙기가 한다
       // 올려 두는 물건은 커서가 가리키는 가구 윗면을 따라간다 (식탁 위를 가리키면 식탁 위로)
+      // 바닥에서 들고 책상 윗면을 가리키면 그 윗면으로 올라탄다 (전에는 바닥 평면만 따라가서 책상 뒤 바닥으로 갔다)
+      const up = held.surface && held.surface !== "wall" ? surfaceHit(e, held.surface, held.id) : null;
+      if (up && Math.abs(up.y - held.plane) > 0.01) { held.plane = up.y; held.grab = [0, 0]; }
       const q = held.surface ? planePoint(e, held.plane) : floorPoint(e, 0.01);
       if (q) {
         held.xz = [q[0] + held.grab[0], q[1] + held.grab[1]];
@@ -1413,7 +1420,7 @@ export function makeViewer(el, handlers = {}) {
     /** 내려놓기: 마지막 자리를 돌려준다 (저장은 부르는 쪽이) */
     dropHold() {
       if (!held) return null;
-      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, baseY: held.surface === "wall" ? held.y : held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
+      const out = { kind: held.kind, id: held.id, xz: [...held.xz], yaw: held.yaw, turned: !!held.turned, baseY: held.surface === "wall" ? held.y : held.surface === "product" ? productTopY(held.xz, held.id) : undefined };
       held.dropping = true;
       const h = held;
       setTimeout(() => {

@@ -161,7 +161,9 @@ def _clear(p: Product) -> tuple[float, float, float, bool]:
 
 # ---------- 가구 위에 올려 두기 ----------
 # 식탁·아일랜드·하부장 같은 가구 윗면에 올려 쓰는 가전. 규칙은 docs/specs/fit-rules.md '가구 위에 올려 두기'
-TABLETOP = frozenset({"water_purifier", "microwave", "oven", "humidifier", "air_purifier", "plant_grower", "tv"})
+TABLETOP = frozenset({"water_purifier", "microwave", "oven", "humidifier", "air_purifier", "plant_grower", "tv",
+                      "wine_cellar", "refrigerator"})  # 와인셀러·냉장고는 크기 제한에 걸려 미니만 올라간다
+FLOOR_FIRST = frozenset({"wine_cellar", "refrigerator"})  # 알맞은 자리에 놓기는 바닥부터 찾는다 (책상 위는 손으로 올릴 때)
 TABLETOP_MAX_MM = (700, 650, 700)  # 폭·높이·깊이가 이보다 작아야 올린다 (TV는 크기와 상관없이 거실장 위에)
 SURFACE_MAX_M = 1.2                # 이보다 높은 윗면에는 올리지 않는다 (손이 닿는 조리대·식탁 높이까지)
 
