@@ -25,6 +25,7 @@ from recommender.mount import REACH_M as MOUNT_REACH_M, WALL, hang, mount_kind
 from recommender.geometry import point_segment_distance
 from recommender.slot import DOOR_BACK_M as SLOT_HOSTS, cover as slot_cover, slot_in, slotable
 from recommender.finder import Conditions, find_products
+from recommender import reference
 from recommender.recommend import recommend_zone
 from recommender.variants import families, shape_key
 
@@ -445,6 +446,26 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         (self.root / p["scan"]["room_json"]).write_text(room.model_dump_json(indent=2), encoding="utf-8")
 
     # ---- F3 실측 보정 ----
+    MEASURE_OFF_M = 0.5        # 잰 길이가 스캔과 이만큼(또는 20%) 넘게 다르면 벽을 잘못 골랐거나 잘못 넣은 것으로 본다
+    MEASURE_OFF_RATIO = 0.2
+
+    @staticmethod
+    def _reestimate(room: Room) -> None:
+        """잰 벽을 기준으로 나머지 벽 길이를 다시 바로잡는다 (recommender.reference). 잰 벽이 없으면 바로잡은 값을 지운다."""
+        est = reference.estimate(room.walls)
+        for w in room.walls:
+            m = w.measured
+            if m is not None and m.length_m is not None and m.by != reference.ESTIMATED_BY:
+                continue
+            length = est.lengths.get(w.wall_id)
+            old = m or MeasuredDims()
+            if length is not None:
+                w.measured = MeasuredDims(length_m=length, height_m=old.height_m, depth_m=old.depth_m,
+                                          by=reference.ESTIMATED_BY, at=now())
+            elif m is not None and m.by == reference.ESTIMATED_BY:
+                rest = m.model_copy(update={"length_m": None, "by": None, "at": None})
+                w.measured = rest if (rest.height_m is not None or rest.depth_m is not None) else None
+
     def set_measurement(self, pid: str, wall_id: str, length_m: float | None = None, height_m: float | None = None,
                         depth_m: float | None = None, by: str = "technician") -> dict:
         p = self.get_project(pid)
@@ -459,12 +480,24 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         except KeyError:
             raise NotFound(f"벽 없음: {wall_id}")
         old = w.measured or MeasuredDims()
+        if length_m is not None:
+            scan = w.scanned.length_m
+            if abs(length_m - scan) > max(self.MEASURE_OFF_M, self.MEASURE_OFF_RATIO * scan):
+                raise Invalid("스캔한 길이와 너무 달라요. 고른 벽과 넣은 값을 다시 확인해 주세요")
+        elif old.by in ("floorplan", reference.ESTIMATED_BY):
+            # 높이·깊이만 잰 벽: 길이는 여전히 도면·기준 벽에서 온 값이다
+            w.measured = old.model_copy(update={"height_m": height_m if height_m is not None else old.height_m,
+                                                "depth_m": depth_m if depth_m is not None else old.depth_m})
+            self._save_room(pid, room)
+            self._save_project(p)
+            return w.model_dump()
         w.measured = MeasuredDims(
             length_m=length_m if length_m is not None else old.length_m,
             height_m=height_m if height_m is not None else old.height_m,
             depth_m=depth_m if depth_m is not None else old.depth_m,
             by=by, at=now(),
         )
+        self._reestimate(room)
         self._save_room(pid, room)
         self._save_project(p)
         return w.model_dump()
@@ -514,11 +547,12 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         fixed = []
         for wall_id, length in corrections(room, plan).items():
             w = room.wall(wall_id)
-            if w.measured and w.measured.length_m is not None and w.measured.by != "floorplan":
+            if w.measured and w.measured.length_m is not None and w.measured.by not in ("floorplan", reference.ESTIMATED_BY):
                 continue
             old = w.measured or MeasuredDims()
             w.measured = MeasuredDims(length_m=length, height_m=old.height_m, depth_m=old.depth_m, by="floorplan", at=now())
             fixed.append(wall_id)
+        self._reestimate(room)
         self._save_room(pid, room)
         p["floorplan"] = {**fp, "applied": {"walls": fixed, "at": now()}, "note": None}
         return self._save_project(p)
@@ -534,6 +568,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                     if w.measured and w.measured.by == "floorplan":
                         rest = w.measured.model_copy(update={"length_m": None, "by": None, "at": None})
                         w.measured = rest if (rest.height_m is not None or rest.depth_m is not None) else None
+                self._reestimate(room)
                 self._save_room(pid, room)
         return self._save_project(p)
 
@@ -548,6 +583,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         room = self._load_room(pid)
         w = room.wall(wall_id)
         w.measured = None
+        self._reestimate(room)
         self._save_room(pid, room)
         self._save_project(self.get_project(pid))
         return w.model_dump()

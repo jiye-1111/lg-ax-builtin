@@ -218,3 +218,59 @@ def test_plan_that_cannot_be_read_is_still_attached(client):
     _reader(client, PlanReadError("도면을 읽지 못했어요"))
     r = client.post(f"/api/projects/{pid}/floorplan", files={"file": ("도면.png", PNG_1PX, "image/png")})
     assert r.status_code == 201 and r.json()["floorplan"]["applied"] is None and "읽지" in r.json()["floorplan"]["note"]
+
+
+def _walls(client, pid):
+    return {w["wall_id"]: w for w in client.get(f"/api/projects/{pid}/room").json()["walls"]}
+
+
+def test_one_measured_wall_corrects_the_other_walls(client):
+    pid = _project(client)
+    before = _walls(client, pid)
+    long = max(before.values(), key=lambda w: w["scanned"]["length_m"])
+    scan = long["scanned"]["length_m"]
+    target = round(scan * 1.01, 3)
+    r = client.put(f"/api/projects/{pid}/walls/{long['wall_id']}/measured", json={"length_m": target, "by": "customer"})
+    assert r.status_code == 200, r.text
+    after = _walls(client, pid)
+    assert after[long["wall_id"]]["measured"]["by"] == "customer"
+    others = [w for k, w in after.items() if k != long["wall_id"]]
+    assert all(w["measured"]["by"] == "reference" for w in others)
+    for w in others:
+        s = w["scanned"]["length_m"]
+        assert s < w["measured"]["length_m"] <= round(s * 1.01, 3) + 1e-9
+    # 길이가 같은 맞은편 벽은 잰 값과 똑같아진다
+    twin = next(w for w in others if abs(w["scanned"]["length_m"] - scan) < 0.01)
+    assert twin["measured"]["length_m"] == target
+    # 잰 값을 지우면 바로잡은 값도 같이 사라진다
+    assert client.delete(f"/api/projects/{pid}/walls/{long['wall_id']}/measured").status_code == 200
+    assert all(w["measured"] is None for w in _walls(client, pid).values())
+
+
+def test_height_only_measurement_does_not_touch_other_walls(client):
+    pid = _project(client)
+    client.put(f"/api/projects/{pid}/walls/w1/measured", json={"height_m": 2.35, "by": "customer"})
+    after = _walls(client, pid)
+    assert after["w1"]["measured"]["height_m"] == 2.35
+    assert all(w["measured"] is None for k, w in after.items() if k != "w1")
+
+
+def test_reference_keeps_other_measured_values_of_a_wall(client):
+    pid = _project(client)
+    client.put(f"/api/projects/{pid}/walls/w2/measured", json={"height_m": 2.35, "by": "technician"})
+    walls = _walls(client, pid)
+    scan = walls["w1"]["scanned"]["length_m"]
+    client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": round(scan * 1.01, 3), "by": "customer"})
+    w2 = _walls(client, pid)["w2"]["measured"]
+    assert w2["height_m"] == 2.35 and w2["by"] == "reference" and w2["length_m"] > _walls(client, pid)["w2"]["scanned"]["length_m"]
+    client.delete(f"/api/projects/{pid}/walls/w1/measured")
+    w2 = _walls(client, pid)["w2"]["measured"]
+    assert w2["height_m"] == 2.35 and w2["length_m"] is None
+
+
+def test_measurement_far_from_the_scan_is_refused(client):
+    pid = _project(client)
+    scan = _walls(client, pid)["w1"]["scanned"]["length_m"]
+    r = client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": round(scan * 1.5, 3), "by": "customer"})
+    assert r.status_code == 422
+    assert "다시" in r.json()["detail"]

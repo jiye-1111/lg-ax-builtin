@@ -214,3 +214,11 @@ def test_floorplan_length_is_used_but_keeps_the_scan_margin():
     assert r.dims["width"].verdict == Verdict.CONDITIONAL
     tape = MeasuredDims(length_m=0.925, by="technician")
     assert check_fit(make_room(measured=tape), KITCHEN, product(), CFG).dims["width"].verdict == Verdict.FIT
+
+
+def test_length_estimated_from_a_reference_wall_keeps_the_scan_margin():
+    # 다른 벽을 재서 바로잡은 길이는 이 벽을 직접 잰 값이 아니다: 길이는 쓰되 여유는 스캔과 같다
+    m = MeasuredDims(length_m=0.925, by="reference")
+    r = check_fit(make_room(measured=m), KITCHEN, product(), CFG)
+    assert r.dims["width"].source == "scanned" and r.dims["width"].available_mm == 925
+    assert r.dims["width"].verdict == Verdict.CONDITIONAL
