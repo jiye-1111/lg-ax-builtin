@@ -2551,7 +2551,7 @@ export async function customer(pid) {
     const values = mode === "dbm" ? f.rssi : mode === "mbps" ? f.mbps.map(mbpsValue) : f.rssi.map((v, k) => v - f.alt[k]);
     const r = WIFI_RANGES[mode];
     const labels = preview ? [] : contourLabels(values, f.nx, f.ny, f.origin, f.cell, r.bold, { inside: wifiScn.inside }).map((l) => ({ xz: l.xz, text: wifiLabel(mode, l.level) }));
-    viewer.setWifiHeat(f, values, { outline: wifiScn.outline, bounds: wifiScn.bounds, range: r, mode, opacity: simOn("daylight") ? 0.45 : 0.55, labels });
+    viewer.setWifiHeat(f, values, { outline: wifiScn.outline, bounds: wifiScn.bounds, range: r, mode, opacity: simOn("daylight") ? 0.5 : 0.62, labels });
     if (preview) return;
     lastWifi = { f, router };
     setOverlay("wifi", "", planHeat(f, values, mode) + (rt ? routerSym(rt.center_xz, rt.yaw_rad) : ""));

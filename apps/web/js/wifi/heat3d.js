@@ -16,7 +16,7 @@ void main() {
 const FRAG = /* glsl */ `
 uniform sampler2D uField, uRamp;
 uniform vec2 uOrigin, uSpan;
-uniform float uTop, uBottom, uStep, uOpacity, uBoldN;
+uniform float uTop, uBottom, uStep, uOpacity, uBoldN, uSoft;
 uniform vec3 uBold;
 uniform vec3 uInk;
 varying vec2 vXZ;
@@ -34,7 +34,9 @@ void main() {
   if (uBoldN > 1.5) bold = max(bold, lineAt(abs(v - uBold.y), w, 2.4));
   if (uBoldN > 2.5) bold = max(bold, lineAt(abs(v - uBold.z), w, 2.4));
   float a = max(thin * 0.32, bold * 0.78);
-  gl_FragColor = vec4(mix(col, uInk, a), min(1.0, uOpacity + a * 0.4));
+  // 센 곳은 옅게, 약한 곳은 진하게: 눈이 문제 되는 곳으로 간다
+  float base = uOpacity * mix(uSoft, 1.0, t);
+  gl_FragColor = vec4(mix(col, uInk, a), min(1.0, base + a * 0.4));
   #include <colorspace_fragment>
 }`;
 
@@ -83,7 +85,7 @@ export function makeWifiLayer(scene) {
   const uniforms = {
     uField: { value: null }, uRamp: { value: ramps.dbm }, uOrigin: { value: new THREE.Vector2() }, uSpan: { value: new THREE.Vector2(1, 1) },
     uTop: { value: -30 }, uBottom: { value: -90 }, uStep: { value: 5 }, uOpacity: { value: 0.55 }, uBold: { value: new THREE.Vector3(-50, -67, -75) }, uBoldN: { value: 3 },
-    uInk: { value: INK },
+    uInk: { value: INK }, uSoft: { value: 0.45 },
   };
   const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG, transparent: true, depthWrite: false, side: THREE.DoubleSide,
     polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2, extensions: { derivatives: true } });
@@ -135,6 +137,7 @@ export function makeWifiLayer(scene) {
       uniforms.uBold.value.set(b[0] ?? 0, b[1] ?? 0, b[2] ?? 0);
       uniforms.uBoldN.value = b.length;
       uniforms.uOpacity.value = opacity;
+      uniforms.uSoft.value = mode === "diff" ? 1 : 0.45; // 차이 지도는 양쪽 끝이 다 중요하다
       disposeKids(labels);
       for (const l of labs) { const s = textSprite(l.text, { h: 0.22, bold: true }); s.position.set(l.xz[0], 0.1, l.xz[1]); labels.add(s); }
       group.visible = true;
