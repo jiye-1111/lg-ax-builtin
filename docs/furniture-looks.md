@@ -9,6 +9,7 @@
 | [2026 인테리어 트렌드 정리 (쇼룸)](https://v.daum.net/v/q6BlimLxDL) | 둥근 모서리(식탁·탁자 상판), 웜 뉴트럴과 흙빛 색, 린넨·부클 같은 거친 천, 티크·월넛 |
 | [요즘 아파트 인테리어 트렌드 5가지](https://brunch.co.kr/@cafesmith/405) | 주방은 선을 숨기고 수납을 한 면처럼: 장은 전부 손잡이 없는 민자 문 |
 | [한샘 유로 키친 기사 (한경비즈니스 2026-09-09)](https://magazine.hankyung.com/business/article/202609093159b) | 문짝 색 이름: 오트크림, 얼그레이, 베이지오크, 앰버오크, 헤이즐넛, 에스프레소 |
+| [IKEA LISTERBY 커피 테이블](https://www.ikea.com/us/en/p/listerby-coffee-table-oak-veneer-30513904/) | 거실 테이블: 귀를 굴린 얇은 오크 상판, 아래 선반 한 단, 가는 다리 넷 |
 | [IKEA KIVIK 커버](https://www.ikea.com/gb/en/cat/kivik-covers-18705/) | 소파 천 색 구성: 라이트 베이지, 베이지/그레이, 미디엄 그레이, 앤트러사이트, 다크 그린, 블루, 그레이 터쿼이즈 |
 | [보그 코리아 2026 인테리어 트렌드 11](https://www.vogue.co.kr/2026/01/10/2026%eb%85%84-%ed%95%b5%ec%8b%ac-%ec%9d%b8%ed%85%8c%eb%a6%ac%ec%96%b4-%eb%94%94%ec%9e%90%ec%9d%b8-%ed%8a%b8%eb%a0%8c%eb%93%9c-11/) | 어시 톤(더스티 블루, 머디 그린, 캐러멜), 나무와 금속을 같이 쓰기 |
 

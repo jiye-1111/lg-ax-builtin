@@ -302,12 +302,22 @@ def plant(w, h, d):
 
 
 def coffee(w, h, d):
-    """낮은 탁자: 귀를 크게 굴린 두툼한 상판 + 굵은 원기둥 다리 둘 (요즘 많이 보이는 둥근 소파 테이블)."""
-    top = 0.045
-    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.2, edge=0.012, seg=12)
-    r = 0.11
+    """거실 테이블: 귀를 살짝 굴린 얇은 원목 상판, 아래 선반 한 단, 가는 다리 넷 (IKEA LISTERBY 같은 2단 소파 테이블)."""
+    top, inset, leg = 0.024, 0.07, 0.019
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.05, edge=0.006, seg=10)
+    for i, (sx, sz) in enumerate(CORNERS):
+        x, z = sx * (w / 2 - inset), sz * (d / 2 - inset)
+        rod(f"leg{i}", "leg:oak_light", (x, 0, z), (x, h - top, z), leg * 0.8, leg, "ese")
+    # 상판 바로 밑 가는 틀: 상판이 떠 보이지 않게
+    for i, sz in enumerate((-1, 1)):
+        z = sz * (d / 2 - inset)
+        part(f"rail{i}", "leg:oak_light", -w / 2 + inset, w / 2 - inset, z - 0.008, z + 0.008, h - top - 0.035, h - top, "see", 0.003)
     for i, sx in enumerate((-1, 1)):
-        cyl(f"leg{i}", "leg:oak_light", sx * (w / 2 - 0.24), 0, r, 0, h - top, "ese", 40)
+        x = sx * (w / 2 - inset)
+        part(f"rail_s{i}", "leg:oak_light", x - 0.008, x + 0.008, -d / 2 + inset, d / 2 - inset, h - top - 0.035, h - top, "ees", 0.003)
+    # 아래 선반: 다리 사이에 얇게 (잡지·리모컨 두는 단)
+    slab("shelf", "top:oak_light", -w / 2 + inset - 0.006, w / 2 - inset + 0.006, -d / 2 + inset - 0.006, d / 2 - inset + 0.006,
+         0.12, 0.138, "ses", corner=0.02, edge=0.004, seg=6)
 
 
 def partition(w, h, d):
