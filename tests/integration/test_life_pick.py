@@ -93,3 +93,31 @@ def test_combos_from_life_keep_the_guide_capacity(c, svc, pid):
     assert d["type"] == "combos" and d["combos"]
     lg = [i for cb in d["combos"] for i in cb["items"] if i["kind"] == "lg"]
     assert lg and all(480 <= svc.catalog.get(i["sku"]).options["capacity_l"] <= 499 for i in lg)
+
+
+def test_pet_home_gets_air_purifier_as_an_extra_without_made_up_numbers(c, svc, pid):
+    d = say(c, pid, "강아지랑 둘이 살아요")
+    assert d["type"] == "life"
+    assert [it["need"]["category"] for it in d["items"]] == ["refrigerator"]   # 용량 기준이 있는 것만 본 추천
+    ex = next(it for it in d["extras"] if it["need"]["category"] == "air_purifier")
+    assert svc.catalog.get(ex["product"]["sku"]).listed and ex["need"]["source_url"] is None
+    assert not any(ch.isdigit() for ch in ex["need"]["why"])
+
+
+def test_dual_income_gets_dishwasher_extra(c, pid):
+    d = say(c, pid, "맞벌이 4인 가족이에요")
+    assert "dishwasher" in [it["need"]["category"] for it in d["extras"]]
+
+
+def test_budget_keeps_guide_capacity_and_lowers_the_total(c, svc, pid):
+    story = "맞벌이 4인 가족, 장은 주말에 몰아서 봐요"
+    free = say(c, pid, story)
+    total = sum(it["product"]["price_krw"] for it in free["items"])
+    tight = say(c, pid, story, budget=total - 100_000)
+    assert [it["need"]["category"] for it in tight["items"]] == [it["need"]["category"] for it in free["items"]]
+    t2 = sum(it["product"]["price_krw"] for it in tight["items"])
+    assert tight["budget"] == total - 100_000 and tight["total"] == t2
+    assert t2 <= total
+    assert ("예산" in tight["message"]) and (t2 <= tight["budget"] or "넘" in tight["message"])
+    fridge = next(it for it in tight["items"] if it["need"]["category"] == "refrigerator")
+    assert 600 <= fridge["product"]["options"]["capacity_l"] <= 699

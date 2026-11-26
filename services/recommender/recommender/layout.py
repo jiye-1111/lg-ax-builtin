@@ -58,6 +58,7 @@ class Placed:
     verdict: str
     reasons: list[dict] = field(default_factory=list)
     free_side_m: float = 0.0   # 중심 가구 양옆에 남은 벽 길이 중 짧은 쪽
+    base_m: float = 0.0        # 가구 위에 올린 가전이면 그 윗면 높이
 
     def as_placement(self, pid: str) -> dict:
         return {"placement_id": pid, "sku": self.item.sku, "center_xz": list(self.pose.center_xz),
@@ -338,3 +339,42 @@ def arrange(room: Room, items: list[Item], cfg: FitConfig | None = None, others:
         else:
             pl.along_wall(it)
     return pl.placed
+
+
+def arrange_near(room: Room, item: Item, anchor: Optional[tuple[Item, Pose, tuple[float, float, float]]] = None,
+                 cfg: FitConfig | None = None, others: Iterable[dict] = (), hidden: Iterable[str] = (),
+                 counters: Iterable[tuple[g.Pt, float]] = ()) -> list[Placed]:
+    """이미 놓여 있는 가구(anchor) 곁에 하나를 더 놓는다. arrange와 같은 역할 규칙을 쓴다.
+    others에는 anchor를 넣지 않는다. 들어갈 자리가 없으면 빈 목록."""
+    pl = _Planner(room, cfg or FitConfig(), others, hidden, counters)
+    base = None
+    if anchor:
+        base = pl._add(anchor[0], _Seat(anchor[1], anchor[2]))
+    n = len(pl.placed)
+    if item.role == "pair":
+        if base:
+            pl.pair(item, base)
+    elif item.role == "front":
+        if base:
+            pl.in_front(item, base, COFFEE_GAP_M)
+    elif item.role == "rug":
+        pl.rug(item, base)
+    elif item.role == "facing":
+        pl.facing(item, base)
+    elif item.role == "corner":
+        pl.corner(item, base, near=_kind(item) == "lamp")
+    elif item.role == "desk_chair":
+        if base:
+            pl.desk_chair(item)
+    else:
+        pl.along_wall(item)
+    return pl.placed[n:]
+
+
+@dataclass
+class _Seat:
+    """이미 놓인 가구를 _Planner에 올릴 때 쓰는 판정 결과 모양."""
+    pose: Pose
+    size_m: tuple[float, float, float]
+    verdict: Verdict = Verdict.FIT
+    reasons: list = field(default_factory=list)

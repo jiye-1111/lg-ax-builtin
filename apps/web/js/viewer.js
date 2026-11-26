@@ -1662,6 +1662,62 @@ export function makeViewer(el, handlers = {}) {
         renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
       }
     },
+    /** 추천 배치 미리보기: 이 목록대로 놓았을 때의 모습을 한 장 찍는다 (JPEG data URL).
+     *  화면에 보이는 장면은 건드리지 않는다: 같은 틱 안에서 바꿔 놓고 찍은 뒤 되돌린다.
+     *  focus: 눈여겨볼 자리들 [[x, z], …]. tones: { wall, floor } 색을 잠깐 입혀 본다. */
+    async previewShot(list, focus = [], tones = {}, W = 480, H = 320) {
+      if (!model) return null;
+      const skus = [...new Set(list.filter((p) => p.size_m).map((p) => p.sku))];
+      await Promise.all(skus.map((k) => loadModel(k).catch(() => false)));
+      if (!alive || !model) return null;
+      const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
+      const pos0 = cam.position.clone(), quat0 = cam.quaternion.clone();
+      const mine = [...products.children], temp = [], hidden = [], tinted = [];
+      mine.forEach((c) => products.remove(c));
+      try {
+        for (const p of list) {
+          if (!p.size_m) continue;
+          const g = productBox(p, {});
+          g.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) o.visible = false; });
+          products.add(g); temp.push(g);
+        }
+        [overlay, ghost, need, walkersG, starter, grid, routerG, rotRing, stretchG, carveG].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+        model.traverse((o) => {
+          const tone = o.isMesh && tones[o.userData?.kind];
+          if (!tone || !o.material?.color) return;
+          tinted.push([o.material, o.material.color.getHex()]);
+          o.material.color.set(tone);
+        });
+        // 놓인 것들을 방 안쪽에서 비스듬히 내려다본다 (등진 벽이 뒤에 보이게)
+        const pts = focus.length ? focus : [[center.x, center.z]];
+        const t = new THREE.Vector3(pts.reduce((a, q) => a + q[0], 0) / pts.length, 0.5, pts.reduce((a, q) => a + q[1], 0) / pts.length);
+        const reach = Math.max(...pts.map((q) => Math.hypot(q[0] - t.x, q[1] - t.z)), 1.2);
+        const dir = new THREE.Vector3(center.x - t.x, 0, center.z - t.z);
+        if (dir.length() < 0.4) dir.set(-0.5, 0, 0.7);
+        dir.normalize().multiplyScalar(0.8).setY(0.62).normalize();
+        cam.position.copy(t).addScaledVector(dir, Math.min(Math.max(reach * 2.6, 4.6), 11));
+        cam.lookAt(t);
+        renderer.setPixelRatio(1); composer.setPixelRatio(1);
+        renderer.setSize(W, H, false); composer.setSize(W, H);
+        cam.aspect = W / H; cam.updateProjectionMatrix();
+        cutaway();
+        renderer.shadowMap.needsUpdate = true;
+        composer.render();
+        return renderer.domElement.toDataURL("image/jpeg", 0.82);
+      } finally {
+        tinted.forEach(([m, hex]) => m.color.setHex(hex));
+        hidden.forEach((o) => (o.visible = true));
+        if (temp.length) { const bin = new THREE.Group(); temp.forEach((c) => bin.add(c)); clear(bin); }
+        mine.forEach((c) => products.add(c));
+        cam.position.copy(pos0); cam.quaternion.copy(quat0);
+        renderer.setPixelRatio(pr); composer.setPixelRatio(pr);
+        cam.aspect = aspect; cam.updateProjectionMatrix();
+        renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
+        cutaway();
+        renderer.shadowMap.needsUpdate = true;
+        composer.render(); // 다음 그리기 전에 원래 장면으로 채워 둔다 (깜빡임 없이)
+      }
+    },
     /** 스캔 가구 종류 (3D 파일에 종류가 없을 때 씀). load 전에 부른다 */
     /** 3D에 입힐 실제 벽지·바닥재 { wall?, floor? }. 다음 load부터 반영 */
     setFinishes(f) { finishSet = f || {}; },

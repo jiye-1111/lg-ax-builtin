@@ -135,3 +135,11 @@ products: {
 ```
 
 규칙으로 읽을 때: "600L 이상/이하", "800L"(그쯤, ±10%), "300만 원 이하", "150만 원 넘는", "200만원대"(200~300만), 금액만 말하면 상한, "폭 950"·"가로 95cm"·"60cm 폭"·"높이 1.8m"(단위가 없으면 크기로 짐작).
+
+## 하우니: 더하면 좋은 것 (2026-11-26)
+
+- `GET /api/projects/{pid}/addons` → `{items: [{id, kind: "lg"|"decor", sku, name, text, price, spots, size_m}]}` 최대 3개. 직접 놓은 것이 없으면 빈 목록.
+  무엇을 권할지는 `recommender/addons.py` 규칙(침대→협탁·러그, 소파→테이블·거실장, 세탁기→건조기, 주방→정수기·식기세척기 등), 자리는 기준 가구 곁(`recommender.layout.arrange_near`)이나 자동 배치와 같은 자리 찾기. AI를 부르지 않는다.
+- `POST /api/projects/{pid}/addons/{id}/apply` → 지금 상태로 다시 계산한 자리에 놓고 장면을 돌려준다 (`added`: 새 배치 id들).
+- `POST /api/projects/{pid}/assist`에 `budget`(원)을 주면 생활에 맞는 가전을 그 합계 안에서 고른다. 응답 `extras` = 함께 보면 좋은 가전.
+- 조합 항목에 `base_m`(올려 둔 높이)이 들어간다. 화면은 조합마다 `viewer.previewShot()`으로 놓아 본 모습을 찍어 1·2·3번 카드에 붙인다.
