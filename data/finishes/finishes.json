@@ -273,41 +273,6 @@
    "source_checked_at": "2026-11-20"
   },
   {
-   "id": "w_dongwha_signiwall_wood",
-   "kind": "wall",
-   "brand": "동화자연마루",
-   "line": "시그니월",
-   "pattern": "나무 패턴",
-   "name": "동화 시그니월 우드",
-   "texture": "wood",
-   "keywords": [
-    "wood",
-    "우드",
-    "oak",
-    "natural",
-    "panel"
-   ],
-   "trend": "2026년 기존 돌 중심 패턴에 나무 패턴을 추가",
-   "facts": [
-    "빅슬랩 규격 벽재",
-    "2026년 나무 패턴 추가"
-   ],
-   "spec": {},
-   "tones": [
-    {
-     "name": "내추럴 오크 톤",
-     "hex": "#C9A47C"
-    },
-    {
-     "name": "월넛 톤",
-     "hex": "#7A5A43"
-    }
-   ],
-   "tone_basis": "approx",
-   "source_url": "https://www.heraldk.com/article/2026040923275446998",
-   "source_checked_at": "2026-11-20"
-  },
-  {
    "id": "w_paint_cloud_dancer",
    "kind": "wall",
    "brand": "PANTONE",
