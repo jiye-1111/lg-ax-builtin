@@ -646,33 +646,35 @@ table.techs td { vertical-align: middle; }
 .lib .filters label { margin: 0; display: flex; flex-direction: column; gap: 2px; font-size: 11px; }
 .lib .filters select { margin: 0; padding: 5px 8px; font-size: var(--t-xs); border-radius: 10px; background: var(--drafting); }
 
-/* 제품 상세 창: 누르면 3D 위에 뜬다 */
-.pd-modal { position: absolute; top: 12px; left: 12px; bottom: 12px; z-index: 7; width: min(440px, calc(100% - 24px)); overflow-y: auto; padding: 16px;
+/* 제품 상세 창: 누르면 3D 위에 뜬다. 왼쪽 목록 카드를 키운 모양 — 폭은 목록과 비슷하게, 높이는 내용만큼만 */
+.pd-modal { position: absolute; top: 12px; left: 12px; z-index: 7; width: min(332px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto; padding: 14px;
   background: rgba(255, 255, 255, .96); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); border-radius: 20px; box-shadow: var(--shadow-float);
-  display: flex; flex-direction: column; gap: 14px; animation: pd-in .22s var(--ease) both; }
+  display: flex; flex-direction: column; gap: 12px; animation: pd-in .22s var(--ease) both; }
 .pd-modal[hidden] { display: none; }
 @keyframes pd-in { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
-.pd-top { display: grid; grid-template-columns: 132px minmax(0, 1fr) auto; gap: 14px; align-items: start; }
-.pd-photo { aspect-ratio: 3 / 4; border-radius: 14px; border: 1px solid rgba(0, 0, 0, .06); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 6px;
+.pd-top { position: relative; display: flex; flex-direction: column; gap: 12px; }
+.pd-photo { height: clamp(150px, 30vh, 232px); border-radius: 14px; border: 1px solid rgba(0, 0, 0, .06); background-size: cover; background-position: center; display: flex; align-items: flex-end; padding: 8px;
   box-shadow: inset 0 -40px 40px -30px rgba(0, 0, 0, .14); }
 .pd-photo span { font-size: 11px; font-weight: 600; background: rgba(255, 255, 255, .85); padding: 1px 7px; border-radius: 999px; }
 .pd-title h2 { font-size: 17px; line-height: 1.35; margin: 0 0 4px; }
 .pd-title p { margin: 0 0 10px; font-size: var(--t-xs); }
 .pd-variants { display: flex; flex-wrap: wrap; gap: 6px; }
-.pd-close { align-self: start; }
-.pd-spec { font-size: var(--t-sm); }
-.pd-spec th { width: 96px; color: var(--graphite); font-weight: 500; font-size: var(--t-xs); padding: 8px 6px 8px 0; vertical-align: top; }
+.pd-close { position: absolute; top: 8px; right: 8px; background: rgba(255, 255, 255, .9); }
+.pd-spec { font-size: var(--t-sm); width: 100%; }
+.pd-spec td .muted { display: block; font-size: var(--t-xs); }
+.pd-spec th { width: 64px; color: var(--graphite); font-weight: 500; font-size: var(--t-xs); padding: 8px 6px 8px 0; vertical-align: top; }
 .pd-spec td { padding: 8px 0; }
 .pd-notes { font-size: var(--t-xs); color: var(--graphite); }
 .pd-notes summary { cursor: pointer; }
 .pd-notes ul { margin: 6px 0 0; padding-left: 18px; display: grid; gap: 4px; }
-.pd-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
-.pd-actions .primary { padding: 12px 24px; font-size: var(--t-md); }
+/* 색이 많으면 줄이 길어진다: 고른 색만 이름을 보이고 나머지는 목록 카드처럼 점으로 */
+.pd-variants .swatch:not(.on) { padding: 3px; font-size: 0; gap: 0; }
+/* 화면이 낮아 내용이 넘쳐도 넣어 보기는 늘 보이게 */
+.pd-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; position: sticky; bottom: -14px; margin: 0 -14px -14px; padding: 10px 14px 14px; background: linear-gradient(rgba(255, 255, 255, 0), #fff 10px); }
+.pd-actions .primary { flex: 1 1 auto; padding: 12px 20px; font-size: var(--t-md); }
 .pd-src { font-size: 11px; margin-left: auto; }
 @media (max-width: 900px) {
-  .pd-modal { position: fixed; top: 12vh; left: 8px; right: 8px; bottom: 8px; width: auto; z-index: 30; }
-  .pd-top { grid-template-columns: 96px minmax(0, 1fr); }
-  .pd-close { grid-column: 1 / -1; grid-row: 1; justify-self: end; }
+  .pd-modal { position: fixed; top: auto; left: 8px; right: 8px; bottom: 8px; width: auto; max-height: 86vh; z-index: 30; }
 }
 /* 상세 창 사진: 우리 모델 렌더. 잘리지 않게 contain, 바탕은 Warm Grey */
 .pd-photo.has-photo { background-color: var(--warm-grey) !important; background-size: contain; background-repeat: no-repeat; box-shadow: none; }
