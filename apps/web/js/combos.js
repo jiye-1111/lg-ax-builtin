@@ -35,12 +35,13 @@ const diffText = (cb) => {
 
 export function comboCardsHtml(d) {
   if (!d.combos?.length) return `<p class="hint-sm">이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 해 보세요.</p>`;
-  return `<ol class="combo-list">${d.combos.map((cb) => {
+  return `<ol class="combo-list">${d.combos.map((cb, n) => {
     const lg = cb.items.filter((i) => i.kind === "lg"), decor = cb.items.filter((i) => i.kind === "decor");
     const names = [...new Set(decor.map((i) => i.name))];
     return `<li class="combo" data-combo="${esc(cb.combo_id)}">
-      <header><span class="palette">${cb.palette.map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</span>
-        <b>${esc(cb.name)}</b><span class="tag">${esc(cb.plan_label)}</span></header>
+      <figure class="combo-shot" data-shot="${esc(cb.combo_id)}" aria-label="${n + 1}번 배치 미리보기"><span class="combo-no">${n + 1}</span></figure>
+      <header><b>${esc(cb.name)}</b><span class="palette">${cb.palette.map((h) => `<i style="background:${esc(h)}"></i>`).join("")}</span>
+        <span class="tag">${esc(cb.plan_label)}</span></header>
       <p class="why">${esc(cb.why)}</p>
       ${lg.length ? `<ul class="combo-lg">${lg.map((i) => `<li><b>${esc(i.name)}</b><span class="price">${i.price ? man(i.price) : ""}</span>
         ${i.why?.length ? `<small>${esc(i.why.join(" · "))}</small>` : ""}</li>`).join("")}</ul>` : ""}
@@ -48,25 +49,38 @@ export function comboCardsHtml(d) {
       <p class="combo-decor">${esc(names.join(" · "))}${cb.finishes?.wall ? ` · 벽 ${esc(cb.finishes.wall.name)}` : ""}${cb.finishes?.floor ? ` · 바닥 ${esc(cb.finishes.floor.name)}` : ""}</p>
       <details class="combo-tips"><summary>이렇게 살리면 좋아요</summary><ul>${cb.tips.map((t) => `<li>${esc(t)}</li>`).join("")}</ul></details>
       <footer>${lg.length ? `<span class="total">${man(cb.lg_total)}</span><span class="muted">${esc(diffText(cb))}</span>` : ""}
-        <button class="primary small" data-apply="${esc(cb.combo_id)}">이 조합으로 꾸미기</button></footer>
+        <button class="primary small" data-apply="${esc(cb.combo_id)}" data-no="${n + 1}">${n + 1}번으로 꾸미기</button></footer>
     </li>`;
   }).join("")}</ol>`;
 }
 
-// root 안의 [data-apply] 버튼을 묶는다. 적용하면 onApplied(응답)
-export function bindComboCards(root, pid, onApplied) {
+// root 안의 [data-apply] 버튼을 묶는다. 적용하면 onApplied(응답).
+// shots = { combos, shoot(cb) → 그림 주소 }: 조합마다 놓았을 때의 모습을 한 장씩 찍어 카드 위에 붙인다
+export function bindComboCards(root, pid, onApplied, shots = null) {
   root.querySelectorAll("[data-apply]").forEach((b) => (b.onclick = guard(async () => {
+    const label = b.textContent;
     b.disabled = true; b.textContent = "놓는 중…";
     try {
       const r = await post(`/api/projects/${pid}/combos/${b.dataset.apply}/apply`, {});
       root.querySelectorAll(".combo").forEach((li) => li.classList.toggle("on", li.dataset.combo === b.dataset.apply));
       toast(r.combo.skipped?.length ? `‘${r.combo.name}’ 조합을 넣었어요. ${r.combo.skipped.join(", ")}은 지금 자리에 안 들어가 뺐어요` : `‘${r.combo.name}’ 조합을 넣었어요`);
       await onApplied(r);
-    } finally { b.disabled = false; b.textContent = "이 조합으로 꾸미기"; }
+    } finally { b.disabled = false; b.textContent = label; }
   })));
+  if (shots?.shoot) (async () => {
+    for (const cb of shots.combos || []) {
+      const fig = root.querySelector(`[data-shot="${CSS.escape(cb.combo_id)}"]`);
+      if (!fig) continue;
+      let url = null;
+      try { url = await shots.shoot(cb); } catch { /* 그림 없이도 고를 수 있다 */ }
+      if (url) fig.insertAdjacentHTML("afterbegin", `<img src="${url}" alt="${esc(cb.name)} 배치를 놓아 본 모습">`);
+      else fig.classList.add("none");
+      await new Promise((ok) => requestAnimationFrame(ok)); // 한 장 찍을 때마다 화면이 숨 쉴 틈을 준다
+    }
+  })();
 }
 
-export function mountComboPop(pid, onApplied) {
+export function mountComboPop(pid, onApplied, shoot = null) {
   const pop = document.getElementById("comboPop"), btn = document.getElementById("comboBtn");
   if (!pop || !btn) return;
   const cats = new Set();
@@ -92,7 +106,7 @@ export function mountComboPop(pid, onApplied) {
     try {
       const d = await post(`/api/projects/${pid}/combos`, { categories: [...cats], budget: man10k ? man10k * 10000 : null, prompt: mood.value.trim() });
       res.innerHTML = comboCardsHtml(d) + `<button class="ghost small combo-clear" id="comboClear">넣은 조합 빼기</button>`;
-      bindComboCards(res, pid, async (r) => { await onApplied(r); open(false); }); // 넣었으면 창을 닫아 3D가 보이게
+      bindComboCards(res, pid, async (r) => { await onApplied(r); open(false); }, { combos: d.combos, shoot }); // 넣었으면 창을 닫아 3D가 보이게
       document.getElementById("comboClear").onclick = guard(async () => {
         const r = await api(`/api/projects/${pid}/combos/applied`, { method: "DELETE" });
         res.querySelectorAll(".combo").forEach((li) => li.classList.remove("on"));

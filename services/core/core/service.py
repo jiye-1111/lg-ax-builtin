@@ -34,6 +34,7 @@ from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
 from .decor import MAX_MM as MAX_DECOR_MM, TOP_COLOUR_SKUS, decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
+from .service_addons import AddonMixin
 from .service_combos import ComboMixin
 from .service_life import LifeMixin
 from .service_photoreal import PhotorealMixin
@@ -124,7 +125,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service(ComboMixin, PhotorealMixin, LifeMixin):
+class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())
@@ -1346,6 +1347,18 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                     return r
         return None
 
+    def _auto_spot(self, room: Room, p: dict, prod: Product):
+        """auto_place가 놓을 자리 (판정 결과). 어디에도 안 들어가면 None."""
+        sku = prod.sku
+        floor_first = prod.category in FLOOR_FIRST  # 미니 와인셀러·냉장고: 바닥 자리가 없을 때만 가구 위
+        r = (self._spot(room, p, prod) if floor_first else None) or self._on_top(room, p, prod)
+        if r is None and needs_counter(prod):  # 조리대가 없으면 하부장 자리를 찾아 그 위에 (place_at이 하부장을 같이 놓는다)
+            r = self._spot(room, p, decor_product("decor:basecab", self.SINK_CABINET_M))
+        r = r or self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
+        if (r is None or self._slot(room, p, prod, r.pose) is None) and (bay := self._bay(room, p, prod)):
+            r = bay  # 장 줄 옆에 빈자리가 없으면 장 한 칸을 내어 그 안에
+        return r
+
     def auto_place(self, pid: str, sku: str, color: str | None = None, size_m=None) -> dict:
         """벽을 따라 가장 잘 들어가는 자리를 찾아 놓는다 (러그는 방 가운데). 어디에도 안 들어가면 Invalid."""
         prod, room, p = self._item(sku, size_m), self.get_room(pid), self.get_project(pid)
@@ -1361,13 +1374,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
                 out = self._rebuild(pid)
                 out["placement"] = next(y for y in out["scene_state"]["placements"] if y["placement_id"] == hood["placement_id"])
                 return out
-        floor_first = prod.category in FLOOR_FIRST  # 미니 와인셀러·냉장고: 바닥 자리가 없을 때만 가구 위
-        r = (self._spot(room, p, prod) if floor_first else None) or self._on_top(room, p, prod)
-        if r is None and needs_counter(prod):  # 조리대가 없으면 하부장 자리를 찾아 그 위에 (place_at이 하부장을 같이 놓는다)
-            r = self._spot(room, p, decor_product("decor:basecab", self.SINK_CABINET_M))
-        r = r or self._spot(room, p, prod) or (self._middle(room, p, prod) if is_decor(sku) else None)
-        if (r is None or self._slot(room, p, prod, r.pose) is None) and (bay := self._bay(room, p, prod)):
-            r = bay  # 장 줄 옆에 빈자리가 없으면 장 한 칸을 내어 그 안에
+        r = self._auto_spot(room, p, prod)
         if r is None:
             raise Invalid("이 집에서 들어가는 자리를 못 찾았어요. 가구를 치우거나 다른 크기를 골라 보세요")
         return self.place_at(pid, sku, list(r.pose.center_xz), r.pose.yaw_rad, snap=False, color=color,

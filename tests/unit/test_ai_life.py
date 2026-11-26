@@ -40,7 +40,7 @@ class FakeOpenAI:
 
 
 def test_openai_path_returns_only_facts_and_engine():
-    fake = FakeOpenAI(LifeFacts(people=5, baby=False, lots_of_food=True, kimchi="lots", dual_income=False))
+    fake = FakeOpenAI(LifeFacts(people=5, baby=False, lots_of_food=True, kimchi="lots", dual_income=False, pet=False))
     life, engine = read_life("다섯 식구, 김장 많이 함", client=fake)
     assert engine == "openai" and life.people == 5 and life.kimchi == "lots"
     assert fake.sent["response_format"] is LifeFacts

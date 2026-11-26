@@ -27,6 +27,7 @@ TRIES = 4          # 가전 하나당 자리를 찾아볼 후보 수
 SELLABLE = (None, "ACTIVE", "SOLD_OUT")
 # 예산을 말했으면 어느 조합도 그 금액을 넘기지 않는다: 맞춤은 조금 남기고, 아끼기는 더 남기고, 한 단계 위는 꽉 채운다
 BUDGET_FACTOR = {"target": 0.9, "save": 0.7, "upgrade": 1.0}
+FLOOR_CATS = frozenset({"air_purifier", "wine_cellar", "refrigerator"})  # 올릴 수는 있어도 바닥 자리부터 찾는 가전 (식탁 위 공기청정기는 어색하다)
 HUG = {"dishwasher": 2.0, "refrigerator": 0.6, "kimchi_refrigerator": 0.6}  # 조리대 옆에 붙이는 정도
 
 
@@ -170,7 +171,7 @@ class ComboMixin:
             items.append(Item(key=f"d{len(items)}-basecab", sku="decor:basecab", product=decor_product("decor:basecab", None),
                               role="wall"))  # 인덕션을 넣을 조리대가 없으면 하부장을 같이
         for c, cands in order.items():  # 바닥에 서는 가전은 가구와 함께 자리를 잡는다. 올려 두는 가전은 그다음에
-            if cands and not can_sit(cands[0]):
+            if cands and not self._tops_first(cands[0]):
                 items.append(self._lg_item(c, cands[0], tags))
         hidden = self._blocked_off(p)
         counters = [(tuple(t["center_xz"]), t["w"] / 2) for t in tops[True]]
@@ -182,7 +183,7 @@ class ComboMixin:
             if f"lg-{c}" in got:
                 continue
             ok = False
-            for prod in (cands if cands and can_sit(cands[0]) else cands[1:]):
+            for prod in (cands if cands and (self._tops_first(cands[0]) or can_sit(cands[0])) else cands[1:]):
                 if cap and spent + prod.price_krw > cap:
                     continue
                 it = self._lg_item(c, prod, tags)
@@ -209,6 +210,11 @@ class ComboMixin:
                 "palette": idea.palette, "finishes": finishes, "items": out_items, "lg_total": total,
                 "budget_diff": (total - budget) if budget else None, "missing": missing}
 
+    @staticmethod
+    def _tops_first(prod: Product) -> bool:
+        """가구 위부터 찾는 가전인지. 공기청정기·미니 냉장고는 바닥에 설 자리가 없을 때만 올린다."""
+        return bool(can_sit(prod)) and prod.category not in FLOOR_CATS
+
     def _lg_item(self, category: str, prod: Product, tags: StyleTags) -> Item:
         _, opt = self._color_score(prod, tags)
         return Item(key=f"lg-{category}", sku=prod.sku, product=prod, role="appliance",
@@ -232,13 +238,14 @@ class ComboMixin:
                 for yaw in (s["yaw_rad"] + math.pi / 2, s["yaw_rad"] - math.pi / 2):
                     r = check_pose(room, it.product, Pose(c, yaw), self.fit_cfg, others=now, hidden=hidden, host=s)
                     if r.verdict.value != "no_fit" and r.size_m:
-                        return Placed(it, r.pose, r.size_m, r.verdict.value, r.reasons)
+                        return Placed(it, r.pose, r.size_m, r.verdict.value, r.reasons, base_m=round(r.base_m, 3))
         return None
 
     def _combo_row(self, x, targets: dict, tags: StyleTags, plan: str) -> dict:
         it = x.item
         base = {"sku": it.sku, "center_xz": [round(v, 4) for v in x.pose.center_xz], "yaw_rad": round(x.pose.yaw_rad, 6),
-                "size_m": [round(v, 4) for v in x.size], "wall_id": x.pose.wall_id, "verdict": x.verdict}
+                "size_m": [round(v, 4) for v in x.size], "wall_id": x.pose.wall_id, "verdict": x.verdict,
+                "base_m": x.base_m}  # 미리보기 그림에서 조리대 위 가전이 바닥에 떨어져 보이지 않게
         if is_decor(it.sku):
             kind = it.key.split("-", 1)[1]
             return {**base, "kind": "decor", "name": label_of(kind), "price": None, "color": None, "hex": None, "why": None,
@@ -262,7 +269,7 @@ class ComboMixin:
                    "컨셉", "콘셉")
 
     def assist(self, pid: str, prompt: str, image: str | None = None, categories: list[str] | None = None,
-               life: dict | None = None) -> dict:
+               life: dict | None = None, budget: int | None = None) -> dict:
         """하우니 한 번. 꾸미기·분위기를 말하거나 사진을 붙이면 조합 2~3개, 제품만 물으면 이 집에 맞는 하나 + 대안 둘.
         사진은 AI에 한 번 보내고 버린다 (저장하지 않음)."""
         from .service import Invalid
@@ -279,7 +286,7 @@ class ComboMixin:
         if categories:  # 생활 이야기로 고른 가전 그대로 배치 추천까지
             got = {n.category: n for n in needs(Life(**life))} if life else {}
             keep = {c: (lambda o, n=n: in_range(n, o)) for c, n in got.items()}
-            out = self.make_combos(pid, list(categories)[:MAX_CATEGORIES], None, prompt, keep=keep)
+            out = self.make_combos(pid, list(categories)[:MAX_CATEGORIES], budget, prompt, keep=keep)
             n = len(out["combos"])
             msg = (f"고른 가전으로 {n}가지 배치를 만들어 봤어요. 마음에 드는 조합을 누르면 가구·가전·벽지까지 한 번에 들어가요." if n
                    else "이 집 구조로는 조합을 못 만들었어요. 가구를 치우거나 다른 분위기로 말해 주세요.")
@@ -288,7 +295,7 @@ class ComboMixin:
         if not photo and len(named) >= 2:  # "냉장고랑 식기세척기, 예산 600" → 말한 가전 그대로, 예산 안에서 조합
             return self._named_combos(pid, prompt, named[:MAX_CATEGORIES])
         if not photo and is_life_story(prompt):  # "맞벌이 4인 가족, 장은 몰아서" → 가전마다 맞는 용량으로 하나씩
-            return self.life_pick(pid, prompt)
+            return self.life_pick(pid, prompt, budget)
         want = self.product_reader(prompt) if prompt else None
         decor = photo is not None or any(w in prompt for w in self.DECOR_WORDS)
         if want and want.wants_products and want.category and not decor:
