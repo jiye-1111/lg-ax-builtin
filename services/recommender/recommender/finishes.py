@@ -71,6 +71,8 @@ class Finish(BaseModel):
     def _real_products_need_a_source(self) -> "Finish":
         if not self.generic and not (self.source_url and self.source_checked_at and self.brand):
             raise ValueError(f"실제 제품은 상표와 출처가 있어야 함: {self.id}")
+        if self.kind == "wall" and self.texture == "wood":  # 나무결 벽은 바닥재와 헷갈린다
+            raise ValueError(f"벽지에는 나무 무늬를 넣지 않음: {self.id}")
         return self
 
     def tone(self, hex_: Optional[str] = None) -> Tone:

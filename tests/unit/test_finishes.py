@@ -90,3 +90,16 @@ def test_to_dict_carries_source_and_approx_flag(items):
     assert d["tone"]["hex"].startswith("#")
     assert d["approx_color"] is True
     assert 0 <= d["score"] <= 1
+
+
+def test_wall_list_has_no_wood_grain(items):
+    """나무결 벽 패널은 바닥재처럼 보여서 벽지 목록에 두지 않는다. 나무 무늬는 바닥에서만 고른다."""
+    assert not [f.id for f in items if f.kind == "wall" and f.texture == "wood"]
+    assert any(f.kind == "floor" and f.texture == "wood" for f in items)
+
+
+def test_wall_finish_cannot_be_wood():
+    from recommender.finishes import Finish
+    with pytest.raises(ValueError):
+        Finish.model_validate({"id": "w_x", "kind": "wall", "brand": "", "line": "", "name": "x", "texture": "wood",
+                               "tones": [{"name": "a", "hex": "#C9A47C"}], "tone_basis": "approx", "generic": True})
