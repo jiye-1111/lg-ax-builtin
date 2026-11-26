@@ -184,7 +184,7 @@ def test_action_bar_drops_its_follow_position_when_holding_something():
 def test_haeuni_takes_a_photo_and_sends_it_small():
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
     assert 'id="botPhoto"' in js and "PHOTO_MAX = 1024" in js and 'toDataURL("image/jpeg"' in js
-    assert "{ prompt, image }" in js and 'd.type === "message"' in js
+    assert "(image ? { image } : {})" in js and 'd.type === "message"' in js
 
 
 def test_photoreal_button_sends_view_and_product_mask():
@@ -314,3 +314,13 @@ def test_installed_lg_appliances_change_colour_only_to_real_colours():
     assert "familyOf(x.sku)" in fn and "v.color" in fn and "sellable(v)" in fn
     bar = REMODEL.split("const colourBar = ")[1].split("// 빈틈에 맞추기")[0]
     assert 'JSON.stringify({ sku: to.sku })' in bar
+
+
+def test_haeuni_shows_numbered_layouts_with_a_picture_and_speaks_first():
+    js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
+    combos = (WEB / "js" / "combos.js").read_text(encoding="utf-8")
+    viewer = (WEB / "js" / "viewer.js").read_text(encoding="utf-8")
+    assert "previewShot(" in viewer and "viewer.previewShot(" in js      # 놓아 본 모습을 3D에서 찍는다
+    assert "combo-no" in combos and "번으로 꾸미기" in combos               # 1·2·3번
+    assert "/addons" in js and 'id="botHint"' in js                       # 꾸민 뒤 먼저 권한다
+    assert "./js/hauni.js" in (WEB / "sw.js").read_text(encoding="utf-8")

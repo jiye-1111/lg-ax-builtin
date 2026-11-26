@@ -27,6 +27,7 @@ class Life:
     lots_of_food: bool = False      # 장을 몰아서 보거나 식재료를 많이 두는 집
     kimchi: Optional[Kimchi] = None
     dual_income: bool = False
+    pet: bool = False               # 반려동물과 사는 집
 
 
 @dataclass(frozen=True)
@@ -97,9 +98,22 @@ def _wash(life: Life) -> Optional[Need]:
 
 def needs(life: Life) -> list[Need]:
     """이 생활에 고를 가전과 용량 범위. 사람 수도 생활 단서도 없으면 빈 목록."""
-    if life.people is None and not (life.baby or life.lots_of_food or life.kimchi or life.dual_income):
+    if life.people is None and not (life.baby or life.lots_of_food or life.kimchi or life.dual_income or life.pet):
         return []
     return [n for n in (_fridge(life), _kimchi(life), _wash(life)) if n is not None]
+
+
+def extras(life: Life) -> list[Need]:
+    """용량 기준은 가이드에 없지만 이 생활이면 같이 볼 만한 가전 종류. 숫자 조건은 두지 않는다."""
+    out = []
+    if life.dual_income:
+        out.append(Need("dishwasher", None, None, None, "", "맞벌이라 설거지 시간을 줄여 주는 식기세척기", None, None))
+    if life.pet or life.baby:
+        who = "반려동물과 지내는" if life.pet else "아기가 있는"
+        out.append(Need("air_purifier", None, None, None, "", f"{who} 집이라 함께 보는 공기청정기", None, None))
+    if life.baby:
+        out.append(Need("dryer", None, None, None, "", "아기 빨래가 자주 나와 함께 보는 건조기", None, None))
+    return out
 
 
 def in_range(need: Need, options: dict) -> bool:

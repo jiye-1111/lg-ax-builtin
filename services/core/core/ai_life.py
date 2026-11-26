@@ -1,6 +1,6 @@
 """생활 이야기("맞벌이 4인 가족, 장은 주말에 몰아서, 아기")에서 사실만 뽑는다.
 
-AI는 사실(가족 수·아기·장보기·김치·맞벌이)만 옮기고, 용량 계산은 recommender.lifestyle이 LGE.COM 가이드 숫자로 한다.
+AI는 사실(가족 수·아기·장보기·김치·맞벌이·반려동물)만 옮기고, 용량 계산은 recommender.lifestyle이 LGE.COM 가이드 숫자로 한다.
 키가 없거나 실패하면 같은 사실을 규칙으로 읽는다.
 """
 from __future__ import annotations
@@ -25,6 +25,7 @@ class LifeFacts(BaseModel):
     lots_of_food: bool = Field(description="장을 몰아서 보거나 식재료를 많이 사 두면 true")
     kimchi: Optional[Literal["none", "small", "lots"]] = Field(description="김치·김장: 안 먹음 none, 조금 small, 김장 많이 lots. 말 없으면 null")
     dual_income: bool = Field(description="맞벌이면 true")
+    pet: bool = Field(description="반려동물(강아지·고양이 등)과 살면 true")
 
 
 SYSTEM = """고객이 자기 집 생활을 이야기한다. 적힌 사실만 옮겨라. 짐작하지 마라.
@@ -32,7 +33,7 @@ SYSTEM = """고객이 자기 집 생활을 이야기한다. 적힌 사실만 옮
 제품·용량·가격은 말하지 마라."""
 
 _NUM = {"한": 1, "혼자": 1, "두": 2, "둘": 2, "세": 3, "셋": 3, "네": 4, "넷": 4, "다섯": 5, "여섯": 6, "일곱": 7}
-_LIFE_WORDS = re.compile(r"\d+\s*인|둘이|셋이|넷이|[한두세네]\s*식구|다섯\s*식구|여섯\s*식구|가족|혼자|자취|신혼|부부|맞벌이|아기|육아|신생아|출산|"
+_LIFE_WORDS = re.compile(r"\d+\s*인|둘이|셋이|넷이|[한두세네]\s*식구|다섯\s*식구|여섯\s*식구|가족|혼자|자취|신혼|부부|맞벌이|반려|강아지|고양이|아기|육아|신생아|출산|"
                          r"장(을|은|는)?\s*(주말에\s*)?(몰아|한꺼번에|한 번에)|김장|김치")
 # 용량·가격을 직접 정했거나 꾸미기 이야기면 생활 이야기로 보지 않는다 (그쪽 길이 따로 있음)
 _PRODUCT_ASK = re.compile(r"\d+\s*(L|리터|kg|키로|만\s*원)|꾸며|꾸미|느낌|분위기|인테리어")
@@ -65,11 +66,12 @@ def rule_life(text: str) -> LifeFacts:
     return LifeFacts(people=people if people and 1 <= people <= 12 else None,
                      baby=bool(re.search(r"아기|육아|신생아|출산|돌\s*전|영유아", t)),
                      lots_of_food=bool(re.search(r"(몰아|한꺼번에|한 번에)\s*(서\s*)?(장|사|봐|보)|장(을|은|는)?\s*(주말에\s*)?(몰아|한꺼번에)|대량|코스트코|창고형", t)),
-                     kimchi=kimchi, dual_income="맞벌이" in t)
+                     kimchi=kimchi, dual_income="맞벌이" in t,
+                     pet=bool(re.search(r"반려|강아지|고양이|댕댕|냥이", t)))
 
 
 def to_life(f: LifeFacts) -> Life:
-    return Life(people=f.people, baby=f.baby, lots_of_food=f.lots_of_food, kimchi=f.kimchi, dual_income=f.dual_income)
+    return Life(people=f.people, baby=f.baby, lots_of_food=f.lots_of_food, kimchi=f.kimchi, dual_income=f.dual_income, pet=f.pet)
 
 
 def read_life(text: str, *, client=None) -> tuple[Life, str]:

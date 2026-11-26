@@ -23,6 +23,7 @@ import { hangAtRay, hangNear, defaultBase, clampBase } from "./wallmount.js";
 import { partsOf, partOfMaterial, partColours, lookOf, runOf } from "./furncolors.js";
 import { straighten, snapStart } from "./wallsnap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
+import { personaHtml, bindPersona, addonsHtml } from "./hauni.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
@@ -2146,17 +2147,91 @@ export async function customer(pid) {
     botLog.scrollTop = botLog.scrollHeight;
     return botLog.lastElementChild;
   };
+  let botClosed = null; // 대화창을 닫았을 때 할 일 (못 건넨 제안 띄우기)
   const openBot = (open) => {
     bot.classList.toggle("open", open);
     botBtn.setAttribute("aria-expanded", open);
     document.getElementById("botPanel").hidden = !open;
-    if (open) { botIn.focus(); bot.classList.remove("nudge"); }
+    if (open) { botIn.focus(); bot.classList.remove("nudge"); document.getElementById("botHint").hidden = true; }
+    else botClosed?.();
   };
   botBtn.onclick = () => openBot(!bot.classList.contains("open"));
   document.getElementById("botClose").onclick = () => { openBot(false); botBtn.focus(); };
   bot.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); openBot(false); botBtn.focus(); } });
-  document.getElementById("botEx").innerHTML = [...AI_EX.slice(0, 2), "맞벌이 4인 가족, 장은 주말에 몰아서 봐요"].map((t) => `<button class="chip" data-say="${esc(t)}">${esc(t)}</button>`).join("");
+  // 하우니가 해 주는 세 가지를 바로 누를 수 있게: 배치 추천 · 내게 맞는 가전 · 더하면 좋은 것
+  document.getElementById("botEx").innerHTML = `<button class="chip" data-say="호텔 같은 침실로 꾸며 줘">배치 추천</button>
+    <button class="chip" data-act="persona">내게 맞는 가전</button><button class="chip" data-act="addons">뭘 더할까?</button>`;
   document.querySelectorAll("[data-say]").forEach((b) => (b.onclick = () => { botIn.value = b.dataset.say; botForm.requestSubmit(); }));
+  const DOTS = `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`;
+  // 추천 배치 미리보기: 조합을 놓았을 때의 모습을 3D에서 한 장 찍는다 (화면은 그대로)
+  const shootCombo = (cb) => viewer.previewShot(
+    [...project.scene_state.placements.filter((x) => !x.combo), ...cb.items.map((it, i) => ({ ...it, placement_id: `pv-${cb.combo_id}-${i}`, verdict: "fit" }))],
+    cb.items.map((it) => it.center_xz), { wall: cb.finishes?.wall?.tone, floor: cb.finishes?.floor?.tone });
+  let lastCombos = null; // 방금 보여 준 조합 카드 묶음 ("2번"이라고 말로 골라도 되게)
+  const showCombos = (box, d) => {
+    box.innerHTML = `<p>${esc(d.message)}</p>${comboCardsHtml(d)}`;
+    bindComboCards(box, pid, () => refresh(true), { combos: d.combos, shoot: shootCombo });
+    if (d.combos?.length) lastCombos = box;
+  };
+  // ---- 더하면 좋은 것: 꾸며 놓은 집을 보고 하우니가 먼저 권한다 ----
+  const hint = document.getElementById("botHint");
+  let addonItems = [], addonKey = "", addonTimer = 0, hintFor = null, waiting = null; // waiting = 대화창이 열려 있어 아직 못 건넨 말
+  const passed = new Set(); // 이번에 닫은 제안은 다시 띄우지 않는다
+  const addonThumb = (it) => (it.kind === "decor" ? `img/decor/${it.sku.slice(6)}.webp` : familyOf(it.sku)?.variants.find((v) => v.sku === it.sku)?.thumb || null);
+  const showHint = (it) => {
+    hintFor = it?.id || null;
+    hint.hidden = !it;
+    if (it) hint.querySelector("span").textContent = it.text;
+  };
+  const showAddons = (box, items) => {
+    if (!items.length) { box.innerHTML = `<p>${project.scene_state.placements.length ? "지금은 더 권할 게 없어요. 잘 꾸미셨어요!" : "가구나 가전을 먼저 놓아 보세요. 놓인 것을 보고 어울리는 것을 권해 드릴게요."}</p>`; return; }
+    box.innerHTML = `<p>지금 꾸민 집에는 이걸 더하면 좋아요.</p>${addonsHtml(items, addonThumb)}`;
+    box.querySelectorAll("[data-addon]").forEach((b) => (b.onclick = guard(async () => {
+      b.disabled = true; b.textContent = "놓는 중…";
+      try {
+        const r = await post(`/api/projects/${pid}/addons/${b.dataset.addon}/apply`, {});
+        r.added.forEach((id) => remember({ kind: "remove", id }));
+        b.textContent = "더했어요";
+        toast(`${r.addon.name}${eul(r.addon.name)} 더했어요`);
+        addonKey = "";
+        await refresh(true);
+        const at = project.scene_state.placements.find((x) => x.placement_id === r.added[0]);
+        if (at) viewer.lookAt(at.center_xz);
+      } catch (err) { b.disabled = false; b.textContent = "더하기"; throw err; }
+    })));
+  };
+  const checkAddons = () => {
+    const key = JSON.stringify(project.scene_state.placements.map((x) => [x.placement_id, x.sku]));
+    if (key === addonKey) return;
+    const first = !addonKey;
+    addonKey = key;
+    clearTimeout(addonTimer);
+    addonTimer = setTimeout(async () => {
+      try { addonItems = (await api(`/api/projects/${pid}/addons`)).items; } catch { return; }
+      const top = addonItems.find((it) => !passed.has(it.id));
+      // 처음 열었을 때는 조용히 있고, 무언가 놓거나 뺀 뒤에만 말을 건다
+      waiting = !first && top ? top : null;
+      showHint(bot.classList.contains("open") ? null : waiting);
+    }, 1500);
+  };
+  botClosed = () => { if (waiting && !passed.has(waiting.id) && addonItems.some((it) => it.id === waiting.id)) showHint(waiting); };
+  hint.querySelector("[data-open]").onclick = () => {
+    showHint(null); waiting = null;
+    openBot(true);
+    showAddons(say("hb", ""), addonItems);
+  };
+  hint.querySelector("[data-pass]").onclick = () => { if (hintFor) passed.add(hintFor); waiting = null; showHint(null); };
+  document.querySelectorAll("#botEx [data-act]").forEach((b) => (b.onclick = async () => {
+    if (b.dataset.act === "persona") {
+      const box = say("hb", personaHtml());
+      bindPersona(box, (text, budget) => ask(text, null, budget ? { budget } : {}));
+    } else {
+      const box = say("hb", DOTS);
+      try { addonItems = (await api(`/api/projects/${pid}/addons`)).items; showAddons(box, addonItems); }
+      catch { box.innerHTML = `<p>앗, 지금은 못 살펴봤어요. 잠시 뒤 다시 눌러 주세요.</p>`; }
+    }
+    botLog.scrollTop = botLog.scrollHeight;
+  }));
   // 사진 한 장으로 꾸미기: 긴 변 1024px JPEG로 줄여서 보낸다 (서버는 AI에 한 번 보내고 버린다)
   const PHOTO_MAX = 1024, PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
   let botPhoto = null; // data URL
@@ -2187,29 +2262,38 @@ export async function customer(pid) {
   botIn.addEventListener("paste", (e) => { const f = [...(e.clipboardData?.files || [])].find((x) => x.type.startsWith("image/")); if (f) { e.preventDefault(); takePhoto(f); } });
   document.getElementById("botPanel").addEventListener("dragover", (e) => e.preventDefault());
   document.getElementById("botPanel").addEventListener("drop", (e) => { const f = e.dataTransfer?.files?.[0]; if (f) { e.preventDefault(); takePhoto(f); } });
-  botForm.onsubmit = async (e) => {
+  botForm.onsubmit = (e) => {
     e.preventDefault();
     const prompt = botIn.value.trim(), image = botPhoto;
     if ((!prompt && !image) || botForm.dataset.busy) return;
-    botIn.value = ""; setPhoto(null); botForm.dataset.busy = "1"; bot.classList.add("thinking");
+    botIn.value = ""; setPhoto(null);
+    // "2번", "2번으로 해 줘": 방금 보여 준 조합 가운데 그 번호를 바로 놓는다
+    const no = !image && prompt.match(/^([1-3])\s*번?(\s*(으로|로))?(\s*(해|꾸며|놓아|배치)\S*(\s*(줘|주세요))?)?$/);
+    const pickBtn = no && lastCombos?.querySelector(`[data-no="${no[1]}"]`);
+    if (pickBtn) { say("me", esc(prompt)); pickBtn.click(); say("hb", `<p>${no[1]}번 배치로 놓을게요.</p>`); return; }
+    ask(prompt, image);
+  };
+  const ask = async (prompt, image = null, extra = {}) => {
+    if (botForm.dataset.busy) return;
+    botForm.dataset.busy = "1"; bot.classList.add("thinking");
     say("me", `${image ? `<img class="msg-photo" src="${image}" alt="붙인 사진">` : ""}${prompt ? esc(prompt) : ""}`);
-    const wait = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
+    const wait = say("hb", DOTS);
     try {
       // 하우니: 꾸미기·분위기를 말하거나 사진을 붙이면 조합, 제품만 물으면 이 집에 맞는 하나 + 대안 (서버가 계산)
-      const d = await post(`/api/projects/${pid}/assist`, image ? { prompt, image } : { prompt });
+      const d = await post(`/api/projects/${pid}/assist`, { prompt, ...(image ? { image } : {}), ...extra });
       if (d.type === "message") {
         wait.innerHTML = `<p>${esc(d.message)}</p>`;
       } else if (d.type === "combos") {
-        wait.innerHTML = `<p>${esc(d.message)}</p>${comboCardsHtml(d)}`;
-        bindComboCards(wait, pid, () => refresh(true));
+        showCombos(wait, d);
       } else if (d.type === "life") {
         // 생활 이야기: 가전마다 하나 + 한 줄 이유(LGE.COM 구매 가이드 기준) → 넣어 보기, 이어서 배치 추천
         const row = (it) => `<li class="best"><span class="ph">${it.thumb ? `<img src="${esc(it.thumb)}" alt="" loading="lazy">` : ""}</span>
           <span class="nm"><b>${esc(it.family_name || it.product.name)}</b>${it.product.price_krw ? `<small>${it.product.price_krw.toLocaleString("ko-KR")}원</small>` : ""}
           <small>${esc(it.need.why)}${it.need.source_url ? ` · <a href="${esc(it.need.source_url)}" target="_blank" rel="noopener">LGE.COM 기준</a>` : ""}</small></span>
           <button class="small primary" data-try="${esc(it.product.sku)}">넣어 보기</button></li>`;
-        wait.innerHTML = `<p>${esc(d.message)}</p>${d.items.length ? `<ul class="bot-prods">${d.items.map(row).join("")}</ul>
-          <div class="chips"><button class="chip" id="lifeCombo">이 가전으로 배치 추천 받기</button></div>` : ""}`;
+        wait.innerHTML = `<p>${esc(d.message)}</p>${d.items.length ? `<ul class="bot-prods">${d.items.map(row).join("")}</ul>` : ""}
+          ${d.extras?.length ? `<p class="bot-sub">함께 보면 좋은 가전</p><ul class="bot-prods">${d.extras.map(row).join("")}</ul>` : ""}
+          ${d.items.length ? `<div class="chips"><button class="chip" data-life-combo>이 가전으로 배치 추천 받기</button></div>` : ""}`;
         wait.querySelectorAll("[data-try]").forEach((b) => (b.onclick = () => {
           const sku = b.dataset.try;
           if (!prodOf(sku)) return;
@@ -2217,14 +2301,13 @@ export async function customer(pid) {
           if (walking) setWalking(false);
           arm(sku);
         }));
-        const more = wait.querySelector("#lifeCombo");
+        const more = wait.querySelector("[data-life-combo]");
         if (more) more.onclick = async () => {
           more.disabled = true;
           const w2 = say("hb", `<span class="dots" aria-label="생각하는 중"><i></i><i></i><i></i></span>`);
           try {
-            const c = await post(`/api/projects/${pid}/assist`, { prompt, categories: d.categories, life: d.life });
-            w2.innerHTML = `<p>${esc(c.message)}</p>${comboCardsHtml(c)}`;
-            bindComboCards(w2, pid, () => refresh(true));
+            const c = await post(`/api/projects/${pid}/assist`, { prompt, categories: d.categories, life: d.life, ...(d.budget ? { budget: d.budget } : {}) });
+            showCombos(w2, c);
           } catch { w2.innerHTML = `<p>앗, 지금은 배치를 못 만들었어요. 잠시 뒤 다시 눌러 주세요.</p>`; more.disabled = false; }
           botLog.scrollTop = botLog.scrollHeight;
         };
@@ -2247,7 +2330,7 @@ export async function customer(pid) {
       wait.innerHTML = `<p>앗, 지금은 해석이 안 됐어요. 잠시 뒤 다시 말해 주세요.</p>`;
     } finally { delete botForm.dataset.busy; bot.classList.remove("thinking"); botLog.scrollTop = botLog.scrollHeight; }
   };
-  mountComboPop(pid, () => refresh(true));
+  mountComboPop(pid, () => refresh(true), shootCombo);
   if (!saved.botSeen) { bot.classList.add("nudge"); saveUiState(pid, { botSeen: true }); }
   api("/api/finishes").then((r) => { FIN = r.finishes; renderFinishes(); lastSceneKey = null; refresh(true).catch(() => {}); }).catch(() => {});
 
@@ -2626,6 +2709,7 @@ export async function customer(pid) {
     renderPlacements();
     renderFinishes();
     scheduleSuggest();
+    checkAddons();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
     wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
@@ -2722,7 +2806,7 @@ function botHtml() {
       <header class="bot-head">${BOT_SVG}<div><b>하우니</b><span>LG 봇 · 말로 꾸미기</span></div>
         <button class="bot-x" id="botClose" aria-label="닫기">×</button></header>
       <div class="bot-log" id="botLog" aria-live="polite">
-        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집 구조에 맞춰 가구·LG 가전·벽지까지 조합으로 놓아 볼게요. 마음에 드는 방 사진을 붙여도 되고, 가족 이야기를 해 주면 맞는 용량의 가전을 골라 드려요.</p></div>
+        <div class="msg hb"><p>안녕하세요, 하우니예요! 어떻게 살고 싶은지 말해 주면 이 집에 맞춘 배치를 1·2·3번으로 보여 드려요. 마음에 드는 번호를 고르면 가구·LG 가전·벽지까지 한 번에 놓여요. 방 사진을 붙여도 돼요.</p></div>
       </div>
       <div class="chips bot-ex" id="botEx"></div>
       <div class="bot-photo-prev" id="botPhotoPrev" hidden></div>
@@ -2731,6 +2815,7 @@ function botHtml() {
           <span class="sr">사진 붙이기</span></label><input id="botIn" maxlength="500" autocomplete="off" placeholder="예) 호텔 같은 침실, 가전은 300만 원 안" aria-label="하우니에게 말하기">
         <button class="primary" aria-label="보내기">보내기</button></form>
     </section>
+    <div class="bot-hint" id="botHint" hidden><button class="bot-hint-main" data-open title="하우니 제안 보기"><span></span><b>보기</b></button><button class="bot-x" data-pass aria-label="제안 닫기">×</button></div>
     <button class="bot-btn" id="botBtn" aria-expanded="false" aria-controls="botPanel" title="하우니에게 말로 꾸미기">${BOT_SVG}<span class="bot-tip">말로 꾸며 볼까요?</span></button>
   </div>`;
 }

@@ -528,19 +528,22 @@ class LifeIn(BaseModel):
     lots_of_food: bool = False
     kimchi: Optional[Literal["none", "small", "lots"]] = None
     dual_income: bool = False
+    pet: bool = False
 
 
 class AssistIn(BaseModel):
     prompt: str = Field("", max_length=500)
     image: Optional[str] = Field(None, max_length=7_500_000)  # 하우니에 붙인 사진 (data URL, 5MB 안). 저장하지 않는다
     # 생활 이야기로 고른 가전으로 이어서 배치 추천할 때
-    categories: Optional[list[Literal["refrigerator", "kimchi_refrigerator", "washer", "washer_dryer"]]] = Field(None, max_length=4)
+    categories: Optional[list[Literal["refrigerator", "kimchi_refrigerator", "washer", "washer_dryer", "dishwasher",
+                                      "air_purifier", "dryer"]]] = Field(None, max_length=6)
     life: Optional[LifeIn] = None  # 그때 읽은 생활 사실 (용량 범위를 조합에서도 지키려고)
+    budget: Optional[int] = Field(None, ge=100_000, le=100_000_000)  # 생활에 맞는 가전을 고를 때 지킬 LG 가전 합계
 
 
 @app.post("/api/projects/{pid}/assist")
 def assist(pid: str, body: AssistIn, s: Service = S):
-    return s.assist(pid, body.prompt, body.image, body.categories, body.life.model_dump() if body.life else None)
+    return s.assist(pid, body.prompt, body.image, body.categories, body.life.model_dump() if body.life else None, body.budget)
 
 
 @app.delete("/api/projects/{pid}/combos/applied")
@@ -551,6 +554,16 @@ def clear_combo(pid: str, s: Service = S):
 @app.post("/api/projects/{pid}/combos/{combo_id}/apply")
 def apply_combo(pid: str, combo_id: str, s: Service = S):
     return s.apply_combo(pid, combo_id)
+
+
+@app.get("/api/projects/{pid}/addons")
+def addons(pid: str, s: Service = S):
+    return s.addons(pid)
+
+
+@app.post("/api/projects/{pid}/addons/{addon_id}/apply")
+def apply_addon(pid: str, addon_id: str, s: Service = S):
+    return s.apply_addon(pid, addon_id)
 
 
 @app.post("/api/projects/{pid}/materials")
