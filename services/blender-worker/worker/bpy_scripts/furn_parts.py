@@ -69,6 +69,7 @@ LOOK = {  # 이름: (색, 거칠기, 금속성)
     "quartz": ("#D8D4CC", 0.34, 0.0),
     "ceramic": ("#D9D2C6", 0.55, 0.0),
     "steel_white": ("#CFCCC5", 0.5, 0.2),   # 흰 분체도장 철제 다리
+    "pvc": ("#CDCAC3", 0.42, 0.0),          # 흰 창틀 (PVC 새시)
 }
 
 
@@ -325,3 +326,60 @@ def slab(name: str, m: str, x0: float, x1: float, z0: float, z1: float, y0: floa
         rim = [ed for ed in bm.edges if len(ed.link_faces) == 2 and ed.calc_face_angle(0) > math.radians(60)]
         bmesh.ops.bevel(bm, geom=rim, offset=e, segments=3, profile=0.5, affect="EDGES")
     _emit(name, m, bm, rig)
+
+
+# ---------- 창틀·문틀: 단면을 뽑은 막대, 여러 부품을 한 덩이로 ----------
+def prof(name: str, m: str, axis: str, a0: float, a1: float, pts: list[tuple[float, float]], rig: str,
+         bevel: float = 0.0012) -> None:
+    """단면 pts를 한 축으로 뽑은 막대 (창틀·창짝 테·문틀). 면은 각지게 둔다.
+    axis "y" = 세로대, pts는 (x, z) / axis "x" = 가로대, pts는 (y, z). glTF 기준."""
+    def at(a: float, q: tuple[float, float]) -> Vector:
+        return _g2b(q[0], a, q[1]) if axis == "y" else _g2b(a, q[0], q[1])
+
+    bm = bmesh.new()
+    lo = [bm.verts.new(at(a0, q)) for q in pts]
+    hi = [bm.verts.new(at(a1, q)) for q in pts]
+    n = len(pts)
+    for i in range(n):
+        bm.faces.new((lo[i], lo[(i + 1) % n], hi[(i + 1) % n], hi[i]))
+    caps = [bm.faces.new(hi), bm.faces.new(lo[::-1])]
+    bmesh.ops.recalc_face_normals(bm, faces=list(bm.faces))
+    if bevel > 0:  # 길이 방향 모서리만 깎는다 (끝면은 벽이나 다른 틀 속에 들어간다)
+        long_edges = [e for e in bm.edges if (e.verts[0] in lo) != (e.verts[1] in lo)]
+        bmesh.ops.bevel(bm, geom=long_edges, offset=bevel, segments=1, profile=0.5, affect="EDGES")
+    # 끝면은 오목한 다각형이라 세모로 나눠 둔다 (그대로 내보내면 면이 뒤집혀 검게 보인다)
+    ends = [f for f in bm.faces if len(f.verts) > 4]
+    bmesh.ops.triangulate(bm, faces=ends, ngon_method="EAR_CLIP")
+    _emit(name, m, bm, rig)
+    for poly in bpy.data.objects[name].data.polygons:
+        poly.use_smooth = False
+
+
+def merge(name: str, names: list[str], rig: str) -> None:
+    """같은 재질 부품 여럿을 한 덩이로 합친다 (손잡이처럼 같이 움직이는 것). 그리는 횟수를 줄인다."""
+    obs = [bpy.data.objects[n] for n in names]
+    bm = bmesh.new()
+    for ob in obs:
+        tmp = ob.data.copy()
+        tmp.transform(ob.matrix_basis)
+        bm.from_mesh(tmp)
+        bpy.data.meshes.remove(tmp)
+    smooth = [f.smooth for f in bm.faces]
+    material = obs[0].data.materials[0]
+    for ob in obs:
+        bpy.data.objects.remove(ob, do_unlink=True)
+    lo = Vector([min(v.co[i] for v in bm.verts) for i in range(3)])
+    hi = Vector([max(v.co[i] for v in bm.verts) for i in range(3)])
+    mid = (lo + hi) / 2
+    for v in bm.verts:
+        v.co -= mid
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    me.materials.append(material)
+    for poly, s_ in zip(me.polygons, smooth):
+        poly.use_smooth = s_
+    ob = bpy.data.objects.new(name, me)
+    ob.location = mid
+    ob["rig"] = rig
+    bpy.context.scene.collection.objects.link(ob)

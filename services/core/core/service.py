@@ -413,8 +413,18 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
     # ---- room ----
     def _load_room(self, pid: str) -> Room:
         """스캔 그대로(+실측). 저장할 때는 이걸 고쳐서 저장한다 (가구 옮긴 자리가 스캔에 섞이지 않게)."""
+        from worker.tidy import tidy_openings
+
         p = self.get_project(pid)
-        return Room.model_validate_json((self.root / p["scan"]["room_json"]).read_text(encoding="utf-8"))
+        path = self.root / p["scan"]["room_json"]
+        room = Room.model_validate_json(path.read_text(encoding="utf-8"))
+        fixed = tidy_openings(room)
+        if fixed is not room:
+            # 예전에 만든 집: 벽이 가로지르는 문, 겹친 문을 바로잡아 다시 써 두고 3D도 새로 만든다
+            path.write_text(fixed.model_dump_json(indent=2), encoding="utf-8")
+            if p.get("scene"):
+                self._rebuild(pid)
+        return fixed
 
     def get_room(self, pid: str) -> Room:
         """지금 집 모습: 스캔 + 옮긴 가구 자리(scene_state.object_poses)."""
@@ -1002,6 +1012,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         return prod.category == "water_purifier" and (prod.install_type == "built_in" or prod.install_form == "빌트인")
 
     def _judge(self, room: Room, p: dict, prod: Product, pose: Pose, exclude: str | None = None, base_m: float | None = None):
+        # 창은 스캔·도면에서 창이 있던 벽에만 단다 (없앤 창이 있던 벽도 된다). 창을 하나도 못 찾은 집은 따지지 않는다
+        window_walls = {o.wall_id for o in room.openings if o.type == "window" and o.wall_id} or None
         shut = set(p["scene_state"].get("hidden_openings") or [])
         if shut:  # 없앤 창은 가릴 일이 없다
             room = room.model_copy(update={"openings": [o for o in room.openings if o.opening_id not in shut]})
@@ -1014,7 +1026,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         elif prod.sku in self.CABINETS:
             others = [x for x in others if not self._inset(x.get("sku"))]
         host = surface_under(pose.center_xz, self._tops(room, p, prod, exclude)) if can_sit(prod) else None
-        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host, base_m=base_m)
+        return check_pose(room, prod, pose, self.fit_cfg, others=others, hidden=self._blocked_off(p), host=host, base_m=base_m,
+                          window_walls=window_walls)
 
     # 작은 가전을 올려 둘 수 있는 가구 (윗면이 SURFACE_MAX_M 이하일 때). 스캔 가구는 탁자·수납장
     HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:islandtable",
