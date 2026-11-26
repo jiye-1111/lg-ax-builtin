@@ -24,6 +24,13 @@ import { partsOf, partOfMaterial, partColours, lookOf, runOf } from "./furncolor
 import { straighten, snapStart } from "./wallsnap.js";
 import { comboPopHtml, comboCardsHtml, bindComboCards, mountComboPop } from "./combos.js";
 import { personaHtml, bindPersona, addonsHtml } from "./hauni.js";
+import { wifiClient } from "./wifi/client.js";
+import { ANTENNA_UP_M } from "./wifi/scene.js";
+import { contourLabels } from "./wifi/contours.js";
+import { colorAt, diffColorAt } from "./wifi/palette.js";
+import { ENCLOSURE, WIDTHS_MHZ, DEFAULT_WIDTH_MHZ, MATERIALS as WIFI_MATERIALS, WALL_CHOICES as WIFI_WALL_CHOICES } from "./wifi/materials.js";
+import { CAUSES as WIFI_CAUSES, MODES as WIFI_MODES, RANGES as WIFI_RANGES, labelText as wifiLabel, legendHtml as wifiLegend, summarize as wifiSummary,
+  summaryHtml as wifiSumHtml, probeHtml as wifiProbeHtml, probeBadges as wifiBadges, mbpsValue } from "./wifi/ui.js";
 
 // 이 폭 이하(폰·태블릿·작은 앱 창)는 앱 배치: 3D 꽉 차게, 제품은 아래 서랍
 const APP_MAX_W = 1100;
@@ -483,13 +490,14 @@ export async function customer(pid) {
       const x = h.kind === "placement" && project?.scene_state.placements.find((q) => q.placement_id === h.id);
       return x ? hangPose(x.sku, x.size_m, o, d, p, h.y) : null;
     },
-    onHover: (p) => { hovering = true; follow(p); },
+    onHover: (p) => { hovering = true; follow(p); probeWifi(p); },
     wantHoverHit: () => furnPick,
     onHoverHit: (h) => furnHover(h),
-    onLeave: () => { hovering = false; if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
+    onLeave: () => { hovering = false; hideProbe(); if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
       if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
+      if (wallMatPick) { if (hit?.type === "wall") chooseWallMat(hit.id); return; }
       if (point && floorAction(point)) return;
       if (hit?.type === "router") { if (mode === "move" && !armed) pickUp(hit, point); return; }
       if (hit?.type === "placement" || hit?.type === "object") { // 누른 곳(등받이·헤드·상판)을 기억해 두면 색 버튼이 그 부위부터 연다
@@ -503,6 +511,7 @@ export async function customer(pid) {
       // 누르면 고르기만 한다. 옮기기는 끌거나 아래 '이동' 버튼으로 (키보드 없이도 되게)
     },
     onHoldMove: (h, xz) => {
+      if (h.kind === "router") { if (simOn("wifi")) { hideProbe(); guard(runWifi)(true, { xz, surfaceY: viewer.held()?.y }); } return; }
       if (h.kind !== "placement") return;
       const x = project.scene_state.placements.find((q) => q.placement_id === h.id);
       fitBadge.hidden = true;
@@ -1139,7 +1148,7 @@ export async function customer(pid) {
   cleanup.push(() => { document.removeEventListener("keydown", onShift); document.removeEventListener("keyup", onShift); });
   const follow = (p) => {
     lastHover = p;
-    if (armedRouter && !armed) { viewer.routerFollow(p); return; }
+    if (armedRouter && !armed) { viewer.routerFollow(p); if (simOn("wifi")) guard(runWifi)(true, { xz: p, surfaceY: viewer.routerInfo?.().y }); return; }
     if (armedStart && !armed) { viewer.personFollow(p); return; }
     if (mode !== "move" || wallPicking) return;
     if (wallDraw) { // 가벽: 시작점 전에는 기둥 하나, 시작점을 찍은 뒤에는 시작점부터 마우스까지 벽
@@ -1359,7 +1368,7 @@ export async function customer(pid) {
     if (armedRouter && !armed) {
       armedRouter = false;
       viewer.routerFollow(null); // 서버가 높이까지 정해 돌려주면 그 자리로 (실패하면 원래 자리)
-      guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); if (simOn("wifi")) await wifiCtl(); })();
+      guard(async () => { project = await put(`/api/projects/${pid}/router`, { center_xz: p, band }); wifiKey = ""; if (simOn("wifi")) await wifiCtl(); })();
       return true;
     }
     if (wallDraw) { wallPoint(wallAt(p)); return true; }
@@ -1472,6 +1481,7 @@ export async function customer(pid) {
     if (it.kind === "router") {
       // 공유기를 내려놓으면 그 자리에서 신호를 다시 계산한다
       project = await put(`/api/projects/${pid}/router`, { center_xz: it.xz, yaw_rad: it.yaw, band });
+      wifiKey = "";
       if (simOn("wifi")) await runWifi();
       return;
     }
@@ -1528,6 +1538,7 @@ export async function customer(pid) {
     }
     if (k === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (k === "y" && e.ctrlKey) { e.preventDefault(); redo(); return; }
+    if (k === "Escape" && wallMatPick) { setWallMatPick(false); return; }
     if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
@@ -2366,13 +2377,14 @@ export async function customer(pid) {
       document.getElementById("needTag").hidden = true; // 점선 범례 글은 띄우지 않는다 (화면을 가볍게)
     } catch { viewer.setNeed(null); }
   };
-  const overlays = { wifi: "", flow: "" };
-  const setOverlay = (key, html) => {
-    overlays[key] = html;
+  const overlays = { wifi: "", flow: "" }, planOnly = { wifi: "", flow: "" };
+  // plan: 평면도에만 그릴 것 (3D 바닥에는 따로 그리는 와이파이 히트맵)
+  const setOverlay = (key, html, plan = "") => {
+    overlays[key] = html; planOnly[key] = plan;
     html = overlays.wifi + overlays.flow;
-    overlay = html;
+    overlay = planOnly.wifi + html;
     const g = document.getElementById("overlay");
-    if (g) g.innerHTML = html;
+    if (g) g.innerHTML = overlay;
     viewer.setOverlay(html, svg.getAttribute("viewBox")?.split(" ").map(Number));
   };
 
@@ -2471,44 +2483,201 @@ export async function customer(pid) {
     await runDaylight();
   };
   // ---- 살아 보기: 와이파이 ----
-  // 공유기 종류를 고르고 놓기만 한다. 결과는 방 바닥에 색으로만: 초록 잘 통함 · 노랑 보통 · 빨강 약함
-  let armedRouter = false, band = "5";
-  const WCOLOR = { good: "#1f7a4d", ok: "#e0a800", weak: "#b3261e" };
-  const runWifi = async () => {
+  // 거리·벽 재질·문틈·가구·반사·회절·간섭까지 계산해서 (js/wifi/) 바닥에 끊김 없는 색과 등고선으로 보여 준다.
+  // 계산은 Worker에서: 공유기를 끄는 동안 0.3 m 미리보기, 내려놓으면 0.1 m. 바닥에 마우스를 올리면 왜 약한지 막대로
+  let armedRouter = false, band = "5", wallMatPick = false, wifiSpots = [], probeAt = null, probeRaf = 0;
+  const WIFI_DEF = { mode: "dbm", causes: Object.fromEntries(WIFI_CAUSES.map(([k]) => [k, true])), rxH: 1.0, congestion: 0, microwaveOn: false };
+  let wifiView = { ...WIFI_DEF, ...(saved.wifi || {}), causes: { ...WIFI_DEF.causes, ...(saved.wifi?.causes || {}) } };
+  const saveWifi = () => saveUiState(pid, { wifi: wifiView });
+  const wifiC = wifiClient();
+  cleanup.push(() => wifiC.dispose());
+  let wifiScn = null, wifiKey = "", wifiTurn = 0, lastWifi = null;
+  const wifiTip = document.createElement("div");
+  wifiTip.className = "wifi-tip"; wifiTip.hidden = true; wifiTip.setAttribute("role", "status");
+  document.body.append(wifiTip); // 3D 위 다른 패널(주문 칸)보다 위에 뜨게
+  cleanup.push(() => wifiTip.remove());
+  let tipXY = [0, 0];
+  const onTipMove = (e) => { tipXY = [e.clientX, e.clientY]; };
+  document.getElementById("viewer").addEventListener("pointermove", onTipMove);
+  const hideProbe = () => { probeAt = null; wifiTip.hidden = true; viewer.setWifiProbe(null); };
+  // 집이 바뀌었을 때만 Worker에 다시 보낸다 (공유기만 옮기면 그대로)
+  const ensureWifiScene = () => {
+    const ss = project.scene_state;
+    const key = JSON.stringify([room.walls.length, room.objects.map((o) => [o.object_id, o.position, o.yaw_rad]), ss.placements.map((x) => [x.placement_id, x.sku, x.center_xz, x.yaw_rad, x.size_m, x.base_m]),
+      ss.hidden_walls, ss.hidden_openings, ss.hidden_objects, ss.wall_materials, ss.object_poses]);
+    if (key === wifiKey && wifiScn) return wifiScn;
+    wifiKey = key;
+    const cats = {};
+    for (const x of ss.placements) { const c = prodOf(x.sku)?.category; if (c) cats[x.sku] = c; }
+    wifiScn = wifiC.setScene(room, ss, cats);
+    return wifiScn;
+  };
+  const wifiOpts = (preview) => ({ rxH: wifiView.rxH, causes: wifiView.causes, interference: { microwaveOn: wifiView.microwaveOn, congestion: wifiView.congestion },
+    cell: preview ? 0.3 : 0.1, preview, bounds: wifiScn.bounds });
+  const routerNow = (over) => {
+    const r = { ...wifiScn.router, ...(over || {}) };
+    if (over?.surfaceY != null) r.h = over.surfaceY + ANTENNA_UP_M;
+    return r;
+  };
+  // 평면도(작은 지도)에는 같은 결과를 그림으로 깐다
+  const planHeat = (f, values, mode) => {
+    const cv = document.createElement("canvas"); cv.width = f.nx; cv.height = f.ny;
+    const g = cv.getContext("2d"), img = g.createImageData(f.nx, f.ny), r = WIFI_RANGES[mode];
+    for (let k = 0; k < f.nx * f.ny; k++) {
+      const v = values[k], c = mode === "diff" ? diffColorAt(v) : colorAt(mode === "mbps" ? -30 + ((v - r.top) / (r.bottom - r.top)) * -60 : v);
+      img.data.set([c[0] * 255, c[1] * 255, c[2] * 255, 150], k * 4);
+    }
+    g.putImageData(img, 0, 0);
+    const clip = wifiScn.outline ? `<clipPath id="wifiClip"><polygon points="${wifiScn.outline.map((p) => p.join(",")).join(" ")}"/></clipPath>` : "";
+    return `${clip}<image href="${cv.toDataURL()}" x="${f.origin[0]}" y="${f.origin[1]}" width="${f.nx * f.cell}" height="${f.ny * f.cell}" preserveAspectRatio="none"${clip ? ' clip-path="url(#wifiClip)"' : ""}/>`;
+  };
+  const routerSym = (xz, yaw) => {
+    const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
+    return `<g class="router-sym" transform="translate(${xz[0]} ${xz[1]}) rotate(${(-(yaw ?? 0) * 180) / Math.PI})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`;
+  };
+  // preview: 끄는 중 (굵게 빨리), over: {xz, surfaceY} 아직 저장 안 한 자리
+  const runWifi = async (preview = false, over = null) => {
     const box = resOf("wifi");
     if (!box) return;
     const rt = project.scene_state.router;
-    if (!rt) { setOverlay("wifi", ""); viewer.setRouter(null); box.innerHTML = ""; return; }
-    const g = await api(`/api/projects/${pid}/sim/wifi?band=${band}`);
-    if (!simOn("wifi") || !box.isConnected) return;
-    const tint = simOn("daylight") ? 0.22 : 0.3; // 볕과 같이 볼 때는 색을 조금 옅게
-    const gradeOf = (v) => (v >= -60 ? "good" : v >= -70 ? "ok" : "weak");
-    const [x0, y0] = g.origin, c = g.cell_m, cells = [];
-    g.values.forEach((row, j) => row.forEach((v, i) => { if (v != null) cells.push(`<rect x="${x0 + i * c}" y="${y0 + j * c}" width="${c}" height="${c}" fill="${WCOLOR[gradeOf(v)]}" fill-opacity="${tint}"/>`); }));
-    const [rx, ry] = g.router;
-    // 평면도에는 실제 크기 윗면 기호(본체 + 안테나 4개), 3D에는 실제 공유기 모델
-    const yawDeg = ((rt.yaw_rad ?? 0) * 180) / Math.PI;
-    const ants = [-0.1, -0.045, 0.045, 0.1].map((x) => `M${x} 0.06v0.05`).join("");
-    setOverlay("wifi", cells.join("") + `<g class="router-sym" transform="translate(${rx} ${ry}) rotate(${-yawDeg})"><rect x="-0.1305" y="-0.0672" width="0.261" height="0.1345" rx="0.012"/><path d="${ants}" style="stroke-width:0.018px;stroke-linecap:round"/></g>`);
-    viewer.setRouter(rt);
-    box.innerHTML = `<p class="wifi-legend"><span><i style="background:${WCOLOR.good}"></i>잘 통해요</span><span><i style="background:${WCOLOR.ok}"></i>보통</span><span><i style="background:${WCOLOR.weak}"></i>약해요</span></p>`;
+    if (!rt && !over) { setOverlay("wifi", ""); viewer.setRouter(null); viewer.setWifiHeat(null); box.innerHTML = ""; return; }
+    ensureWifiScene();
+    if (!wifiScn.router && !over) return;
+    const turn = ++wifiTurn, mode = wifiView.mode;
+    const router = over && !wifiScn.router ? { xz: over.xz, h: (over.surfaceY ?? 0) + ANTENNA_UP_M, band } : routerNow(over);
+    if (mode === "diff") router.band = "5";
+    const f = await wifiC.field(router, wifiOpts(preview), mode === "diff" ? "2.4" : null);
+    if (!f || turn !== wifiTurn || !simOn("wifi") || !box.isConnected) return;
+    const values = mode === "dbm" ? f.rssi : mode === "mbps" ? f.mbps.map(mbpsValue) : f.rssi.map((v, k) => v - f.alt[k]);
+    const r = WIFI_RANGES[mode];
+    const labels = preview ? [] : contourLabels(values, f.nx, f.ny, f.origin, f.cell, r.bold, { inside: wifiScn.inside }).map((l) => ({ xz: l.xz, text: wifiLabel(mode, l.level) }));
+    viewer.setWifiHeat(f, values, { outline: wifiScn.outline, bounds: wifiScn.bounds, range: r, mode, opacity: simOn("daylight") ? 0.5 : 0.62, labels });
+    if (preview) return;
+    lastWifi = { f, router };
+    setOverlay("wifi", "", planHeat(f, values, mode) + (rt ? routerSym(rt.center_xz, rt.yaw_rad) : ""));
+    if (rt) viewer.setRouter(rt);
+    const s = wifiSummary(f, wifiC.sc, wifiScn.walls, wifiScn.inside);
+    box.innerHTML = `${wifiLegend(mode)}${wifiSumHtml(s, HOVERS)}
+      <div class="sim-row wifi-row">
+        <div class="seg3" role="group" aria-label="무엇을 볼까요">${WIFI_MODES.map(([k, t]) => `<button data-wmode="${k}" class="${mode === k ? "on" : ""}" aria-pressed="${mode === k}">${t}</button>`).join("")}</div>
+        <button class="small ghost" id="wifiBest">좋은 자리 3곳</button>
+      </div>
+      ${wifiSpots.length ? `<div class="wifi-spots" role="group" aria-label="추천 자리">${wifiSpots.map((p, i) => `<button class="small ghost" data-spot="${i}">${i + 1}번 자리 · ${Math.round(p.share * 100)}%</button>`).join("")}</div>` : ""}
+      <details class="wifi-more" id="wifiMore"${wifiMoreOpen ? " open" : ""}><summary>왜 약한지 · 설정</summary>
+        <p class="sim-note">원인을 하나씩 꺼 보면 그게 얼마나 영향을 주는지 바로 보여요. 바닥에 마우스를 올리면 그 자리 이유가 나와요.</p>
+        <div class="chips wifi-causes" role="group" aria-label="계산에 넣을 원인">${WIFI_CAUSES.map(([k, t]) => `<button class="chip ${wifiView.causes[k] ? "on" : ""}" data-cause="${k}" aria-pressed="${!!wifiView.causes[k]}">${t}</button>`).join("")}</div>
+        <div class="wifi-set">
+          <label>공유기 둔 곳<span class="seg3 sm" role="group">${Object.entries(ENCLOSURE).map(([k, v]) => `<button data-encl="${k}" class="${(rt?.enclosure || "open") === k ? "on" : ""}">${v.ko}</button>`).join("")}</span></label>
+          <label>채널 폭<span class="seg3 sm" role="group">${WIDTHS_MHZ.map((w) => `<button data-width="${w}" class="${(rt?.channel_mhz || DEFAULT_WIDTH_MHZ[band]) === w ? "on" : ""}">${w}</button>`).join("")}</span></label>
+          <label>휴대폰 높이 <output>${wifiView.rxH.toFixed(1)} m</output><input type="range" id="wRx" min="0.3" max="1.8" step="0.1" value="${wifiView.rxH}"></label>
+          <label>이웃 와이파이 붐빔 <output>${wifiView.congestion ? `+${wifiView.congestion} dB` : "없음"}</output><input type="range" id="wBusy" min="0" max="10" step="1" value="${wifiView.congestion}"></label>
+          <label class="wifi-mw"><span>전자레인지 켜 보기</span>${wifiScn.input.objects.some((o) => o.kind === "microwave") ? `<button class="simsw ${wifiView.microwaveOn ? "on" : ""}" id="wMw" role="switch" aria-checked="${wifiView.microwaveOn}"><span class="sw-track" aria-hidden="true"><i></i></span></button>` : `<span class="muted">전자레인지를 놓으면 켜 볼 수 있어요</span>`}</label>
+          <button class="small ghost" id="wWall" aria-pressed="${wallMatPick}">${wallMatPick ? "바꿀 벽을 누르세요" : "벽 재질 바꾸기"}</button>
+        </div>
+        <p class="sim-note">공간 평균값이라 실제와 ±6 dB쯤 다를 수 있어요. 순간 흔들림·습도·문 여닫음은 넣지 않았어요. 벽 재질은 고르지 않으면 바깥벽 철근콘크리트, 안쪽 벽 콘크리트로 봐요.</p>
+      </details>`;
+    bindWifiPanel(box);
+  };
+  let wifiMoreOpen = false;
+  const bindWifiPanel = (box) => {
+    const more = box.querySelector("#wifiMore");
+    if (more) more.ontoggle = () => { wifiMoreOpen = more.open; };
+    box.querySelectorAll("[data-wmode]").forEach((b) => (b.onclick = () => { wifiView.mode = b.dataset.wmode; saveWifi(); guard(runWifi)(); }));
+    box.querySelectorAll("[data-cause]").forEach((b) => (b.onclick = () => { wifiView.causes[b.dataset.cause] = !wifiView.causes[b.dataset.cause]; saveWifi(); hideProbe(); guard(runWifi)(); }));
+    const setRt = guard(async (extra) => { const rt = project.scene_state.router; project = await put(`/api/projects/${pid}/router`, { center_xz: rt.center_xz, yaw_rad: rt.yaw_rad, band, ...extra }); wifiKey = ""; await runWifi(); });
+    box.querySelectorAll("[data-encl]").forEach((b) => (b.onclick = () => setRt({ enclosure: b.dataset.encl })));
+    box.querySelectorAll("[data-width]").forEach((b) => (b.onclick = () => setRt({ channel_mhz: +b.dataset.width })));
+    const slide = (id, key, fmt) => {
+      const el = box.querySelector(id);
+      if (!el) return;
+      el.oninput = () => { wifiView[key] = +el.value; el.previousElementSibling.textContent = fmt(+el.value); guard(runWifi)(true); };
+      el.onchange = () => { saveWifi(); guard(runWifi)(); };
+    };
+    slide("#wRx", "rxH", (v) => `${v.toFixed(1)} m`);
+    slide("#wBusy", "congestion", (v) => (v ? `+${v} dB` : "없음"));
+    const mw = box.querySelector("#wMw");
+    if (mw) mw.onclick = () => { wifiView.microwaveOn = !wifiView.microwaveOn; saveWifi(); if (wifiView.microwaveOn && band !== "2.4") toast("전자레인지 잡음은 2.4 GHz에만 영향을 줘요"); guard(runWifi)(); };
+    box.querySelector("#wWall").onclick = () => setWallMatPick(!wallMatPick);
+    box.querySelector("#wifiBest").onclick = guard(async () => {
+      const b = box.querySelector("#wifiBest"); b.disabled = true; b.textContent = "찾는 중…";
+      wifiSpots = await wifiC.best(routerNow(), { ...wifiOpts(false), bounds: wifiScn.bounds, inside: wifiScn.inside });
+      viewer.setWifiPins(wifiSpots.map((p, i) => ({ xz: p.xz, text: `${i + 1} · ${Math.round(p.share * 100)}%` })));
+      await runWifi();
+    });
+    box.querySelectorAll("[data-spot]").forEach((b) => (b.onclick = guard(async () => {
+      const p = wifiSpots[+b.dataset.spot];
+      project = await put(`/api/projects/${pid}/router`, { center_xz: p.xz, band });
+      wifiSpots = []; viewer.setWifiPins([]);
+      await runWifi();
+    })));
+  };
+  const setWallMatPick = (on) => {
+    wallMatPick = on;
+    viewer.setWallPick(on);
+    setHint(on ? "재질을 바꿀 벽을 3D에서 누르세요 · Esc 취소" : undefined);
+    const b = document.getElementById("wWall");
+    if (b) { b.textContent = on ? "바꿀 벽을 누르세요" : "벽 재질 바꾸기"; b.setAttribute("aria-pressed", on); }
+  };
+  // 벽을 누르면 그 자리에 재질 고르기
+  const chooseWallMat = (wid) => {
+    setWallMatPick(false);
+    const box = resOf("wifi");
+    if (!box) return;
+    const cur = wifiScn?.walls.find((w) => w.id === wid);
+    box.querySelector(".wifi-wallpick")?.remove();
+    const el = document.createElement("div");
+    el.className = "wifi-wallpick";
+    el.innerHTML = `<p class="sim-line">이 벽은 <b>${esc(WIFI_MATERIALS[cur?.material]?.ko || "콘크리트 벽")}</b>${cur?.guessed ? "으로 보고 있어요 (추정)" : "이에요"}. 실제 재질을 골라 주세요</p>
+      <div class="chips">${WIFI_WALL_CHOICES.map((k) => `<button class="chip ${cur?.material === k && !cur?.guessed ? "on" : ""}" data-mat="${k}">${WIFI_MATERIALS[k].ko.replace(/ 벽$/, "")}</button>`).join("")}${cur && !cur.guessed ? `<button class="chip" data-mat="">모름</button>` : ""}</div>`;
+    box.prepend(el);
+    el.querySelectorAll("[data-mat]").forEach((b) => (b.onclick = guard(async () => {
+      project = await put(`/api/projects/${pid}/walls/${wid}/material`, { material: b.dataset.mat || null });
+      await runWifi();
+    })));
+  };
+  // 커서 탐침: 그 점까지 직접 경로 + 가장 센 반사·회절 1~2개를 3D 선으로, 지나간 벽·가구에 배지, 옆에 막대
+  const probeWifi = (p) => {
+    if (!simOn("wifi") || !project.scene_state.router || !wifiScn?.router || armed || armedRouter || armedStart || wallMatPick || viewer.held() || mode !== "move") { if (probeAt) hideProbe(); return; }
+    probeAt = p;
+    if (probeRaf) return;
+    probeRaf = requestAnimationFrame(() => {
+      probeRaf = 0;
+      if (!probeAt) return;
+      const router = routerNow(), opts = wifiOpts(false);
+      const t = wifiC.probe(router, probeAt, opts);
+      if (!t) return;
+      const extra = t.paths.slice(1).filter((x) => x.db > t.rssi - 15).slice(0, 2);
+      viewer.setWifiProbe({ paths: [t.paths[0], ...extra], badges: wifiBadges(t), at: [probeAt[0], 0, probeAt[1]] });
+      wifiTip.innerHTML = wifiProbeHtml(t, { tx: 20, band: router.band, width: router.width || DEFAULT_WIDTH_MHZ[router.band] });
+      wifiTip.hidden = false;
+      const w = wifiTip.offsetWidth, h = wifiTip.offsetHeight, W = innerWidth, H = innerHeight;
+      let x = tipXY[0] + 18, y = tipXY[1] + 18;
+      if (x + w > W - 8) x = tipXY[0] - w - 18;
+      if (y + h > H - 8) y = Math.max(8, tipXY[1] - h - 18);
+      wifiTip.style.transform = `translate(${Math.round(x)}px, ${Math.round(y)}px)`;
+    });
   };
   const wifiCtl = async () => {
     const ctl = ctlOf("wifi");
     if (!ctl) return;
+    if (project.scene_state.router?.band) band = project.scene_state.router.band;
+    const BANDS = [["5", "빠름"], ["2.4", "멀리"], ["6", "최신"]];
     ctl.innerHTML = `
       <div class="sim-row">
-        <div class="seg2 band" role="group" aria-label="공유기 종류">
-          <button data-band="5" class="${band === "5" ? "on" : ""}" aria-pressed="${band === "5"}">5 GHz <span class="n">빠름</span></button>
-          <button data-band="2.4" class="${band === "2.4" ? "on" : ""}" aria-pressed="${band === "2.4"}">2.4 GHz <span class="n">멀리</span></button></div>
-        <button class="small ${armedRouter ? "primary" : "ghost"}" id="putRouter" aria-pressed="${armedRouter}">${armedRouter ? "놓을 자리를 눌러 주세요" : "공유기 놓기"}</button>
+        <div class="seg3 band" role="group" aria-label="공유기 주파수">${BANDS.map(([k, t]) => `<button data-band="${k}" class="${band === k ? "on" : ""}" aria-pressed="${band === k}">${k} GHz <span class="n">${t}</span></button>`).join("")}</div>
+        <button class="small ${armedRouter ? "primary" : "ghost"}" id="putRouter" aria-pressed="${armedRouter}">${armedRouter ? "놓을 자리를 눌러 주세요" : project.scene_state.router ? "공유기 옮기기" : "공유기 놓기"}</button>
       </div>`;
-    document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = () => { band = b.dataset.band; wifiCtl(); }));
+    document.querySelectorAll("[data-band]").forEach((b) => (b.onclick = guard(async () => {
+      band = b.dataset.band;
+      const rt = project.scene_state.router;
+      if (rt) { project = await put(`/api/projects/${pid}/router`, { center_xz: rt.center_xz, yaw_rad: rt.yaw_rad, band }); wifiKey = ""; }
+      wifiCtl();
+    })));
     document.getElementById("putRouter").onclick = () => {
       armedRouter = !armedRouter;
       if (!armedRouter) viewer.routerFollow(null);
       else if (armedStart) { armedStart = false; viewer.personFollow(null); if (simOn("flow")) flowCtl(); } // 손에는 하나만 든다
-      armed = null; mode = "move"; syncMode(); wifiCtl();
+      armed = null; mode = "move"; syncMode(); hideProbe(); wifiCtl();
     };
     if (armedRouter) { armed = null; mode = "move"; syncMode(); }
     await runWifi();
@@ -2660,7 +2829,7 @@ export async function customer(pid) {
   const showSim = guard(async () => {
     document.querySelectorAll("[data-sim]").forEach((x) => { const on = simOn(x.dataset.sim); x.classList.toggle("on", on); x.setAttribute("aria-checked", on); });
     if (!simOn("daylight")) viewer.setSun(null); // 채광이 아니면 보기 좋은 기본 해
-    if (!simOn("wifi")) { viewer.setRouter(null); setOverlay("wifi", ""); if (armedRouter) { armedRouter = false; viewer.routerFollow(null); } }
+    if (!simOn("wifi")) { viewer.setRouter(null); viewer.setWifiHeat(null); hideProbe(); wifiSpots = []; if (wallMatPick) setWallMatPick(false); setOverlay("wifi", ""); if (armedRouter) { armedRouter = false; viewer.routerFollow(null); } }
     if (!simOn("flow")) { viewer.setWalkers([]); viewer.personFollow(null); armedStart = false; clearFlowX(); setOverlay("flow", ""); }
     // 켠 것마다 한 칸씩, 늘 같은 순서로 쌓는다. 이미 있는 칸은 그대로 둔다 (적던 주소가 지워지지 않게)
     const box = document.getElementById("simctl");

@@ -109,6 +109,8 @@
 | PUT | `/api/projects/{pid}/router` | `{center_xz, band: "5" \| "2.4"}` |
 | GET | `/api/projects/{pid}/sim/wifi?band=` | 신호 격자(dBm), 비율, 영역별, 가정 |
 | GET | `/api/projects/{pid}/sim/wifi/best?band=` | 가장 약한 곳이 제일 센 공유기 자리 |
+| PUT | `/api/projects/{pid}/router` | 공유기 자리·`band`(2.4/5/6)·`yaw_rad`·`channel_mhz`(20/40/80/160)·`enclosure`(open/cabinet/metal). 안 준 설정은 그대로 |
+| PUT | `/api/projects/{pid}/walls/{wid}/material` | 와이파이 계산용 벽 재질 (`null`이면 추정으로) → `scene_state.wall_materials` |
 | PUT/DELETE | `/api/projects/{pid}/marks/{sink\|entrance}` | 싱크·현관 위치 |
 | GET | `/api/projects/{pid}/sim/flow` | 현관 → 제품 앞(정면 0.35 m) 경로, 길이, 가장 좁은 폭, 좁은 점, 작업 삼각형 |
 

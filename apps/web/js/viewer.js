@@ -22,6 +22,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
+import { makeWifiLayer } from "./wifi/heat3d.js";
 import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture, glassLook, WIDE_DOOR_M, WIDE_WINDOW_M } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -235,6 +236,7 @@ export function makeViewer(el, handlers = {}) {
   let overlayTurn = 0;
   overlay.renderOrder = 1;
   scene.add(overlay);
+  const wifiLayer = makeWifiLayer(scene); // 와이파이: 연속 히트맵 + 등고선 + 탐침 (wifi/heat3d.js)
   const products = new THREE.Group();
   /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box:[x0,y0,x1,y1]}] (0~1, 위가 0). 카메라 뒤나 화면 밖은 뺀다 */
   const productBoxes = () => {
@@ -1470,8 +1472,12 @@ export function makeViewer(el, handlers = {}) {
     pauseWalkers(on = true) { walkersPaused = !!on; },
     /** 걷는 사람 (E2E 확인용) */
     walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving })); },
-    routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], yaw: +(-routerG.rotation.y).toFixed(3) }; },
+    routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], y: +routerG.position.y.toFixed(3), yaw: +(-routerG.rotation.y).toFixed(3) }; },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
+    /** 와이파이 히트맵 (wifi/heat3d.js setHeat). f가 null이면 끈다 */
+    setWifiHeat(f, values, opts) { if (!f) wifiLayer.clear(); else wifiLayer.setHeat(f, values, opts); },
+    setWifiProbe(p) { wifiLayer.setProbe(p); },
+    setWifiPins(list) { wifiLayer.setPins(list); },
     setOverlay(inner, box) {
       const turn = ++overlayTurn; // 그림은 늦게 뜬다: 그 사이 지우거나 새로 그렸으면 늦게 온 것은 버린다 (끈 동선이 다시 뜨던 문제)
       if (!inner || !box) { overlay.visible = false; return; }
@@ -1602,7 +1608,7 @@ export function makeViewer(el, handlers = {}) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
       const hide = (o) => { if (o?.visible) { o.visible = false; hidden.push(o); } };
-      [overlay, ghost, need, walkersG, starter, grid].forEach(hide);
+      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid].forEach(hide);
       products.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) hide(o); });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
@@ -1643,7 +1649,7 @@ export function makeViewer(el, handlers = {}) {
     thumb(W = 480, H = 320) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
-      [overlay, ghost, need, walkersG, starter, grid].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
@@ -1676,7 +1682,7 @@ export function makeViewer(el, handlers = {}) {
           g.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) o.visible = false; });
           products.add(g); temp.push(g);
         }
-        [overlay, ghost, need, walkersG, starter, grid, routerG, rotRing, stretchG, carveG].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+        [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid, routerG, rotRing, stretchG, carveG].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
         model.traverse((o) => {
           const tone = o.isMesh && tones[o.userData?.kind];
           if (!tone || !o.material?.color) return;
