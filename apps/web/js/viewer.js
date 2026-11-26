@@ -21,7 +21,7 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
-import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
+import { WALK_SPEED, pathLength, poseAt, smoothPath, tourClock } from "./walker.js";
 import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture, glassLook, WIDE_DOOR_M, WIDE_WINDOW_M } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -49,8 +49,7 @@ const loadAsset = (url) => {
 const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walker.glb";
 const MAX_TURN_RAD_S = 3.2; // 사람이 제자리에서 도는 빠르기 (반 바퀴에 1초쯤)
 const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
-const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
-const MAX_WALKERS = 4;
+const STRIDE_M = 1.3823; // walker.glb에 적어 둔 값(stride_m)이 없을 때: walk 한 주기(모션 캡처 두 걸음)에 가는 거리
 const GLAZED = new Set(["decor:window", "decor:glassdoor"]); // 벽에 다는 창: 그 자리 벽을 뚫고 유리는 비치게
 // 넓게 늘린 창은 네 짝짜리 모델로 그린다 (두 짝을 늘리면 한 짝이 너무 넓어진다)
 const modelKey = (p) => (p.sku === "decor:glassdoor" && p.size_m?.[0] >= WIDE_DOOR_M ? "decor:glassdoor4"
@@ -1249,7 +1248,8 @@ export function makeViewer(el, handlers = {}) {
     if (walkersPaused) return;
     for (const w of walkers) {
       w.t += dt;
-      const { s, moving, v, dir = 1 } = w.clock(w.t);
+      const { leg, s, moving, v, dir = 1 } = w.clock(w.t);
+      if (leg !== w.leg) { w.leg = leg; w.path = w.paths[leg]; w.len = w.lens[leg]; w.onLeg?.(leg); }
       const p = poseAt(w.path, s);
       w.node.position.set(p.xz[0], 0, p.xz[1]);
       // 몸은 발밑이 아니라 조금 앞(0.35 m)을 보고 0.3초쯤에 걸쳐 돈다 (모퉁이에서 휙 돌지 않게)
@@ -1423,30 +1423,32 @@ export function makeViewer(el, handlers = {}) {
         } else routerG.visible = false;
       });
     },
-    /** 동선 경로들([[x,y],...] 목록)을 사람이 하나씩 걷는다. 빈 목록이면 지운다 */
-    setWalkers(paths) {
-      const list = (paths || []).filter((p) => p?.length >= 2 && pathLength(p) > 0.3).slice(0, MAX_WALKERS);
-      const key = JSON.stringify(list);
-      if (key === walkersKey) return;
+    /** 동선 경로들([[x,y],...] 목록)을 사람 한 명이 차례로 걷는다 (가전 앞까지 갔다가 출발 자리로).
+     *  onLeg(i): 사람이 i번째 길을 걷기 시작할 때 (지금 걷는 길만 바닥에 그리려고). 빈 목록이면 지운다 */
+    setWalkers(paths, onLeg) {
+      const keep = (paths || []).map((p, i) => [p, i]).filter(([p]) => p?.length >= 2 && pathLength(p) > 0.3);
+      const key = JSON.stringify(keep);
+      if (key === walkersKey) { if (walkers[0]) walkers[0].onLeg = onLeg && ((k) => onLeg(keep[k][1])); return; }
       walkersKey = key;
       clearWalkers();
-      if (!list.length) return;
+      if (!keep.length) return;
       loadAsset(PERSON_URL).then((g) => {
         if (!g || !alive || walkersKey !== key) return;
         const walkClip = g.animations.find((a) => a.name === "walk"), idleClip = g.animations.find((a) => a.name === "idle");
-        list.forEach((path, i) => {
-          const node = cloneSkinned(g.scene);
-          node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
-          const mixer = new THREE.AnimationMixer(node);
-          const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
-          const stepRate = walkClip.duration / STRIDE_M; // 1 m 갈 때 도는 동작 길이: 발이 미끄러지지 않게 빠르기에 맞춘다
-          walk.timeScale = WALK_SPEED * stepRate;
-          idle.play();
-          walkersG.add(node);
-          const smooth = smoothPath(path), len = pathLength(smooth); // 격자 계단을 펴고 모퉁이는 둥글게
-          walkers.push({ node, mixer, walk, idle, path: smooth, len, moving: false, heading: poseAt(smooth, 0.3).heading, stepRate,
-            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.6, ease: WALK_EASE_S, roundTrip: true }), t: -i * 1.2 });
-        });
+        const node = cloneSkinned(g.scene);
+        node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+        const mixer = new THREE.AnimationMixer(node);
+        const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
+        let stride = STRIDE_M;
+        g.scene.traverse((o) => { if (o.userData?.stride_m > 0.5) stride = o.userData.stride_m; });
+        const stepRate = walkClip.duration / stride; // 1 m 갈 때 도는 동작 길이: 발이 미끄러지지 않게 빠르기에 맞춘다
+        walk.timeScale = WALK_SPEED * stepRate;
+        idle.play();
+        walkersG.add(node);
+        const paths = keep.map(([p]) => smoothPath(p)), lens = paths.map(pathLength); // 격자 계단을 펴고 모퉁이는 둥글게
+        walkers.push({ node, mixer, walk, idle, paths, lens, path: paths[0], len: lens[0], leg: -1, moving: false,
+          heading: poseAt(paths[0], 0.3).heading, stepRate, onLeg: onLeg && ((k) => onLeg(keep[k][1])),
+          clock: tourClock(lens, { speed: WALK_SPEED, pause: 1.6, ease: WALK_EASE_S }), t: 0 });
       });
     },
     /** 동선 출발 자리 고르기: 마우스를 따라오는 사람. null이면 숨긴다 */
@@ -1469,7 +1471,7 @@ export function makeViewer(el, handlers = {}) {
     /** 걷는 사람 멈추기/다시 걷기 (화면 캡처용) */
     pauseWalkers(on = true) { walkersPaused = !!on; },
     /** 걷는 사람 (E2E 확인용) */
-    walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving })); },
+    walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving, leg: w.leg, legs: w.paths.length })); },
     routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], yaw: +(-routerG.rotation.y).toFixed(3) }; },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
     setOverlay(inner, box) {

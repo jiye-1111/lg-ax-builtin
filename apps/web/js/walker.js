@@ -1,7 +1,7 @@
 // 동선을 따라 걷는 사람: 경로 위 자리·방향·시간 (three.js 없이 계산만)
 // 평면 (x, y) = 3D (x, z). heading = 3D y축 회전, 0이면 +z를 본다 (사람 모델 정면 +Z)
 
-export const WALK_SPEED = 1.3; // m/s, 집 안 보통 걸음
+export const WALK_SPEED = 1.2; // m/s, 집 안 보통 걸음 (walker.glb 모션 캡처 걸음의 제 빠르기 1.22 m/s)
 
 export function pathLength(pts) {
   let s = 0;
@@ -78,4 +78,23 @@ export function smoothPath(pts) {
   cur[0] = [...pts[0]];
   cur[cur.length - 1] = [...pts[pts.length - 1]];
   return cur;
+}
+
+/** 한 사람이 여러 길을 차례로 왕복한다: 길 0 (가고·쉬고·오고·쉬고) → 길 1 → … → 다시 길 0.
+ *  lengths = 길마다 길이(m). 시각 t(초) → {leg, s, moving, v, dir}. 길이 바뀌는 때는 늘 출발 자리(s = 0)다 */
+export function tourClock(lengths, opts = {}) {
+  const { speed = WALK_SPEED, pause = 1.2, ease = 0 } = opts;
+  const legs = (lengths || []).map((len) => {
+    const e = Math.min(ease, len / speed);
+    return { clock: routeClock(len, { speed, pause, ease, roundTrip: true }), dur: 2 * (len / speed + e + pause) };
+  });
+  const total = legs.reduce((a, l) => a + l.dur, 0);
+  return (t) => {
+    if (!legs.length || !(total > 0)) return { leg: -1, s: 0, moving: false, v: 0, dir: 1 };
+    let u = ((t % total) + total) % total;
+    for (let i = 0; i < legs.length; i++) {
+      if (u < legs[i].dur || i === legs.length - 1) return { leg: i, ...legs[i].clock(Math.min(u, legs[i].dur - 1e-9)) };
+      u -= legs[i].dur;
+    }
+  };
 }

@@ -2,7 +2,7 @@
 // 좌표: 평면 (x, y) = 3D (x, z). heading = 3D y축 회전(rad), 0이면 +z를 본다 (사람 모델 정면 +Z).
 import test from "node:test";
 import assert from "node:assert/strict";
-import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "../../apps/web/js/walker.js";
+import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath, tourClock } from "../../apps/web/js/walker.js";
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps;
 const L = [[0, 0], [3, 0], [3, 4]]; // 3 m 동쪽, 4 m 남쪽(+y) → 길이 7
@@ -90,4 +90,28 @@ test("왕복: 끝에 닿으면 처음으로 순간 이동하지 않고 돌아서
   assert.equal(clk(14 + 3).s, 3);              // 다시 출발
   let prev = clk(0).s;
   for (let t = 0.05; t < 28; t += 0.05) { const s = clk(t).s; assert.ok(Math.abs(s - prev) < 0.06, `t=${t.toFixed(2)}에서 ${prev}→${s}로 뛰었다`); prev = s; }
+});
+
+// 지예: 동선이 지저분하다 → 사람은 한 명만. 가전마다 차례로 갔다가 출발 자리로 돌아온다
+test("한 사람이 길마다 차례로 왕복한다 (끝나면 첫 길부터 다시)", () => {
+  const clk = tourClock([4, 2], { speed: 1, pause: 1 });
+  // 첫 길: 가는 데 4초, 쉬고 1초, 오는 데 4초, 쉬고 1초 = 10초
+  assert.deepEqual([clk(2).leg, clk(2).s, clk(2).dir], [0, 2, 1]);
+  assert.deepEqual([clk(7).leg, clk(7).s, clk(7).dir], [0, 2, -1]);
+  // 둘째 길: 10초부터 6초 동안
+  assert.deepEqual([clk(11).leg, clk(11).s, clk(11).moving], [1, 1, true]);
+  assert.equal(clk(16 + 2).leg, 0);                // 한 바퀴 = 16초
+  assert.ok(near(clk(16 + 2).s, 2));
+});
+
+test("길을 바꿀 때는 출발 자리에 서 있다가 바뀐다 (순간 이동 없음)", () => {
+  const clk = tourClock([4, 2], { speed: 1, pause: 1, ease: 0.3 });
+  for (let t = 0; t < 40; t += 0.02) {
+    const a = clk(t), b = clk(t + 0.02);
+    if (a.leg !== b.leg) assert.ok(a.s < 0.01 && b.s < 0.01, `t=${t.toFixed(2)} 길이 바뀔 때 ${a.s}→${b.s}`);
+  }
+});
+
+test("길이 하나도 없으면 서 있는다", () => {
+  assert.deepEqual(tourClock([], {})(3), { leg: -1, s: 0, moving: false, v: 0, dir: 1 });
 });
