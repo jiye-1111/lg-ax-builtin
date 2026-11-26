@@ -3,12 +3,22 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import time
 from collections import defaultdict, deque
 
-from . import photoreal
-from .photoreal_words import product_words, sun_words
+from . import photoreal, photoreal_check
+from .photoreal_words import (
+    DECOR_WORDS,
+    SCAN_WORDS,
+    STRUCTURE,
+    fix_words,
+    product_words,
+    scene_words,
+    sun_words,
+    thing_words,
+)
 
 log = logging.getLogger(__name__)
 LIMIT_N, LIMIT_S = 3, 600  # 프로젝트마다 10분에 3장 (한 장마다 API 비용이 든다)
@@ -16,6 +26,8 @@ TOUR_LIMIT_N = 12           # 둘러보기는 들르는 곳마다 한 장이라 
 BLENDER_LIMIT_N = 12        # 서버 Blender로 그리는 것도 집마다 10분에 12장까지 (CPU를 오래 쓴다)
 SPOT_RE = re.compile(r"^[A-Za-z0-9_:-]{1,60}$")
 SKU_RE = re.compile(r"^[A-Za-z0-9_.-]{2,40}$")
+MAX_THINGS = 40  # 목록에 적는 물건 수 (화면에서 크게 보이는 것부터)
+MAX_TRIES = 2    # 3D와 다르면 한 번 더 그린다. 그래도 다르면 Blender (없으면 덜 틀린 쪽)
 MAX_REFS = 6     # 이미지 AI에 같이 보내는 제품 사진 수 (화면에서 크게 보이는 제품부터)
 REF_SIDE = 640   # 제품 사진은 이 크기로 줄여 보낸다 (그림 하나당 토큰·시간)
 PHOTO_REFS = None  # SKU → LGE.COM 대표 사진 주소 (data/catalog/photo_refs.json)
@@ -41,7 +53,7 @@ def _download(url: str):
     if not url.startswith("https://www.lge.co.kr/"):
         raise ValueError("LGE.COM 사진만 받는다")
     req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.lge.co.kr/"})
-    with urllib.request.urlopen(req, timeout=8) as r:  # noqa: S310 - 주소는 위에서 LGE.COM으로 묶었다
+    with urllib.request.urlopen(req, timeout=8) as r:
         return Image.open(io.BytesIO(r.read(4_000_000))).convert("RGB")
 
 
@@ -51,6 +63,7 @@ class TooMany(RuntimeError):
 
 class PhotorealMixin:
     image_client = None  # 테스트에서 바꿔 끼운다. None이면 서버 키로 만든다
+    photo_checker = None  # 다 그린 사진을 3D와 견줘 보는 것 (테스트에서 바꿔 끼운다). None이면 서버 키로 OpenAI 비전
     photo_fetch = staticmethod(_download)  # 테스트에서 바꿔 끼운다
 
     def photo_ref(self, sku: str) -> bytes | None:
@@ -86,20 +99,73 @@ class PhotorealMixin:
         faces = window_facings(self.get_room(p["project_id"]), p["site"]["north_deg"])
         return sun_light(s, when), when.strftime("%H:%M"), faces[0]["label"] if faces else None
 
-    def _photo_products(self, products: list[dict] | None):
-        """화면에 보이는 LG 제품 → 글 (제품마다 한 줄), 사진 [(이름, bytes, mime)], 자리 (픽셀). 크게 보이는 것부터"""
+    def _photo_items(self, p: dict, products: list[dict] | None, objects: list[dict] | None) -> list[dict]:
+        """화면에 보이는 물건 → [{box, what | prod, on_ref, ref}] 크게 보이는 것부터.
+        objects(웹이 보낸 화면 속 물건 전부)가 있으면 그것으로, 없으면 예전처럼 LG 제품(products)만"""
+        items = []
+        if objects is None:
+            for x in products or []:
+                try:
+                    items.append({"box": x["box"], "prod": self.catalog.get(x["sku"]), "ref": None, "on": None})
+                except KeyError:
+                    continue  # 카탈로그에 없는 SKU는 글도 사진도 안 쓴다
+        else:
+            pls = {x["placement_id"]: x for x in p["scene_state"].get("placements", [])}
+            room = self.get_room(p["project_id"])
+            scanned = {o.object_id: o for o in room.objects}
+            hidden = set(p["scene_state"].get("hidden_objects") or [])
+            rt = p["scene_state"].get("router")
+            seen = set()
+            for x in objects:
+                ref, box = x["ref"], x["box"]
+                if ref in seen:
+                    continue
+                seen.add(ref)
+                if ref == "router":
+                    if not rt:
+                        continue
+                    h, under = self._surface_under(p, tuple(rt["center_xz"]))
+                    items.append({"box": box, "what": "a small Wi-Fi router (keep its exact look and size)", "ref": ref,
+                                  "on": under if h > 0.03 else None, "below": h > 0.03})
+                elif ref.startswith("obj:"):
+                    o = scanned.get(ref[4:])
+                    if o is None or o.object_id in hidden:
+                        continue
+                    items.append({"box": box, "what": SCAN_WORDS.get(o.category, f"a {o.category}"), "ref": o.object_id,
+                                  "on": None, "below": o.position[1] - o.bbox_m.h / 2 > 0.05})
+                elif ref in pls:
+                    pl = pls[ref]
+                    sku = pl.get("sku") or ""
+                    hung = bool(pl.get("hung"))
+                    it = {"box": box, "ref": ref, "on": "wall" if hung else pl.get("on"),
+                          "below": not hung and float(pl.get("base_m") or 0) > 0.05}
+                    if sku.startswith("decor:"):
+                        kind = sku[6:]
+                        if kind in STRUCTURE or kind not in DECOR_WORDS:
+                            continue  # 벽·문·창은 방 모양 (따로 그대로 두라고 한다)
+                        it["what"] = DECOR_WORDS[kind]
+                    else:
+                        try:
+                            it["prod"] = self.catalog.get(sku)
+                        except KeyError:
+                            continue
+                    items.append(it)
+        items.sort(key=lambda t: -(t["box"][2] - t["box"][0]) * (t["box"][3] - t["box"][1]))
+        return items[:MAX_THINGS]
+
+    def _photo_scene(self, p: dict, products: list[dict] | None, objects: list[dict] | None = None):
+        """→ 물건 목록 글 (견줘 볼 때도 쓴다), LG 제품 사진 [(이름, bytes, mime)], LG 제품 화면 자리 (픽셀)"""
         W, H = photoreal.SIZE
-        seen, items = set(), []
-        for x in products or []:
-            try:
-                prod = self.catalog.get(x["sku"])
-            except KeyError:
-                continue  # 카탈로그에 없는 SKU는 글도 사진도 안 쓴다
-            b = x["box"]
-            items.append(((b[2] - b[0]) * (b[3] - b[1]), prod, b))
-        items.sort(key=lambda t: -t[0])
-        lines, refs, boxes = [], [], []
-        for i, (_, prod, b) in enumerate(items[:12], 1):
+        items = self._photo_items(p, products, objects)
+        num = {it["ref"]: i for i, it in enumerate(items, 1) if it.get("ref")}
+        seen, lines, refs, boxes = set(), [], [], []
+        for i, it in enumerate(items, 1):
+            on = it.get("on")
+            on = on if on == "wall" else num.get(on) or ("below" if it.get("below") else None)
+            prod, b = it.get("prod"), it["box"]
+            if prod is None:
+                lines.append(thing_words(i, it["what"], b, on))
+                continue
             ref_no = None
             if prod.sku not in seen and len(refs) < MAX_REFS:
                 jpg = self.photo_ref(prod.sku)
@@ -107,7 +173,7 @@ class PhotorealMixin:
                     refs.append((f"{prod.sku}.jpg", jpg, "image/jpeg"))
                     ref_no = len(refs) + 1  # 1번은 지금 화면
                     seen.add(prod.sku)
-            lines.append(product_words(i, prod, b, ref_no))
+            lines.append(product_words(i, prod, b, ref_no, on))
             boxes.append([b[0] * W, b[1] * H, b[2] * W, b[3] * H])
         return lines, refs, boxes
 
@@ -129,7 +195,8 @@ class PhotorealMixin:
         return p if p.exists() else None
 
     def photoreal(self, pid: str, image: str, mask: str, spot: str | None = None, camera: dict | None = None,
-                  products: list[dict] | None = None, daylight: dict | None = None) -> dict:
+                  products: list[dict] | None = None, daylight: dict | None = None,
+                  objects: list[dict] | None = None) -> dict:
         from .service import Invalid
 
         p = self.get_project(pid)
@@ -143,7 +210,12 @@ class PhotorealMixin:
         t = time.time()
         sun = self._photo_sun(p, daylight)  # 채광 화면의 그 시각 해 (AI 글에도, Blender 빛에도 같은 해)
         try:
-            out, model = self._ai_photo(pid, p, view, m, spot, t, camera, products, sun), photoreal.MODEL
+            out, wrong = self._ai_photo(pid, p, view, m, spot, t, camera, products, sun, objects)
+            model = photoreal.MODEL
+            if wrong:  # 두 번 그려도 3D와 다르다: 서버 Blender가 치수 그대로 그린 것을 낸다 (못 그리면 덜 틀린 AI 그림)
+                bl = self._blender_photo(pid, camera, t, sun[0] if sun else None) if camera else None
+                if bl is not None:
+                    out, model = bl, "blender"
         except (photoreal.Unavailable, TooMany):
             # 이미지 AI를 못 쓰거나 한도를 넘겼으면 서버의 Blender가 같은 시점으로 그린다. 그것도 안 되면 원래 안내 그대로
             out = self._blender_photo(pid, camera, t, sun[0] if sun else None) if camera else None
@@ -158,7 +230,16 @@ class PhotorealMixin:
         view.save(path.with_name("photoreal_in.png"), "PNG")  # 결과가 이상할 때 AI에 보낸 화면과 견줘 보려고 (웹에는 안 나감)
         return {"url": f"/api/projects/{pid}/files/photoreal.png?v={int(t)}", "model": model}
 
-    def _ai_photo(self, pid: str, p: dict, view, m, spot: str | None, t: float, camera=None, products=None, sun=None):
+    def _checker(self):
+        if self.photo_checker is not None:
+            return self.photo_checker
+        if os.getenv("PHOTOREAL_CHECK", "1") == "0":
+            return None
+        return photoreal_check.check if self.image_client is None else None  # 테스트에서 가짜 AI만 끼웠으면 견줘 보지 않는다
+
+    def _ai_photo(self, pid: str, p: dict, view, m, spot: str | None, t: float, camera=None, products=None, sun=None,
+                  objects=None):
+        """→ (사진, 남은 틀린 것). 3D와 견줘 보고 틀린 게 있으면 그걸 짚어 한 번 더 그린다"""
         client = self.image_client or photoreal.default_client()  # 키 없으면 Unavailable
         logs = self.__dict__.setdefault("_photo_log", defaultdict(deque))  # 서버 하나에 하나 (재시작하면 초기화)
         limit = TOUR_LIMIT_N if spot else LIMIT_N
@@ -167,30 +248,44 @@ class PhotorealMixin:
             q.popleft()
         if len(q) >= limit:
             raise TooMany(f"실사 이미지는 10분에 {limit}장까지 만들 수 있어요. 잠시 뒤 다시 눌러 주세요")
-        q.append(t)
+        q.append(t)  # 다시 그려도 한 장으로 센다
         fin = p["scene_state"].get("finish_ids") or {}
-        lines, refs, boxes = self._photo_products(products)
+        lines, refs, boxes = self._photo_scene(p, products, objects)
         extra = "\n".join(x for x in [
             "Keep the wall and floor colors close to the 3D view." if fin else "",
             sun_words(sun[0], camera, sun[1], sun[2]) if sun else "",
+            scene_words(len(lines)) if objects is not None else "",
             *lines] if x)
-        notes: dict = {}
+        check = self._checker()
+        tries: list[dict] = []
         try:
-            out = photoreal.make_photo(view, m, client, extra, refs=refs or None, boxes=boxes or None, notes=notes)
-            # 결과가 이상할 때 견줘 보려고 AI가 그린 그대로와 판단을 남긴다 (웹에는 안 나감)
-            d = self.pdir(pid) / "scene"
-            d.mkdir(parents=True, exist_ok=True)
-            if notes.get("ai") is not None:
-                notes.pop("ai").save(d / "photoreal_ai.png", "PNG")
-            (d / "photoreal_notes.json").write_text(json.dumps({**notes, "refs": [r[0] for r in refs], "prompt_extra": extra},
-                                                               ensure_ascii=False, indent=1), encoding="utf-8")
-            return out
+            for _ in range(MAX_TRIES):
+                fix = fix_words(tries[-1]["problems"]) if tries else ""
+                notes: dict = {}
+                out = photoreal.make_photo(view, m, client, "\n".join(x for x in [extra, fix] if x), refs=refs or None,
+                                           boxes=boxes or None, notes=notes)
+                problems = check(view, out, lines) if check else None
+                tries.append({"out": out, "ai": notes.pop("ai", None), "notes": notes, "problems": problems or [], "fix": fix})
+                if not problems:
+                    break
         except photoreal.Unavailable:
             raise
         except Exception as e:  # noqa: BLE001 - 네트워크·한도·거절: 사용자에게는 한 줄로
-            q.pop()
-            log.warning("실사 이미지 실패: %s", e)
-            raise photoreal.Unavailable("지금은 실사 이미지를 못 만들었어요. 잠시 뒤 다시 눌러 주세요") from None
+            if not tries:
+                q.pop()
+                log.warning("실사 이미지 실패: %s", e)
+                raise photoreal.Unavailable("지금은 실사 이미지를 못 만들었어요. 잠시 뒤 다시 눌러 주세요") from None
+            log.warning("실사 다시 그리기 실패 (먼저 그린 것을 씀): %s", e)
+        best = min(tries, key=lambda x: len(x["problems"]))
+        # 결과가 이상할 때 견줘 보려고 AI가 그린 그대로와 판단을 남긴다 (웹에는 안 나감)
+        d = self.pdir(pid) / "scene"
+        d.mkdir(parents=True, exist_ok=True)
+        if best["ai"] is not None:
+            best["ai"].save(d / "photoreal_ai.png", "PNG")
+        (d / "photoreal_notes.json").write_text(json.dumps({
+            **best["notes"], "refs": [r[0] for r in refs], "prompt_extra": extra,
+            "tries": [{"problems": x["problems"], "fix": x["fix"]} for x in tries]}, ensure_ascii=False, indent=1), encoding="utf-8")
+        return best["out"], best["problems"]
 
     def _blender_photo(self, pid: str, camera: dict, t: float, sun: dict | None = None):
         import io

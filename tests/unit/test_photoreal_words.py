@@ -52,3 +52,28 @@ def test_material_words_follow_surface_kinds():
     assert "stainless" in pw.material_words("stainless")
     assert "matte" in pw.material_words("mist")
     assert pw.material_words(None) == ""
+
+
+# ---- 장면 목록: 화면에 있는 것만 그 자리에 ----
+from core.photoreal_words import fix_words, scene_words, thing_words  # noqa: E402
+
+
+def test_thing_line_names_place_and_what_it_stands_on():
+    line = thing_words(3, "a Wi-Fi router", [0.48, 0.5, 0.52, 0.55], on=2)
+    assert line.startswith("Object 3") and "x 48-52%" in line and "on top of object 2" in line
+    assert "on the floor" in thing_words(1, "a sofa", [0.1, 0.6, 0.3, 0.9])
+    assert "on the floor" not in thing_words(1, "a TV", [0.1, 0.1, 0.3, 0.3], on="wall")
+
+
+def test_scene_header_counts_objects_and_keeps_empty_floor_empty():
+    head = scene_words(5)
+    assert "exactly 5 objects" in head and "bare floor" in head
+
+
+def test_fix_words_turn_each_problem_into_an_order():
+    t = fix_words([{"kind": "added", "what": "a sofa", "where": "lower left"},
+                   {"kind": "missing", "what": "the Wi-Fi router", "where": "centre"},
+                   {"kind": "duplicated", "what": "the fridge", "where": "middle right"},
+                   {"kind": "floating", "what": "the router", "where": "bottom"}])
+    assert "Remove the sofa" in t.replace("a sofa", "the sofa") or "remove a sofa" in t.lower()
+    assert "router" in t and "fridge" in t and "only once" in t and "rest" in t

@@ -792,6 +792,13 @@ class PhotoProduct(BaseModel):
     box: Annotated[list[Annotated[float, Field(ge=0, le=1)]], Field(min_length=4, max_length=4)]  # 화면 자리 (0~1)
 
 
+class PhotoObject(BaseModel):
+    """화면에 보이는 물건 하나: 배치 id, 스캔 가구 'obj:<id>', 공유기 'router'"""
+    model_config = ConfigDict(extra="forbid")
+    ref: str = Field(pattern=r"^(router|obj:[A-Za-z0-9_-]{1,40}|[A-Za-z0-9_-]{1,40})$")
+    box: Annotated[list[Annotated[float, Field(ge=0, le=1)]], Field(min_length=4, max_length=4)]  # 화면 자리 (0~1)
+
+
 class PhotoDaylight(BaseModel):
     model_config = ConfigDict(extra="forbid")
     date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
@@ -805,13 +812,15 @@ class PhotorealIn(BaseModel):
     camera: Optional[ViewCamera] = None  # 지금 시점. 이미지 AI를 못 쓸 때 서버의 Blender가 같은 자리에서 그린다
     products: Optional[list[PhotoProduct]] = Field(None, max_length=24)  # 화면에 보이는 LG 제품 (실제 사진을 참고로)
     daylight: Optional[PhotoDaylight] = None  # 채광 화면에서 고른 날짜·시각 (그 해로 비춘다)
+    objects: Optional[list[PhotoObject]] = Field(None, max_length=120)  # 화면에 보이는 물건 전부 (이것만 그 자리에 그리게)
 
 
 @app.post("/api/projects/{pid}/photoreal")
 def photoreal(pid: str, body: PhotorealIn, s: Service = S):
     return s.photoreal(pid, body.image, body.mask, body.spot, body.camera.model_dump() if body.camera else None,
                        [x.model_dump() for x in body.products] if body.products else None,
-                       body.daylight.model_dump() if body.daylight else None)
+                       body.daylight.model_dump() if body.daylight else None,
+                       [x.model_dump() for x in body.objects] if body.objects is not None else None)
 
 
 @app.get("/api/projects/{pid}/photoreal/spots")
