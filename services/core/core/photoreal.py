@@ -28,19 +28,31 @@ MODEL = MODELS[0]
 QUALITY = os.getenv("PHOTOREAL_QUALITY", "medium")
 _DATA_URL = re.compile(r"^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$")
 
-PROMPT = """Turn this 3D interior visualization into a realistic interior photograph of the same room.
-Keep exactly the same camera angle, room shape, walls, windows, doors, and every object's position, size and shape.
-Make surfaces look real: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight
-through the windows with soft shadows and bounce light, gentle depth like a real camera.
-The plain background outside the room is empty: keep it plain and do not zoom in or crop.
-The appliances are real LG products, described below. Make each one look like a real photograph of that exact
-product (true material, reflections of the room, the sunlight and shadows falling on it, natural contact shadows on
-the floor), matching its official product photo when one is given. Never change an appliance's outline, size,
-position or colour.
-Plain boxes and cabinets are furniture cabinets with doors: never turn them into appliances
-(no washing machines, dryers, ovens, microwaves, stoves, dishwashers).
-Do not add, remove or move anything: no new furniture, devices, outlets, cables, plants, tableware or decorations.
-No people, no text, no logos, no watermarks.
+PROMPT = """Turn this 3D interior render into a realistic interior photograph of exactly the same room with exactly the
+same objects. It is a re-lighting and re-texturing job, not a redesign.
+
+Must stay identical (most important):
+- The same camera angle and framing, room shape, walls, doors and windows. Do not zoom, crop, rotate or shift.
+  The plain background outside the cut-away room stays plain and empty.
+- Only the objects in the OBJECTS list below exist. Each one stays at its place in the first image with the same size,
+  outline and facing, and keeps its type: a bed stays a bed, a chair stays a chair, a table stays a table, a cabinet
+  stays a cabinet, an appliance stays that appliance.
+- Never add anything: no new furniture, sofas, beds, chairs, appliances, rugs, plants, lamps, cushions, tableware,
+  devices, outlets, cables or decorations, not even in empty corners or at the edges of the picture.
+- Never remove anything, however small (a small Wi-Fi router or a chair must stay).
+- Draw every object exactly once. Objects never overlap, merge or pass through each other.
+- Nothing floats: objects that stand on another object stay on top of it, everything else stands on the floor with a
+  natural contact shadow, wall-mounted things stay on the wall.
+- Plain boxes and cabinets are furniture with doors: never turn them into appliances (no washing machines, dryers,
+  ovens, microwaves, stoves or dishwashers).
+- No people, no text, no watermarks, no logos except the real LG logo on LG appliances.
+
+Make it look real:
+- Real surfaces: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight through the
+  windows with soft shadows and bounce light, gentle depth like a real camera.
+- The LG appliances are real products, described below. Make each one look like a real photograph of that exact
+  product (true material, reflections of the room, the sunlight and shadows falling on it), matching its official
+  product photo when one is given. Never change an appliance's outline, size, position or colour.
 {extra}"""
 
 

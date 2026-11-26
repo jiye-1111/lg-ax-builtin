@@ -1932,13 +1932,17 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
 
     def _surface_top(self, p: dict, xz: tuple[float, float]) -> float:
         """그 자리 아래 가구 윗면 높이(m). 아무것도 없으면 바닥(0). 겹치면 가장 높은 윗면."""
+        return self._surface_under(p, xz)[0]
+
+    def _surface_under(self, p: dict, xz: tuple[float, float]) -> tuple[float, str | None]:
+        """그 자리 아래 가장 높은 윗면 (높이 m, 배치 id 또는 스캔 가구 id). 바닥이면 (0, None)."""
         def inside(c, yaw, w, d):
             dx, dz = xz[0] - c[0], xz[1] - c[1]
             u = dx * math.cos(yaw) + dz * math.sin(yaw)
             v = -dx * math.sin(yaw) + dz * math.cos(yaw)
             return abs(u) <= w / 2 and abs(v) <= d / 2
 
-        tops = [0.0]
+        tops: list[tuple[float, str | None]] = [(0.0, None)]
         for x in p["scene_state"].get("placements", []):
             if x["sku"] in self.NOT_SURFACE or not x.get("size_m"):
                 continue
@@ -1946,7 +1950,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             # 놓은 제품은 폭 방향이 yaw - 90° (웹 3D·동선과 같은 규칙)
             top = float(x.get("base_m") or 0.0) + h  # 식탁 위에 올려 둔 가전이면 그 가전 윗면
             if top <= self.SURFACE_MAX_M and inside(x["center_xz"], x.get("yaw_rad", math.pi / 2) - math.pi / 2, w, d):
-                tops.append(top)
+                tops.append((top, x["placement_id"]))
         hidden = set(p["scene_state"].get("hidden_objects") or [])
         poses = p["scene_state"].get("object_poses") or {}  # 지금 저장하려는 자리 (DB의 옛 자리 말고)
         for o in self._load_room(p["project_id"]).objects:
@@ -1955,8 +1959,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             q = poses.get(o.object_id)
             c, yaw = ((q["center_xz"][0], q["center_xz"][1]), q["yaw_rad"]) if q else ((o.position[0], o.position[2]), o.yaw_rad)
             if inside(c, yaw, o.bbox_m.w, o.bbox_m.d):
-                tops.append(o.position[1] + o.bbox_m.h / 2)
-        return round(max(tops), 3)
+                tops.append((o.position[1] + o.bbox_m.h / 2, o.object_id))
+        top, ref = max(tops, key=lambda t: t[0])
+        return round(top, 3), ref
 
     def wifi(self, pid: str, band: str | None = None) -> dict:
         from sim.wifi import WifiConfig, coverage, grade

@@ -237,28 +237,56 @@ export function makeViewer(el, handlers = {}) {
   scene.add(overlay);
   const wifiLayer = makeWifiLayer(scene); // 와이파이: 연속 히트맵 + 등고선 + 탐침 (wifi/heat3d.js)
   const products = new THREE.Group();
-  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box:[x0,y0,x1,y1]}] (0~1, 위가 0). 카메라 뒤나 화면 밖은 뺀다 */
+  /** 3D 상자 → 화면 자리 [x0,y0,x1,y1] (0~1, 위가 0). 카메라 뒤거나 너무 작으면 null */
+  const screenBox = (bb) => {
+    const v = new THREE.Vector3();
+    let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+    for (let i = 0; i < 8; i++) {
+      v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
+      if (v.z > 1) return null;
+      const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
+    [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
+    return x1 - x0 < 0.01 || y1 - y0 < 0.01 ? null : [x0, y0, x1, y1];
+  };
+  const meshBox = (g) => {
+    const bb = new THREE.Box3();
+    g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
+    return bb.isEmpty() ? null : screenBox(bb);
+  };
+  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box}]. 서버가 그 제품의 LGE.COM 사진을 이미지 AI에 참고로 보낸다 */
   const productBoxes = () => {
-    const out = [], v = new THREE.Vector3(), bb = new THREE.Box3();
+    const out = [];
     for (const g of products.children) {
       const sku = g.userData.sku;
       if (!g.visible || !sku || sku.startsWith("decor:")) continue;
-      bb.makeEmpty();
-      g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
-      if (bb.isEmpty()) continue;
-      let x0 = 1, y0 = 1, x1 = 0, y1 = 0, behind = false;
-      for (let i = 0; i < 8; i++) {
-        v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
-        if (v.z > 1) { behind = true; break; }
-        const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
-        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
-      }
-      const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
-      [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
-      if (behind || x1 - x0 < 0.01 || y1 - y0 < 0.01) continue;
-      out.push({ sku, box: [x0, y0, x1, y1] });
+      const box = meshBox(g);
+      if (box) out.push({ sku, box });
     }
     return out.slice(0, 24);
+  };
+  /** 화면에 보이는 물건 전부 [{ref, box}]: 놓은 것(배치 id), 스캔 가구("obj:id"), 공유기("router").
+   *  서버가 이 목록을 이미지 AI에 적어 준다 (목록 밖은 빈 바닥, 더하지도 빼지도 않게) */
+  const objectBoxes = () => {
+    const out = [];
+    for (const g of products.children) {
+      const ref = g.userData.placementId;
+      if (!g.visible || !ref) continue;
+      const box = meshBox(g);
+      if (box) out.push({ ref, box });
+    }
+    model?.traverse((o) => { // 스캔 가구: 고르기용 단위 상자 (크기 = scale)
+      if (!o.isMesh || o.userData.kind !== "object" || o.userData.shared || !o.visible || !/^[A-Za-z0-9_-]{1,40}$/.test(o.name)) return;
+      const box = screenBox(new THREE.Box3().setFromObject(o));
+      if (box) out.push({ ref: `obj:${o.name}`, box });
+    });
+    if (routerG.visible && routerG.children.length) {
+      const box = meshBox(routerG);
+      if (box) out.push({ ref: "router", box });
+    }
+    return out.slice(0, 120);
   };
   scene.add(products);
   const ghost = new THREE.Group();
@@ -1610,16 +1638,17 @@ export function makeViewer(el, handlers = {}) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
       const hide = (o) => { if (o?.visible) { o.visible = false; hidden.push(o); } };
-      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid].forEach(hide);
+      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid, rotRing, stretchG, carveG].forEach(hide); // 채광·와이파이·동선 표시와 고르기 손잡이는 빼고
       products.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) hide(o); });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
-      let image, mask, boxes = [];
+      let image, mask, boxes = [], objects = [];
       try {
         composer.render();
         image = renderer.domElement.toDataURL("image/png");
         boxes = productBoxes();
+        objects = objectBoxes();
         const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const lgOf = (o) => { for (let q = o; q && q !== scene; q = q.parent) if (q.parent === products) return !!q.userData.sku && !q.userData.sku.startsWith("decor:"); return false; };
         const swapped = [];
@@ -1645,7 +1674,7 @@ export function makeViewer(el, handlers = {}) {
         cam.aspect = aspect; cam.updateProjectionMatrix();
         renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
       }
-      return { image, mask, products: boxes };
+      return { image, mask, products: boxes, objects };
     },
     /** 첫 화면 카드에 쓰는 작은 미리보기 (지금 시점, JPEG). 표시용 선·사람은 빼고 찍는다 */
     thumb(W = 480, H = 320) {

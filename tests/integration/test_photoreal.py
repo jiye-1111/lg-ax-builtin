@@ -75,7 +75,7 @@ def test_photoreal_keeps_lg_product_pixels_and_changes_the_rest(c, svc, pid):
     assert abs(r_ * 2 - g_) <= 2 and abs(r_ * 3 - b_) <= 3 and 9 <= r_ <= 11
     assert got.getpixel((100, 100)) == (250, 100, 50)      # 나머지는 AI가 바꾼 것
     sent = svc.image_client.sent
-    assert "Do not add, remove or move" in sent["prompt"]
+    assert "Never add anything" in sent["prompt"] and "Never remove anything" in sent["prompt"]
     # 마스크를 주면 작은 모델이 방을 새로 그려 버려서, 화면 전체를 참고 그림으로만 준다 (구도 유지)
     assert "mask" not in sent and sent["input_fidelity"] == "high"
 
