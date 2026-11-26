@@ -112,3 +112,46 @@ def tidy_openings(room: Room) -> Room:
         result[o.opening_id] = o
     kept = [result[o.opening_id] for o in room.openings if result[o.opening_id] is not None]
     return room if kept == room.openings else room.model_copy(update={"openings": kept})
+
+
+MIN_W_M, MAX_W_M = 0.4, 6.0   # 문·창 폭으로 받아 주는 범위
+MIN_H_M = 0.3
+
+
+class NoRoom(ValueError):
+    """그 크기로는 벽에 자리가 없다."""
+
+
+def resize_opening(room: Room, opening_id: str, width_m: float | None = None, height_m: float | None = None) -> Room:
+    """문·창 하나의 폭(과 높이)을 바꾼다. 가운데는 그대로 두고, 벽 끝·닿는 벽·옆 문·창에 걸리면
+    같은 벽에서 가까운 빈자리로 조금 옮긴다. 들어갈 자리가 없으면 NoRoom."""
+    o = next((q for q in room.openings if q.opening_id == opening_id), None)
+    if o is None:
+        raise KeyError(opening_id)
+    w = next((q for q in room.walls if q.wall_id == o.wall_id), None)
+    new_w = o.width_m if width_m is None else float(width_m)
+    new_h = o.height_m if height_m is None else float(height_m)
+    if not (MIN_W_M - 1e-9 <= new_w <= MAX_W_M + 1e-9):
+        raise ValueError("width")
+    top = 3.0 if w is None else ((w.measured.height_m if w.measured else None) or w.scanned.height_m or 3.0)
+    if not (MIN_H_M - 1e-9 <= new_h) or o.sill_m + new_h > top + 1e-6:
+        raise ValueError("height")
+    off = o.offset_m + (o.width_m - new_w) / 2
+    if w is not None:
+        blocked = []
+        for other in room.walls:
+            if other.wall_id == w.wall_id:
+                continue
+            for u in _touches(w, other):
+                half = _thick(other) / 2 + GAP_M
+                blocked.append((u - half, u + half))
+        blocked += [(q.offset_m - GAP_M, q.offset_m + q.width_m + GAP_M) for q in room.openings
+                    if q.wall_id == w.wall_id and q.opening_id != opening_id]
+        # 지금 있는 칸 안에서만 넓힌다 (옆 문·창을 건너뛰어 딴 자리로 가지 않게)
+        here = [(a, b) for a, b in _free(_len(w), blocked) if a < o.offset_m + o.width_m and b > o.offset_m]
+        fit = _fit(o.model_copy(update={"offset_m": off, "width_m": new_w}), here)
+        if fit is None:
+            raise NoRoom(opening_id)
+        off = fit
+    new = o.model_copy(update={"offset_m": round(off, 3), "width_m": round(new_w, 3), "height_m": round(new_h, 3)})
+    return room.model_copy(update={"openings": [new if q.opening_id == opening_id else q for q in room.openings]})

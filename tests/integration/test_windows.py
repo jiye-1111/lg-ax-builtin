@@ -80,3 +80,51 @@ def test_fridge_in_front_of_a_removed_window_is_not_told_it_covers_one(c, pid):
     assert covers()
     c.put(f"/api/projects/{pid}/openings/win1/hidden", json={"hidden": True})
     assert not covers()
+
+
+def test_scanned_door_and_window_width_can_be_typed_in(c, pid):
+    room = c.get(f"/api/projects/{pid}/room").json()
+    win = next(o for o in room["openings"] if o["opening_id"] == "win1")
+    mid = win["offset_m"] + win["width_m"] / 2
+    r = c.put(f"/api/projects/{pid}/openings/win1/size", json={"width_m": round(win["width_m"] - 0.3, 3)})
+    assert r.status_code == 200, r.text
+    after = next(o for o in c.get(f"/api/projects/{pid}/room").json()["openings"] if o["opening_id"] == "win1")
+    assert after["width_m"] == pytest.approx(win["width_m"] - 0.3, abs=1e-3)
+    assert after["offset_m"] + after["width_m"] / 2 == pytest.approx(mid, abs=2e-3)
+    r = c.put(f"/api/projects/{pid}/openings/d1/size", json={"width_m": 1.0})
+    assert r.status_code == 200, r.text
+
+
+def test_opening_size_that_cannot_fit_is_refused_with_a_plain_sentence(c, pid):
+    r = c.put(f"/api/projects/{pid}/openings/win1/size", json={"width_m": 0.1})
+    assert r.status_code in (400, 422) and "mm" in r.text
+    r = c.put(f"/api/projects/{pid}/openings/win1/size", json={"width_m": 6.0})
+    assert r.status_code in (400, 422) and "자리" in r.text
+    assert c.put(f"/api/projects/{pid}/openings/nope/size", json={"width_m": 1.0}).status_code == 404
+
+
+def test_placed_window_and_door_keep_working_after_a_new_width(c, pid):
+    for sku, w in (("decor:window", 1.8), ("decor:door", 0.8)):
+        pl = c.post(f"/api/projects/{pid}/auto-place", json={"sku": sku}).json()["placement"]
+        assert pl["verdict"] != "no_fit", (sku, pl["reasons"])
+        size = [w, *pl["size_m"][1:]]
+        r = c.patch(f"/api/projects/{pid}/placements/{pl['placement_id']}", json={"size_m": size, "snap": False})
+        assert r.status_code == 200, r.text
+        after = r.json()["placement"]
+        assert after["size_m"][0] == pytest.approx(w) and after["verdict"] != "no_fit", (sku, after["reasons"])
+        c.delete(f"/api/projects/{pid}/placements/{pl['placement_id']}")
+
+
+def test_furniture_in_front_of_a_scanned_door_is_refused(c, pid):
+    room = c.get(f"/api/projects/{pid}/room").json()
+    d = next(o for o in room["openings"] if o["type"] == "door")
+    w = next(x for x in room["walls"] if x["wall_id"] == d["wall_id"])
+    length = ((w["end"][0] - w["start"][0]) ** 2 + (w["end"][1] - w["start"][1]) ** 2) ** 0.5
+    u = (d["offset_m"] + d["width_m"] / 2) / length
+    at = [w["start"][0] + (w["end"][0] - w["start"][0]) * u, w["start"][1] + (w["end"][1] - w["start"][1]) * u]
+    mid = [sum(x["start"][0] for x in room["walls"]) / len(room["walls"]), sum(x["start"][1] for x in room["walls"]) / len(room["walls"])]
+    n = ((mid[0] - at[0]) ** 2 + (mid[1] - at[1]) ** 2) ** 0.5
+    front = [at[0] + (mid[0] - at[0]) / n * 0.5, at[1] + (mid[1] - at[1]) / n * 0.5]
+    r = c.post(f"/api/projects/{pid}/pose-check", json={"sku": "decor:chair", "center_xz": front, "yaw_rad": 0, "snap": False}).json()
+    why = [x for x in r["reasons"] if x["code"] == "door_blocked"]
+    assert r["verdict"] == "no_fit" and why and why[0]["label"] == "여기 두면 문을 열 수 없어요"

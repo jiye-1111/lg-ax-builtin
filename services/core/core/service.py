@@ -1307,7 +1307,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
             return None
         near = self._counters(room, p) if prod.category == "dishwasher" and prod.install_type == "built_in" else ()
         return find_spot(room, prod, self.fit_cfg, others=self._others(p, exclude), hidden=self._blocked_off(p), step_m=step_m,
-                         near=near)
+                         near=near, window_walls={o.wall_id for o in room.openings if o.type == "window" and o.wall_id} or None)
 
     def _middle(self, room: Room, p: dict, prod: Product, exclude: str | None = None):
         """벽을 따라 자리가 없을 때(러그·큰 가구): 방 가운데 근처 빈자리. 못 찾으면 None."""
@@ -1456,6 +1456,29 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin):
         if not hidden and opening_id in hs:
             hs.remove(opening_id)
         self._rejudge_all(room, p)
+        self._save_project(p)
+        return self._rebuild(pid)
+
+    def set_opening_size(self, pid: str, opening_id: str, width_m: float | None = None, height_m: float | None = None) -> dict:
+        """스캔·도면에서 읽은 문·창의 폭(과 높이)을 바꾼다. 가운데는 그대로, 옆 문·창이나 벽 끝에 걸리면 조금 비켜난다."""
+        from worker.tidy import MAX_W_M, MIN_W_M, NoRoom, resize_opening
+
+        p = self.get_project(pid)
+        room = self._load_room(pid)
+        op = next((o for o in room.openings if o.opening_id == opening_id), None)
+        if op is None:
+            raise NotFound(f"문·창 없음: {opening_id}")
+        name = "창" if op.type == "window" else "문"
+        try:
+            fixed = resize_opening(room, opening_id, width_m, height_m)
+        except NoRoom:
+            raise Invalid(f"그 폭으로는 벽에 자리가 모자라요. 옆 {'문·창' if len(room.openings) > 1 else '벽'}에 닿지 않게 줄여 주세요")
+        except ValueError as e:
+            if str(e) == "height":
+                raise Invalid(f"{name} 높이는 천장보다 낮게 적어 주세요")
+            raise Invalid(f"{name} 폭은 {MIN_W_M * 1000:.0f} ~ {MAX_W_M * 1000:.0f} mm 사이로 적어 주세요")
+        self._save_room(pid, fixed)
+        self._rejudge_all(self.get_room(pid), p)
         self._save_project(p)
         return self._rebuild(pid)
 

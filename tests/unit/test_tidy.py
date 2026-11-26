@@ -1,6 +1,8 @@
 """읽은 문·창 가운데 있을 수 없는 자리(벽이 가로지르는 문, 서로 겹친 문)를 바로잡는 규칙."""
 from core.models import Opening, Room, ScannedDims, Wall
-from worker.tidy import tidy_openings
+import pytest
+
+from worker.tidy import NoRoom, resize_opening, tidy_openings
 
 
 def wall(wid, start, end, t=0.1):
@@ -86,3 +88,31 @@ def test_tidy_twice_changes_nothing_more():
     room = box([door("d1", "w1", 2.5), door("d2", "w1", 2.9)], extra=[wall("w5", (3.2, 0), (3.2, 2.0))])
     once = tidy_openings(room)
     assert tidy_openings(once) == once
+
+
+def test_resize_keeps_the_middle_where_it_was():
+    room = box([door("d1", "w1", 2.0, 0.9)])
+    d = by_id(resize_opening(room, "d1", 1.1))["d1"]
+    assert d.width_m == 1.1 and abs(d.offset_m + d.width_m / 2 - 2.45) < 1e-6
+
+
+def test_resize_slides_away_from_the_corner_and_the_next_window():
+    room = box([window("win1", "w1", 0.3, 1.2), window("win2", "w1", 2.2, 1.2)])
+    w = by_id(resize_opening(room, "win1", 1.8))["win1"]
+    assert w.offset_m >= 0.05 and w.offset_m + w.width_m <= 2.2 - 0.05
+
+
+def test_resize_with_no_room_is_refused_and_bad_sizes_too():
+    room = box([window("win1", "w1", 0.3, 1.2), window("win2", "w1", 2.2, 1.2)])
+    with pytest.raises(NoRoom):
+        resize_opening(room, "win1", 2.4)
+    with pytest.raises(ValueError):
+        resize_opening(room, "win1", 0.1)
+    with pytest.raises(ValueError):
+        resize_opening(room, "win1", 1.2, 2.0)  # 창턱 0.9 + 2.0 > 천장 2.4
+
+
+def test_resize_height_only():
+    room = box([door("d1", "w1", 2.0)])
+    d = by_id(resize_opening(room, "d1", None, 2.0))["d1"]
+    assert d.height_m == 2.0 and d.width_m == 0.9 and d.offset_m == 2.0

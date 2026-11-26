@@ -932,6 +932,8 @@ export function makeViewer(el, handlers = {}) {
     const targets = [...products.children];
     if (routerG.visible) targets.push(routerG);
     if (model) model.traverse((o) => { if (o.isMesh && o.userData?.kind === "object" && o.visible) targets.push(o); });
+    // 스캔한 문·창도 눌러서 고른다 (폭 바꾸기). 원래 상자는 안 보이지만 고르는 데 쓴다
+    if (model && !wallPick) model.traverse((o) => { if (o.isMesh && o.visible && !o.userData.shared && (o.userData?.kind === "door" || o.userData?.kind === "window")) targets.push(o); });
     if (wallPick && model) {
       // 벽 철거 고르기: 벽만 맞힌다
       const walls = [];
@@ -943,6 +945,7 @@ export function makeViewer(el, handlers = {}) {
     const hit = ray.intersectObjects(targets, true).find((h) => h.object.visible && h.object.isMesh);
     if (!hit) return null;
     let o = hit.object;
+    if (o.userData?.kind === "door" || o.userData?.kind === "window") return { type: "opening", id: o.name };
     while (o && !o.userData?.placementId && o.userData?.kind !== "object" && !o.userData?.router) o = o.parent;
     if (!o) return null;
     if (o.userData.router) return { type: "router", id: "router" };

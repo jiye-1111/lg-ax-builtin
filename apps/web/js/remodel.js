@@ -495,9 +495,10 @@ export async function customer(pid) {
         const same = hit.id === (hit.type === "placement" ? selPl : selObj), key = partHit(hit);
         if (key || !same) colourPart = key;
       }
+      selOp = null;
       if (hit?.type === "placement") { selPl = hit.id; selObj = null; setTab("sel"); }
       else if (hit?.type === "object") { selObj = hit.id; selPl = null; setTab("sel"); }
-      else { selPl = null; selObj = null; }
+      else { selPl = null; selObj = null; if (hit?.type === "opening" && mode === "move" && !armed && !furnPick) selOp = hit.id; }
       draw(); renderInspector(); renderPlacements();
       // 누르면 고르기만 한다. 옮기기는 끌거나 아래 '이동' 버튼으로 (키보드 없이도 되게)
     },
@@ -570,6 +571,7 @@ export async function customer(pid) {
   const hangs = (sku) => mountOf(sku) === "wall" || !!decorOf(sku)?.hang; // 벽걸이 제품과 벽 후드
   const hungId = (id) => hangs(project?.scene_state.placements.find((q) => q.placement_id === id)?.sku);
   let lastHang = null; // 벽걸이 제품을 들고 있을 때 마지막으로 가리킨 벽 자리 {xz, yaw, base, wall}
+  let selOp = null; // 고른 스캔 문·창 (폭·높이 바꾸기)
   let armed = null, selPl = null, selObj = null, drag = null, cat = typeof saved.cat === "string" ? saved.cat : "", catalog = [];
   const sims = new Set(); // 켜 둔 살아 보기 (채광·와이파이·동선을 같이 켤 수 있다)
   const SIM_ORDER = ["daylight", "wifi", "flow"], SIM_KO = { daylight: "채광", wifi: "와이파이", flow: "동선" };
@@ -1257,6 +1259,11 @@ export async function customer(pid) {
       else await api(`/api/projects/${pid}/objects/${id}/pose`, { method: "DELETE" });
       return { kind: "objPose", id, pose: had && o ? { center_xz: [o.position[0], o.position[2]], yaw_rad: o.yaw_rad } : null };
     }
+    if (step.kind === "opSize") {
+      const op = room.openings.find((q) => q.opening_id === step.id);
+      await put(`/api/projects/${pid}/openings/${step.id}/size`, step.body);
+      return op && { kind: "opSize", id: step.id, body: { width_m: op.width_m, height_m: op.height_m } };
+    }
     if (step.kind === "winHide" || step.kind === "winShow") {
       const on = step.kind === "winHide";
       await put(`/api/projects/${pid}/openings/${step.id}/hidden`, { hidden: on });
@@ -1291,6 +1298,9 @@ export async function customer(pid) {
   undoBtn.onclick = undo;
   redoBtn.onclick = redo;
 
+  // 문 앞을 막는 자리에는 놓지 않는다 (지예: 문을 못 여는 곳에는 가전·가구를 못 놓게, 한 줄로 알려 주기)
+  const DOOR_SHUT = "여기 두면 문을 열 수 없어요";
+  const shutsDoor = (pl) => (pl?.reasons || []).some((r) => r.code === "door_blocked" && r.verdict === "no_fit");
   const placeAt = guard(async (sku, p) => {
     const yaw0 = armed === sku ? armedYaw : Math.PI / 2;
     if (hangs(sku)) { // 벽걸이: 미리 보기에서 걸려 있던 그 자리·높이에 건다
@@ -1307,6 +1317,12 @@ export async function customer(pid) {
     const sn = snapAt(sku, armedSize(sku), p, yaw0, null, armed === sku && armedTurned); // 미리 보기에서 붙어 있던 그 자리에 놓는다
     showGaps(null);
     const r = await post(`/api/projects/${pid}/placements`, sn ? { sku, center_xz: sn.xz, yaw_rad: sn.yaw, snap: false, slot: !!sn.slot } : { sku, center_xz: p, yaw_rad: yaw0 });
+    if (shutsDoor(r.placement)) { // 놓지 않고 그대로 들고 있게 한다
+      await applyStep(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
+      toast(`${DOOR_SHUT}. 문 앞을 비워 주세요`);
+      await refresh(true);
+      return;
+    }
     remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
     if (armed === sku && armedTurned) markTurned({ kind: "placement", id: r.placement.placement_id }); // 돌려서 놓은 것도 그 방향을 지킨다
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null); setTab("sel");
@@ -1315,9 +1331,15 @@ export async function customer(pid) {
     await refresh(true);
   });
   const patch = guard(async (plid, body) => {
+    const kept = undoStack.length;
     rememberPlacement(plid);
+    const was = project.scene_state.placements.find((q) => q.placement_id === plid);
     const r = await api(`/api/projects/${pid}/placements/${plid}`, { method: "PATCH", body: JSON.stringify(body) });
     if (r?.slot_changes) undoStack.push(withSlot(undoStack.pop(), r));
+    if (body.center_xz && shutsDoor(r?.placement) && !shutsDoor(was) && undoStack.length > kept) { // 문 앞으로 옮기면 원래 자리로 돌려놓는다
+      await applyStep(undoStack.pop()); syncUndo();
+      toast(`${DOOR_SHUT}. 원래 자리로 돌려놨어요`);
+    }
     await refresh(true);
   });
 
@@ -1465,6 +1487,7 @@ export async function customer(pid) {
     }
   };
   const savePose = guard(async (it) => {
+    const kept = undoStack.length, wasShut = it.kind === "placement" && shutsDoor(project.scene_state.placements.find((q) => q.placement_id === it.id));
     if (it.kind === "placement") rememberPlacement(it.id);
     else { const o = objOf(it.id); if (o) remember({ kind: "objPose", id: it.id, pose: (project.scene_state.object_poses || {})[it.id] ? { center_xz: [o.position[0], o.position[2]], yaw_rad: o.yaw_rad } : null }); }
     applyLocal(it);
@@ -1478,6 +1501,10 @@ export async function customer(pid) {
       const x = project.scene_state.placements.find((q) => q.placement_id === it.id);
       const r = await api(`/api/projects/${pid}/placements/${it.id}`, { method: "PATCH", body: JSON.stringify({ center_xz: it.xz, yaw_rad: it.yaw, snap: false, ...(x ? slotArg(x.sku, x.size_m, it.xz, it.yaw, it.id) : {}), ...(hungId(it.id) && it.baseY !== undefined ? { base_m: Math.max(0, it.baseY) } : {}) }) });
       if (r?.slot_changes) undoStack.push(withSlot(undoStack.pop(), r));
+      if (shutsDoor(r?.placement) && !wasShut && undoStack.length > kept) { // 문 앞으로 옮기면 원래 자리로 돌려놓는다
+        await applyStep(undoStack.pop()); syncUndo();
+        toast(`${DOOR_SHUT}. 원래 자리로 돌려놨어요`);
+      }
     }
     else await put(`/api/projects/${pid}/objects/${it.id}/pose`, { center_xz: it.xz, yaw_rad: it.yaw });
     await refresh(true);
@@ -1749,9 +1776,10 @@ export async function customer(pid) {
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     const o = !x && selObj && room?.objects.find((q) => q.object_id === selObj);
     const held = viewer.held?.();
-    const xz = held ? held.xz : x ? x.center_xz : o ? [o.position[0], o.position[2]] : null;
+    const opAt = !x && !o && !held && selOp ? winTop(room.openings.find((q) => q.opening_id === selOp) || {}) : null;
+    const xz = held ? held.xz : x ? x.center_xz : o ? [o.position[0], o.position[2]] : opAt ? [opAt[0], opAt[2]] : null;
     if (!xz) { unNear(); return; }
-    const top = x ? (x.size_m?.[1] ?? 1) : o ? o.bbox_m.h : 1;
+    const top = x ? (x.size_m?.[1] ?? 1) : o ? o.bbox_m.h : opAt ? opAt[1] : 1;
     // 가구 위에 올려 둔 것은 그 높이만큼 위에 (안 그러면 메뉴가 물건을 가려 놓을 자리를 못 누른다)
     const base = held ? (held.kind === "placement" ? held.y : 0) : x ? x.base_m || 0 : 0;
     const [sx, sy] = viewer.toScreen(xz, top + base), r = canvasEl.getBoundingClientRect();
@@ -1779,12 +1807,13 @@ export async function customer(pid) {
     const d = decorOf(x.sku), long = LONG.has(x.sku);
     const cur = { w: Math.round(x.size_m[0] * 1000), h: Math.round(x.size_m[1] * 1000), d: Math.round(x.size_m[2] * 1000) };
     const names = long ? { w: "길이", h: "높이", d: "두께" } : { w: "폭", h: "높이", d: "깊이" };
+    const dims = x.sku === DOOR_SKU || WALL_SKUS.has(x.sku) ? ["w", "h"] : ["w", "h", "d"]; // 문·창은 두께가 벽을 따라간다
     const same = (p) => p.size_mm.w === cur.w && p.size_mm.h === cur.h && p.size_mm.d === cur.d;
     const presets = d?.presets || [];
     actBar.classList.add("sizing");
     actBar.innerHTML = `${presets.length ? `<div class="sz-presets" role="group" aria-label="실제 제품 치수">${presets.map((p, i) =>
       `<button class="chip${same(p) ? " on" : ""}" data-preset="${i}" title="${mm(p.size_mm.w)} × ${mm(p.size_mm.h)} × ${mm(p.size_mm.d)} mm (폭 × 높이 × 깊이)">${esc(p.label)}</button>`).join("")}</div>` : ""}
-      <div class="sz-row">${["w", "h", "d"].map((k) => `<label class="sz-f">${names[k]}<input type="number" inputmode="numeric" data-dim="${k}" min="${SIZE_MIN[k]}" max="${SIZE_MAX[k]}" step="10" value="${cur[k]}" aria-label="${names[k]} (mm)"></label>`).join("")}
+      <div class="sz-row">${dims.map((k) => `<label class="sz-f">${names[k]}<input type="number" inputmode="numeric" data-dim="${k}" min="${SIZE_MIN[k]}" max="${SIZE_MAX[k]}" step="10" value="${cur[k]}" aria-label="${names[k]} (mm)"></label>`).join("")}
         <span class="sz-unit">mm</span><button class="primary small" id="szDone">완료</button></div>`;
     const apply = (v) => resizePlacement(x.placement_id, [v.w / 1000, v.h / 1000, v.d / 1000]);
     actBar.querySelectorAll("[data-dim]").forEach((inp) => {
@@ -1799,6 +1828,31 @@ export async function customer(pid) {
     });
     actBar.querySelectorAll("[data-preset]").forEach((b) => (b.onclick = () => apply(presets[+b.dataset.preset].size_mm)));
     document.getElementById("szDone").onclick = () => { sizing = null; renderAct(); };
+  };
+  // 스캔·도면에서 읽은 문·창: 눌러 고르면 폭·높이를 mm로 적어 바꾼다 (가운데는 그대로, 옆 문·창에 닿으면 조금 비켜난다)
+  const OP_MIN = { w: 400, h: 300 }, OP_MAX = { w: 6000, h: 3000 };
+  const resizeOpening = guard(async (op, v) => {
+    const before = { width_m: op.width_m, height_m: op.height_m };
+    await put(`/api/projects/${pid}/openings/${op.opening_id}/size`, { width_m: v.w / 1000, height_m: v.h / 1000 });
+    remember({ kind: "opSize", id: op.opening_id, body: before });
+    await refresh(true);
+  });
+  const opBar = (op) => {
+    const cur = { w: Math.round(op.width_m * 1000), h: Math.round(op.height_m * 1000) }, names = { w: "폭", h: "높이" };
+    actBar.classList.add("sizing");
+    actBar.innerHTML = `<div class="sz-row"><span class="act-tag">${op.type === "window" ? "창" : "문"}</span>${["w", "h"].map((k) => `<label class="sz-f">${names[k]}<input type="number" inputmode="numeric" data-dim="${k}" min="${OP_MIN[k]}" max="${OP_MAX[k]}" step="10" value="${cur[k]}" aria-label="${names[k]} (mm)"></label>`).join("")}
+        <span class="sz-unit">mm</span><button class="primary small" id="szDone">완료</button></div>`;
+    actBar.querySelectorAll("[data-dim]").forEach((inp) => {
+      inp.onchange = () => {
+        const k = inp.dataset.dim, n = Math.round(+inp.value);
+        if (!Number.isFinite(n) || !inp.value) { inp.value = cur[k]; return; }
+        const v = Math.min(Math.max(n, OP_MIN[k]), OP_MAX[k]);
+        inp.value = v;
+        if (v !== cur[k]) resizeOpening(op, { ...cur, [k]: v });
+      };
+      inp.onkeydown = (e) => { e.stopPropagation(); if (e.key === "Enter") inp.blur(); };
+    });
+    document.getElementById("szDone").onclick = () => { selOp = null; renderAct(); };
   };
   // 색 고르기: 3D 메뉴가 색 점 줄로 바뀐다. 누르면 바로 입혀진다 (놓은 가구도, 스캔한 가구도)
   let colouring = null;
@@ -1873,8 +1927,9 @@ export async function customer(pid) {
       const r = x.verdict === "no_fit" ? badReasons(x)[0] : null;
       fitBadge.className = `fit-badge v-${shownVerdict(x.verdict)}`;
       const doorShut = x.sku === DOOR_SKU && r?.code === "front_blocked"; // 문은 열리는지부터 말해 준다
-      const head = x.sku === DOOR_SKU && !r ? "문이 잘 열려요" : doorShut ? "문이 안 열려요" : BADGE[x.verdict] || BADGE.unknown;
-      const why = doorShut ? "앞에 문짝만큼 비워 주세요. R로 돌리면 반대쪽으로 열려요" : r ? `${r.label} · ${FIX[r.code] || "다른 자리로 옮겨 보세요"}` : "";
+      const blocksDoor = r?.code === "door_blocked";
+      const head = x.sku === DOOR_SKU && !r ? "문이 잘 열려요" : doorShut ? "문이 안 열려요" : blocksDoor ? DOOR_SHUT : BADGE[x.verdict] || BADGE.unknown;
+      const why = doorShut ? "앞에 문짝만큼 비워 주세요. R로 돌리면 반대쪽으로 열려요" : blocksDoor ? FIX.door_blocked : r ? `${r.label} · ${FIX[r.code] || "다른 자리로 옮겨 보세요"}` : "";
       fitBadge.innerHTML = `<b>${esc(head)}</b>${why ? `<span>${esc(why)}</span>` : ""}`;
     }
     actBar.classList.remove("sizing", "colouring");
@@ -1889,10 +1944,11 @@ export async function customer(pid) {
       return;
     }
     const target = x ? { type: "placement", id: x.placement_id } : selObj ? { type: "object", id: selObj } : null;
-    actBar.hidden = !target;
+    const op = !target && selOp && !(project.scene_state.hidden_openings || []).includes(selOp) && room.openings.find((q) => q.opening_id === selOp);
+    actBar.hidden = !target && !op;
     const locked = target && isLocked(target.id);
     showRing(locked ? null : target, x);
-    if (!target) { sizing = null; colouring = null; return; }
+    if (!target) { sizing = null; colouring = null; if (op) opBar(op); else selOp = null; return; }
     if (x && isDecor(x.sku) && sizing === x.placement_id) { sizeBar(x); return; }
     const deco = x && isDecor(x.sku), hung = x && hangs(x.sku);
     const obj = !x && room.objects.find((q) => q.object_id === selObj);
@@ -2029,7 +2085,7 @@ export async function customer(pid) {
     surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
     needs_counter: "인덕션은 주방 하부장이나 아일랜드 위에 놓아야 해요",
     front_blocked: "문을 열 앞 공간이 막혀요. 앞을 비우거나 돌려 보세요", passage_narrow: "지나갈 길이 좁아져요. 벽 쪽으로 붙여 보세요",
-    door_blocked: "방문이 열릴 자리를 막아요. 옆으로 옮겨 주세요", entry_narrow: "방문보다 제품이 커서 들여오기 어려워요",
+    door_blocked: "문 앞을 비우게 옆으로 옮겨 주세요", entry_narrow: "방문보다 제품이 커서 들여오기 어려워요",
     covers_window: "창을 가려요. 창이 없는 벽으로 옮겨 보세요", ceiling_low: "천장보다 높아요. 더 낮은 제품을 골라 보세요",
     clearance_blocked: "옆·뒤 여유가 모자라요. 조금 떼어 주세요", tight: "딱 맞아서 여유가 없어요. 조금 옮겨 보세요",
     dims_unknown: "치수 정보가 없어서 판정을 못 해요",

@@ -35,7 +35,7 @@ LABELS = {
     "overlaps_placement": "다른 제품과 겹침",
     "ceiling_low": "천장이 낮음",
     "ceiling_tight": "천장 여유가 마진보다 적음",
-    "door_blocked": "문이 열리지 않음",
+    "door_blocked": "여기 두면 문을 열 수 없어요",
     "door_swing_assumed": "문 열림 범위에 걸침 (반대쪽으로 열린다고 가정)",
     "covers_window": "창을 가림",
     "entry_narrow": "방 문보다 제품이 커서 들여올 길 확인 필요",
@@ -305,6 +305,9 @@ def floats(p: Product) -> bool:
     """바닥이 아니라 고른 높이(base_m)에 다는 것: 벽걸이 제품과 후드."""
     return mount_kind(p) == WALL or is_hood(p)
 DOOR_SKU = "decor:door"
+DOOR_SWING_MAX_M = 0.9   # 문 앞뒤로 비워 둘 깊이의 상한 (문짝 한 장)
+DOOR_EDGE_M = 0.02       # 문틀 옆에 딱 붙인 것은 막은 것으로 보지 않는다
+FLAT = frozenset({"decor_rug"})
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
 WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
 NO_WINDOW_WALL_LABEL = "창은 원래 창이 있던 벽에만 달 수 있어요"
@@ -356,6 +359,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     passage_ref = None
 
     mounted = product.category in MOUNTED
+    # 문 앞을 막을 일이 없는 것: 벽에 다는 문·창, 벽에 건 제품·후드, 바닥에 까는 러그
+    door_free = mounted or hung or hood or product.category in FLAT
     scan_walls = {w.wall_id for w in room.walls}
     window_walls = None if window_walls is None else set(window_walls)
     if not mounted and not inside_room(room, c):  # 문은 바깥벽 가운데 줄에 달리므로 방 안팎을 따지지 않는다
@@ -377,6 +382,10 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         oyaw = o.get("yaw_rad", 0.0) - math.pi / 2
         lo = float(o.get("base_m") or 0.0)
         okind = "wall" if (mounted or hung) and o.get("sku") in WALL_LIKE else "placement"  # 문·벽걸이에게 가벽은 벽
+        if o.get("sku") == DOOR_SKU and not door_free:  # 달아 둔 문 앞뒤도 문짝만큼 비워 둔다
+            dep = min(sw, DOOR_SWING_MAX_M)
+            if overlaps(F, rect(tuple(o["center_xz"]), oyaw, sw - 2 * DOOR_EDGE_M, sd, front=dep, back=dep)):
+                add("door_blocked", Verdict.NO_FIT, o.get("placement_id"))
         obstacles.append((okind, o.get("placement_id") or o.get("sku"), rect(tuple(o["center_xz"]), oyaw, sw, sd), lo, lo + sh))
     if kind:  # 붙여 설치하는 제품: 등이 벽에 닿았는지, 빌트인은 옆이나 뒤에 장이 있는지
         reach = TOUCH_M + (0.0 if hung else back + margin)
@@ -453,13 +462,13 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
         t = _thick(wall) / 2
         a, b = op.offset_m, op.offset_m + op.width_m
         if op.type == "door":
-            inner = [f.to_world(a, t), f.to_world(b, t), f.to_world(b, t + op.width_m), f.to_world(a, t + op.width_m)]
-            outer = [f.to_world(a, -t), f.to_world(b, -t), f.to_world(b, -t - op.width_m), f.to_world(a, -t - op.width_m)]
-            hi, ho = overlaps(R, inner), overlaps(R, outer)
-            if hi and ho:
-                add("door_blocked", Verdict.NO_FIT, op.opening_id)
-            elif hi or ho:
-                add("door_swing_assumed", Verdict.CONDITIONAL, op.opening_id)
+            # 문 앞뒤로 문짝만큼(최대 0.9 m)은 비워 둔다: 어느 쪽으로 열리는지 스캔으로는 모르고, 드나들 자리도 필요하다
+            if not door_free:
+                dep, a2, b2 = min(op.width_m, DOOR_SWING_MAX_M), a + DOOR_EDGE_M, b - DOOR_EDGE_M
+                inner = [f.to_world(a2, t), f.to_world(b2, t), f.to_world(b2, t + dep), f.to_world(a2, t + dep)]
+                outer = [f.to_world(a2, -t), f.to_world(b2, -t), f.to_world(b2, -t - dep), f.to_world(a2, -t - dep)]
+                if overlaps(F, inner) or overlaps(F, outer):
+                    add("door_blocked", Verdict.NO_FIT, op.opening_id)
         elif op.type == "window" and base + h_m > op.sill_m + EPS:
             band = [f.to_world(a, t), f.to_world(b, t), f.to_world(b, t + cfg.snap_m), f.to_world(a, t + cfg.snap_m)]
             if overlaps(R, band):
@@ -490,7 +499,7 @@ _RANK = {Verdict.FIT: 0, Verdict.CONDITIONAL: 1, Verdict.UNKNOWN: 2, Verdict.NO_
 
 def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others: Iterable[dict] = (),
               hidden: Iterable[str] = (), step_m: float = 0.1,
-              near: Iterable[tuple[g.Pt, float]] = ()) -> Optional[PoseResult]:
+              near: Iterable[tuple[g.Pt, float]] = (), window_walls: Optional[Iterable[str]] = None) -> Optional[PoseResult]:
     """벽을 따라 step_m 간격으로 등을 붙여 놓아 보고 가장 잘 들어가는 자리를 고른다.
     적합 > 조건부 순, 같으면 걸리는 이유가 적은 곳, 그다음 벽 가운데에 가까운 곳. 어디에도 안 들어가면 None.
     near: (가운데, 폭의 반) 목록. 주면 그중 가장 가까운 것 바로 옆을 먼저 고른다 (식기세척기는 싱크대 옆)."""
@@ -499,6 +508,7 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
     if size is None or not room.walls:
         return None
     others, hidden, near = list(others), list(hidden), list(near)
+    window_walls = None if window_walls is None else set(window_walls)
     w_m, _, d_m = size
     side, back, _, _ = _clear(product)
     margin = cfg.margin_scanned_mm / 1000
@@ -511,17 +521,21 @@ def find_spot(room: Room, product: Product, cfg: FitConfig | None = None, others
     for wall in room.walls:
         if wall.wall_id in hidden:  # 철거한 벽에는 붙이지 않는다
             continue
+        if window_walls is not None and product.category in GLAZED and wall.wall_id not in window_walls:
+            continue  # 창은 창이 있던 벽에서만 자리를 찾는다
         f = _inward(room, wall)
         half = w_m / 2 + side + margin
         if f.length < 2 * half:
             continue
         nx, ny = f.v_axis
         v = _thick(wall) / 2 + d_m / 2 + (0.0 if hung else back + margin)  # 벽걸이는 벽에 바로 건다
+        if product.category in MOUNTED:
+            v = 0.0  # 문·창은 벽 가운데 줄에 단다
         n = int((f.length - 2 * half) / step_m) + 1
         for i in range(n):
             u = half + i * step_m
             pose = Pose(f.to_world(u, v), math.atan2(ny, nx), wall.wall_id)
-            r = check_pose(room, product, pose, cfg, others=others, hidden=hidden)
+            r = check_pose(room, product, pose, cfg, others=others, hidden=hidden, window_walls=window_walls)
             if r.verdict == Verdict.NO_FIT:
                 continue
             key = (_RANK[r.verdict], away(pose.center_xz), len(r.reasons), abs(u - f.length / 2))

@@ -91,11 +91,32 @@ def test_ceiling_too_low():
     assert r.verdict == Verdict.NO_FIT and "ceiling_low" in codes(r)
 
 
-def test_door_swing_one_side_is_conditional_both_sides_no_fit():
+def test_nothing_may_stand_where_a_scanned_door_swings():
     door = Opening(opening_id="d1", type="door", wall_id="w1", offset_m=1.0, width_m=0.9, height_m=2.1)
-    # 문 안쪽(방 쪽) 열림 범위에만 걸침 → 반대쪽으로 열린다고 보고 조건부
+    # 문 바로 앞(문짝 폭 안)에 본체가 걸치면 문을 못 연다
     r = check_pose(room(openings=[door]), free(w=600, d=600), Pose((1.45, 0.75), 0.0), CFG)
-    assert r.verdict == Verdict.CONDITIONAL and "door_swing_assumed" in codes(r)
+    assert r.verdict == Verdict.NO_FIT and "door_blocked" in codes(r)
+    assert next(x for x in r.reasons if x["code"] == "door_blocked")["label"] == "여기 두면 문을 열 수 없어요"
+    # 문짝 폭보다 멀리 떨어지면 된다
+    r = check_pose(room(openings=[door]), free(w=600, d=600), Pose((1.45, 1.4), 0.0), CFG)
+    assert "door_blocked" not in codes(r)
+    # 문틀 바로 옆에 붙여 둔 것은 막은 것이 아니다
+    r = check_pose(room(openings=[door]), free(w=600, d=600), Pose((2.2, 0.36), 0.0), CFG)
+    assert "door_blocked" not in codes(r)
+
+
+def test_wide_door_keeps_only_one_leaf_depth_clear():
+    door = Opening(opening_id="d1", type="door", wall_id="w1", offset_m=1.0, width_m=1.8, height_m=2.1)
+    r = check_pose(room(openings=[door]), free(w=600, d=600), Pose((1.9, 1.3), 0.0), CFG)
+    assert "door_blocked" not in codes(r)
+
+
+def test_nothing_may_stand_in_front_of_a_placed_door_either():
+    door = {"placement_id": "pl9", "sku": "decor:door", "center_xz": [2.0, 1.5], "yaw_rad": math.pi / 2, "size_m": [0.9, 2.1, 0.14]}
+    r = check_pose(room(), free(w=600, d=600), Pose((2.0, 2.0), 0.0), CFG, others=[door])
+    assert r.verdict == Verdict.NO_FIT and "door_blocked" in codes(r)
+    r = check_pose(room(), free(w=600, d=600), Pose((3.2, 2.0), 0.0), CFG, others=[door])
+    assert "door_blocked" not in codes(r)
 
 
 def test_covering_window_is_conditional():

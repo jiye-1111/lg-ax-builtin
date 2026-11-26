@@ -611,6 +611,17 @@ def hide_opening(pid: str, oid: str, body: HiddenIn, s: Service = S):
     return s.set_opening_hidden(pid, oid, body.hidden)
 
 
+class OpeningSizeIn(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    width_m: Optional[float] = Field(None, gt=0, le=10, description="폭 (m)")
+    height_m: Optional[float] = Field(None, gt=0, le=5, description="높이 (m)")
+
+
+@app.put("/api/projects/{pid}/openings/{oid}/size")
+def size_opening(pid: str, oid: str, body: OpeningSizeIn, s: Service = S):
+    return s.set_opening_size(pid, oid, body.width_m, body.height_m)
+
+
 @app.post("/api/projects/{pid}/placements/{plid}/auto-align")
 def auto_align(pid: str, plid: str, s: Service = S):
     return s.auto_align(pid, plid)
