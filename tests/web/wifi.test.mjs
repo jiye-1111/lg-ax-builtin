@@ -215,7 +215,11 @@ test("성능: 10×8 m를 0.3 m는 16 ms, 0.1 m는 150 ms 안에", () => {
   const sc = prepare({ walls, openings, objects });
   for (let i = 0; i < 4; i++) { field(sc, R([4, 4]), { rxH: 1, cell: 0.3, preview: true, bounds: [0, 0, 10, 8] }); field(sc, R([4, 4]), { rxH: 1, cell: 0.1, bounds: [0, 0, 10, 8] }); } // 데우기 (끌기 시작하면 이미 데워져 있다)
   // 끄는 동안은 미리보기(0.3 m, 약한 길은 과감히 건너뜀), 멈추면 0.1 m
-  const time = (cell, preview) => { const t0 = performance.now(); for (let i = 0; i < 3; i++) field(sc, R([4 + i * 0.1, 4]), { rxH: 1, cell, preview, bounds: [0, 0, 10, 8] }); return (performance.now() - t0) / 3; };
+  const time = (cell, preview) => { // 다섯 번 재서 가운데 값 (가끔 끼는 GC는 뺀다)
+    const ts = [];
+    for (let i = 0; i < 5; i++) { const t0 = performance.now(); field(sc, R([4 + i * 0.1, 4]), { rxH: 1, cell, preview, bounds: [0, 0, 10, 8] }); ts.push(performance.now() - t0); }
+    return ts.sort((a, b) => a - b)[2];
+  };
   const fast = time(0.3, true), fine = time(0.1, false);
   assert.ok(fast < 16, `0.3 m: ${fast.toFixed(1)} ms`);
   assert.ok(fine < 150, `0.1 m: ${fine.toFixed(1)} ms`);
@@ -246,4 +250,24 @@ test("색: 끊김 없이 이어지고, 제1·제2색약으로 봐도 강약 순�
   }
   assert.equal(contourKind(-67), "bold"); assert.equal(contourKind(-50), "bold"); assert.equal(contourKind(-75), "bold");
   assert.equal(contourKind(-55), "thin"); assert.equal(contourKind(-57), null);
+});
+
+test("집 → 계산 입력: 바깥벽은 철근콘크리트, 안쪽은 콘크리트, 고른 재질이 이기고, 단 문은 벽 구멍이 된다", async () => {
+  const { wifiScene } = await import("../../apps/web/js/wifi/scene.js");
+  const W = (id, s, e) => ({ wall_id: id, start: s, end: e, thickness_m: 0.1, scanned: { length_m: 1, height_m: 2.4 } });
+  const room = { walls: [W("w1", [0, 0], [8, 0]), W("w2", [8, 0], [8, 5]), W("w3", [8, 5], [0, 5]), W("w4", [0, 5], [0, 0]), W("w5", [4, 0], [4, 5])],
+    openings: [{ opening_id: "o1", type: "window", wall_id: "w1", offset_m: 1, width_m: 1.5, height_m: 1.2, sill_m: 0.9 }, { opening_id: "o2", type: "opening", wall_id: "w5", offset_m: 1, width_m: 1, height_m: 2.1, sill_m: 0 }],
+    objects: [{ object_id: "s1", category: "sofa", bbox_m: { w: 2, h: 0.8, d: 0.9 }, position: [2, 0.4, 4], yaw_rad: 0 }, { object_id: "s2", category: "table", bbox_m: { w: 1, h: 0.7, d: 1 }, position: [6, 0.35, 4], yaw_rad: 0 }] };
+  const ss = { wall_materials: { w2: "brick" }, hidden_objects: ["s2"],
+    placements: [{ placement_id: "p1", sku: "R1", center_xz: [6, 1], yaw_rad: Math.PI / 2, size_m: [0.9, 1.8, 0.9] }, { placement_id: "p2", sku: "decor:door", center_xz: [4, 3.5], yaw_rad: 0, size_m: [0.9, 2.1, 0.14] }],
+    router: { center_xz: [2, 2], band: "5", height_m: 0.75 } };
+  const sc = wifiScene(room, ss, (sku) => (sku === "R1" ? "refrigerator" : null));
+  const mat = Object.fromEntries(sc.walls.map((w) => [w.id, w.material]));
+  assert.deepEqual(mat, { w1: "reinforced_concrete", w2: "brick", w3: "reinforced_concrete", w4: "reinforced_concrete", w5: "concrete" });
+  assert.equal(sc.input.openings.find((o) => o.id === "o2").kind, "open");
+  const door = sc.input.openings.find((o) => o.id === "p2");
+  assert.ok(door && door.wall === "w5" && Math.abs(door.u0 - 3.05) < 1e-6 && door.kind === "door", JSON.stringify(door));
+  assert.deepEqual(sc.input.objects.map((o) => o.kind).sort(), ["refrigerator", "sofa"]);
+  near(sc.router.h, 0.9, 1e-9, "올려 둔 가구 위 + 안테나");
+  assert.ok(sc.inside([2, 2]) && !sc.inside([9, 2]));
 });

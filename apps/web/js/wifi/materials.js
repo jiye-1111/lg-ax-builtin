@@ -57,7 +57,8 @@ const RF_KO = {
 const KIND = {
   "decor:hood": "hood", "decor:islandhood": "hood", "decor:basecab": "cabinet", "decor:island": "cabinet", "decor:islandtable": "cabinet",
   "decor:sink": "cabinet", "decor:tallcab": "storage", "decor:sofa": "sofa", "decor:bed": "bed", "decor:bookshelf": "bookshelf",
-  "decor:wardrobe": "storage", "decor:mirror": "mirror", tvstand: "cabinet", sofa: "sofa", bed: "bed", storage: "storage",
+  "decor:wardrobe": "storage", "decor:storage": "storage", "decor:shelf": "bookshelf", "decor:dresser": "cabinet", "decor:tvstand": "cabinet",
+  "decor:mirror": "mirror", tvstand: "cabinet", sofa: "sofa", bed: "bed", storage: "storage",
 };
 
 /** 종류(카탈로그 category, decor: sku, 스캔 가구 category) → { kind, ko, loss: [2.4, 5, 6] } 또는 null */

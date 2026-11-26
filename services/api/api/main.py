@@ -357,6 +357,13 @@ class RouterIn(BaseModel):
     center_xz: list[float] = Field(min_length=2, max_length=2)
     band: str = "5"
     yaw_rad: float | None = None
+    channel_mhz: Optional[Literal[20, 40, 80, 160]] = None  # 생략하면 전에 정한 값 그대로
+    enclosure: Optional[Literal["open", "cabinet", "metal"]] = None
+
+
+class WallMaterialIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    material: Optional[str] = Field(default=None, max_length=40)  # null이면 추정값으로 되돌린다
 
 
 class HiddenIn(BaseModel):
@@ -672,7 +679,12 @@ def daylight(pid: str, date: str, time: Optional[str] = None, heatmap: bool = Tr
 
 @app.put("/api/projects/{pid}/router")
 def set_router(pid: str, body: RouterIn, s: Service = S):
-    return s.set_router(pid, body.center_xz, body.band, body.yaw_rad)
+    return s.set_router(pid, body.center_xz, body.band, body.yaw_rad, body.channel_mhz, body.enclosure)
+
+
+@app.put("/api/projects/{pid}/walls/{wid}/material")
+def set_wall_material(pid: str, wid: str, body: WallMaterialIn, s: Service = S):
+    return s.set_wall_material(pid, wid, body.material)
 
 
 @app.get("/api/projects/{pid}/sim/wifi")
@@ -682,8 +694,8 @@ def wifi(pid: str, band: Optional[str] = None, s: Service = S):
 
 @app.get("/api/projects/{pid}/sim/wifi/best")
 def wifi_best(pid: str, band: str = "5", s: Service = S):
-    if band not in ("2.4", "5"):
-        raise HTTPException(422, "band는 2.4 또는 5")
+    if band not in ("2.4", "5", "6"):
+        raise HTTPException(422, "band는 2.4, 5, 6")
     return s.wifi_best(pid, band)
 
 

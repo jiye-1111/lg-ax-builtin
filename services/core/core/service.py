@@ -1881,9 +1881,20 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
                             (x.get("base_m") or 0.0) + x["size_m"][1]))
         return out
 
-    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None) -> dict:
-        if band not in ("2.4", "5"):
-            raise Invalid("band는 2.4 또는 5")
+    WIFI_BANDS = ("2.4", "5", "6")
+    CHANNEL_MHZ = (20, 40, 80, 160)
+    ENCLOSURES = ("open", "cabinet", "metal")
+    # 웹 apps/web/js/wifi/materials.js의 MATERIALS와 같은 이름
+    WALL_MATERIALS = ("drywall", "wood", "glass", "double_glass", "lowe_glass", "brick", "concrete", "reinforced_concrete", "bathroom", "metal")
+
+    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None,
+                   channel_mhz: int | None = None, enclosure: str | None = None) -> dict:
+        if band not in self.WIFI_BANDS:
+            raise Invalid("band는 2.4, 5, 6")
+        if channel_mhz is not None and channel_mhz not in self.CHANNEL_MHZ:
+            raise Invalid("채널 폭은 20, 40, 80, 160 MHz")
+        if enclosure is not None and enclosure not in self.ENCLOSURES:
+            raise Invalid("설치 상태는 open, cabinet, metal")
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
         p = self.get_project(pid)
@@ -1891,7 +1902,26 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         # 방향은 화면 표시용 (신호 계산은 무지향). 자리만 옮기면 원래 방향을 그대로 둔다
         yaw = float(yaw_rad) if yaw_rad is not None else float(prev.get("yaw_rad", 0.0))
         xz = (float(center_xz[0]), float(center_xz[1]))
-        p["scene_state"]["router"] = {"center_xz": list(xz), "band": band, "yaw_rad": yaw, "height_m": 0.0}  # 높이는 저장할 때 채운다
+        rt = {"center_xz": list(xz), "band": band, "yaw_rad": yaw, "height_m": 0.0}  # 높이는 저장할 때 채운다
+        for k, v in (("channel_mhz", channel_mhz), ("enclosure", enclosure)):  # 안 주면 전에 정한 값
+            if v is not None or prev.get(k) is not None:
+                rt[k] = v if v is not None else prev[k]
+        p["scene_state"]["router"] = rt
+        return self._save_project(p)
+
+    def set_wall_material(self, pid: str, wall_id: str, material: str | None) -> dict:
+        """와이파이 계산에 쓰는 벽 재질. 스캔으로는 알 수 없어서 고르지 않으면 바깥벽 철근콘크리트·안쪽 콘크리트로 본다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        added = {x["placement_id"] for x in p["scene_state"].get("placements", []) if x.get("sku") in ("decor:wall", "decor:partition")}
+        if wall_id not in {w.wall_id for w in room.walls} | added:
+            raise NotFound(f"벽 없음: {wall_id}")
+        if material is not None and material not in self.WALL_MATERIALS:
+            raise Invalid(f"모르는 벽 재질: {material}")
+        wm = p["scene_state"].setdefault("wall_materials", {})
+        if material is None:
+            wm.pop(wall_id, None)
+        else:
+            wm[wall_id] = material
         return self._save_project(p)
 
     # 공유기를 올려 둘 수 있는 것: 놓은 것(가전·가구) 중 윗면이 2.2 m 이하인 것(웹 3D도 같은 규칙),
