@@ -79,3 +79,28 @@ def test_wall_is_not_blamed_for_the_door_mounted_in_it():
 def test_door_must_hang_on_a_wall():
     r = check_pose(room(), DOOR, Pose((3.0, 2.0), UP), CFG)
     assert r.verdict.value == "no_fit" and "not_on_wall" in codes(r)
+
+
+# ---- 창은 창이 있던 벽에만 ----
+WINDOW = decor_product("decor:window")
+
+
+def test_window_goes_only_on_walls_that_had_a_window():
+    # 스캔·도면에서 창이 w1에만 있었다: w1에는 더 달 수 있고, 창이 없던 w3에는 못 단다
+    ok = check_pose(room(), WINDOW, Pose((3.0, 0.0), UP), CFG, base_m=0.9, window_walls={"w1"})
+    assert "no_window_wall" not in codes(ok) and ok.verdict.value != "no_fit", ok.reasons
+    no = check_pose(room(), WINDOW, Pose((3.0, 4.0), -UP), CFG, base_m=0.9, window_walls={"w1"})
+    reason = next(x for x in no.reasons if x["code"] == "no_window_wall")
+    assert no.verdict.value == "no_fit" and reason["ref"] == "w3" and reason["label"] == "창은 원래 창이 있던 벽에만 달 수 있어요"
+
+
+def test_window_rule_is_off_when_no_window_was_found_at_all():
+    r = check_pose(room(), WINDOW, Pose((3.0, 4.0), -UP), CFG, base_m=0.9, window_walls=None)
+    assert "no_window_wall" not in codes(r)
+
+
+def test_window_rule_leaves_doors_and_partition_walls_alone():
+    assert "no_window_wall" not in codes(check_pose(room(), DOOR, Pose((3.0, 4.0), -UP), CFG, window_walls={"w1"}))
+    wall = {"placement_id": "pl1", "sku": "decor:wall", "center_xz": [3.0, 2.0], "yaw_rad": UP, "size_m": [3.0, 2.4, 0.1]}
+    r = check_pose(room(), WINDOW, Pose((3.0, 2.0), UP), CFG, others=[wall], base_m=0.9, window_walls={"w1"})
+    assert "no_window_wall" not in codes(r)

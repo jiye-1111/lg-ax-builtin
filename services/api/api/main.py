@@ -774,16 +774,32 @@ class ViewCamera(BaseModel):
     fov: float = Field(ge=10, le=120)                                   # 세로 화각 (도)
 
 
+class PhotoProduct(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    sku: str = Field(pattern=r"^[A-Za-z0-9_.-]{2,40}$")
+    box: Annotated[list[Annotated[float, Field(ge=0, le=1)]], Field(min_length=4, max_length=4)]  # 화면 자리 (0~1)
+
+
+class PhotoDaylight(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    date: str = Field(pattern=r"^\d{4}-\d{2}-\d{2}$")
+    time: Optional[str] = Field(None, pattern=r"^\d{2}:\d{2}$")
+
+
 class PhotorealIn(BaseModel):
     image: str = Field(max_length=12_000_000)  # 지금 3D 화면 (data URL)
     mask: str = Field(max_length=12_000_000)   # 같은 시점, LG 제품만 흰색
     spot: Optional[str] = Field(None, pattern=r"^[A-Za-z0-9_:-]{1,60}$")  # 둘러보기에서 들르는 곳 (곳마다 한 장씩 남긴다)
     camera: Optional[ViewCamera] = None  # 지금 시점. 이미지 AI를 못 쓸 때 서버의 Blender가 같은 자리에서 그린다
+    products: Optional[list[PhotoProduct]] = Field(None, max_length=24)  # 화면에 보이는 LG 제품 (실제 사진을 참고로)
+    daylight: Optional[PhotoDaylight] = None  # 채광 화면에서 고른 날짜·시각 (그 해로 비춘다)
 
 
 @app.post("/api/projects/{pid}/photoreal")
 def photoreal(pid: str, body: PhotorealIn, s: Service = S):
-    return s.photoreal(pid, body.image, body.mask, body.spot, body.camera.model_dump() if body.camera else None)
+    return s.photoreal(pid, body.image, body.mask, body.spot, body.camera.model_dump() if body.camera else None,
+                       [x.model_dump() for x in body.products] if body.products else None,
+                       body.daylight.model_dump() if body.daylight else None)
 
 
 @app.get("/api/projects/{pid}/photoreal/spots")

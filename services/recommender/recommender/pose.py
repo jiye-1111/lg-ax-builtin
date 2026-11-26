@@ -43,6 +43,7 @@ LABELS = {
     "scan_based": "스캔값 기준",
     "front_blocked": "앞쪽 문 열림 공간 부족",
     "not_on_wall": "문은 벽이나 가벽에 달아 주세요",
+    "no_window_wall": "창은 원래 창이 있던 벽에만 달 수 있어요",
     "front_space_assumed": "문 열림 공간 정보 없음 (기본값으로 가정)",
     "passage_narrow": "문을 열었을 때 앞 통로가 좁음",
     "surface_overhang": "올려 둔 가구 밖으로 나옴",
@@ -306,12 +307,15 @@ def floats(p: Product) -> bool:
 DOOR_SKU = "decor:door"
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
 WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
+NO_WINDOW_WALL_LABEL = "창은 원래 창이 있던 벽에만 달 수 있어요"
+GLAZED = frozenset({"decor_window", "decor_glassdoor"})
 
 
 def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None = None,
                others: Iterable[dict] = (), hidden: Iterable[str] = (), host: Optional[dict] = None,
-               base_m: Optional[float] = None) -> PoseResult:
-    """host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
+               base_m: Optional[float] = None, window_walls: Optional[Iterable[str]] = None) -> PoseResult:
+    """window_walls: 스캔·도면에서 창이 있던 벽 id들. 주면 창·유리문은 그 벽에만 달 수 있다 (가벽은 따지지 않는다).
+    host: 올려 둘 가구 윗면(surface_under 결과). 주면 그 높이에서 판정한다: 그 가구와는 겹쳐도 되고,
     키가 그 윗면보다 낮은 바닥 물건은 걸리지 않는다. 윗면 밖으로 나오면 불가.
     base_m: 벽걸이 제품·후드를 다는 높이(밑면). 안 주면 기본 높이. 그 밖의 것에는 쓰지 않는다."""
     cfg = cfg or FitConfig()
@@ -352,6 +356,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     passage_ref = None
 
     mounted = product.category in MOUNTED
+    scan_walls = {w.wall_id for w in room.walls}
+    window_walls = None if window_walls is None else set(window_walls)
     if not mounted and not inside_room(room, c):  # 문은 바깥벽 가운데 줄에 달리므로 방 안팎을 따지지 않는다
         add("outside_room", Verdict.NO_FIT)
 
@@ -403,6 +409,8 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     for okind, ref, poly, _lo, _hi in obstacles:
         if mounted and okind == "wall" and overlaps(F, poly):
             on_wall = True
+            if window_walls is not None and product.category in GLAZED and ref in scan_walls and ref not in window_walls:
+                add("no_window_wall", Verdict.NO_FIT, ref, label=NO_WINDOW_WALL_LABEL)
             continue  # 문이 달린 벽
         if hung and okind == "wall":  # 걸어 둔 벽은 겹치지만 않으면 된다 (벽과의 여유는 보지 않는다)
             if overlaps(F, poly):

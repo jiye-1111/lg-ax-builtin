@@ -19,7 +19,7 @@ from pathlib import Path
 import bpy
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from furn_parts import MATS, bake_uvs, ball, bar, bowed, cyl, leaf, part, rod, slab, soft  # noqa: E402
+from furn_parts import MATS, bake_uvs, ball, bar, bowed, cyl, leaf, merge, part, prof, rod, slab, soft  # noqa: E402
 
 
 # ---------- 종류별 모양 ----------
@@ -302,12 +302,22 @@ def plant(w, h, d):
 
 
 def coffee(w, h, d):
-    """낮은 탁자: 귀를 크게 굴린 두툼한 상판 + 굵은 원기둥 다리 둘 (요즘 많이 보이는 둥근 소파 테이블)."""
-    top = 0.045
-    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.2, edge=0.012, seg=12)
-    r = 0.11
+    """거실 테이블: 귀를 살짝 굴린 얇은 원목 상판, 아래 선반 한 단, 가는 다리 넷 (IKEA LISTERBY 같은 2단 소파 테이블)."""
+    top, inset, leg = 0.024, 0.07, 0.019
+    slab("top", "top:oak_light", -w / 2, w / 2, -d / 2, d / 2, h - top, h, "ses", corner=0.05, edge=0.006, seg=10)
+    for i, (sx, sz) in enumerate(CORNERS):
+        x, z = sx * (w / 2 - inset), sz * (d / 2 - inset)
+        rod(f"leg{i}", "leg:oak_light", (x, 0, z), (x, h - top, z), leg * 0.8, leg, "ese")
+    # 상판 바로 밑 가는 틀: 상판이 떠 보이지 않게
+    for i, sz in enumerate((-1, 1)):
+        z = sz * (d / 2 - inset)
+        part(f"rail{i}", "leg:oak_light", -w / 2 + inset, w / 2 - inset, z - 0.008, z + 0.008, h - top - 0.035, h - top, "see", 0.003)
     for i, sx in enumerate((-1, 1)):
-        cyl(f"leg{i}", "leg:oak_light", sx * (w / 2 - 0.24), 0, r, 0, h - top, "ese", 40)
+        x = sx * (w / 2 - inset)
+        part(f"rail_s{i}", "leg:oak_light", x - 0.008, x + 0.008, -d / 2 + inset, d / 2 - inset, h - top - 0.035, h - top, "ees", 0.003)
+    # 아래 선반: 다리 사이에 얇게 (잡지·리모컨 두는 단)
+    slab("shelf", "top:oak_light", -w / 2 + inset - 0.006, w / 2 - inset + 0.006, -d / 2 + inset - 0.006, d / 2 - inset + 0.006,
+         0.12, 0.138, "ses", corner=0.02, edge=0.004, seg=6)
 
 
 def partition(w, h, d):
@@ -422,54 +432,170 @@ def sink(w, h, d):
     bar("faucet_lever", "faucet:black", (cxb + 0.024, h + 0.02, fz), (cxb + 0.08, h + 0.038, fz), 0.006, "pep")
 
 
+# ---------- 문·창 ----------
+# 본 것: KCC 발코니 이중창 규격표(창틀 폭 235~293 mm, 창틀이 창짝을 감싸는 구조, 안쪽 미서기 + 바깥 미서기),
+#        LX Z:IN 뷰프레임·수퍼세이브 기사(곧은 선, 잠금 표시 손잡이), 한샘 ABS 도어(문짝 36T, 문틀·경첩·손잡이 한 벌, 문턱 없음).
+DOOR_JAMB, DOOR_STOP, DOOR_SETBACK, DOOR_T = 0.045, 0.012, 0.018, 0.036  # 웹 viewer.js의 DOOR_* 값과 같게
+
+
+def _lever(name, hx, hy, z, s_, toward):
+    """레버 손잡이 한쪽: 둥근 받침 + 목 + 옆으로 뻗은 레버 + 아래 작은 잠금 받침. s_ = 문짝 면 방향(+1 앞, -1 뒤)."""
+    bar(f"{name}_rose", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.009), 0.026, "eee")
+    bar(f"{name}_neck", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.05), 0.009, "eee")
+    bar(f"{name}_arm", "handle:black", (hx, hy, z + s_ * 0.05), (hx + toward * 0.125, hy, z + s_ * 0.05), 0.0085, "eee")
+    bar(f"{name}_tip", "handle:black", (hx + toward * 0.125, hy, z + s_ * 0.05), (hx + toward * 0.125, hy, z + s_ * 0.036), 0.0085, "eee")
+    bar(f"{name}_lock", "handle:black", (hx, hy - 0.085, z), (hx, hy - 0.085, z + s_ * 0.007), 0.015, "eee")
+    bar(f"{name}_turn", "handle:black", (hx, hy - 0.085, z), (hx, hy - 0.085, z + s_ * 0.016), 0.006, "eee")
+    merge(name, [f"{name}_{k}" for k in ("rose", "neck", "arm", "tip", "lock", "turn")], "eee")
+
+
 def door(w, h, d):
-    """여닫이문: 가는 문틀(9mm 문선 느낌) + 무늬 없는 민자 문짝 + 검은 무광 레버 손잡이. 경첩은 숨긴다.
-    문짝 부품 이름은 leaf로 시작한다 (웹이 경첩 축으로 돌려 연다). 경첩은 왼쪽(-x), 앞(+z)으로 열린다."""
-    jamb, head, t = 0.022, 0.022, 0.04
-    part("jamb_l", "frame:matte", -w / 2, -w / 2 + jamb, -d / 2, d / 2, 0, h, "ess", 0.002)
-    part("jamb_r", "frame:matte", w / 2 - jamb, w / 2, -d / 2, d / 2, 0, h, "ess", 0.002)
-    part("head", "frame:matte", -w / 2 + jamb, w / 2 - jamb, -d / 2, d / 2, h - head, h, "ses", 0.002)
-    x0, x1, y0, y1 = -w / 2 + jamb + 0.003, w / 2 - jamb - 0.003, 0.008, h - head - 0.003
-    part("leaf", "door_leaf:matte", x0, x1, -t / 2, t / 2, y0, y1, "sse", 0.003)
-    hx, hy = x1 - 0.07, 1.0
-    for side, s_ in (("f", 1), ("b", -1)):
-        z = s_ * t / 2
-        bar(f"leaf_rose_{side}", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.008), 0.025, "eee")
-        bar(f"leaf_neck_{side}", "handle:black", (hx, hy, z), (hx, hy, z + s_ * 0.048), 0.008, "eee")
-        part(f"leaf_lever_{side}", "handle:black", hx - 0.125, hx + 0.01, min(z + s_ * 0.042, z + s_ * 0.054), max(z + s_ * 0.042, z + s_ * 0.054),
-             hy - 0.009, hy + 0.009, "eee", 0.004)
+    """여닫이 방문: 문짝이 닿는 턱이 있는 문틀 + 민자 문짝(36T) + 경첩 셋 + 레버 손잡이. 문턱은 없다.
+    문짝 쪽 부품 이름은 leaf로 시작한다 (웹이 경첩 축으로 돌려 연다). 경첩은 왼쪽(-x), 앞(+z)으로 열린다."""
+    D, J = d / 2, DOOR_JAMB
+    zs = D - DOOR_SETBACK - DOOR_T - 0.003  # 문짝이 닿는 턱의 앞면
+    def jamb(x0, sx):  # 문틀 단면: 뒤쪽은 두껍고(턱), 앞쪽은 문짝이 들어갈 만큼 얇다
+        return [(x0, -D), (x0 + sx * J, -D), (x0 + sx * J, zs), (x0 + sx * (J - DOOR_STOP), zs), (x0 + sx * (J - DOOR_STOP), D), (x0, D)]
+    prof("jamb_l", "frame:matte", "y", 0, h, jamb(-w / 2, 1), "ess")
+    prof("jamb_r", "frame:matte", "y", 0, h, jamb(w / 2, -1)[::-1], "ess")
+    prof("head", "frame:matte", "x", -w / 2 + 0.0005, w / 2 - 0.0005,
+         [(h - 0.0005, -D + 0.0005), (h - 0.0005, D - 0.0005), (h - J + DOOR_STOP, D - 0.0005), (h - J + DOOR_STOP, zs), (h - J, zs), (h - J, -D + 0.0005)], "ses")
+    x0, x1 = -w / 2 + J - DOOR_STOP + 0.003, w / 2 - J + DOOR_STOP - 0.003
+    y0, y1, zf = 0.008, h - J + DOOR_STOP - 0.003, D - DOOR_SETBACK
+    part("leaf", "door_leaf:matte", x0, x1, zf - DOOR_T, zf, y0, y1, "sse", 0.0025)
+    # 경첩: 문짝 앞면 왼쪽 모서리에 보이는 축 (위·가운데·아래)
+    for name, y, ry in (("leaf_hinge_low", 0.24, "e"), ("leaf_hinge_mid", h / 2 - 0.02, "p"), ("leaf_hinge_top", h - 0.24, "e")):
+        bar(name, "steel", (x0 - 0.0015, y - 0.05, zf + 0.004), (x0 - 0.0015, y + 0.05, zf + 0.004), 0.0065, f"e{ry}e")
+    hx, hy = x1 - 0.065, 1.0
+    _lever("leaf_handle_f", hx, hy, zf, 1, -1)
+    _lever("leaf_handle_b", hx, hy, zf - DOOR_T, -1, -1)
+    # 문틀에 박힌 받이쇠 (문을 열어 두면 보인다)
+    part("strike", "steel", w / 2 - J + DOOR_STOP - 0.0006, w / 2 - J + DOOR_STOP + 0.001, zf - DOOR_T + 0.006, zf - 0.006, hy - 0.04, hy + 0.04, "eee", 0.0)
 
 
-def _glazed(w, h, d, low, handles, lock=False):
-    """가는 창틀(양옆·위·아래) + 유리 + 가운데서 겹치는 미닫이 창짝 두 장 (슬림 프레임). low = 아래 틀 높이."""
-    fr, sash, t = 0.035, 0.022, 0.028
-    part("jamb_l", "frame:matte", -w / 2, -w / 2 + fr, -d / 2, d / 2, 0, h, "ess", 0.003)
-    part("jamb_r", "frame:matte", w / 2 - fr, w / 2, -d / 2, d / 2, 0, h, "ess", 0.003)
-    part("head", "frame:matte", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, h - fr, h, "ses", 0.003)
-    part("sill", "frame:matte", -w / 2 + fr, w / 2 - fr, -d / 2, d / 2, 0, low, "ses", 0.003)
-    part("glass", "glass", -w / 2 + fr, w / 2 - fr, -0.004, 0.004, low, h - fr, "sss", 0.0)
-    # 창짝 테: 가운데 겹치는 세로대 두 개(앞뒤로 어긋남), 양옆 세로대, 위아래 가로대
-    part("meet_f", "frame:matte", -sash, 0.003, 0.006, 0.006 + t, low, h - fr, "pss", 0.002)
-    part("meet_b", "frame:matte", -0.003, sash, -0.006 - t, -0.006, low, h - fr, "pss", 0.002)
-    part("stile_l", "frame:matte", -w / 2 + fr, -w / 2 + fr + sash, -t / 2, t / 2, low, h - fr, "ess", 0.002)
-    part("stile_r", "frame:matte", w / 2 - fr - sash, w / 2 - fr, -t / 2, t / 2, low, h - fr, "ess", 0.002)
-    part("rail_top", "frame:matte", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, h - fr - sash, h - fr, "ses", 0.002)
-    part("rail_low", "frame:matte", -w / 2 + fr, w / 2 - fr, -t / 2, t / 2, low, low + sash, "ses", 0.002)
-    for name, x, z in handles:
-        part(name, "handle:black", x - 0.007, x + 0.007, min(z, z + math.copysign(0.03, z)), max(z, z + math.copysign(0.03, z)),
-             0.9, 1.3, "pee", 0.005)
-    if lock:  # 가운데 잠금 손잡이 (크리센트)
-        part("lock", "handle:black", -0.012, 0.012, 0.006 + t, 0.006 + t + 0.016, h * 0.5 - 0.028, h * 0.5 + 0.028, "ppe", 0.005)
+def _frame_pts(e0, s_, D, face, body, fin, fl, c):
+    """창틀 단면: 방 쪽·바깥쪽 날개와 가운데 칸막이 사이에 창짝이 들어가는 홈 두 줄 (안 창, 바깥 창)."""
+    q = lambda u, z: (e0 + s_ * u, z)  # noqa: E731
+    pts = [q(0, -D), q(face, -D), q(face, -D + fl), q(body, -D + fl), q(body, -c), q(fin, -c), q(fin, c), q(body, c),
+           q(body, D - fl), q(face, D - fl), q(face, D), q(0, D)]
+    return pts if s_ > 0 else pts[::-1]
+
+
+def _stile(name, xc, zc, S, t, glass, y0, y1, rig, colour="frame:pvc"):
+    """창짝 세로 테. glass = 유리가 있는 쪽 (-1 왼쪽, +1 오른쪽, 0 양쪽): 그쪽 가장자리는 한 단 얇다 (유리 누름대)."""
+    a, b, bead, tb = xc - S / 2, xc + S / 2, 0.011, t * 0.3
+    pts = [(a, -t / 2), (b, -t / 2), (b, t / 2), (a, t / 2)]
+    if glass >= 0:
+        pts[1:3] = [(b - bead, -t / 2), (b - bead, -tb), (b, -tb), (b, tb), (b - bead, tb), (b - bead, t / 2)]
+    if glass <= 0:
+        pts = [(a, -tb), (a + bead, -tb), (a + bead, -t / 2)] + pts[1:-1] + [(a + bead, t / 2), (a + bead, tb), (a, tb)]
+    prof(name, colour, "y", y0, y1, [(x, z + zc) for x, z in pts], rig)
+
+
+def _rail(name, x0, x1, ya, yb, zc, t, up, rig, colour="frame:pvc"):
+    """창짝 가로 테 (ya < yb). up = 유리가 위쪽에 있으면 True."""
+    bead, tb = 0.011, t * 0.3
+    if up:
+        pts = [(ya, -t / 2), (ya, t / 2), (yb - bead, t / 2), (yb - bead, tb), (yb, tb), (yb, -tb), (yb - bead, -tb), (yb - bead, -t / 2)]
+    else:
+        pts = [(yb, t / 2), (yb, -t / 2), (ya + bead, -t / 2), (ya + bead, -tb), (ya, -tb), (ya, tb), (ya + bead, tb), (ya + bead, t / 2)]
+    prof(name, colour, "x", x0, x1, [(y, z + zc) for y, z in pts], rig)
+
+
+def _pull(name, x, y, zf, long, ry):
+    """미서기 창 손잡이: 창짝 테에 붙는 긴 받침판 + 손이 들어가는 곧은 손잡이."""
+    part(f"{name}_plate", "handle:black", x - 0.014, x + 0.014, zf, zf + 0.005, y - long / 2, y + long / 2, "eee", 0.003)
+    grip = long * 0.74
+    bar(f"{name}_grip", "handle:black", (x, y - grip / 2, zf + 0.03), (x, y + grip / 2, zf + 0.03), 0.0065, "eee")
+    for k, yy in (("a", y - grip / 2 + 0.008), ("b", y + grip / 2 - 0.008)):
+        bar(f"{name}_neck{k}", "handle:black", (x, yy, zf), (x, yy, zf + 0.03), 0.005, "eee")
+    merge(name, [f"{name}_plate", f"{name}_grip", f"{name}_necka", f"{name}_neckb"], f"p{ry}p")
+
+
+def _crescent(name, zf, y):
+    """가운데 겹치는 테에 다는 반달 잠금쇠 (크리센트)."""
+    part(f"{name}_base", "handle:black", -0.011, 0.011, zf, zf + 0.006, y - 0.034, y + 0.034, "eee", 0.003)
+    bar(f"{name}_boss", "handle:black", (0, y + 0.008, zf), (0, y + 0.008, zf + 0.017), 0.0115, "eee")
+    bar(f"{name}_lever", "handle:black", (0, y + 0.008, zf + 0.014), (0, y - 0.05, zf + 0.014), 0.005, "eee")
+    merge(name, [f"{name}_base", f"{name}_boss", f"{name}_lever"], "ppp")
+
+
+def _sliding(w, h, d, *, low, S, rail_low, panels, handle_y, handle_long, crescent):
+    """미서기 이중창: 홈이 두 줄인 창틀에 안 창 한 벌, 바깥 창 한 벌. 창짝은 가운데에서 앞뒤로 겹친다.
+    low = 아래 창틀 높이, S = 창짝 테 폭, rail_low = 창짝 아래 테 높이, panels = 2 또는 4 (넓은 거실창).
+    가로 부품은 한가운데나 양 끝에서 끝나게 둔다: 웹이 폭을 늘려도 세로 테와 어긋나지 않는다."""
+    D, face, body, fin, fl, c = d / 2, 0.05, 0.03, 0.042, 0.018, 0.006
+    prof("jamb_l", "frame:pvc", "y", 0, h, _frame_pts(-w / 2, 1, D, face, body, fin, fl, c), "ess")
+    prof("jamb_r", "frame:pvc", "y", 0, h, _frame_pts(w / 2, -1, D, face, body, fin, fl, c), "ess")
+    zin = 0.0005  # 가로 틀은 세로 틀보다 살짝 얕게: 모서리에서 면이 겹쳐 깜빡이지 않게
+    prof("head", "frame:pvc", "x", -w / 2 + zin, w / 2 - zin, _frame_pts(h - zin, -1, D - zin, face, body, fin, fl, c), "ses")
+    prof("sill", "frame:pvc", "x", -w / 2 + zin, w / 2 - zin, _frame_pts(zin, 1, D - zin, low, low * 0.6, low * 0.84, fl, c), "ses")
+    # 레일: 아래 홈 바닥에 보이는 알루미늄 줄 (안 창 두 줄)
+    for i, z in enumerate((0.019, 0.041)):
+        part(f"track{i}", "steel", -w / 2 + 0.004, w / 2 - 0.004, z - 0.002, z + 0.002, low * 0.6, low * 0.6 + 0.005, "ses", 0.0)
+    t, edge = 0.019, 0.036          # 창짝 두께, 창짝이 창틀 홈에 물린 자리
+    ys0, ys1 = low * 0.6 + 0.006, h - body - 0.004
+    ytop, xin = h - 0.012, 0.016    # 세로 테·유리는 창틀 몸통 속까지 넣는다: 늘려도 틈이 안 생긴다
+    half, q = w / 2, w / 4
+    lays = {"in": (0.041, 0.019), "out": (-0.019, -0.041)}  # 한 벌마다 (앞 창짝, 뒤 창짝) 깊이
+    for lay, (za, zb) in lays.items():
+        if panels == 2:   # 왼쪽 창짝이 앞, 오른쪽이 뒤
+            sashes = [("l", -half + edge, 0.0, za, "e", "p"), ("r", 0.0, half - edge, zb, "p", "e")]
+        else:             # 가운데 두 짝이 앞에서 맞닿고, 양옆 두 짝은 뒤
+            sashes = [("l", -half + edge, -q, zb, "e", "p"), ("r", q, half - edge, zb, "p", "e"), ("m", -q, q, za, "p", "p")]
+        for key, xa, xb, z, ra, rb in sashes:
+            n = f"{lay}_{key}"
+            ra_x, rb_x = (xa - edge + xin if ra == "e" else xa), (xb + edge - xin if rb == "e" else xb)
+            _stile(f"{n}_sa", xa + S / 2 if ra == "e" else xa, z, S, t, 1, ys0, ytop, f"{ra}sp")
+            _stile(f"{n}_sb", xb - S / 2 if rb == "e" else xb, z, S, t, -1, ys0, ytop, f"{rb}sp")
+            _rail(f"{n}_top", ra_x, rb_x, ys1 - S, ys1, z, t, False, "sep")
+            _rail(f"{n}_low", ra_x, rb_x, ys0, ys0 + rail_low, z, t, True, "sep")
+            if key == "m":  # 가운데에서 맞닿는 두 짝의 테: 한 덩이로 두고 가운데 금만 낸다
+                _stile(f"{n}_mid", 0.0, z, S * 2 - 0.004, t, 0, ys0, ytop, "psp")
+                part(f"{n}_seam", "shadow", -0.0015, 0.0015, z + t / 2 - 0.0005, z + t / 2 + 0.0006, ys0, ytop, "psp", 0.0)
+            if lay == "in":
+                part(f"glass_{key}", "glass", ra_x, rb_x, z - 0.002, z + 0.002, ys0 + 0.004, ytop, "ssp", 0.0)
+    part("glass_out", "glass", -half + xin, half - xin, -0.032, -0.028, ys0 + 0.004, ytop, "ssp", 0.0)
+    # 손잡이: 안 창의 앞 창짝과 뒤 창짝, 창틀 쪽 테에
+    zf, zbk, ry = 0.041 + t / 2, 0.019 + t / 2, "e" if handle_y < h / 2 else "p"
+    if not handle_long:
+        pass  # 작은 창은 반달 잠금쇠만 단다
+    elif panels == 2:
+        _pull("pull_l", -half + edge + S / 2, handle_y, zf, handle_long, ry)
+        _pull("pull_r", half - edge - S / 2, handle_y, zbk, handle_long, ry)
+        for nm in ("pull_l", "pull_r"):
+            bpy.data.objects[nm]["rig"] = f"e{ry}p"
+    else:
+        _pull("pull_l", -S / 2 + 0.006, handle_y, zf, handle_long, ry)
+        _pull("pull_r", S / 2 - 0.006, handle_y, zf, handle_long, ry)
+        merge("pull_mid", ["pull_l", "pull_r"], f"p{ry}p")
+    if crescent and panels == 2:
+        _crescent("lock", zf, h / 2)
+    elif crescent:  # 네 짝: 앞 창짝과 뒤 창짝이 겹치는 두 곳
+        for nm, x in (("lock_l", -q), ("lock_r", q)):
+            _crescent(nm, zf, h / 2)
+            ob = bpy.data.objects[nm]
+            ob.location.x += x
 
 
 def window(w, h, d):
-    """미닫이 창문: 벽 속에 겹쳐 단다 (웹이 벽을 뚫고 유리를 비치게 그린다)."""
-    _glazed(w, h, d, 0.035, (), lock=True)
+    """미서기 이중창: 벽 속에 겹쳐 단다 (웹이 벽을 뚫고 유리를 비치게 그린다)."""
+    _sliding(w, h, d, low=0.05, S=0.052, rail_low=0.052, panels=2, handle_y=h / 2, handle_long=0, crescent=True)
+
+
+def window4(w, h, d):
+    """넓은 창: 네 짝."""
+    _sliding(w, h, d, low=0.05, S=0.052, rail_low=0.052, panels=4, handle_y=h / 2, handle_long=0, crescent=True)
 
 
 def glassdoor(w, h, d):
-    """베란다 유리문: 바닥부터 달리는 큰 미닫이 유리문. 가운데 세로 손잡이. 아래 틀은 걸레받이를 가릴 만큼."""
-    _glazed(w, h, d, 0.09, (("pull_f", -0.011, 0.034), ("pull_b", 0.011, -0.034)))
+    """베란다 유리문(발코니 창): 바닥부터 달리는 큰 미서기 두 짝. 아래 창틀은 낮고, 창짝 아래 테는 높다."""
+    _sliding(w, h, d, low=0.06, S=0.066, rail_low=0.085, panels=2, handle_y=1.0, handle_long=0.2, crescent=False)
+
+
+def glassdoor4(w, h, d):
+    """넓은 거실 발코니 창: 네 짝. 가운데 두 짝이 열리고 양옆은 뒤 레일에 선다."""
+    _sliding(w, h, d, low=0.06, S=0.066, rail_low=0.085, panels=4, handle_y=1.0, handle_long=0.2, crescent=False)
 
 
 TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
@@ -500,6 +626,8 @@ TEMPLATES = {  # 기준 크기 (m): 스캔에서 자주 나오는 크기 근처
     "door": ((0.9, 2.1, 0.14), door),
     "window": ((1.2, 1.2, 0.14), window),
     "glassdoor": ((1.8, 2.1, 0.14), glassdoor),
+    "glassdoor4": ((3.6, 2.2, 0.14), glassdoor4),
+    "window4": ((2.8, 1.3, 0.14), window4),
 }
 
 

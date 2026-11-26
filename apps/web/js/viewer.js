@@ -22,7 +22,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
-import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture } from "./room3d.js";
+import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture, glassLook, WIDE_DOOR_M, WIDE_WINDOW_M } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
 // 고른 것도 판정 색 그대로 (빨강 = 안 들어감으로 읽히므로 선택·필요 공간에 LG 레드를 쓰지 않는다)
@@ -52,7 +52,10 @@ const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 �
 const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
 const MAX_WALKERS = 4;
 const GLAZED = new Set(["decor:window", "decor:glassdoor"]); // 벽에 다는 창: 그 자리 벽을 뚫고 유리는 비치게
-const DOOR_SKU = "decor:door", DOOR_JAMB_M = 0.045, DOOR_OPEN_RAD = (78 * Math.PI) / 180; // 문틀 폭은 build_furniture.py door와 같게
+// 넓게 늘린 창은 네 짝짜리 모델로 그린다 (두 짝을 늘리면 한 짝이 너무 넓어진다)
+const modelKey = (p) => (p.sku === "decor:glassdoor" && p.size_m?.[0] >= WIDE_DOOR_M ? "decor:glassdoor4"
+  : p.sku === "decor:window" && p.size_m?.[0] >= WIDE_WINDOW_M ? "decor:window4" : p.sku);
+const DOOR_SKU = "decor:door", DOOR_JAMB_M = 0.036, DOOR_FACE_M = 0.018, DOOR_OPEN_RAD = (78 * Math.PI) / 180; // 문짝 왼쪽 끝과 앞면 자리: build_furniture.py door와 같게
 
 // 제품 모델: 한 번 받아 두고 배치마다 복제한다 (화면을 바꿔도 다시 받지 않는다)
 const MODEL_DIR = "models/products/";
@@ -233,6 +236,29 @@ export function makeViewer(el, handlers = {}) {
   overlay.renderOrder = 1;
   scene.add(overlay);
   const products = new THREE.Group();
+  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box:[x0,y0,x1,y1]}] (0~1, 위가 0). 카메라 뒤나 화면 밖은 뺀다 */
+  const productBoxes = () => {
+    const out = [], v = new THREE.Vector3(), bb = new THREE.Box3();
+    for (const g of products.children) {
+      const sku = g.userData.sku;
+      if (!g.visible || !sku || sku.startsWith("decor:")) continue;
+      bb.makeEmpty();
+      g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
+      if (bb.isEmpty()) continue;
+      let x0 = 1, y0 = 1, x1 = 0, y1 = 0, behind = false;
+      for (let i = 0; i < 8; i++) {
+        v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
+        if (v.z > 1) { behind = true; break; }
+        const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      }
+      const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
+      [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
+      if (behind || x1 - x0 < 0.01 || y1 - y0 < 0.01) continue;
+      out.push({ sku, box: [x0, y0, x1, y1] });
+    }
+    return out.slice(0, 24);
+  };
   scene.add(products);
   const ghost = new THREE.Group();
   scene.add(ghost);
@@ -531,8 +557,8 @@ export function makeViewer(el, handlers = {}) {
   // realSun: null이면 보기 좋은 기본 해(카메라 왼쪽 위). 있으면 {direction:[x,y,z](해 쪽), color, intensity(0~1), up}
   let realSun = null, shell = null, roomR = 8;
   // 새로 단 창·유리문 자리: 벽을 뚫고, 볕도 그리로 든다
-  const glazedSpots = (list) => (list || []).filter((p) => GLAZED.has(p.sku) && p.size_m)
-    .map((p) => ({ x: p.center_xz[0], y: (p.base_m || 0) + p.size_m[1] / 2, z: p.center_xz[1], w: p.size_m[0], h: p.size_m[1] }));
+  const glazedSpots = (list) => (list || []).filter((p) => (GLAZED.has(p.sku) || p.sku === DOOR_SKU) && p.size_m)
+    .map((p) => ({ x: p.center_xz[0], y: (p.base_m || 0) + p.size_m[1] / 2, z: p.center_xz[1], w: p.size_m[0], h: p.size_m[1], door: p.sku === DOOR_SKU }));
   let spotKey = "";
   const openWalls = (list, force = false) => {
     if (!model) return;
@@ -541,7 +567,7 @@ export function makeViewer(el, handlers = {}) {
     spotKey = key;
     cutWalls(model, spots);
     if (shell) { model.remove(shell); shell.traverse((o) => o.geometry?.dispose()); }
-    shell = shadowShell(model, spots);
+    shell = shadowShell(model, spots.filter((s) => !s.door));
     shell.visible = !!realSun;
     model.add(shell);
     renderer.shadowMap.needsUpdate = true;
@@ -725,10 +751,11 @@ export function makeViewer(el, handlers = {}) {
     const [w, , d] = p.size_m, blocked = p.verdict === "no_fit";
     const hingeX = -w / 2 + DOOR_JAMB_M, leafW = w - 2 * DOOR_JAMB_M, out = [];
     const pivot = new THREE.Group();
-    pivot.position.set(hingeX, 0, 0);
+    const hingeZ = d / 2 - DOOR_FACE_M; // 경첩 축: 문짝 앞면 왼쪽 모서리
+    pivot.position.set(hingeX, 0, hingeZ);
     const leaf = [];
     model.traverse((o) => { if (o.isMesh && o.name.startsWith("leaf")) leaf.push(o); });
-    leaf.forEach((o) => { o.position.x -= hingeX; pivot.add(o); });
+    leaf.forEach((o) => { o.position.x -= hingeX; o.position.z -= hingeZ; pivot.add(o); });
     pivot.rotation.y = blocked ? 0 : -DOOR_OPEN_RAD; // 경첩은 왼쪽, 앞(+z)으로 열린다
     out.push(pivot);
     if (blocked || selected || preview) {
@@ -770,7 +797,7 @@ export function makeViewer(el, handlers = {}) {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
     const vhex = VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
-    const tmpl = p.sku && templates.get(p.sku);
+    const tmpl = p.sku && templates.get(modelKey(p));
     if (tmpl) {
       // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z). 꾸미기 가구는 크기에 맞춰 늘린다
       const m = tmpl.decor ? fitFurniture(tmpl.scene, tmpl.ref, new THREE.Vector3(w, h, d)) : tmpl.clone(true);
@@ -783,8 +810,9 @@ export function makeViewer(el, handlers = {}) {
         if (tmpl.decor) o.material = o.material.clone(), o.userData.ownMaterial = true;
         else if (glossy.has(o.material)) o.material = glossOf(o.material);
         if (o.material.name === "glass") { // 창 유리
-          Object.assign(o.material, { transparent: true, opacity: 0.22, roughness: 0.04, depthWrite: false, envMapIntensity: 1.2 });
+          glassLook(o.material);
           o.castShadow = false;
+          o.receiveShadow = false;
         }
         const isFinish = o.material.name === "finish";
         if (preview || (isFinish && p.hex)) {
@@ -798,7 +826,7 @@ export function makeViewer(el, handlers = {}) {
       g.add(m);
       if (p.sku === DOOR_SKU) g.add(...doorExtras(m, p, { selected, preview }));
     } else {
-      if (p.sku) requestModel(p.sku);
+      if (p.sku) requestModel(modelKey(p));
       const body = new THREE.Mesh(
         new THREE.BoxGeometry(w, h, d),
         new THREE.MeshStandardMaterial({ color: new THREE.Color(p.hex || "#f2f2f0"), roughness: 0.55, metalness: 0.05,
@@ -1270,8 +1298,12 @@ export function makeViewer(el, handlers = {}) {
         });
         shell = null;
         openWalls(last.list, true); // 창 자리 벽을 뚫고 그림자용 벽을 만든다 (dressRoom이 창 두께를 바꾸기 전에)
-        walls.push(...dressRoom(model, finishSet));
         const mine = model;
+        walls.push(...dressRoom(model, finishSet, () => alive && model === mine, (made) => {
+          walls = walls.filter((w) => !w.userData.gone);
+          walls.push(...made);
+          roomEnvDirty = true;
+        }));
         furnish(model, () => alive && model === mine, (id) => objectCats[id], (id) => objectColors[id], (id) => objectPartColors[id]);
         scene.add(model);
         new THREE.Box3().setFromObject(model).getCenter(center);
@@ -1293,7 +1325,7 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.part_colors, p.top_hex, selected, templates.has(p.sku), p.base_m || 0,
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.part_colors, p.top_hex, selected, templates.has(modelKey(p)), p.base_m || 0,
           p.slot ? [p.slot, templates.has(`decor:${p.slot.look}`)] : 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }
@@ -1333,7 +1365,7 @@ export function makeViewer(el, handlers = {}) {
       const reach = Math.hypot(res.size_m[0], res.size_m[2]) / 2 + GHOST_NEAR_M;
       ghost.visible = walk || Math.hypot(cam.position.x - gx, cam.position.z - gz) >= reach;
       // 마우스를 따라갈 때는 같은 모양이면 자리·방향만 옮긴다 (매번 새로 만들면 버벅인다)
-      const key = JSON.stringify([res.sku, res.size_m, res.verdict, res.hex, templates.has(res.sku)]);
+      const key = JSON.stringify([res.sku, res.size_m, res.verdict, res.hex, templates.has(modelKey(res))]);
       const cur = ghost.children[0];
       // 올려 두는 가전은 서버 답을 기다리지 않고 지금 가리키는 윗면 높이로 바로 올린다
       const gy = res.surface ? topY(res.surface, [gx, gz], null) : res.base_m || 0;
@@ -1564,7 +1596,8 @@ export function makeViewer(el, handlers = {}) {
       return { pos: r3(cam.position), target: r3(cam.position.clone().add(dir)), fov: cam.fov };
     },
     /** 실사로 보기: 지금 시점을 1536x1024로 찍고, 같은 시점에서 LG 제품만 흰색인 마스크도 찍는다.
-     *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다. */
+     *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다.
+     *  화면에 보이는 LG 제품마다 자리(0~1 상자)도 같이 준다: 서버가 그 제품의 LGE.COM 사진을 이미지 AI에 참고로 보낸다 */
     snapshot(W = 1536, H = 1024) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
@@ -1574,10 +1607,11 @@ export function makeViewer(el, handlers = {}) {
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
-      let image, mask;
+      let image, mask, boxes = [];
       try {
         composer.render();
         image = renderer.domElement.toDataURL("image/png");
+        boxes = productBoxes();
         const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const lgOf = (o) => { for (let q = o; q && q !== scene; q = q.parent) if (q.parent === products) return !!q.userData.sku && !q.userData.sku.startsWith("decor:"); return false; };
         const swapped = [];
@@ -1603,7 +1637,7 @@ export function makeViewer(el, handlers = {}) {
         cam.aspect = aspect; cam.updateProjectionMatrix();
         renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
       }
-      return { image, mask };
+      return { image, mask, products: boxes };
     },
     /** 첫 화면 카드에 쓰는 작은 미리보기 (지금 시점, JPEG). 표시용 선·사람은 빼고 찍는다 */
     thumb(W = 480, H = 320) {

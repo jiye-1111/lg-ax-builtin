@@ -1047,7 +1047,7 @@ export async function customer(pid) {
     const mine = groups.find((g) => g.k === finishLabel(cur)) || { items: [cur] };
     const chips = groups.length > 1 || groups[0]?.k
       ? `<div class="pd-variants" role="radiogroup" aria-label="색상 옵션">${groups.filter((g) => g.k).map((g) => { const on = g === mine, to = on ? sku : g.items[0].sku, x = g.items[0];
-        return `<button class="swatch ${on ? "on" : ""}" data-pd-variant="${esc(to)}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(g.k)}</button>`; }).join("")}</div>`
+        return `<button class="swatch ${on ? "on" : ""}" data-pd-variant="${esc(to)}" title="${esc(g.k)}" aria-label="${esc(g.k)}" role="radio" aria-checked="${on}"><i style="background:${esc(x.hex || "#fff")}"></i>${esc(g.k)}</button>`; }).join("")}</div>`
       : "";
     const models = mine.items.length > 1
       ? `<label class="pd-model"><span>모델</span><select id="pdModel" aria-label="모델 고르기">${mine.items.map((x) => `<option value="${esc(x.sku)}" ${x.sku === sku ? "selected" : ""}>${x.note ? esc(x.note) + " · " : ""}${esc(x.sku)}</option>`).join("")}</select></label>`
@@ -2025,6 +2025,7 @@ export async function customer(pid) {
     hits_wall: "벽에서 조금 떼거나 '벽에 붙이기'를 눌러 보세요", outside_room: "방 안쪽으로 옮겨 주세요",
     overlaps_object: "가구를 옮기거나 '가구 치우기'로 치워 보세요", overlaps_placement: "다른 제품과 겹쳐요. 한쪽을 옮겨 주세요",
     not_on_wall: "벽이나 가벽 가까이를 누르면 벽에 달려요",
+    no_window_wall: "창이 있던 벽으로 옮겨 주세요",
     needs_wall: "벽 가까이 가져가면 착 붙어요",
     surface_overhang: "올려 둔 가구보다 커서 밖으로 나와요. 더 넓은 가구 위나 바닥에 놓아 보세요",
     needs_counter: "인덕션은 주방 하부장이나 아일랜드 위에 놓아야 해요",
@@ -2093,6 +2094,8 @@ export async function customer(pid) {
     viewer.cancelHold(); armed = null; ghost(null);
     const keepSel = selPl; selPl = null; draw(); // 고른 표시 없이 찍는다
     const shot = { ...viewer.snapshot(), camera: viewer.cameraPose() };
+    // 실사도 채광과 같은 해로: 집 방향을 알면 채광 시간 바의 날짜·시각을 보낸다 (안 켰으면 오늘 정오 무렵)
+    if (project.site?.north_deg != null) shot.daylight = { date: simState.date, time: simState.time };
     selPl = keepSel; draw();
     return shot;
   };
@@ -2116,7 +2119,7 @@ export async function customer(pid) {
     try {
       const r = await post(`/api/projects/${pid}/photoreal`, shot);
       showShot(apiUrl(r.url), r.model === "blender" ? "지금 집과 놓은 제품을 치수 그대로 빛을 계산해 그린 이미지예요."
-        : "AI가 만든 참고 이미지예요. LG 제품은 실제 치수·색 그대로 두고 벽·바닥·빛만 사진처럼 바꿨어요.");
+        : "AI가 만든 참고 이미지예요. LG 제품은 실제 제품 사진을 보고 그렸고 치수·색은 그대로예요.");
     } catch (err) {
       if (err.status !== 503 && err.status !== 429) throw err;
       toast(err.message, true);
