@@ -21,6 +21,7 @@ from pxr import Gf, Usd, UsdGeom
 from core.models import BBox, Opening, Room, RoomObject, ScannedDims, Wall
 
 from .orient import orient_objects
+from .tidy import tidy_openings
 
 CLASSIFY_RULES: list[tuple[str, str]] = [
     # (정규식, 종류) — 위에서부터 먼저 맞는 규칙 사용
@@ -161,7 +162,7 @@ def convert_stage(stage: Usd.Stage) -> Room:
                 position=(_r(center[0]), _r((y0 + y1) / 2 - floor_y), _r(center[1])),
                 yaw_rad=_r(math.atan2(axis[1], axis[0])),
             ))
-    return Room(walls=walls, openings=openings, objects=orient_objects(objects, walls))
+    return tidy_openings(Room(walls=walls, openings=openings, objects=orient_objects(objects, walls)))
 
 
 def _nearest_wall(walls: list[Wall], pt) -> tuple[Wall | None, float]:

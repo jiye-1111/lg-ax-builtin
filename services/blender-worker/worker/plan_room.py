@@ -13,6 +13,8 @@ from pydantic import BaseModel, Field
 
 from core.models import Opening, Room, ScannedDims, Wall
 
+from worker.tidy import tidy_openings
+
 WALL_HEIGHT_M = 2.4        # 도면에는 천장 높이가 없다. 아파트 기준 높이
 EXTERIOR_M, INTERIOR_M = 0.2, 0.1
 STRAIGHTEN_DEG = 8         # 이만큼 안쪽으로 기운 벽은 가로·세로로 편다
@@ -152,7 +154,8 @@ def room_from_plan(plan: PlanRead) -> Room:
         count[kind] += 1
         openings.append(Opening(opening_id=f"{'d' if kind == 'door' else 'win'}{count[kind]}", type=kind, wall_id=wall_id,
                                 offset_m=round(offset, 3), width_m=round(width, 3), **dims))
-    return Room(source="floorplan_image", walls=out, openings=openings, objects=[])
+    # 벽이 가로지르는 문, 서로 겹친 문처럼 있을 수 없는 자리는 바로잡는다
+    return tidy_openings(Room(source="floorplan_image", walls=out, openings=openings, objects=[]))
 
 
 def corrections(scan: Room, plan: Room) -> dict[str, float]:
