@@ -3,7 +3,8 @@
 LG 제품은 바꾸면 안 된다 (실제 치수·색). 그래서
 1) 브라우저가 같은 시점에서 LG 제품만 흰색인 마스크를 같이 보낸다
 2) AI에는 지금 화면 전체를 참고 그림으로 주고 (마스크 없이, 구도·가구 유지)
-3) 받은 그림 위에 제품 픽셀을 3D 그대로 다시 얹는다 (AI가 마스크를 넘어 손대도 제품은 그대로)
+3) 받은 그림 위에 제품 자리를 다시 맞춘다. AI가 제품 모양을 지켰으면 AI가 그린 실제 제품 모습(LGE.COM 사진을
+   참고로 준다)을 쓰되 색은 3D(카탈로그 색)로 되돌리고, 모양을 바꿨으면 3D 픽셀을 그대로 얹는다
 사진은 프로젝트 scene/photoreal.png 하나만 남긴다 (매번 덮어씀).
 """
 from __future__ import annotations
@@ -32,8 +33,10 @@ Keep exactly the same camera angle, room shape, walls, windows, doors, and every
 Make surfaces look real: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight
 through the windows with soft shadows and bounce light, gentle depth like a real camera.
 The plain background outside the room is empty: keep it plain and do not zoom in or crop.
-The appliances are real products standing in this room: give them natural contact shadows on the floor
-and soft light around them so they sit in the scene, but do not repaint them.
+The appliances are real LG products, described below. Make each one look like a real photograph of that exact
+product (true material, reflections of the room, the sunlight and shadows falling on it, natural contact shadows on
+the floor), matching its official product photo when one is given. Never change an appliance's outline, size,
+position or colour.
 Plain boxes and cabinets are furniture cabinets with doors: never turn them into appliances
 (no washing machines, dryers, ovens, microwaves, stoves, dishwashers).
 Do not add, remove or move anything: no new furniture, devices, outlets, cables, plants, tableware or decorations.
@@ -161,6 +164,61 @@ def contact_shadow(out: Image.Image, alpha: Image.Image) -> Image.Image:
     return Image.fromarray(np.clip(o, 0, 255).astype(np.uint8))
 
 
+PRODUCT_KEEP = 0.45  # 제품 안쪽 윤곽이 3D와 이만큼 닮았으면 AI가 그린 제품(손잡이·로고·반사)을 쓴다
+PRODUCT_LIGHT = (0.6, 1.6)  # AI 제품 밝기가 3D의 이 범위를 벗어나면 다른 물건으로 본다
+PRODUCT_Y = (0.85, 1.15)  # 쓰더라도 밝기는 3D의 이 범위 안으로 (색이 하얗게 날아가거나 검어지지 않게)
+
+
+def _ycc(img: Image.Image) -> np.ndarray:
+    return np.array(img.convert("YCbCr"), dtype=np.float32)
+
+
+def shape_score(view: Image.Image, out: Image.Image, inner: np.ndarray) -> float:
+    """제품 안쪽(테두리 제외) 윤곽이 얼마나 같은 자리에 있는지 (-1~1). 문 나눔 줄·패널 자리를 본다"""
+    ev, eo = (_edges(im) * inner for im in (view, out))
+    ev, eo = ev - ev[inner].mean(), eo - eo[inner].mean()
+    ev, eo = ev * inner, eo * inner
+    return float((ev * eo).sum() / (np.linalg.norm(ev) * np.linalg.norm(eo) + 1e-6))
+
+
+def recolour(out: Image.Image, view: Image.Image, a: np.ndarray) -> Image.Image:
+    """AI가 그린 제품의 결(손잡이 홈·반사·로고)은 두고, 색(Cb, Cr)은 3D(카탈로그 색)로, 밝기는 3D 근처로 맞춘다"""
+    o, v = _ycc(out), _ycc(view)
+    for ch in (1, 2):
+        o[..., ch] += v[..., ch][a].mean() - o[..., ch][a].mean()
+    my, vy = max(o[..., 0][a].mean(), 1.0), max(v[..., 0][a].mean(), 1.0)
+    o[..., 0] *= float(np.clip(my / vy, *PRODUCT_Y)) * vy / my
+    return Image.fromarray(np.clip(o, 0, 255).astype(np.uint8), "YCbCr").convert("RGB")
+
+
+def blend_products(view: Image.Image, out: Image.Image, alpha: Image.Image, boxes, notes: list | None = None) -> Image.Image:
+    """제품 자리 그림. 기본은 3D 제품에 AI 빛만 (match_light). 제품마다(box) AI가 모양을 지켰으면
+    AI가 그린 실제 제품 모습을 쓰되 색은 카탈로그 색으로 되돌린다."""
+    base = np.array(match_light(view, out, alpha))
+    am = np.array(alpha) > 127
+    inner_all = np.array(alpha.filter(ImageFilter.MinFilter(11))) > 127  # 테두리(실루엣)는 빼고 안쪽 줄만 비교
+    w, h = view.size
+    for b in boxes or []:
+        x0, y0, x1, y1 = max(0, int(b[0])), max(0, int(b[1])), min(w, int(b[2])), min(h, int(b[3]))
+        if x1 - x0 < 8 or y1 - y0 < 8:
+            continue
+        a, inner = am[y0:y1, x0:x1], inner_all[y0:y1, x0:x1]
+        if inner.sum() < 200:  # 너무 작게 보이면 비교할 게 없다: 3D 그대로
+            continue
+        vc, oc = view.crop((x0, y0, x1, y1)), out.crop((x0, y0, x1, y1))
+        ratio = _ycc(oc)[..., 0][a].mean() / max(_ycc(vc)[..., 0][a].mean(), 1.0)
+        score = shape_score(vc, oc, inner)
+        ok = PRODUCT_LIGHT[0] <= ratio <= PRODUCT_LIGHT[1] and score >= PRODUCT_KEEP
+        if notes is not None:
+            notes.append({"box": [x0, y0, x1, y1], "shape": round(score, 3), "light": round(float(ratio), 3), "ai": ok})
+        if not ok:
+            continue
+        fixed = np.array(recolour(oc, vc, a))
+        region = base[y0:y1, x0:x1]
+        region[a] = fixed[a]
+    return Image.fromarray(base)
+
+
 def png_bytes(img: Image.Image) -> bytes:
     b = io.BytesIO()
     img.save(b, "PNG")
@@ -192,11 +250,15 @@ def edit_any_model(client, **kw):
     raise last or RuntimeError("쓸 수 있는 이미지 모델이 없음")
 
 
-def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") -> Image.Image:
+def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "", refs=None, boxes=None,
+               notes: dict | None = None) -> Image.Image:
+    """refs = 제품 사진 [(이름, bytes, mime)] (첫 그림 다음에 붙는다), boxes = 제품마다 화면 자리 [x0, y0, x1, y1] (픽셀).
+    notes를 주면 AI가 그린 그대로의 그림(ai)과 제품마다 판단(products)을 담아 준다 (결과가 이상할 때 보려고)"""
     alpha = drop_specks(product_alpha(mask))
     # 마스크를 주면 작은 모델이 마스크 밖을 새 방으로 다시 그려 버린다 (거실 → 주방 → 빈 방). 마스크 없이 지금 화면 전체를
-    # 참고 그림으로 주고 (input_fidelity high: 구도·가구 유지), 제품 자리는 아래에서 3D 픽셀로 다시 덮는다
-    kw = {"image": ("view.png", png_bytes(view), "image/png"), "prompt": PROMPT.format(extra=extra).strip(),
+    # 참고 그림으로 주고 (input_fidelity high: 구도·가구 유지), 제품 자리는 아래에서 다시 맞춘다
+    first = ("view.png", png_bytes(view), "image/png")
+    kw = {"image": [first, *refs] if refs else first, "prompt": PROMPT.format(extra=extra).strip(),
           "size": f"{SIZE[0]}x{SIZE[1]}", "quality": QUALITY, "n": 1}
     try:
         r = edit_any_model(client, input_fidelity="high", **kw)
@@ -208,12 +270,16 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "") ->
     if out.size != SIZE:
         out = out.resize(SIZE, Image.LANCZOS)
     out, score = align_to_view(view, out)
+    if notes is not None:
+        notes.update(ai=out, align=round(score, 3), products=[])
     if score < ALIGN_MIN:  # AI가 구도를 너무 바꿨다: 제품을 얹으면 엉뚱한 곳에 떠 보인다
         return out
     out = contact_shadow(out, alpha)
     keep = alpha.filter(ImageFilter.GaussianBlur(1.5))  # 제품 테두리만 살짝 섞는다
     keep = keep.point(lambda v: 255 if v >= 250 else v)
-    return Image.composite(match_light(view, out, alpha), out, keep)
+    inside = (blend_products(view, out, alpha, boxes, notes["products"] if notes is not None else None) if boxes
+              else match_light(view, out, alpha))
+    return Image.composite(inside, out, keep)
 
 
 def default_client():

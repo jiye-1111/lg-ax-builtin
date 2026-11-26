@@ -233,6 +233,29 @@ export function makeViewer(el, handlers = {}) {
   overlay.renderOrder = 1;
   scene.add(overlay);
   const products = new THREE.Group();
+  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box:[x0,y0,x1,y1]}] (0~1, 위가 0). 카메라 뒤나 화면 밖은 뺀다 */
+  const productBoxes = () => {
+    const out = [], v = new THREE.Vector3(), bb = new THREE.Box3();
+    for (const g of products.children) {
+      const sku = g.userData.sku;
+      if (!g.visible || !sku || sku.startsWith("decor:")) continue;
+      bb.makeEmpty();
+      g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
+      if (bb.isEmpty()) continue;
+      let x0 = 1, y0 = 1, x1 = 0, y1 = 0, behind = false;
+      for (let i = 0; i < 8; i++) {
+        v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
+        if (v.z > 1) { behind = true; break; }
+        const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
+        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+      }
+      const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
+      [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
+      if (behind || x1 - x0 < 0.01 || y1 - y0 < 0.01) continue;
+      out.push({ sku, box: [x0, y0, x1, y1] });
+    }
+    return out.slice(0, 24);
+  };
   scene.add(products);
   const ghost = new THREE.Group();
   scene.add(ghost);
@@ -1564,7 +1587,8 @@ export function makeViewer(el, handlers = {}) {
       return { pos: r3(cam.position), target: r3(cam.position.clone().add(dir)), fov: cam.fov };
     },
     /** 실사로 보기: 지금 시점을 1536x1024로 찍고, 같은 시점에서 LG 제품만 흰색인 마스크도 찍는다.
-     *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다. */
+     *  판정 판·테두리·미리 보기·사람 같은 표시는 빼고 찍는다.
+     *  화면에 보이는 LG 제품마다 자리(0~1 상자)도 같이 준다: 서버가 그 제품의 LGE.COM 사진을 이미지 AI에 참고로 보낸다 */
     snapshot(W = 1536, H = 1024) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
@@ -1574,10 +1598,11 @@ export function makeViewer(el, handlers = {}) {
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
-      let image, mask;
+      let image, mask, boxes = [];
       try {
         composer.render();
         image = renderer.domElement.toDataURL("image/png");
+        boxes = productBoxes();
         const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const lgOf = (o) => { for (let q = o; q && q !== scene; q = q.parent) if (q.parent === products) return !!q.userData.sku && !q.userData.sku.startsWith("decor:"); return false; };
         const swapped = [];
@@ -1603,7 +1628,7 @@ export function makeViewer(el, handlers = {}) {
         cam.aspect = aspect; cam.updateProjectionMatrix();
         renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
       }
-      return { image, mask };
+      return { image, mask, products: boxes };
     },
     /** 첫 화면 카드에 쓰는 작은 미리보기 (지금 시점, JPEG). 표시용 선·사람은 빼고 찍는다 */
     thumb(W = 480, H = 320) {
