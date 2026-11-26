@@ -1,7 +1,7 @@
 // 와이파이 전파 계산 (apps/web/js/wifi). 완료 기준을 시나리오별로 고정한다.
 import test from "node:test";
 import assert from "node:assert/strict";
-import { prepare, trace, field, bestSpots, CAUSE_KINDS } from "../../apps/web/js/wifi/propagation.js";
+import { prepare, trace, field, bestSpots, speed, CAUSE_KINDS } from "../../apps/web/js/wifi/propagation.js";
 import { wallLoss, materialOf, objectRf } from "../../apps/web/js/wifi/materials.js";
 import { colorAt, simulateCvd, contourKind } from "../../apps/web/js/wifi/palette.js";
 
@@ -270,4 +270,22 @@ test("집 → 계산 입력: 바깥벽은 철근콘크리트, 안쪽은 콘크�
   assert.deepEqual(sc.input.objects.map((o) => o.kind).sort(), ["refrigerator", "sofa"]);
   near(sc.router.h, 0.9, 1e-9, "올려 둔 가구 위 + 안테나");
   assert.ok(sc.inside([2, 2]) && !sc.inside([9, 2]));
+});
+
+test("굵은 등고선 글자 자리: 원 모양 등고선 위 한 점", async () => {
+  const { contourLabels } = await import("../../apps/web/js/wifi/contours.js");
+  const nx = 60, ny = 60, c = 0.1, v = new Float32Array(nx * ny);
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) v[j * nx + i] = -40 - 10 * Math.hypot((i + 0.5) * c - 3, (j + 0.5) * c - 3);
+  const [lab] = contourLabels(v, nx, ny, [0, 0], c, [-60]);
+  assert.equal(lab.level, -60);
+  near(Math.hypot(lab.xz[0] - 3, lab.xz[1] - 3), 2, 0.02, "반지름 2 m 원 위");
+  near(lab.length, 4 * Math.PI, 0.3);
+  assert.deepEqual(contourLabels(v, nx, ny, [0, 0], c, [-60], { inside: () => false }), []);
+});
+
+test("속도는 SNR에 따라 끊기지 않고 오른다", () => {
+  let prev = -1;
+  for (let s = -5; s <= 45; s += 0.5) { const m = speed(s, 80); assert.ok(m >= prev, `${s} dB`); prev = m; }
+  assert.equal(speed(-1, 80), 0);
+  near(speed(40, 80), Math.round(286.8 * 4.19 * 0.6), 1);
 });

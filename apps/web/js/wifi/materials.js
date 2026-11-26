@@ -85,5 +85,5 @@ export const CONGESTION_SHARE = { "2.4": 1, 5: 0.6, 6: 0.2 };
 export const MICROWAVE = { rise_db: 20, half_m: 3 }; // 켠 전자레인지: 바로 옆 +20 dB, 3 m에서 +10 dB
 
 // 체감 기준 (범례)
-export const ANCHORS = [[-50, "8K·게임"], [-60, "4K 영상"], [-67, "화상통화"], [-75, "웹서핑"], [-85, "끊김"]];
+export const ANCHORS = [[-50, "8K·게임"], [-60, "4K"], [-67, "화상통화"], [-75, "웹서핑"], [-85, "끊김"]];
 export const DBM_TOP = -30, DBM_BOTTOM = -90;

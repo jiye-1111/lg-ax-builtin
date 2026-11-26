@@ -375,10 +375,14 @@ function edgeFaces(sc, e, P, Q) {
   return u >= e.opening.u0 && u <= e.opening.u1 && y >= e.opening.z0 && y <= e.opening.z1;
 }
 
-/** 받는 세기에 맞는 예상 속도 (Mbps, 실제 체감 기준) */
+/** 받는 세기에 맞는 예상 속도 (Mbps, 실제 체감 기준). 공간 평균이라 MCS 단계 사이는 이어서 본다 */
 export function speed(snr, width = 80) {
   let r = 0;
-  for (const [thr, rate] of MCS) if (snr >= thr) r = rate;
+  if (snr >= MCS[MCS.length - 1][0]) r = MCS[MCS.length - 1][1];
+  else if (snr > 0) {
+    let lo = [0, 0];
+    for (const m of MCS) { if (snr < m[0]) { r = lo[1] + ((m[1] - lo[1]) * (snr - lo[0])) / (m[0] - lo[0]); break; } lo = m; }
+  }
   return Math.round(r * (WIDTH_SCALE[width] ?? 1) * MAC_EFFICIENCY);
 }
 
@@ -399,7 +403,7 @@ export function field(sc, router, opts = {}) {
   const nx = Math.max(1, Math.ceil((x1 - x0) / c - 1e-9)), ny = Math.max(1, Math.ceil((z1 - z0) / c - 1e-9));
   const rssi = new Float32Array(nx * ny), snr = new Float32Array(nx * ny), mbps = new Float32Array(nx * ny), cause = new Uint16Array(nx * ny);
   const Q = [0, cx.rxH, 0];
-  const step = opts.multiStep ?? 2, C2 = c * step;
+  const step = opts.multiStep ?? (opts.preview ? 3 : 2), C2 = c * step; // 미리보기는 반사·회절을 더 굵게
   const mx = Math.ceil((x1 - x0) / C2) + 2, mz = Math.ceil((z1 - z0) / C2) + 2;
   const multi = new Float32Array(mx * mz);
   const anyMulti = cx.causes.reflection || cx.causes.diffraction;

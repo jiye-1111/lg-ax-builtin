@@ -49,10 +49,12 @@ export function wifiClient() {
     },
     best(router, opts) {
       if (!worker) return Promise.resolve(bestSpots(probeSc, router, opts));
-      return new Promise((done) => { const id = ++seq; waits.set(id, (d) => done(d?.spots || [])); worker.postMessage({ type: "best", id, router, opts }); });
+      const { inside, ...plain } = opts; // 함수는 Worker로 못 보낸다 (Worker는 같은 집 테두리를 따로 갖고 있다)
+      return new Promise((done) => { const id = ++seq; waits.set(id, (d) => done(d?.spots || [])); worker.postMessage({ type: "best", id, router, opts: plain }); });
     },
     /** 커서 탐침: 한 점은 빨라서 화면에서 바로 */
     probe(router, xz, opts) { return probeSc ? trace(probeSc, router, xz, opts) : null; },
+    get sc() { return probeSc; },
     dispose() { worker?.terminate(); worker = null; },
   };
 }
