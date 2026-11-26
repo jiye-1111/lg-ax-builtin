@@ -84,7 +84,7 @@ def test_wifi_flow(c, pid):
     spot = best.json()["center_xz"]
     r = c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "5"})
     assert r.status_code == 200 and r.json()["scene_state"]["router"]["center_xz"] == spot
-    assert c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "6"}).status_code == 422
+    assert c.put(f"/api/projects/{pid}/router", json={"center_xz": spot, "band": "7"}).status_code == 422
     c.post(f"/api/projects/{pid}/zones", json={"purpose": "kitchen", "polygon_m": [[-5.5, 1], [-4, 1], [-4, 4], [-5.5, 4]]})
     w = c.get(f"/api/projects/{pid}/sim/wifi").json()
     assert w["values"] and w["assumptions"] and w["zones"][0]["share"]
@@ -170,3 +170,24 @@ def test_mark_rejects_values_that_are_not_numbers(c, pid):
     r = c.put(f"/api/projects/{pid}/marks/start", content='{"center_xz": [NaN, 0]}', headers={"content-type": "application/json"})
     assert r.status_code == 422
     assert c.get(f"/api/projects/{pid}/sim/flow").status_code == 200
+
+
+# ---- 와이파이: 6 GHz·채널 폭·설치 상태·벽 재질 (웹 히트맵이 계산에 쓴다) ----
+def test_router_band6_width_and_enclosure_are_kept(c, pid):
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.5, 2.0], "band": "6", "channel_mhz": 160, "enclosure": "cabinet"}).json()["scene_state"]["router"]
+    assert rt["band"] == "6" and rt["channel_mhz"] == 160 and rt["enclosure"] == "cabinet"
+    rt = c.put(f"/api/projects/{pid}/router", json={"center_xz": [-4.0, 2.0], "band": "6"}).json()["scene_state"]["router"]
+    assert rt["channel_mhz"] == 160 and rt["enclosure"] == "cabinet"  # 자리만 옮기면 설정은 그대로
+    assert c.put(f"/api/projects/{pid}/router", json={"center_xz": [0, 0], "channel_mhz": 30}).status_code == 422
+    assert c.put(f"/api/projects/{pid}/router", json={"center_xz": [0, 0], "enclosure": "box"}).status_code == 422
+    assert c.get(f"/api/projects/{pid}/sim/wifi").status_code == 200  # 6 GHz도 서버 근사 계산이 된다
+
+
+def test_wall_material_set_and_cleared(c, pid):
+    wid = c.get(f"/api/projects/{pid}/room").json()["walls"][0]["wall_id"]
+    r = c.put(f"/api/projects/{pid}/walls/{wid}/material", json={"material": "drywall"})
+    assert r.status_code == 200 and r.json()["scene_state"]["wall_materials"][wid] == "drywall"
+    assert c.put(f"/api/projects/{pid}/walls/{wid}/material", json={"material": "cheese"}).status_code == 422
+    assert c.put(f"/api/projects/{pid}/walls/nope/material", json={"material": "brick"}).status_code == 404
+    r = c.put(f"/api/projects/{pid}/walls/{wid}/material", json={"material": None})
+    assert wid not in r.json()["scene_state"].get("wall_materials", {})
