@@ -103,6 +103,7 @@ def test_flow_routes_to_placed_products(c, pid):
     route = f["routes"][pl["placement_id"]]
     assert set(route) >= {"reachable", "length_m", "min_width_m", "narrow", "path"}
     assert "sink" in f["routes"] and f["assumptions"]
+    assert f["cats"][pl["placement_id"]] == "refrigerator"  # 웹이 "냉장고 앞까지"라고 말한다
     assert c.delete(f"/api/projects/{pid}/marks/sink").status_code == 200
 
 

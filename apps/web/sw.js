@@ -1,5 +1,5 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v103"; // 와이파이: 물리 기반 계산, 끊김 없는 색과 등고선, 왜 약한지
+const VERSION = "lgb-shell-v104"; // 동선: 사람 한 명이 모션 캡처 걸음으로 가전마다 차례로 걷고, 지금 걷는 길만 그린다
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
   "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/hauni.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js", "./js/surface.js",

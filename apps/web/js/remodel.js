@@ -2790,18 +2790,26 @@ export async function customer(pid) {
     if (armedStart || !project.scene_state.marks?.start) { setOverlay("flow", ""); viewer.setWalkers([]); clearFlowX(); box.innerHTML = ""; return; }
     const f = await api(`/api/projects/${pid}/sim/flow`);
     if (!simOn("flow") || armedStart || !box.isConnected) return;
-    const parts = [], paths = [], blocked = [];
+    // 사람은 한 명: 가전마다 차례로 걸어가고, 바닥에는 지금 걷는 길 하나만 그린다 (여러 길이 겹치면 지저분하다)
+    const legs = [], paths = [], blocked = [];
     const lw = pv.sw(2);
     for (const [k, r] of Object.entries(f.routes)) {
       if (!r.reachable) { if (k !== "sink") blocked.push(k); continue; }
       paths.push(r.path);
-      parts.push(`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px;stroke-dasharray:${pv.sw(6)} ${pv.sw(5)}"/>`);
+      const one = [`<polyline class="route" points="${r.path.map((p) => p.join(",")).join(" ")}" style="stroke-width:${lw}px;stroke-dasharray:${pv.sw(6)} ${pv.sw(5)}"/>`];
       // 좁은 곳: 바닥에 얇은 빨간 고리 (0.9 m보다 좁음)
-      for (const n of r.narrow) parts.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
+      for (const n of r.narrow) one.push(`<circle class="narrow" cx="${n[0]}" cy="${n[1]}" r="0.18" style="stroke-width:0.03px"/>`);
+      legs.push({ svg: one.join(""), name: CATEGORY[f.cats?.[k]] || f.names?.[k] || "" });
     }
-    if (f.start) parts.push(`<circle class="start-dot" cx="${f.start[0]}" cy="${f.start[1]}" r="0.16"/>`);
-    setOverlay("flow", parts.join(""));
-    viewer.setWalkers(paths); // 실제 크기(170 cm) 사람이 출발 자리에서 제품 앞까지 걷는다
+    const dot = f.start ? `<circle class="start-dot" cx="${f.start[0]}" cy="${f.start[1]}" r="0.16"/>` : "";
+    const showLeg = (i) => {
+      if (!simOn("flow") || armedStart) return;
+      setOverlay("flow", (legs[i]?.svg || "") + dot);
+      const now = document.getElementById("flowNow");
+      if (now && legs[i]?.name) now.textContent = `${legs[i].name} 앞까지 걸어가요`;
+    };
+    showLeg(0);
+    viewer.setWalkers(paths, showLeg); // 실제 크기(170 cm) 사람 한 명이 출발 자리에서 가전 앞까지 차례로 걷는다
     drawFlowX(blocked);
     box.innerHTML = Object.keys(f.routes).length ? "" : `<p class="sim-line">가전을 놓으면 출발 자리에서 걸어가 볼게요.</p>`;
   };
@@ -2812,7 +2820,7 @@ export async function customer(pid) {
     ctl.innerHTML = `
       <div class="sim-row">
         ${armedStart ? `<p class="sim-ask"><b>어디서 출발할까요?</b><span>사람을 놓을 자리를 눌러 주세요</span></p>${hasStart ? `<button class="small ghost" id="reStart">취소</button>` : ""}`
-          : `<p class="sim-ask"><span>${hasStart ? "출발 자리에서 가전 앞까지 걸어 봐요" : "사람이 출발할 자리를 정해 주세요"}</span></p><button class="small ghost" id="reStart">${hasStart ? "출발 자리 바꾸기" : "출발 자리 놓기"}</button>`}
+          : `<p class="sim-ask"><span id="flowNow">${hasStart ? "출발 자리에서 가전 앞까지 걸어 봐요" : "사람이 출발할 자리를 정해 주세요"}</span></p><button class="small ghost" id="reStart">${hasStart ? "출발 자리 바꾸기" : "출발 자리 놓기"}</button>`}
       </div>`;
     const re = document.getElementById("reStart");
     if (re) re.onclick = () => {

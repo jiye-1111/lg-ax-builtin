@@ -17,12 +17,18 @@
   - https://github.com/makehumancommunity/makehuman (커밋 a8bc2d5), 에셋 라이선스 **CC0 1.0** (`LICENSE.ASSETS.md`)
   - 받기: `scripts/fetch_makehuman.sh` (필요한 파일만, 커밋 고정)
 - 20대 동양인 남성, 보통 체형, 키 170 cm(신발 포함). 옷(니트·청바지·운동화)과 짧은 머리는 MakeHuman 보조 메시와 두피 면을 떼어 만들었다.
-- 걷기 동작은 스크립트에서 직접 키프레임으로 만든 것(모션 캡처 데이터 아님). 한 주기 32프레임(30 fps) 동안 1.3 m/s로 1.39 m를 간다.
+- 걷기 동작은 실제 사람을 잰 모션 캡처다: CMU Graphics Lab Motion Capture Database 35번 배우 01번 걷기(http://mocap.cs.cmu.edu, B. Hahne의 BVH 변환본 https://github.com/una-dinosauria/cmu-mocap). CMU와 변환한 사람 모두 어디에 써도 된다고 밝혀 두었다(`READMEFIRST.txt`).
+  - 받기: `scripts/fetch_mocap.sh` (커밋 고정)
+  - 옮기는 법: `bpy_scripts/mocap_walk.py`. 뼈마다 T자 첫 프레임에서 돈 만큼을 월드 기준으로 옮기고, MakeHuman A자 팔은 먼저 T자 방향에 맞춘다. 한 주기(왼발 딛기 → 다음 왼발 딛기, 34프레임 30 fps, 1.13초)만 골라 끝을 처음에 잇는다(`worker/walkcycle.py`).
+  - 한 주기에 1.38 m를 간다(제 빠르기 1.22 m/s). glb의 사람 노드에 `stride_m`으로 적어 두고 웹이 이걸로 걸음 빠르기를 맞춘다.
+  - 프레임마다 신발 맨 아래가 바닥에 닿게 골반 높이를 고쳤다(디딘 발 앞코가 한 번 딛는 동안 2~3 cm 안에서만 움직인다).
+- 서 있는 동작(idle)은 스크립트에서 만든 숨쉬기다.
 
 다시 만들기:
 ```bash
 scripts/fetch_makehuman.sh
-python services/blender-worker/worker/bpy_scripts/build_person.py --mh .cache/makehuman --out apps/web/models/people/walker.glb
+scripts/fetch_mocap.sh
+python services/blender-worker/worker/bpy_scripts/build_person.py --mh .cache/makehuman --bvh .cache/mocap/35_01.bvh --out apps/web/models/people/walker.glb
 python services/blender-worker/worker/bpy_scripts/build_router.py --out apps/web/models/devices/router.glb
 ```
 (pip `bpy` 환경, 또는 `blender -b -P <스크립트> -- <인자>`)

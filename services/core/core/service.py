@@ -2062,6 +2062,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         out = plan_routes(room, targets, FlowConfig.from_env(), hidden=p["scene_state"].get("hidden_objects") or [],
                           extra=extra, triangle=tri, start=marks.get("start"), gaps=gaps)
         out["names"] = names
+        out["cats"] = cats  # 웹이 "냉장고 앞까지 걸어가요"처럼 종류 이름으로 말하게
         out["marks"] = marks
         return out
 
