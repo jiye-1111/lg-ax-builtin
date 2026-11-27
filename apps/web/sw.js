@@ -1,8 +1,8 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v106"; // 빌트인 주방: 가전 맞춤장·주방 모듈·마감·유리장
+const VERSION = "lgb-shell-v107"; // 빌트인 주방: 가전 맞춤장·주방 모듈·마감·유리장
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/hauni.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js", "./js/surface.js", "./js/cabinet.js", "./js/cabinet3d.js", "./js/kitchen.js",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/measure.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/hauni.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js", "./js/surface.js", "./js/cabinet.js", "./js/cabinet3d.js", "./js/kitchen.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",

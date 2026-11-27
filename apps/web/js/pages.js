@@ -276,12 +276,12 @@ export const BY = { technician: "기사", customer: "고객", floorplan: "도면
 export function wallTable(tbody, pid, room, { by, sel, onChange }) {
   tbody.innerHTML = room.walls.map((w) => `
     <tr data-row="${w.wall_id}" ${sel === w.wall_id ? 'style="background:var(--lg-soft)"' : ""}>
-      <td><b>${w.wall_id}</b>${w.measured?.by ? ` <span class="badge src">${w.measured.by === "floorplan" ? "도면 치수" : `${BY[w.measured.by] || esc(w.measured.by)} 실측`}</span>` : ""}</td>
+      <td><b>${w.wall_id}</b>${w.measured?.by ? ` <span class="badge src">${w.measured.by === "floorplan" ? "도면 치수" : w.measured.by === "reference" ? "잰 벽 기준" : `${BY[w.measured.by] || esc(w.measured.by)} 실측`}</span>` : ""}</td>
       <td class="mono">${w.scanned.length_m.toFixed(3)}</td><td class="mono">${w.scanned.height_m.toFixed(3)}</td>
-      <td><input class="mono" name="length_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.length_m ?? ""}"></td>
+      <td><input class="mono" name="length_m" type="number" step="0.001" min="0.05" max="30" ${w.measured?.by === "reference" ? `placeholder="${w.measured.length_m}"` : `value="${w.measured?.length_m ?? ""}"`}></td>
       <td><input class="mono" name="height_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.height_m ?? ""}"></td>
       <td><input class="mono" name="depth_m" type="number" step="0.001" min="0.05" max="30" value="${w.measured?.depth_m ?? ""}"></td>
-      <td class="row"><button class="small" data-save="${w.wall_id}">저장</button>${w.measured ? `<button class="small ghost" data-clear="${w.wall_id}">초기화</button>` : ""}</td></tr>`).join("");
+      <td class="row"><button class="small" data-save="${w.wall_id}">저장</button>${w.measured && w.measured.by !== "reference" ? `<button class="small ghost" data-clear="${w.wall_id}">초기화</button>` : ""}</td></tr>`).join("");
   tbody.querySelectorAll("[data-save]").forEach((b) => (b.onclick = guard(async () => {
     const body = { by };
     b.closest("tr").querySelectorAll("input").forEach((i) => { if (i.value !== "") body[i.name] = parseFloat(i.value); });

@@ -19,7 +19,9 @@ class ScannedDims(_Strict):
 
 
 class MeasuredDims(_Strict):
-    """기사 실측값. null인 항목은 스캔값을 쓴다.
+    """실측값. null인 항목은 스캔값을 쓴다.
+
+    by: technician·customer = 줄자로 잰 값, floorplan = 도면 치수, reference = 다른 벽을 재서 바로잡은 길이.
 
     depth_m: 확장 필드 — 벽 앞쪽 가용 깊이(벽면 ~ 맞은편 장애물)를 줄자로 잰 값.
     """
