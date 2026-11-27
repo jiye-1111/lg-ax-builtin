@@ -8,9 +8,12 @@ from core.decor import DECOR, decor_items, decor_product, is_decor
 
 def test_library_groups_and_models_exist():
     groups = {d["group"] for d in DECOR.values()}
-    assert groups == {"furniture", "storage", "decor", "structure"}
+    assert groups == {"furniture", "storage", "decor", "structure", "kitchen"}
     idx = json.loads((config.ROOT / "apps" / "web" / "models" / "furniture" / "index.json").read_text(encoding="utf-8"))
     for key, d in DECOR.items():
+        if d["group"] == "kitchen":  # 맞춤장은 모델 파일 없이 부재로 만든다 (apps/web/js/cabinet3d.js)
+            assert d["model"] == "cab" and d["cab"], key
+            continue
         assert d["model"] in idx["models"], key
     for need in ("sofa", "table", "chair", "bed", "desk", "shelf", "storage", "rug", "lamp", "plant", "wall", "partition", "coffee", "island", "tvstand"):
         assert need in DECOR

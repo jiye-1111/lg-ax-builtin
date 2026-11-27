@@ -3,6 +3,8 @@ import { ringRadius } from "./rotring.js";
 import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GROUP, DIM, OBJ, NOTE, esc, mm, api, apiUrl, post, put, toast, guard,
   rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
 import { makeViewer, setProductSurfaces } from "./viewer.js";
+import { setCabinetKinds } from "./cabinet3d.js";
+import { CAB_PREFIX, cabKindOf, cabPanelHtml, doorReport, kitchenLibHtml, wireCabPanel } from "./kitchen.js";
 import { gapNotes } from "./gapnote.js";
 import { energyBadge } from "./energy.js";
 import { materialLabel } from "./surface.js";
@@ -60,7 +62,7 @@ export async function customer(pid) {
         <div class="lib-side">
           <!-- 카테고리 → 설치 방식 → 품목 → 가격 범위 → 상세 필터 순서 -->
           <nav class="lib-tabs" id="libTabs" role="tablist" aria-label="카테고리">
-            <button role="tab" data-tab="all">전체</button><button role="tab" data-tab="lg">LG 가전</button><button role="tab" data-tab="furniture">가구</button><button role="tab" data-tab="storage">수납</button><button role="tab" data-tab="decor">소품</button><button role="tab" data-tab="finish">벽지·바닥</button></nav>
+            <button role="tab" data-tab="all">전체</button><button role="tab" data-tab="lg">LG 가전</button><button role="tab" data-tab="furniture">가구</button><button role="tab" data-tab="storage">수납</button><button role="tab" data-tab="kitchen" title="빌트인 주방">주방</button><button role="tab" data-tab="decor">소품</button><button role="tab" data-tab="finish">벽지·바닥</button></nav>
           <section class="decor-lib" id="decorLib" aria-label="벽체·가구·수납·소품·벽지·바닥"></section>
           <div class="lib-head lg-part"><h2>LG 가전</h2>
             <button class="primary small app-only" id="orderMini" hidden>구매·설치 신청</button>
@@ -480,6 +482,12 @@ export async function customer(pid) {
   let furnPick = false, furnHover = () => {}; // 가구 치우기: 마우스가 올라간 가구·창에만 ✕ (아래에서 채운다)
   let measuring = null, measureWall = () => {}; // 벽 길이 재기: {wall: 고른 벽 id 또는 null} (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
+  // 맞춤장 안에 넣은 가전을 누르면 장을 고른다 (장과 가전은 같이 움직인다)
+  const cabHost = (hit) => {
+    if (hit?.type !== "placement" || !project) return hit;
+    const x = project.scene_state.placements.find((q) => q.placement_id === hit.id);
+    return x?.in_cab ? { ...hit, id: x.in_cab } : hit;
+  };
   const viewer = makeViewer(document.getElementById("viewer"), {
     onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
     canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl && !isLocked(id) && !hungId(id),
@@ -488,6 +496,7 @@ export async function customer(pid) {
     canGrab: (hit) => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !measuring && !furnPick
       && (hit.type === "placement" ? hit.id === selPl : hit.id === selObj) && !isLocked(hit.id),
     onGrab: (hit, point) => {
+      hit = cabHost(hit);
       if (hit.type === "placement") { selPl = hit.id; selObj = null; } else { selObj = hit.id; selPl = null; }
       pickUp(hit, point);
       if (viewer.held()) setHint("놓으면 그 자리에 내려놓아요 · 휠을 굴리거나 E를 누른 채 마우스를 움직이면 돌아가요 (Shift 45°) · Esc 취소");
@@ -509,6 +518,7 @@ export async function customer(pid) {
     onClick: ({ hit, point }) => {
       if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
       if (measuring) { if (hit?.type === "wall") measureWall(hit.id); return; }
+      hit = cabHost(hit);
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (wallMatPick) { if (hit?.type === "wall") chooseWallMat(hit.id); return; }
       if (point && floorAction(point)) return;
@@ -723,6 +733,23 @@ export async function customer(pid) {
   catalog = await api("/api/catalog");
   setProductSurfaces(catalog); // 재질대로 반짝이고 비치게
   decorList = (await api("/api/decor").catch(() => ({ items: [] }))).items;
+  // 빌트인 주방 맞춤장: 종류·마감·공식 기준이 있는 모델 (마감 색은 LG 가전 색과 따로)
+  const cabInfo = await api("/api/cabinet/kinds").catch(() => ({ kinds: [], finishes: {}, rules: [] }));
+  setCabinetKinds(cabInfo);
+  const ruleSkus = new Set(cabInfo.rules.flatMap((r) => r.skus));
+  const cabKind = (k) => cabInfo.kinds.find((q) => q.kind === k);
+  let cabSku = null; // 제품 상세에서 '맞춤장 만들기'로 고른 가전: 장을 놓으면 그 안에 넣는다
+  let cabAlso = []; // 마감을 같이 바꿀 다른 장
+  const doorReports = new Map(); // 장 id → 문 열림 3D 근사 검사 (그릴 때마다 다시)
+  // 설치 방식이 built_in·built_in_look인 냉장고·김치냉장고·식기세척기만 맞춤장에 넣는다
+  const cabHostKind = (p) => (!p || !["built_in", "built_in_look"].includes(p.install_type) ? null
+    : cabInfo.kinds.find((k) => k.stage === 1 && k.host.includes(p.category))?.kind || null);
+  const cabCandidates = (kind) => {
+    const hosts = cabKind(kind)?.host || [];
+    return catalog.filter((p) => hosts.includes(p.category) && ["built_in", "built_in_look"].includes(p.install_type) && p.sale_status !== "discontinued" && p.product_dims_mm?.w)
+      .map((p) => ({ sku: p.sku, name: p.name, rule: ruleSkus.has(p.sku) }))
+      .sort((a, b) => b.rule - a.rule || a.name.localeCompare(b.name, "ko"));
+  };
   // ---- 공간 꾸미기 라이브러리: 전체 / LG 가전 / 가구 / 수납 / 소품. 벽체·구조 변경은 전체 맨 위 ----
   // 벽지·바닥 색 (탭을 집이 다 열리기 전에 눌러도 되게 탭보다 먼저 둔다)
   let FIN = [];
@@ -736,7 +763,7 @@ export async function customer(pid) {
     return `<button class="fin-sw${on ? " on" : ""}" data-fin="${esc(f.id)}" data-tone="${esc(t.hex)}" role="radio" aria-checked="${on}" aria-label="${esc(label)}" title="${esc(label)}"><img src="${swatchUrl(f, t.hex, 96)}" alt="" width="48" height="48" draggable="false"></button>`;
   };
   const libAside = studio.querySelector(".lib");
-  const TABS = ["all", "lg", "furniture", "storage", "decor", "finish"];
+  const TABS = ["all", "lg", "furniture", "storage", "kitchen", "decor", "finish"];
   let libTab = TABS.includes(saved.libTab) ? saved.libTab : "lg"; // 가전을 사러 온 사람이 먼저 보는 것은 가전
   const SECTION = [["structure", "벽체 & 구조 변경"], ["furniture", "가구"], ["storage", "수납 & 선반"], ["decor", "인테리어 소품"]];
   const tileHtml = (d) => `<button class="dtile" data-decor="${esc(d.sku)}" draggable="true" title="${esc(d.label)} 놓기">
@@ -747,17 +774,19 @@ export async function customer(pid) {
     const box = document.getElementById("decorLib");
     if (libTab === "finish") { renderFinishes(); return; }
     const groups = libTab === "all" ? SECTION : SECTION.filter(([g]) => g === libTab);
-    box.innerHTML = libTab === "lg" ? "" : (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "") + groups.map(([g, title]) => {
+    const kitchenHtml = libTab === "kitchen" || libTab === "all" ? kitchenLibHtml(cabInfo.kinds) : "";
+    box.innerHTML = libTab === "lg" ? "" : libTab === "kitchen" ? kitchenHtml : (libTab === "all" ? `<button class="dsec-lg" data-go="lg">LG 가전 고르러 가기 <span aria-hidden="true">›</span></button>` : "") + groups.map(([g, title]) => {
       const items = decorList.filter((d) => d.group === g && d.listed !== false);
       const tiles = (g === "structure" ? [items.find((d) => d.sku === "decor:wall")].filter(Boolean).map(tileHtml).join("") + wallTile() + items.filter((d) => d.sku !== "decor:wall").map(tileHtml).join("") : items.map(tileHtml).join(""));
       return `<section class="dsec"><h3>${esc(title)}</h3><div class="dgrid">${tiles}</div></section>`;
-    }).join("");
+    }).join("") + (libTab === "all" ? kitchenHtml : "");
     box.querySelectorAll("[data-decor]").forEach((b) => {
       b.classList.toggle("on", b.dataset.decor === "decor:wall" ? !!wallDraw : b.dataset.decor === armed);
       b.onclick = () => {
         if (wallPicking) setWallPick(false);
         openLib(false);
         if (b.dataset.decor === "decor:wall") { setWallDraw(!wallDraw); return; } // 벽은 바닥에 직접 그린다
+        if (!b.closest("[data-cab-keep]")) cabSku = null; // 타일로 고른 장은 가전 없이 놓고, 놓은 뒤 오른쪽에서 고른다
         arm(b.dataset.decor); // 누르면 손에 들고, 바닥을 누르면 놓는다
       };
       b.ondragstart = (e) => e.dataTransfer.setData("text/sku", b.dataset.decor);
@@ -1111,6 +1140,7 @@ export async function customer(pid) {
       <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
       <div class="pd-actions">
         <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
+        ${sized && cabHostKind(p) ? `<button class="ghost" id="pdCab" title="${ruleSkus.has(sku) ? "LG 공식 설치 기준으로 판정해요" : "공식 설치 기준이 없어 외형만 견줘요"}">맞춤장에 넣기</button>` : ""}
         ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
       </div>`;
     pdModal.hidden = false;
@@ -1124,6 +1154,14 @@ export async function customer(pid) {
       if (walking) setWalking(false);
       openLib(false); // 앱에서는 서랍을 내려 3D 바닥이 보이게
       autoPlace(sku); // 목록의 배치하기와 똑같이: 알맞은 자리에 바로 놓고, 옮기는 건 그다음에
+    };
+    const pdCab = document.getElementById("pdCab");
+    if (pdCab) pdCab.onclick = () => {
+      closeDetail();
+      if (walking) setWalking(false);
+      openLib(false);
+      cabSku = sku;
+      autoPlace(CAB_PREFIX + cabHostKind(p)); // 빈 자리에 장을 만들고 그 안에 넣는다. 새 장은 공식 권장 안쪽 치수로
     };
     place.focus({ preventScroll: true });
     pdModal.scrollTop = 0;
@@ -1244,8 +1282,14 @@ export async function customer(pid) {
       ...ch.removed.map((c, i) => ({ kind: "add", id: `gone-${Date.now()}-${i}`, body: { sku: c.sku, center_xz: c.center_xz, yaw_rad: c.yaw_rad, size_m: c.size_m, snap: false, slot: false, ...(c.color ? { color: c.color } : {}) }, hex: c.hex, top_hex: c.top_hex })),
     ] };
   };
+  const cabAddStep = (x) => {
+    const c = x.cab, app = project.scene_state.placements.find((q) => q.in_cab === x.placement_id);
+    return { kind: "cabAdd", id: x.placement_id, body: { kind: c.kind, mode: c.mode, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, outer_mm: c.outer_mm,
+      ...(c.mode === "existing" && c.measured_mm ? { measured_mm: c.measured_mm } : {}), parts: c.parts, finish: c.finish, ...(c.glass ? { glass: c.glass } : {}), ...(app ? { sku: app.sku } : {}) } };
+  };
   const rememberRemoval = (plid) => {
     const x = project.scene_state.placements.find((q) => q.placement_id === plid);
+    if (x?.cab) { remember(cabAddStep(x)); return; }
     if (x && !x.zone_id) remember({ kind: "add", id: plid, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) } });
   };
   // 단계 하나를 되돌리고, 그 반대 단계를 돌려준다 (되돌리기 ↔ 다시 실행)
@@ -1256,10 +1300,17 @@ export async function customer(pid) {
       return { kind: "multi", steps: back };
     }
     const id = liveId(step.id);
+    if (step.kind === "cabAdd") {
+      const r = await post(`/api/projects/${pid}/cabinets`, step.body);
+      undoIds[step.id] = r.placement.placement_id; selPl = r.placement.placement_id; selObj = null;
+      return { kind: "remove", id: r.placement.placement_id };
+    }
     if (step.kind === "remove") {
       const x = project.scene_state.placements.find((q) => q.placement_id === id);
+      const back = x?.cab ? cabAddStep(x) : null;
       await api(`/api/projects/${pid}/placements/${id}`, { method: "DELETE" });
       if (selPl === id) selPl = null;
+      if (back) return back;
       return x && { kind: "add", id, body: { sku: x.sku, center_xz: [...x.center_xz], yaw_rad: x.yaw_rad, snap: false, slot: false, ...sizeArgs(x), ...(x.hung ? { base_m: x.base_m || 0 } : {}), ...(x.color ? { color: x.color } : {}) }, ...(isDecor(x.sku) && x.hex ? { hex: x.hex } : {}), ...(isDecor(x.sku) && x.part_colors ? { parts: { ...x.part_colors } } : {}), ...(x.top_hex ? { top_hex: x.top_hex } : {}) };
     }
     if (step.kind === "pose") {
@@ -1314,8 +1365,33 @@ export async function customer(pid) {
   undoBtn.onclick = undo;
   redoBtn.onclick = redo;
 
+  // 맞춤장 놓기: 장을 놓고, 제품 상세에서 고른 가전이 있으면 그 안에 넣는다 (새 장은 공식 권장 안쪽 치수로)
+  const placeCab = async (sku, at) => {
+    const body = { kind: cabKindOf(sku), ...(at ? { center_xz: at.xz, yaw_rad: at.yaw } : {}), ...(cabSku ? { sku: cabSku } : {}) };
+    editSeq++; // 그사이 읽던 옛 상태가 새 장을 지우고 선택을 풀지 않게
+    const r = await post(`/api/projects/${pid}/cabinets`, body);
+    editSeq++;
+    remember({ kind: "remove", id: r.placement.placement_id });
+    selPl = r.placement.placement_id; selObj = null; armed = null; cabSku = null; lastHang = null; ghost(null); setTab("sel");
+    const chk = r.placement.cab_check;
+    toast(chk ? `${nameOf(sku)}: LG 공식 기준 ${{ fit: "적합", conditional: "조건부", no_fit: "불가", unknown: "판정 불가" }[chk.verdict]}` : `${nameOf(sku)}${eul(nameOf(sku))} 놓았어요`);
+    setHint(); renderLib(); renderDecorLib();
+    await refresh(true);
+    return r;
+  };
   const placeAt = guard(async (sku, p) => {
     const yaw0 = armed === sku ? armedYaw : Math.PI / 2;
+    if (cabKindOf(sku)) {
+      showGaps(null);
+      if (hangs(sku)) {
+        const h = lastHang && lastHang.xz === p ? lastHang : hangPose(sku, armedSize(sku), null, null, p, null);
+        await placeCab(sku, h ? { xz: h.xz, yaw: h.yaw } : { xz: p, yaw: yaw0 });
+      } else {
+        const sn = snapAt(sku, armedSize(sku), p, yaw0, null, armed === sku && armedTurned);
+        await placeCab(sku, sn ? { xz: sn.xz, yaw: sn.yaw } : { xz: p, yaw: yaw0 });
+      }
+      return;
+    }
     if (hangs(sku)) { // 벽걸이: 미리 보기에서 걸려 있던 그 자리·높이에 건다
       const h = lastHang && lastHang.xz === p ? lastHang : hangPose(sku, armedSize(sku), null, null, p, null);
       showGaps(null);
@@ -1592,6 +1668,7 @@ export async function customer(pid) {
   const actBar = document.getElementById("actBar"), fitBadge = document.getElementById("fitBadge");
   const BADGE = { fit: "배치가 가능합니다!", conditional: "배치가 가능합니다!", no_fit: "이 자리에는 안 들어가요", unknown: "판정할 정보가 부족해요" };
   const autoPlace = guard(async (sku, size_m = null) => {
+    if (cabKindOf(sku)) { const r = await placeCab(sku, null); viewer.lookAt(r.placement.center_xz); return; }
     const r = await post(`/api/projects/${pid}/auto-place`, { sku, ...(size_m ? { size_m } : {}) });
     remember(withSlot({ kind: "remove", id: r.placement.placement_id }, r));
     selPl = r.placement.placement_id; selObj = null; armed = null; ghost(null);
@@ -2035,8 +2112,38 @@ export async function customer(pid) {
     const o = p.options || {};
     return o.capacity_l ? `${o.capacity_l}L` : o.wash_kg ? `세탁 ${o.wash_kg}kg` : o.screen_cm ? `${o.screen_cm}cm` : o.capacity ? `${o.capacity}` : "";
   };
+  // 맞춤장 패널: 만드는 방법 · 넣을 가전 · LG 공식 판정 · 3D 문 열림 · 치수·부재 · 마감
+  const cabCall = guard(async (fn, msg) => { editSeq++; await fn(); editSeq++; if (msg) toast(msg); await refresh(true); });
+  const renderCabPanel = (box, x) => {
+    document.getElementById("plBox").hidden = true;
+    document.getElementById("chkBox").hidden = true;
+    studio.classList.add("has-sel", "cab-sel");
+    const pls = project.scene_state.placements;
+    const app = pls.find((q) => q.in_cab === x.placement_id) || null;
+    const product = app ? prodOf(app.sku) : null;
+    const others = pls.filter((q) => q.cab && q.placement_id !== x.placement_id).map((q) => ({ id: q.placement_id, label: cabKind(q.cab.kind)?.label || q.cab.kind }));
+    cabAlso = cabAlso.filter((id) => others.some((o) => o.id === id));
+    const report = doorReports.get(x.placement_id) || null;
+    const scroller = box.closest(".side-body"), keep = scroller && scroller.dataset.cab === x.placement_id ? scroller.scrollTop : 0;
+    const open = [...box.querySelectorAll("details")].map((d) => d.open);
+    box.innerHTML = cabPanelHtml({ x, app, product, kind: cabKind(x.cab.kind), finishes: cabInfo.finishes, candidates: cabCandidates(x.cab.kind), others, report, pick: cabAlso });
+    wireCabPanel(box, x, {
+      close: () => { selPl = null; draw(); renderInspector(); renderPlacements(); },
+      patch: (body) => cabCall(() => { rememberPlacement(x.placement_id); return api(`/api/projects/${pid}/cabinets/${x.placement_id}`, { method: "PATCH", body: JSON.stringify(body) }); }),
+      appliance: (sku, resize) => cabCall(() => put(`/api/projects/${pid}/cabinets/${x.placement_id}/appliance`, { sku, resize }), sku ? `${nameOf(sku)}${eul(nameOf(sku))} 장에 넣었어요` : "가전을 뺐어요"),
+      appSku: () => app?.sku || null,
+      finish: (part, finish) => cabCall(() => post(`/api/projects/${pid}/cabinets/finish`, { ids: [x.placement_id, ...cabAlso], part, finish })),
+      also: (ids) => { cabAlso = ids; },
+    });
+    // 숫자를 고칠 때마다 다시 그려도 보던 자리·펼친 칸은 그대로 (같은 장일 때만)
+    if (scroller) {
+      if (keep) box.querySelectorAll("details").forEach((d, i) => { if (open[i] !== undefined) d.open = open[i]; });
+      scroller.scrollTop = keep; scroller.dataset.cab = x.placement_id;
+    }
+  };
   const renderInspector = () => {
     renderAct();
+    studio.classList.remove("cab-sel"); // 맞춤장 패널을 띄웠을 때만 다시 붙인다
     const box = document.getElementById("insp");
     const sel0 = selPl && project.scene_state.placements.find((q) => q.placement_id === selPl);
     // 지예: 가구·가벽을 골라도 오른쪽은 그대로. 조절은 3D 위 메뉴에서만 (이동·회전·크기·복사·삭제)
@@ -2044,6 +2151,7 @@ export async function customer(pid) {
     document.getElementById("plBox").hidden = !!(x || selObj);
     document.getElementById("chkBox").hidden = !!(x || selObj);
     studio.classList.toggle("has-sel", !!(x || selObj));
+    if (sel0?.cab) { renderCabPanel(box, sel0); return; }
     if (sel0 && !x) { box.innerHTML = ""; return; }
     if (x) {
       const p = prodOf(x.sku) || { name: x.sku, cmf_options: [] };
@@ -2450,7 +2558,24 @@ export async function customer(pid) {
     svg.insertAdjacentHTML("beforeend", `<g id="stopDots"></g><defs><radialGradient id="camFade" gradientUnits="userSpaceOnUse" cx="0" cy="0" r="1"><stop offset="0" stop-color="#a50034" stop-opacity=".5"/><stop offset=".55" stop-color="#a50034" stop-opacity=".2"/><stop offset="1" stop-color="#a50034" stop-opacity="0"/></radialGradient></defs><polygon class="cam-mark" id="camMark" points="0,0 0,0 0,0" style="fill:url(#camFade);stroke:none"/><circle class="cam-dot" id="camDot" r="${pv.sw(5)}"/>`);
     drawStopDots();
     if (!drag3d) viewer.setPlacements(project.scene_state.placements, selPl);
+    syncDoors();
     syncNeed();
+  };
+  // 맞춤장 안 가전의 문 열림 3D 근사 검사 (3°마다). 걸리면 3D에 빨간 문짝, 고른 장이면 열린 모습도 옅게
+  const syncDoors = () => {
+    doorReports.clear();
+    const pls = project.scene_state.placements, warn = [];
+    const hidden = { walls: project.scene_state.hidden_walls || [], objects: project.scene_state.hidden_objects || [] };
+    for (const cab of pls) {
+      if (!cab.cab) continue;
+      const app = pls.find((q) => q.in_cab === cab.placement_id);
+      const r = app && doorReport({ cab, app, product: prodOf(app.sku), placements: pls, room, hidden });
+      if (!r) continue;
+      doorReports.set(cab.placement_id, r);
+      warn.push(...r.warn);
+      if (cab.placement_id === selPl && r.clear) warn.push(...r.show);
+    }
+    viewer.setDoorWarn(warn);
   };
   // 고른 제품이 차지하는 공간(본체 + 문 여는 공간)을 3D 바닥에 표시. 판정과 같은 계산(pose-check)을 그대로 쓴다
   let needKey = "";
@@ -2960,7 +3085,7 @@ export async function customer(pid) {
   let chain = Promise.resolve();
   const refresh = (force = false) => {
     if (force) document.dispatchEvent(new Event("lgb:changed")); // 저장 표시: 다음 자동 저장 전까지 '저장 안 된 변경'
-    return (chain = chain.catch(() => {}).then(() => load(force)));
+    return (chain = chain.catch((e) => console.error("다시 읽기 실패", e)).then(() => load(force)));
   };
   const load = async (force) => {
     if (drag || drag3d) return;

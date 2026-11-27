@@ -1,0 +1,33 @@
+{
+  "_note": "맞춤장 미리보기용 마감. LG 가전의 공식 색(products.json cmf_options)과 따로 둔다. 색값은 화면에서 보기 위한 근사값이고 특정 브랜드 제품 색이 아니다. kind: matte(무광) · gloss(유광) · wood(나무결) · stone(돌) · metal(손잡이·프레임)",
+  "panel": [
+    {"id": "warmwhite_matte", "label": "웜화이트 무광", "hex": "#F3EFE7", "kind": "matte"},
+    {"id": "warmwhite_gloss", "label": "웜화이트 유광", "hex": "#F4F0E9", "kind": "gloss"},
+    {"id": "ivory_matte", "label": "아이보리 무광", "hex": "#EDE4D3", "kind": "matte"},
+    {"id": "greige_matte", "label": "그레이지 무광", "hex": "#CFC6B8", "kind": "matte"},
+    {"id": "taupe_matte", "label": "토프 무광", "hex": "#A39383", "kind": "matte"},
+    {"id": "charcoal_matte", "label": "차콜 무광", "hex": "#3F3E3C", "kind": "matte"},
+    {"id": "charcoal_gloss", "label": "차콜 유광", "hex": "#3A3A39", "kind": "gloss"},
+    {"id": "sage_matte", "label": "세이지 무광", "hex": "#A9B4A0", "kind": "matte"},
+    {"id": "navy_matte", "label": "네이비 무광", "hex": "#2F3D52", "kind": "matte"},
+    {"id": "lightoak", "label": "라이트오크", "hex": "#CDAE84", "kind": "wood"},
+    {"id": "walnut", "label": "월넛", "hex": "#6E4C34", "kind": "wood"}
+  ],
+  "top": [
+    {"id": "stone_white", "label": "화이트 스톤", "hex": "#EEEDE9", "kind": "stone"},
+    {"id": "stone_warmbeige", "label": "웜베이지 스톤", "hex": "#DCCFBD", "kind": "stone"},
+    {"id": "ceramic_dark", "label": "다크 세라믹", "hex": "#3B3936", "kind": "stone"}
+  ],
+  "handle": [
+    {"id": "steel", "label": "스테인리스", "hex": "#B9BBBC", "kind": "metal"},
+    {"id": "black", "label": "블랙", "hex": "#262626", "kind": "metal"},
+    {"id": "brass", "label": "골드", "hex": "#B79A63", "kind": "metal"},
+    {"id": "push", "label": "손잡이 없음", "hex": null, "kind": "none"}
+  ],
+  "glass": [
+    {"id": "clear", "label": "맑은 투명 유리", "hex": "#EAF2F1", "opacity": 0.12, "kind": "glass"},
+    {"id": "bronze", "label": "브론즈 유리", "hex": "#8C6A4A", "opacity": 0.4, "kind": "glass"},
+    {"id": "smoke", "label": "스모크 유리", "hex": "#4D5054", "opacity": 0.45, "kind": "glass"},
+    {"id": "ribbed", "label": "리브드 유리", "hex": "#E3ECEA", "opacity": 0.3, "kind": "glass_ribbed"}
+  ]
+}

@@ -9,12 +9,14 @@ from __future__ import annotations
 import math
 from collections.abc import Sequence
 
+from recommender.cabinet import KINDS as CAB_KINDS
+
 from .models import Clearance, Dims, Product
 
 PREFIX = "decor:"
 MIN_MM, MAX_MM = 10, 8000
 
-# group: structure(벽체·구조) · furniture(가구) · storage(수납·선반) · decor(소품)
+# group: structure(벽체·구조) · furniture(가구) · storage(수납·선반) · kitchen(빌트인 주방 맞춤장) · decor(소품)
 # size_mm: 기본 크기 (w, h, d). flat: 다른 것과 겹쳐도 되는 바닥 깔개. swing: 앞으로 여는 문 (열림 공간 = 폭)
 DECOR: dict[str, dict] = {
     "wall": {"label": "벽 추가", "name": "가벽", "group": "structure", "model": "wall", "size_mm": (2000, 2400, 100)},
@@ -45,6 +47,9 @@ DECOR: dict[str, dict] = {
     "hood": {"label": "후드", "group": "storage", "model": "hood", "size_mm": (600, 620, 471), "hang": True},
     "islandhood": {"label": "아일랜드 후드", "group": "storage", "model": "islandhood", "size_mm": (900, 800, 600), "listed": False},
     "tvstand": {"label": "거실장", "group": "storage", "model": "tvstand", "size_mm": (1600, 450, 400)},
+    # 빌트인 주방 맞춤장: 부재로 3D를 만드는 모듈 (recommender/cabinet.py). 크기는 외경, 부재·마감은 배치의 cab에
+    **{f"cab_{k}": {"label": v["label"], "group": "kitchen", "model": "cab", "size_mm": v["outer"], "hang": bool(v.get("hang")), "cab": k}
+       for k, v in CAB_KINDS.items() if v["stage"] == 1},
     "rug": {"label": "러그", "group": "decor", "model": "rug", "size_mm": (2000, 12, 1400), "flat": True},
     "lamp": {"label": "조명", "group": "decor", "model": "lamp", "size_mm": (400, 1600, 400)},
     "plant": {"label": "식물", "group": "decor", "model": "plant", "size_mm": (500, 1200, 500)},
@@ -108,7 +113,12 @@ def decor_items() -> list[dict]:
     hang: 벽에 거는 것 · listed=False: 목록에는 안 보이고 다른 것에 딸려 놓이는 것."""
     return [{"sku": PREFIX + k, "label": d["label"], "name": d.get("name", d["label"]), "group": d["group"], "model": d["model"],
              "size_mm": dict(zip("whd", d["size_mm"])), "flat": d.get("flat", False), "presets": PRESETS.get(k, []),
-             "hang": d.get("hang", False), "listed": d.get("listed", True)} for k, d in DECOR.items()]
+             "hang": d.get("hang", False), "listed": d.get("listed", True), "cab": d.get("cab")} for k, d in DECOR.items()]
+
+
+def cab_kind(sku: str | None) -> str | None:
+    """맞춤장이면 그 종류 (fridge, dishwasher, …), 아니면 None."""
+    return DECOR.get((sku or "")[len(PREFIX):], {}).get("cab") if is_decor(sku) else None
 
 
 def _clamp(v: float) -> float:

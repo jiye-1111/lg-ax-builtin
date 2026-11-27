@@ -75,7 +75,7 @@ def test_selected_product_shows_needed_space_without_size_labels():
 def test_simple_layout_from_corrected_mockup():
     """지예: 탭·토글이 많아 지저분하다 → 오른쪽 탭 없음, 3D 위·아래 조작 버튼, 살아 보기는 버튼 하나."""
     # 탭은 왼쪽 라이브러리(전체/LG 가전/가구/수납/소품/벽지·바닥) 하나뿐, 오른쪽은 탭 없음
-    assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 6
+    assert "side-tabs" not in REMODEL and REMODEL.count('data-tab="') == 7  # 빌트인 주방 탭이 늘었다
     assert 'id="guideBar"' not in REMODEL and 'data-view="split"' not in REMODEL
     for el in ('id="undo"', 'id="redo"', 'id="fullBtn"', 'id="actBar"', 'id="fitBadge"', 'id="liveBtn"',
                'data-tab="finish"', 'id="extraBtn"', 'id="saveBtn"', 'id="sugg"', 'id="moreFilter"', 'id="resetFilter"'):
@@ -136,7 +136,7 @@ def test_three_areas_layout_and_feedback():
 def test_space_library_tabs_decor_and_wall_edit():
     """왼쪽 라이브러리: 전체/LG 가전/가구/수납/소품 + 벽 추가·제거·파티션, 가구는 정보 없이 모양만, 신청은 LG만."""
     js = (WEB / "js" / "remodel.js").read_text(encoding="utf-8")
-    for tab in ('data-tab="all"', 'data-tab="lg"', 'data-tab="furniture"', 'data-tab="storage"', 'data-tab="decor"'):
+    for tab in ('data-tab="all"', 'data-tab="lg"', 'data-tab="furniture"', 'data-tab="storage"', 'data-tab="kitchen"', 'data-tab="decor"'):
         assert tab in js
     assert "/api/decor" in js and "벽체 & 구조 변경" in js and 'id="wallRm"' in js
     assert "/walls/${wid}/hidden" in js and "setWallPick" in js
