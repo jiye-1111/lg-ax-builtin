@@ -23,6 +23,7 @@ import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
 import { WALK_SPEED, pathLength, poseAt, smoothPath, tourClock } from "./walker.js";
 import { makeWifiLayer } from "./wifi/heat3d.js";
+import { buildCabinet, leafMesh, cabOf } from "./cabinet3d.js";
 import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture, glassLook, WIDE_DOOR_M, WIDE_WINDOW_M } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -293,6 +294,8 @@ export function makeViewer(el, handlers = {}) {
   scene.add(ghost);
   const need = new THREE.Group(); // 고른 제품이 차지하는 공간 표시
   scene.add(need);
+  const doorWarnG = new THREE.Group(); // 맞춤장 안 가전 문 열림 3D 근사 검사: 걸리는 각도의 문짝 (빨강), 열어 본 범위 (옅은 회색)
+  scene.add(doorWarnG);
   // 회전 고리: 고른 물건 둘레 바닥에 고리와 손잡이. 손잡이(또는 고리)를 끌면 커서 쪽으로 돈다 (Planner 5D·Houzz처럼)
   const RING_HEX = 0x6b6f76, RING_ON_HEX = 0x2f3236; // 빨강은 "안 들어감"으로 읽혀서 쓰지 않는다
   const ringMat = new THREE.MeshBasicMaterial({ color: RING_HEX, transparent: true, opacity: 0.55, depthTest: false, depthWrite: false });
@@ -826,8 +829,13 @@ export function makeViewer(el, handlers = {}) {
     const [w, h, d] = p.size_m;
     const g = new THREE.Group();
     const vhex = VERDICT_HEX[p.verdict] ?? VERDICT_HEX.unknown;
-    const tmpl = p.sku && templates.get(modelKey(p));
-    if (tmpl) {
+    const cab = cabOf(p); // 빌트인 주방 맞춤장: 모델 파일 없이 부재로 만든다
+    const tmpl = cab ? true : p.sku && templates.get(modelKey(p));
+    if (cab) {
+      const m = buildCabinet(cab, { preview });
+      m.traverse((o) => { if (o.isMesh) o.userData.placementId = p.placement_id; });
+      g.add(m);
+    } else if (tmpl) {
       // Blender로 만든 제품 모델 (models/products/<sku>.glb, 바닥 가운데 원점, 정면 +Z). 꾸미기 가구는 크기에 맞춰 늘린다
       const m = tmpl.decor ? fitFurniture(tmpl.scene, tmpl.ref, new THREE.Vector3(w, h, d)) : tmpl.clone(true);
       m.traverse((o) => {
@@ -1355,7 +1363,7 @@ export function makeViewer(el, handlers = {}) {
       for (const p of list) {
         if (!p.size_m) continue;
         const selected = p.placement_id === selectedId;
-        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.part_colors, p.top_hex, selected, templates.has(modelKey(p)), p.base_m || 0,
+        const key = JSON.stringify([p.placement_id, p.sku, p.center_xz, p.yaw_rad, p.size_m, p.verdict, p.hex, p.part_colors, p.top_hex, selected, templates.has(modelKey(p)), p.base_m || 0, p.cab || 0,
           p.slot ? [p.slot, templates.has(`decor:${p.slot.look}`)] : 0]);
         const old = keep.get(key);
         if (old) { keep.delete(key); next.push(old); continue; }
@@ -1384,6 +1392,11 @@ export function makeViewer(el, handlers = {}) {
       fill.rotation.x = -Math.PI / 2;
       fill.position.y = 0.004;
       need.add(fill, ln);
+    },
+    /** 문 열림 3D 근사 검사 표시. items [{corners: 꼭짓점 8개, hit: 걸림}]. 빈 배열이면 지운다 */
+    setDoorWarn(items = []) {
+      clear(doorWarnG);
+      for (const it of items) doorWarnG.add(leafMesh(it.corners, it.hit ? 0xb3261e : 0x5b6370, it.hit ? 0.42 : 0.1));
     },
     /** 미리 보기 상자 (pose-check 결과). null이면 지운다. */
     setGhost(res) {
@@ -1881,6 +1894,7 @@ export function makeViewer(el, handlers = {}) {
     },
     dispose() { alive = false; clearWalkers(); ro.disconnect(); plc.dispose(); document.removeEventListener("keydown", onWalkKey, true); document.removeEventListener("keyup", onWalkKey, true); el.removeEventListener("pointerdown", onDown, { capture: true }); envTex.dispose(); roomEnv?.dispose(); roomCube?.renderTarget.dispose(); myGloss.forEach((m) => m.dispose()); pmrem.dispose(); gtao.dispose(); composer.dispose(); renderer.dispose(); el.innerHTML = ""; },
   };
+  api.scene = scene; // 점검 스크립트가 부재·재질을 본다
   el.viewer = api;
   return api;
 }

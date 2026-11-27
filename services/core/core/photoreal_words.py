@@ -118,6 +118,13 @@ DECOR_WORDS = {
     "sink": "a kitchen sink cabinet", "basecab": "a kitchen base cabinet with a countertop", "island": "a kitchen island",
     "hood": "a wall-mounted cooker hood", "islandhood": "a ceiling-hung island cooker hood", "tvstand": "a low TV stand",
     "rug": "a flat rug", "lamp": "a floor lamp", "plant": "a potted plant", "partition": "a room partition",
+    # 빌트인 주방 맞춤장 (안에 넣은 LG 가전은 따로 제품으로 들어간다)
+    "cab_fridge": "a built-in tall housing cabinet with side panels and an upper cabinet around the refrigerator",
+    "cab_dishwasher": "a countertop span with fixing side panels over a built-in dishwasher bay",
+    "cab_sink": "a kitchen sink base cabinet with a sink bowl and faucet", "cab_drawer": "a kitchen drawer base cabinet with a countertop",
+    "cab_wall": "a wall-hung kitchen upper cabinet", "cab_glass_wall": "a wall-hung glass-door kitchen upper cabinet with visible shelves",
+    "cab_pantry": "a tall kitchen pantry cabinet", "cab_counter": "a continuous kitchen countertop",
+    "cab_filler": "a narrow filler panel", "cab_end_panel": "a cabinet end panel",
 }
 # 벽·문·창은 방 모양이라 목록에 넣지 않는다 (그대로 두라고 따로 말한다)
 STRUCTURE = frozenset({"wall", "door", "window", "glassdoor"})

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import json
+import copy
 import math
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
@@ -35,6 +36,7 @@ from .accounts import Accounts, Forbidden, is_approved_tech
 from .decor import MAX_MM as MAX_DECOR_MM, TOP_COLOUR_SKUS, decor_product, is_decor, is_flat
 from .models import MeasuredDims, Product, Room, Zone
 from .service_addons import AddonMixin
+from .service_cabinet import CabinetMixin
 from .service_combos import ComboMixin
 from .service_life import LifeMixin
 from .service_photoreal import PhotorealMixin
@@ -125,7 +127,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
+class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())
@@ -809,8 +811,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
 
     def _others(self, p: dict, exclude: str | None = None) -> list[dict]:
         """겹침을 보는 다른 배치. 러그 같은 바닥 깔개는 위에 놓아도 되니 뺀다."""
+        skip = self._cab_others_skip(p, exclude)  # 맞춤장과 그 안 가전은 서로 겹쳐도 된다
         return [x for x in p["scene_state"]["placements"]
-                if x.get("placement_id") != exclude and x.get("size_m") and not is_flat(x.get("sku"))]
+                if x.get("placement_id") != exclude and x.get("placement_id") not in skip and x.get("size_m") and not is_flat(x.get("sku"))]
 
     def _gap_others(self, p: dict, exclude: str | None = None) -> list[dict]:
         """틈을 잴 때 보는 다른 배치. 옆 가전이 요구하는 옆 여유(side_mm, LGE.COM 값)를 같이 넘긴다."""
@@ -986,7 +989,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             if c:
                 x["slot"] = c
 
-    CABINETS = frozenset({"decor:basecab", "decor:island", "decor:islandtable"})
+    CABINETS = frozenset({"decor:basecab", "decor:island", "decor:islandtable", "decor:cab_sink", "decor:cab_drawer", "decor:cab_counter"})
     COUNTER_SCANNED = frozenset({"storage"})  # 스캔한 낮은 수납장(싱크대·하부장)은 조리대로 본다
 
     def _inset(self, sku: str | None) -> bool:
@@ -1032,7 +1035,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
 
     # 작은 가전을 올려 둘 수 있는 가구 (윗면이 SURFACE_MAX_M 이하일 때). 스캔 가구는 탁자·수납장
     HOSTS = frozenset({"decor:table", "decor:coffee", "decor:desk", "decor:dresser", "decor:basecab", "decor:island", "decor:islandtable",
-                       "decor:tvstand"})
+                       "decor:tvstand", "decor:cab_sink", "decor:cab_drawer", "decor:cab_dishwasher", "decor:cab_counter"})
 
     def _tops(self, room: Room, p: dict, prod: Product, exclude: str | None = None) -> list[dict]:
         """이 제품을 올릴 수 있는 윗면. 인덕션은 조리대(하부장·아일랜드·스캔한 낮은 수납장)에만."""
@@ -1139,6 +1142,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
+        self._cabinets_sync(p)  # 맞춤장 안 가전은 장 자리로 먼저 옮긴다
         self._slot_covers(room, p)
         # 먼저 높이부터: 받치던 가구가 빠졌으면 바닥으로 내려온 것으로 보고 서로 판정한다
         # 바닥에 있다가 방금 책상 위로 올라간 것도 여기서 높이를 적어야, 받친 책상이 "겹침"으로 잘못 나오지 않는다
@@ -1172,6 +1176,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             if up:
                 x["float" if prod.category == ISLAND_HOOD else "hung"] = True  # 걸거나 매단 것: base_m이 고른 높이
         self._sync_hoods(room, p)
+        self._cabinets_sync(p)  # 장 판정은 옆 장까지 다 놓인 뒤에
 
     # ---- 인덕션 위 후드 (docs/specs/fit-rules.md '인덕션 위 후드') ----
     HOOD_WALL_REACH_M = 0.35          # 인덕션 가운데가 벽 후드 가운데에서 이 안이면 벽에 건다. 멀면 천장에서 내린다
@@ -1415,6 +1420,13 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
                 twin["part_colors"] = dict(x["part_colors"])
             self._save_project(p)
             r["placement"] = twin
+        if x.get("cab"):  # 맞춤장은 부재·마감 그대로 (안에 넣은 가전은 따라가지 않는다)
+            p = self.get_project(pid)
+            twin = self._find_placement(p, r["placement"]["placement_id"])
+            twin["cab"] = {k: v for k, v in copy.deepcopy(x["cab"]).items() if k != "appliance"}
+            self._rejudge_all(self.get_room(pid), p)
+            self._save_project(p)
+            r["placement"] = twin
         return r
 
     def fit_gap(self, pid: str, placement_id: str) -> dict:
@@ -1531,14 +1543,18 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         room, p = self.get_room(pid), self.get_project(pid)
         x = self._find_placement(p, placement_id)
         changes = None
+        if center_xz is not None and x.get("in_cab"):
+            x.pop("in_cab")  # 장에 넣은 가전을 따로 끌어 옮기면 장에서 빼낸다
         if top_hex is not None:
             # 상판 색은 상판이 있는 가구만 (아일랜드 식탁·아일랜드·하부장·싱크대)
             if x["sku"] not in TOP_COLOUR_SKUS:
                 raise Invalid("상판이 있는 가구만 상판 색을 고를 수 있어요")
             x["top_hex"] = top_hex.upper() or None  # 빈 글자 = 원래 상판
         if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
-            if x["sku"] == "decor:hood" or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
+            if x["sku"] in ("decor:hood", "decor:cab_wall", "decor:cab_glass_wall") or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
                 x["base_m"], x["hung"] = float(base_m), True
+                if x.get("cab"):
+                    x["cab"]["base_mm"] = round(float(base_m) * 1000)
                 self._unlink_hood(p, x)
         if hex is not None:
             # 색을 마음대로 고르는 건 꾸미기 가구만 (LG 제품 색은 카탈로그에 있는 색만)
@@ -1558,6 +1574,8 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
                 raise Invalid("LG 제품은 크기를 바꿀 수 없어요")
             prod = self._item(x["sku"], size_m)
             d = prod.product_dims_mm
+            if x.get("cab"):  # 맞춤장: 외경이 바뀌면 부재는 그대로 두고 안쪽을 다시 계산한다
+                x["cab"] = self._cab_cfg({**x["cab"], "outer_mm": {"w": round(d.w), "h": round(d.h), "d": round(d.d)}})
             x["size_m"] = [d.w / 1000, d.h / 1000, d.d / 1000]
         if sku is not None and sku != x["sku"] and is_decor(x["sku"]):
             raise Invalid("꾸미기 가구는 다른 것으로 바꿀 수 없어요")
@@ -1625,9 +1643,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
     def delete_placement(self, pid: str, placement_id: str) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         self._unlink_hood(p, self._find_placement(p, placement_id))
-        # 빌트인 정수기와 같이 놓은 하부장도 같이 뺀다
+        # 빌트인 정수기와 같이 놓은 하부장, 맞춤장 안에 넣은 가전도 같이 뺀다
         p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"]
-                                          if y.get("placement_id") != placement_id and y.get("host_of") != placement_id]
+                                          if y.get("placement_id") != placement_id and y.get("host_of") != placement_id
+                                          and y.get("in_cab") != placement_id]
         if "locked" in p["scene_state"]:  # 지운 물건은 고정 목록에서도 뺀다
             p["scene_state"]["locked"] = [i for i in p["scene_state"]["locked"] if i != placement_id]
         self._rejudge_all(room, p)

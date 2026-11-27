@@ -295,6 +295,9 @@ WALL_HOOD, ISLAND_HOOD = "decor_hood", "decor_islandhood"
 HOODS = frozenset({WALL_HOOD, ISLAND_HOOD})
 HOOD_GAP_M = 0.7    # 인덕션 윗면에서 후드 밑면까지 (화면 기본값. 제품마다 설치 설명서 값이 다르다)
 HOOD_BASE_M = 1.6   # 인덕션 없이 벽에 걸 때의 밑면 높이 (조리대 0.9 + 0.7)
+# 맞춤장 중 벽에 거는 상부장·유리 상부장 (recommender/cabinet.py hang). 밑면 기본 1.45 m (하부장 0.85 + 0.6)
+WALL_CABS = frozenset({"decor_cab_wall", "decor_cab_glass_wall"})
+WALL_CAB_BASE_M = 1.45
 
 
 def is_hood(p: Product) -> bool:
@@ -303,7 +306,7 @@ def is_hood(p: Product) -> bool:
 
 def floats(p: Product) -> bool:
     """바닥이 아니라 고른 높이(base_m)에 다는 것: 벽걸이 제품과 후드."""
-    return mount_kind(p) == WALL or is_hood(p)
+    return mount_kind(p) == WALL or is_hood(p) or p.category in WALL_CABS
 DOOR_SKU = "decor:door"
 DOOR_BLOCKED_LABEL = "문을 열 공간이 부족해요"
 WINDOW_OFF_WALL_LABEL = "창은 벽이나 가벽에 달아 주세요"
@@ -336,11 +339,11 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     c, yaw = pose.center_xz, pose.yaw_rad - math.pi / 2  # 폭 축
     kind = mount_kind(product)
     hood = is_hood(product)
-    hung = kind == WALL or product.category == WALL_HOOD
+    hung = kind == WALL or product.category == WALL_HOOD or product.category in WALL_CABS
     base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
     if hung or hood:  # 벽에 건 높이. 바닥과 천장 사이로 맞춘다
         ceiling = _wall_height(_nearest_wall(room, c)[0]) if room.walls else h_m
-        first = HOOD_BASE_M if hood else default_base(product, ceiling)
+        first = HOOD_BASE_M if hood else WALL_CAB_BASE_M if product.category in WALL_CABS else default_base(product, ceiling)
         base = clamp_base(first if base_m is None else float(base_m), h_m, ceiling)
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)

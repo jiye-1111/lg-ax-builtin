@@ -610,6 +610,121 @@ def decor_list():
     return {"items": decor_items()}
 
 
+# ---- 빌트인 주방 맞춤장 (docs/specs/builtin-kitchen.md) ----
+CabKind = Literal["fridge", "dishwasher", "sink", "drawer", "wall", "pantry", "glass_wall", "counter", "filler", "end_panel"]
+Mm = Annotated[float, Field(ge=0, le=4000)]
+
+
+class MmBox(BaseModel):
+    model_config = {"extra": "forbid"}
+    w: Optional[Mm] = None
+    h: Optional[Mm] = None
+    d: Optional[Mm] = None
+
+
+class CabParts(BaseModel):
+    model_config = {"extra": "forbid"}
+    side_l: Optional[Mm] = None
+    side_r: Optional[Mm] = None
+    back: Optional[Mm] = None
+    counter: Optional[Mm] = None
+    filler_l: Optional[Mm] = None
+    filler_r: Optional[Mm] = None
+    end_l: Optional[Mm] = None
+    end_r: Optional[Mm] = None
+    upper_h: Optional[Mm] = None
+    toe_kick: Optional[Mm] = None
+    toe_recess: Optional[Mm] = None
+    shelves: Optional[int] = Field(None, ge=0, le=8)
+    drawers: Optional[int] = Field(None, ge=0, le=6)
+    doors: Optional[int] = Field(None, ge=0, le=4)
+    kick_across: Optional[bool] = None
+    bowl: Optional[bool] = None
+
+
+FinishId = Annotated[str, Field(pattern=r"^[a-z_]{2,30}$")]
+
+
+class CabFinish(BaseModel):
+    model_config = {"extra": "forbid"}
+    front: Optional[FinishId] = None
+    body: Optional[FinishId] = None
+    top: Optional[FinishId] = None
+    handle: Optional[FinishId] = None
+
+
+def _clean(m: Optional[BaseModel]) -> Optional[dict]:
+    return None if m is None else m.model_dump(exclude_none=True)
+
+
+class CabinetIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    kind: CabKind
+    mode: Literal["new", "existing"] = "new"
+    sku: Optional[str] = Field(None, max_length=40, description="넣을 LG 가전 (냉장고장·식기세척기 자리)")
+    center_xz: Optional[list[float]] = Field(None, min_length=2, max_length=2, description="없으면 알맞은 자리에")
+    yaw_rad: float = 0.0
+    outer_mm: Optional[MmBox] = None
+    measured_mm: Optional[MmBox] = Field(None, description="기존 장 안쪽 실측값 (mm)")
+    parts: Optional[CabParts] = None
+    finish: Optional[CabFinish] = None
+    glass: Optional[Literal["clear", "bronze", "smoke", "ribbed"]] = None
+
+
+class CabinetPatch(BaseModel):
+    model_config = {"extra": "forbid"}
+    mode: Optional[Literal["new", "existing"]] = None
+    outer_mm: Optional[MmBox] = None
+    measured_mm: Optional[MmBox] = None
+    parts: Optional[CabParts] = None
+    finish: Optional[CabFinish] = None
+    glass: Optional[Literal["clear", "bronze", "smoke", "ribbed"]] = None
+    base_mm: Optional[Mm] = None
+
+
+class CabApplianceIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    sku: Optional[str] = Field(None, max_length=40, description="없으면 가전을 뺀다")
+    resize: bool = Field(False, description="새 장 설계에서 이 모델의 공식 권장 안쪽 치수로 다시 맞추기")
+
+
+class CabFinishAll(BaseModel):
+    model_config = {"extra": "forbid"}
+    ids: list[str] = Field(min_length=1, max_length=50)
+    part: Literal["front", "body", "top", "handle", "glass"]
+    finish: FinishId
+
+
+@app.get("/api/cabinet/kinds")
+def cabinet_kinds(s: Service = S):
+    return s.cabinet_kinds()
+
+
+@app.post("/api/projects/{pid}/cabinets")
+def add_cabinet(pid: str, body: CabinetIn, s: Service = S):
+    measured = body.measured_mm.model_dump() if body.measured_mm else None
+    return s.add_cabinet(pid, body.kind, body.mode, body.sku, body.center_xz, body.yaw_rad, _clean(body.outer_mm), measured,
+                         _clean(body.parts), _clean(body.finish), body.glass)
+
+
+@app.patch("/api/projects/{pid}/cabinets/{plid}")
+def patch_cabinet(pid: str, plid: str, body: CabinetPatch, s: Service = S):
+    patch = {"mode": body.mode, "outer_mm": _clean(body.outer_mm), "parts": _clean(body.parts), "finish": _clean(body.finish),
+             "glass": body.glass, "base_mm": body.base_mm,
+             "measured_mm": body.measured_mm.model_dump(exclude_unset=True) if body.measured_mm else None}
+    return s.set_cabinet(pid, plid, patch)
+
+
+@app.put("/api/projects/{pid}/cabinets/{plid}/appliance")
+def cabinet_appliance(pid: str, plid: str, body: CabApplianceIn, s: Service = S):
+    return s.set_cabinet_appliance(pid, plid, body.sku, body.resize)
+
+
+@app.post("/api/projects/{pid}/cabinets/finish")
+def cabinet_finish(pid: str, body: CabFinishAll, s: Service = S):
+    return s.cabinet_finish(pid, body.ids, body.part, body.finish)
+
+
 @app.put("/api/projects/{pid}/walls/{wid}/hidden")
 def hide_wall(pid: str, wid: str, body: HiddenIn, s: Service = S):
     return s.set_wall_hidden(pid, wid, body.hidden)
