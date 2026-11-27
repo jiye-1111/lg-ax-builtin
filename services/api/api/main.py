@@ -611,7 +611,8 @@ def decor_list():
 
 
 # ---- 빌트인 주방 맞춤장 (docs/specs/builtin-kitchen.md) ----
-CabKind = Literal["fridge", "dishwasher", "sink", "drawer", "wall", "pantry", "glass_wall", "counter", "filler", "end_panel"]
+CabKind = Literal["fridge", "dishwasher", "sink", "drawer", "base", "wall", "pantry", "tall", "glass_wall", "glass_tall", "low", "low_wall",
+                  "corner", "island_storage", "tvwall", "oven_tall", "cooktop_base", "hood_cab", "counter", "filler", "end_panel"]
 Mm = Annotated[float, Field(ge=0, le=4000)]
 
 
@@ -640,6 +641,22 @@ class CabParts(BaseModel):
     doors: Optional[int] = Field(None, ge=0, le=4)
     kick_across: Optional[bool] = None
     bowl: Optional[bool] = None
+    style: Optional[Literal["door", "drawer", "open", "pullout", "flap", "homecafe"]] = None
+    hinge: Optional[Literal["l", "r"]] = None
+    niche_y: Optional[Mm] = None
+    niche_h: Optional[Mm] = None
+    leg_b: Optional[Mm] = None
+    corner: Optional[Literal["l", "r"]] = None
+    door_leg: Optional[Literal["a", "b"]] = None
+    overhang: Optional[Mm] = None
+    storage: Optional[Literal["front", "back", "both"]] = None
+    attach_wall: Optional[bool] = None
+    side_w: Optional[Mm] = None
+    media_h: Optional[Mm] = None
+    cable: Optional[bool] = None
+    vent: Optional[Mm] = None
+    cutout_w: Optional[Mm] = None
+    cutout_d: Optional[Mm] = None
 
 
 FinishId = Annotated[str, Field(pattern=r"^[a-z_]{2,30}$")]
@@ -723,6 +740,85 @@ def cabinet_appliance(pid: str, plid: str, body: CabApplianceIn, s: Service = S)
 @app.post("/api/projects/{pid}/cabinets/finish")
 def cabinet_finish(pid: str, body: CabFinishAll, s: Service = S):
     return s.cabinet_finish(pid, body.ids, body.part, body.finish)
+
+
+class RunApp(BaseModel):
+    model_config = {"extra": "forbid"}
+    id: Optional[str] = Field(None, max_length=40, description="이미 놓은 가전을 이 장에 연결 (새로 만들지 않음)")
+    sku: Optional[str] = Field(None, max_length=40, description="이 모델을 장에 새로 넣기")
+
+
+class RunModule(BaseModel):
+    model_config = {"extra": "forbid"}
+    id: Optional[str] = Field(None, max_length=40, description="이 세트에 이미 있는 장 (없으면 새 장)")
+    preset: Optional[str] = Field(None, pattern=r"^[a-z0-9_]{2,40}$")
+    kind: Optional[CabKind] = None
+    gap_mm: Mm = 0
+    outer_mm: Optional[MmBox] = None
+    parts: Optional[CabParts] = None
+    finish: Optional[CabFinish] = None
+    glass: Optional[Literal["clear", "bronze", "smoke", "ribbed"]] = None
+    base_mm: Optional[Mm] = None
+    mode: Optional[Literal["new", "existing"]] = None
+    measured_mm: Optional[MmBox] = None
+    dims_by: Optional[Literal["user"]] = None
+    app: Optional[RunApp] = None
+
+
+class RunRows(BaseModel):
+    model_config = {"extra": "forbid"}
+    base: list[RunModule] = Field(default_factory=list, max_length=30)
+    wall: list[RunModule] = Field(default_factory=list, max_length=30)
+
+
+class RunStart(BaseModel):
+    model_config = {"extra": "forbid"}
+    base: float = Field(0, ge=-2000, le=20000)
+    wall: float = Field(0, ge=-2000, le=20000)
+
+
+class RunIn(BaseModel):
+    model_config = {"extra": "forbid"}
+    run_id: Optional[str] = Field(None, max_length=40)
+    wall_id: str = Field(max_length=40)
+    room: Optional[Literal["kitchen", "living", "storage"]] = None
+    start_mm: RunStart = Field(default_factory=RunStart)
+    rows: RunRows = Field(default_factory=RunRows)
+    align: bool = Field(False, description="하부 장 상판 높이를 다리 높이로 맞추기 (가전 매입부는 그대로)")
+
+
+def _run_spec(body: RunIn) -> dict:
+    d = body.model_dump(exclude_none=True)
+    for t in ("base", "wall"):  # app을 빼는 요청(null)은 그대로 넘긴다
+        for m, src in zip(d["rows"][t], getattr(body.rows, t)):
+            if "app" in src.model_fields_set and src.app is None:
+                m["app"] = None
+    return d
+
+
+@app.get("/api/cabinet/presets")
+def cabinet_presets(s: Service = S):
+    return s.cabinet_presets()
+
+
+@app.post("/api/projects/{pid}/runs/preview")
+def preview_run(pid: str, body: RunIn, s: Service = S):
+    return s.preview_run(pid, _run_spec(body))
+
+
+@app.post("/api/projects/{pid}/runs")
+def confirm_run(pid: str, body: RunIn, s: Service = S):
+    return s.confirm_run(pid, _run_spec(body))
+
+
+@app.get("/api/projects/{pid}/runs/{rid}")
+def get_run(pid: str, rid: str, s: Service = S):
+    return s.get_run(pid, rid)
+
+
+@app.delete("/api/projects/{pid}/runs/{rid}")
+def delete_run(pid: str, rid: str, s: Service = S):
+    return s.delete_run(pid, rid)
 
 
 @app.put("/api/projects/{pid}/walls/{wid}/hidden")

@@ -9,7 +9,7 @@ from __future__ import annotations
 import copy
 import math
 
-from recommender.cabinet import KINDS, kinds_list, normalize, palette, suggest
+from recommender.cabinet import KINDS, cavity_floor_mm, kinds_list, normalize, palette, suggest
 from recommender.cabinet_fit import judge, load_rules
 
 from .decor import PREFIX, cab_kind
@@ -47,6 +47,8 @@ class CabinetMixin:
         p, o = c["parts"], c["outer_mm"]
         left = p.get("side_l", 0) + p.get("filler_l", 0) + p.get("end_l", 0)
         right = p.get("side_r", 0) + p.get("filler_r", 0) + p.get("end_r", 0)
+        if c["kind"] == "tvwall":  # TV 칸은 좌우 키큰 수납 사이 가운데
+            left = right = p.get("side_w", 0)
         du = (left - right) / 2 / 1000
         df = (-o["d"] / 2 + p.get("back", 0)) / 1000 + size_m[2] / 2
         u, f = _uf(cab["yaw_rad"])
@@ -94,7 +96,8 @@ class CabinetMixin:
                 continue
             if host is not None:
                 y["center_xz"], y["yaw_rad"] = self._cab_slot(host, y["size_m"])
-                y["base_m"], y["on"], y["wall_id"], y["zone_id"] = 0.0, None, None, None
+                y["base_m"] = round((host.get("base_m") or 0) + cavity_floor_mm(host["cab"]) / 1000, 3)  # 오븐 칸·TV 칸은 그 칸 밑에
+                y["on"], y["wall_id"], y["zone_id"] = None, None, None
                 y.pop("slot", None)
         for cab in cabs.values():
             r = self._cab_judge(p, cab)

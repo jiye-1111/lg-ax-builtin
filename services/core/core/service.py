@@ -34,13 +34,15 @@ from . import config
 from .ai_products import chat_message, interpret_products
 from .ai_style import interpret_style
 from .accounts import Accounts, Forbidden, is_approved_tech
-from .decor import MAX_MM as MAX_DECOR_MM, TOP_COLOUR_SKUS, decor_product, is_decor, is_flat
+from .decor import MAX_MM as MAX_DECOR_MM, TOP_COLOUR_SKUS, cab_kind, decor_product, is_decor, is_flat
+from recommender.cabinet import KINDS as CAB_KINDS
 from .models import MeasuredDims, Product, Room, Zone
 from .service_addons import AddonMixin
 from .service_cabinet import CabinetMixin
 from .service_combos import ComboMixin
 from .service_life import LifeMixin
 from .service_photoreal import PhotorealMixin
+from .service_runs import RunMixin
 from .store import Store
 
 KST = timezone(timedelta(hours=9))
@@ -128,7 +130,7 @@ class Catalog:
 
 
 # ---------------- 서비스 ----------------
-class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin):
+class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin, RunMixin):
     def __init__(self, storage: Path | None = None, catalog: Catalog | None = None, fit_cfg: FitConfig | None = None,
                  stylist=None, product_reader=None):
         self.root = Path(storage or config.storage_dir())
@@ -1179,6 +1181,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin):
 
     def _rejudge_all(self, room: Room, p: dict) -> None:
         """한 제품이 움직이거나 가구를 치우면 나머지 배치도 다시 판정한다 (자유 배치만)."""
+        self._runs_sync(room, p)  # 벽면 세트: 고치거나 지운 장이 있으면 남은 장을 다시 늘어놓는다
         self._cabinets_sync(p)  # 맞춤장 안 가전은 장 자리로 먼저 옮긴다
         self._slot_covers(room, p)
         # 먼저 높이부터: 받치던 가구가 빠졌으면 바닥으로 내려온 것으로 보고 서로 판정한다
@@ -1582,13 +1585,15 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin):
         changes = None
         if center_xz is not None and x.get("in_cab"):
             x.pop("in_cab")  # 장에 넣은 가전을 따로 끌어 옮기면 장에서 빼낸다
+        if center_xz is not None and (x.get("cab") or {}).get("run"):
+            self._run_detach(p, x)  # 벽면 세트 장을 끌어 옮기면 세트에서 빠진다
         if top_hex is not None:
             # 상판 색은 상판이 있는 가구만 (아일랜드 식탁·아일랜드·하부장·싱크대)
             if x["sku"] not in TOP_COLOUR_SKUS:
                 raise Invalid("상판이 있는 가구만 상판 색을 고를 수 있어요")
             x["top_hex"] = top_hex.upper() or None  # 빈 글자 = 원래 상판
         if base_m is not None:  # 벽에 건 높이 (벽걸이 제품만. 천장·바닥을 넘는 값은 판정할 때 맞춘다)
-            if x["sku"] in ("decor:hood", "decor:cab_wall", "decor:cab_glass_wall") or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
+            if x["sku"] == "decor:hood" or (cab_kind(x["sku"]) and CAB_KINDS[cab_kind(x["sku"])].get("hang")) or (not is_decor(x["sku"]) and mount_kind(self.catalog.get(x["sku"])) == WALL):
                 x["base_m"], x["hung"] = float(base_m), True
                 if x.get("cab"):
                     x["cab"]["base_mm"] = round(float(base_m) * 1000)
@@ -1680,7 +1685,10 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin, CabinetMixin):
     def delete_placement(self, pid: str, placement_id: str) -> dict:
         room, p = self.get_room(pid), self.get_project(pid)
         self._unlink_hood(p, self._find_placement(p, placement_id))
-        # 빌트인 정수기와 같이 놓은 하부장, 맞춤장 안에 넣은 가전도 같이 뺀다
+        # 빌트인 정수기와 같이 놓은 하부장, 맞춤장과 같이 만든 가전도 같이 뺀다. 원래 놓여 있던 가전을 장에 연결만 했으면 남긴다
+        for y in p["scene_state"]["placements"]:
+            if y.get("in_cab") == placement_id and not y.get("cab_made", True):
+                y.pop("in_cab")
         p["scene_state"]["placements"] = [y for y in p["scene_state"]["placements"]
                                           if y.get("placement_id") != placement_id and y.get("host_of") != placement_id
                                           and y.get("in_cab") != placement_id]

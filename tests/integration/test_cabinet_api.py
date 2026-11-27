@@ -34,7 +34,7 @@ def inside(c, pid, plid):
 def test_kinds_list_has_first_stage_and_next_stage(c):
     r = c.get("/api/cabinet/kinds").json()
     stages = {k["kind"]: k["stage"] for k in r["kinds"]}
-    assert stages["fridge"] == 1 and stages["oven_tall"] == 2
+    assert stages["fridge"] == 1 and stages["oven_tall"] == 1 and stages["tvwall"] == 1
     assert {f["id"] for f in r["finishes"]["top"]} == {"stone_white", "stone_warmbeige", "ceramic_dark"}
     assert any("G646GBB031" in x["skus"] for x in r["rules"])
 
@@ -141,8 +141,8 @@ def test_save_and_restore_keeps_cabinet_and_appliance(c, tmp_path):
     assert next(x for x in again if x["placement_id"] == cab["placement_id"])["cab"]["finish"]["front"] == "walnut"
 
 
-def test_next_stage_kind_is_refused(c, pid):
-    assert c.post(f"/api/projects/{pid}/cabinets", json={"kind": "oven_tall"}).status_code == 422
+def test_unknown_kind_is_refused(c, pid):
+    assert c.post(f"/api/projects/{pid}/cabinets", json={"kind": "spaceship"}).status_code == 422
 
 
 def test_removing_cabinet_takes_out_its_appliance(c, pid):
