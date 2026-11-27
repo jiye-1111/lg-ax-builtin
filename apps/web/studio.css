@@ -160,6 +160,23 @@
   padding: 14px 16px 16px; background: rgba(255, 255, 255, .98); border-radius: 18px; box-shadow: var(--shadow-float); }
 .extra-pop[hidden] { display: none; }
 .extra-pop h3 { font-size: 14px; margin: 10px 0 6px; }
+/* 벽 길이 재기: 잰 벽 목록, 고른 벽 발치에 뜨는 입력 카드 */
+.measured-list { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+.measured-list li { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 6px 6px 12px; border-radius: 10px; background: var(--drafting); font-size: 13px; }
+.measure-card { position: absolute; left: 50%; top: 14px; transform: translateX(-50%); z-index: 7; display: grid; gap: 8px; padding: 10px 40px 10px 16px; max-width: calc(100% - 24px); background: rgba(255, 255, 255, .98); border-radius: 16px; box-shadow: var(--shadow-float); }
+.measure-card[hidden], .measure-card [hidden] { display: none; }
+.measure-card.at-wall { transform: none; padding: 12px 40px 14px 14px; }
+.measure-card .mc-ask { margin: 0; font-size: 13px; font-weight: 600; color: var(--ink); }
+.measure-card.at-wall .mc-ask, .measure-card:not(.at-wall) :is(label, .mc-row) { display: none; }
+.measure-card label { font-size: 13px; font-weight: 600; color: var(--ink); }
+.measure-card .mc-row { display: flex; align-items: center; gap: 6px; }
+.measure-card .mc-x { position: absolute; right: 8px; top: 7px; display: grid; place-items: center; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: none; color: var(--graphite); box-shadow: none; }
+.measure-card .mc-x:hover { background: var(--drafting); color: var(--ink); }
+.measure-card .mc-x svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.measure-card .mc-in { position: relative; display: block; }
+.measure-card .mc-in input { width: 132px; height: 36px; padding: 0 38px 0 12px; border: 1px solid var(--line); border-radius: 10px; font-size: 15px; font-variant-numeric: tabular-nums; }
+.measure-card .mc-in input:focus { outline: 2px solid var(--ink); outline-offset: 1px; }
+.measure-card .mc-in i { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-style: normal; font-size: 12px; color: var(--graphite); pointer-events: none; }
 
 /* 왼쪽: 이 집에 들어가는 제품, 상세 필터 */
 .sugg[hidden] { display: none; }

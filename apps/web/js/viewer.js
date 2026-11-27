@@ -1049,6 +1049,11 @@ export function makeViewer(el, handlers = {}) {
   // ---- 끼워 넣기 미리 보기: 끄는 동안 장이 칸을 내준 모습 (저장은 놓을 때 서버가) ----
   const carveG = new THREE.Group();
   scene.add(carveG);
+  // 벽 길이 재기: 고른 벽 발치에 줄자처럼 긋는 선 (벽에 가려도 보인다)
+  const tapeG = new THREE.Group();
+  tapeG.visible = false;
+  scene.add(tapeG);
+  const tapeMat = new THREE.MeshBasicMaterial({ color: "#1f1f1f", depthTest: false, transparent: true });
   let carveKey = null, carveHid = [];
   const setCarve = (c) => {
     const key = c ? JSON.stringify(c) : null;
@@ -1761,16 +1766,30 @@ export function makeViewer(el, handlers = {}) {
       return { furniture, products: products.children.length };
     },
     /** 평면 좌표 [x, z] 쪽으로 시점을 부드럽게 옮긴다 (보는 각도·거리는 그대로) */
-    /** 벽 철거 고르기 켜기/끄기. 켜면 클릭이 벽({type:"wall", id})을 맞히고, 벽 위에서 커서가 바뀐다 */
-    setWallPick(on) {
+    /** 벽 고르기 켜기/끄기 (철거는 붉게 물들이고, 길이 재기는 tint = false로 그대로 둔다). 켜면 클릭이 벽({type:"wall", id})을 맞히고, 벽 위에서 커서가 바뀐다 */
+    setWallPick(on, tint = true) {
       wallPick = !!on;
       dom.style.cursor = on ? "crosshair" : "";
       model?.traverse((o) => {
         if (!o.isMesh || o.userData?.kind !== "wall") return;
-        if (on && !o.userData.pickMat) { o.userData.pickMat = o.material; o.material = o.material.clone(); o.material.emissive?.set("#A50034"); o.material.emissiveIntensity = 0.18; }
+        if (on && tint && !o.userData.pickMat) { o.userData.pickMat = o.material; o.material = o.material.clone(); o.material.emissive?.set("#A50034"); o.material.emissiveIntensity = 0.18; }
         if (!on && o.userData.pickMat) { o.material.dispose(); o.material = o.userData.pickMat; delete o.userData.pickMat; }
       });
     },
+    /** 벽 발치에 줄자 선을 긋는다. seg = {start: [x, z], end: [x, z]}, 없으면 지운다 */
+    setTape(seg) {
+      tapeG.clear();
+      tapeG.visible = !!seg;
+      if (!seg) return;
+      const [ax, az] = seg.start, [bx, bz] = seg.end, len = Math.hypot(bx - ax, bz - az);
+      const bar = (l, w) => { const m = new THREE.Mesh(new THREE.BoxGeometry(l, 0.012, w), tapeMat); m.renderOrder = 50; return m; };
+      const line = bar(len, 0.035);
+      tapeG.add(line);
+      for (const x of [-len / 2, len / 2]) { const tick = bar(0.035, 0.3); tick.position.x = x; tapeG.add(tick); } // 양 끝 눈금
+      tapeG.position.set((ax + bx) / 2, 0.02, (az + bz) / 2);
+      tapeG.rotation.y = -Math.atan2(bz - az, bx - ax);
+    },
+    tapeShown: () => tapeG.visible,
     lookAt([x, z]) {
       if (walk || !Number.isFinite(x) || !Number.isFinite(z)) return;
       const target = new THREE.Vector3(x, 0.8, z);

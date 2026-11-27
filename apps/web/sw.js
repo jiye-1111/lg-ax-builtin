@@ -1,8 +1,8 @@
 // 서비스 워커: 화면 파일과 three.js는 캐시에서 먼저, API는 항상 서버에서 받는다.
-const VERSION = "lgb-shell-v105"; // 실사: 화면에 보이는 물건 목록을 같이 보내 더하거나 빼지 않게
+const VERSION = "lgb-shell-v106"; // 벽 하나 재서 집 전체 치수 바로잡기 (도면 집도)
 const SHELL = [
   "./", "./index.html", "./config.js", "./style.css", "./studio.css", "./app.js", "./manifest.webmanifest",
-  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/hauni.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js", "./js/surface.js",
+  "./js/core.js", "./js/viewer.js", "./js/room3d.js", "./js/plan.js", "./js/pages.js", "./js/remodel.js", "./js/install.js", "./js/finishes.js", "./js/account.js", "./js/options.js", "./js/filters.js", "./js/measure.js", "./js/guide.js", "./js/tour.js", "./js/combos.js", "./js/hauni.js", "./js/snap.js", "./js/gapnote.js", "./js/energy.js", "./js/surface.js",
   "./icons/icon-192.png", "./icons/icon-512.png", "./icons/icon.svg",
   "./vendor/fonts/PretendardVariable.woff2", "./img/hero-kitchen.webp", "./img/hero-kitchen-m.webp",
   "./vendor/three/three.module.min.js",

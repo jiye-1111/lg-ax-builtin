@@ -9,7 +9,8 @@ import { materialLabel } from "./surface.js";
 import { buildWorld } from "./walk.js";
 import { tourStops, findPath, lookYaw, nearestStop, nearFree } from "./stops.js";
 import { planView, placedSvg } from "./plan.js";
-import { wallTable, WALL_HEAD, floorplanBox, installRequestBox } from "./pages.js";
+import { floorplanBox, installRequestBox } from "./pages.js";
+import { readLength, fmtMm, cardSpot } from "./measure.js";
 import { swatchUrl, TEXTURE_KO } from "./finishes.js";
 import { mountSaveBar } from "./account.js";
 import { fitCardHtml, VERDICT_LABEL, INSTALL_NOTE } from "./guide.js";
@@ -112,6 +113,7 @@ export async function customer(pid) {
             <button class="icon-btn" id="undo" disabled aria-label="되돌리기" title="되돌리기 (Ctrl+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
             <button class="icon-btn" id="redo" disabled aria-label="다시 실행" title="다시 실행 (Ctrl+Shift+Z)"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
             <button class="icon-btn" id="furn" data-l="가구 치우기" aria-pressed="false" aria-label="가구 치우기" title="가구 치우기: 가구나 창문에 마우스를 올리면 뜨는 ✕를 눌러요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12V8a2 2 0 0 1 2-2h4M4 12h9a2 2 0 0 1 2 2v3H4zM5 17v2M14 17v2"/><path d="m16 4 5 5M21 4l-5 5"/></svg></button>
+            <button class="icon-btn" id="measureBtn" data-l="벽 재기" aria-pressed="false" aria-label="벽 길이 재기" title="벽 재기: 줄자로 잰 벽 길이를 넣으면 집 전체 치수를 바로잡아요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 16 13-13 5 5L8 21z"/><path d="m7 12 2 2M10 9l2 2M13 6l2 2"/></svg></button>
             <button class="icon-btn" id="beforeBtn" data-l="처음 모습" aria-pressed="false" aria-label="처음 모습 보기" title="누르고 있는 동안 처음 모습을 보여 줘요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M12 3v18"/><path d="m7.5 10-2 2 2 2M16.5 10l2 2-2 2"/></svg></button>
             <button class="icon-btn" id="fullBtn" data-l="전체 화면" aria-label="전체 화면" title="전체 화면"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
             <button class="icon-btn" id="tourBtn" data-l="안내" aria-label="화면 안내 다시 보기" title="화면 안내 다시 보기"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.6M12 17h.01"/></svg></button>
@@ -151,12 +153,21 @@ export async function customer(pid) {
           ${comboPopHtml()}
           <section class="extra-pop" id="extraPop" role="dialog" aria-label="도면·실측" hidden>
             <div class="keys-head"><b>도면·실측 <span class="muted">선택</span></b><button class="ghost small" id="extraClose">닫기</button></div>
-            <p class="hint-sm">스캔만으로도 판정해요. 도면이나 줄자로 잰 값이 있으면 넣어 주세요. 더 촘촘하게 판정해요.</p>
+            <p class="hint-sm">스캔만으로도 판정해요. 도면이나 잰 값이 있으면 더 정확해져요.</p>
             <h3>도면</h3><div id="fpBox"></div>
-            <h3 class="gap">벽 실측값 (m)</h3>
-            <p class="hint-sm">평면의 벽 번호를 보고, 잰 값만 넣으면 됩니다.</p>
-            <div class="table-scroll"><table>${WALL_HEAD}<tbody id="walls"></tbody></table></div>
+            <h3 class="gap">벽 길이 재기</h3>
+            <p class="hint-sm">벽 하나만 바닥 쪽을 줄자로 재서 넣으면, 그 값에 맞춰 집 전체 치수를 바로잡아요.</p>
+            <button class="small" id="measureGo">잴 벽 고르기</button>
+            <ul class="measured-list" id="measuredList"></ul>
           </section>
+          <form class="measure-card" id="measureCard" aria-label="벽 길이 재기" hidden>
+            <p class="mc-ask" id="measureAsk">줄자로 잴 벽을 눌러 주세요. 벽 하나만 재도 집 전체 치수를 바로잡아요.</p>
+            <label for="measureMm">이 벽 바닥 쪽 길이</label>
+            <div class="mc-row"><span class="mc-in"><input id="measureMm" inputmode="decimal" autocomplete="off"><i>mm</i></span>
+              <button class="primary small" type="submit">맞추기</button>
+              <button class="ghost small" type="button" id="measureClear" hidden>지우기</button></div>
+            <button class="mc-x" type="button" id="measureCancel" aria-label="벽 재기 끝내기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+          </form>
           <p class="render-wait" id="renderWait" role="status" hidden><i aria-hidden="true"></i>실사 사진을 만들고 있어요. 30초쯤 걸려요.</p>
           <nav class="walk-tour" id="walkTour" aria-label="둘러보기" hidden>
             <div class="wt-head"><b id="wtName" aria-live="polite"></b>
@@ -467,13 +478,14 @@ export async function customer(pid) {
   let drag3d = null, hovering = false; // hovering: 마우스가 3D 위에 있는지 (버튼 위로 나가면 늦게 온 미리 보기를 버린다)
   let wallPicking = false, removeWall = () => {}; // 벽 철거: 3D에서 벽을 눌러 고르는 중 (아래에서 채운다)
   let furnPick = false, furnHover = () => {}; // 가구 치우기: 마우스가 올라간 가구·창에만 ✕ (아래에서 채운다)
+  let measuring = null, measureWall = () => {}; // 벽 길이 재기: {wall: 고른 벽 id 또는 null} (아래에서 채운다)
   let wallDraw = null, wallPoint = () => {}; // 벽 추가: 바닥에서 시작점 → 끝점 ({start} 또는 {})
   const viewer = makeViewer(document.getElementById("viewer"), {
     onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
     canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl && !isLocked(id) && !hungId(id),
     // 고른 물건만 누른 채 끌면 잡힌다 (IKEA·Planner 5D처럼 먼저 눌러 고르고 옮긴다). 안 고른 물건 위에서 끌면 화면이 돈다
     // 고정한 물건은 끌어도 안 움직인다. 잡은 채 휠이나 E+마우스로 돌린다
-    canGrab: (hit) => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !furnPick
+    canGrab: (hit) => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !measuring && !furnPick
       && (hit.type === "placement" ? hit.id === selPl : hit.id === selObj) && !isLocked(hit.id),
     onGrab: (hit, point) => {
       if (hit.type === "placement") { selPl = hit.id; selObj = null; } else { selObj = hit.id; selPl = null; }
@@ -496,6 +508,7 @@ export async function customer(pid) {
     onLeave: () => { hovering = false; hideProbe(); if (armed) ghost(null); if (armedRouter) viewer.routerFollow(null); if (armedStart) viewer.personFollow(null); },
     onClick: ({ hit, point }) => {
       if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
+      if (measuring) { if (hit?.type === "wall") measureWall(hit.id); return; }
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (wallMatPick) { if (hit?.type === "wall") chooseWallMat(hit.id); return; }
       if (point && floorAction(point)) return;
@@ -1539,7 +1552,7 @@ export async function customer(pid) {
     if (k === "z" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); if (e.shiftKey) redo(); else undo(); return; }
     if (k === "y" && e.ctrlKey) { e.preventDefault(); redo(); return; }
     if (k === "Escape" && wallMatPick) { setWallMatPick(false); return; }
-    if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
+    if (k === "Escape") { if (armedRouter && project.scene_state.router) { armedRouter = false; viewer.routerFollow(null); wifiCtl(); } if (armedStart && project.scene_state.marks?.start) { armedStart = false; viewer.personFollow(null); flowCtl(); } viewer.cancelHold(); armed = null; ghost(null); if (wallPicking) setWallPick(false); if (measuring) setMeasuring(false); if (wallDraw) setWallDraw(false); setHint(); renderLib(); return; }
     const in3d = studio.dataset.view !== "plan";
     // 카메라: WASD 이동, Q/E 돌기 (3D가 보일 때)
     if (k === "e" && viewer.held()) { viewer.spinKey(true); e.preventDefault(); return; } // 잡은 물건 돌리기
@@ -1631,11 +1644,91 @@ export async function customer(pid) {
     await refresh(true);
   });
   const setWallPick = (on) => {
+    if (on && measuring) setMeasuring(false);
     wallPicking = on;
     viewer.setWallPick(on);
     if (on) { selPl = null; selObj = null; armed = null; ghost(null); renderInspector(); setHint("철거할 벽을 3D에서 누르세요 · Esc 취소"); }
     else setHint();
     renderDecorLib();
+  };
+  // 벽 길이 재기: 벽을 누르면 발치에 줄자 선이 그어지고, 잰 길이를 넣으면 그 벽을 기준으로 집 전체 치수를 바로잡는다
+  const measureCard = document.getElementById("measureCard"), measureMm = document.getElementById("measureMm");
+  const MEASURE_HINT = "줄자로 잴 벽을 3D에서 누르세요 · Esc 취소";
+  const tapedBy = (w) => w.measured?.length_m != null && (w.measured.by === "customer" || w.measured.by === "technician");
+  const measureBtn = document.getElementById("measureBtn");
+  const setMeasuring = (on) => {
+    measuring = on ? { wall: null } : null;
+    viewer.setWallPick(false); // 철거 고르기에서 넘어왔으면 붉은 물부터 뺀다
+    viewer.setWallPick(!!on, false);
+    viewer.setTape(null);
+    measureCard.hidden = !on;
+    measureCard.classList.remove("at-wall");
+    measureCard.style.left = ""; measureCard.style.top = "";
+    measureBtn.classList.toggle("on", !!on);
+    measureBtn.setAttribute("aria-pressed", !!on);
+    if (on) {
+      if (wallPicking) { wallPicking = false; renderDecorLib(); }
+      if (wallMatPick) setWallMatPick(false);
+      if (wallDraw) setWallDraw(false);
+      if (walking) setWalking(false);
+      if (studio.dataset.view === "plan") setView("3d");
+      selPl = null; selObj = null; armed = null; ghost(null); renderInspector(); showExtra(false); setHint(MEASURE_HINT);
+    } else setHint();
+  };
+  measureWall = (wid) => {
+    const w = room.walls.find((q) => q.wall_id === wid);
+    if (!w) return;
+    measuring.wall = wid;
+    viewer.setTape(w);
+    measureMm.value = tapedBy(w) ? fmtMm(w.measured.length_m) : "";
+    measureMm.placeholder = `${room.source === "floorplan_image" ? "도면" : "스캔"} ${fmtMm(w.scanned.length_m)}`;
+    document.getElementById("measureClear").hidden = !tapedBy(w);
+    measureCard.classList.add("at-wall");
+    trackMeasure();
+    setHint("줄자로 잰 길이를 넣어 주세요 · 다른 벽을 눌러 바꿀 수 있어요 · Esc 취소");
+    measureMm.focus({ preventScroll: true });
+  };
+  const trackMeasure = () => {
+    if (!measuring?.wall) return;
+    const w = room.walls.find((q) => q.wall_id === measuring.wall);
+    if (!w) return;
+    const r = canvasEl.getBoundingClientRect(), [sx, sy] = viewer.toScreen([(w.start[0] + w.end[0]) / 2, (w.start[1] + w.end[1]) / 2], 0);
+    const at = cardSpot([sx - r.left, sy - r.top], r, { width: measureCard.offsetWidth, height: measureCard.offsetHeight });
+    measureCard.style.left = `${at.left}px`; measureCard.style.top = `${at.top}px`;
+  };
+  measureCard.onsubmit = guard(async (e) => {
+    e.preventDefault();
+    const w = room.walls.find((q) => q.wall_id === measuring?.wall);
+    if (!w) return;
+    const length_m = readLength(measureMm.value, w.scanned.length_m);
+    if (length_m == null) { toast("잰 길이를 숫자로 넣어 주세요", true); measureMm.focus(); return; }
+    await put(`/api/projects/${pid}/walls/${w.wall_id}/measured`, { length_m, by: "customer" });
+    setMeasuring(false);
+    await refresh(true);
+    toast(room.walls.some((q) => q.measured?.by === "reference") ? "잰 벽에 맞춰 집 전체 치수를 바로잡았어요"
+      : `이 벽 길이만 고쳤어요. ${room.source === "floorplan_image" ? "도면" : "스캔"}과 차이가 커서 다른 벽에는 쓰지 않았어요`);
+  });
+  measureCard.addEventListener("keydown", (e) => { if (e.key === "Escape") { e.stopPropagation(); setMeasuring(false); } });
+  document.getElementById("measureCancel").onclick = () => setMeasuring(false);
+  document.getElementById("measureGo").onclick = () => setMeasuring(true);
+  measureBtn.onclick = () => setMeasuring(!measuring);
+  document.getElementById("measureClear").onclick = guard(async () => {
+    const wid = measuring?.wall;
+    if (!wid) return;
+    await api(`/api/projects/${pid}/walls/${wid}/measured`, { method: "DELETE" });
+    setMeasuring(false);
+    await refresh(true);
+    toast("잰 값을 지웠어요");
+  });
+  const renderMeasured = () => {
+    const list = document.getElementById("measuredList"), done = room.walls.filter(tapedBy);
+    list.innerHTML = done.map((w) => `<li><span>잰 벽 <b>${fmtMm(w.measured.length_m)} mm</b></span><button class="ghost small" data-unmeasure="${esc(w.wall_id)}">지우기</button></li>`).join("");
+    list.querySelectorAll("[data-unmeasure]").forEach((b) => (b.onclick = guard(async () => {
+      await api(`/api/projects/${pid}/walls/${b.dataset.unmeasure}/measured`, { method: "DELETE" });
+      await refresh(true);
+      toast("잰 값을 지웠어요");
+    })));
+    document.getElementById("measureGo").textContent = done.length ? "다른 벽도 재기" : "잴 벽 고르기";
   };
   removeWall = guard(async (wid) => {
     await put(`/api/projects/${pid}/walls/${wid}/hidden`, { hidden: true });
@@ -1757,6 +1850,7 @@ export async function customer(pid) {
     trackGaps();
     trackFlowX();
     trackFurnX();
+    trackMeasure();
     if (actBar.hidden || armed || studio.classList.contains("app") || studio.dataset.view !== "3d") { unNear(); return; }
     const x = selPl && project?.scene_state.placements.find((q) => q.placement_id === selPl);
     const o = !x && selObj && room?.objects.find((q) => q.object_id === selObj);
@@ -2612,6 +2706,7 @@ export async function customer(pid) {
     })));
   };
   const setWallMatPick = (on) => {
+    if (on && measuring) setMeasuring(false);
     wallMatPick = on;
     viewer.setWallPick(on);
     setHint(on ? "재질을 바꿀 벽을 3D에서 누르세요 · Esc 취소" : undefined);
@@ -2891,7 +2986,7 @@ export async function customer(pid) {
     scheduleSuggest();
     checkAddons();
     floorplanBox(document.getElementById("fpBox"), pid, project, () => refresh(true));
-    wallTable(document.getElementById("walls"), pid, room, { by: "customer", onChange: () => refresh(true) });
+    renderMeasured();
     // glb(벽·가구·색)는 바뀌었을 때만 다시 받는다. 놓은 제품은 화면에서 직접 그린다.
     const sceneKey = JSON.stringify([project.scene_state.materials, project.scene_state.finish, project.scene_state.finish_ids, FIN.length, project.scene_state.hidden_objects, project.scene_state.hidden_walls, project.scene_state.hidden_openings, project.scene_state.object_colors, project.scene_state.object_part_colors, project.scene_state.object_poses, room.walls.map((w) => w.measured)]);
     thumbSoon();
