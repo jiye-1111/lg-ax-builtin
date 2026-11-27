@@ -1,7 +1,7 @@
 """맞춤장(빌트인 주방) 부재와 내부 빈 공간 — 테스트 먼저. 규칙은 docs/specs/builtin-kitchen.md."""
 import pytest
 
-from recommender.cabinet import KINDS, interior, normalize, suggest
+from recommender.cabinet import cavity_floor_mm, KINDS, interior, normalize, suggest
 from recommender.cabinet_fit import load_rules
 
 RULES = load_rules()
@@ -61,12 +61,30 @@ def test_parts_are_checked():
         normalize({"kind": "fridge", "mode": "guess", "outer_mm": {"w": 958, "h": 2300, "d": 720}})
 
 
-def test_next_stage_modules_are_registered_but_not_open_yet():
-    assert KINDS["oven_tall"]["stage"] == 2 and KINDS["corner"]["stage"] == 2
-    with pytest.raises(ValueError):
-        normalize({"kind": "oven_tall", "mode": "new", "outer_mm": {"w": 600, "h": 2100, "d": 600}})
+def test_all_wall_modules_open_and_styles_checked():
     first = {k for k, v in KINDS.items() if v["stage"] == 1}
-    assert {"fridge", "dishwasher", "sink", "drawer", "wall", "pantry", "glass_wall", "counter", "filler", "end_panel"} <= first
+    assert {"fridge", "dishwasher", "sink", "base", "wall", "tall", "glass_tall", "low", "corner", "island_storage", "tvwall",
+            "oven_tall", "cooktop_base", "hood_cab"} <= first
+    c = normalize({"kind": "base", "parts": {"style": "drawer", "drawers": 2}})
+    assert c["parts"]["style"] == "drawer" and c["outer_mm"]["h"] == 910  # 몸체 800 + 다리 80 + 상판 30
+    with pytest.raises(ValueError):  # 상부장에 서랍은 없다
+        normalize({"kind": "wall", "parts": {"style": "drawer"}})
+    with pytest.raises(ValueError):
+        normalize({"kind": "base", "parts": {"hinge": "x"}})
+
+
+def test_appliance_bays_have_their_own_cavity():
+    oven = normalize({"kind": "oven_tall", "parts": {"niche_y": 900, "niche_h": 590}})
+    assert interior(oven)["h"] == 590 and cavity_floor_mm(oven) == 900
+    tv = normalize({"kind": "tvwall", "outer_mm": {"w": 3000, "h": 2400, "d": 400}, "parts": {"side_w": 600, "media_h": 450, "upper_h": 400}})
+    assert interior(tv)["w"] == 1800 and interior(tv)["h"] == 1550 and cavity_floor_mm(tv) == 450
+    cook = normalize({"kind": "cooktop_base"})
+    assert interior(cook)["w"] == 0  # 공식 타공 치수를 모르면 0 (판정 불가)
+
+
+def test_old_saved_wall_cabinet_gets_default_style():
+    c = normalize({"kind": "wall", "outer_mm": {"w": 800, "h": 700, "d": 350}, "parts": {"shelves": 2}})
+    assert c["parts"]["style"] == "door"
 
 
 def test_glass_wall_cabinet_has_glass_doors_and_opaque_body():

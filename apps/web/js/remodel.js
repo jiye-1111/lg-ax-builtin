@@ -4,7 +4,8 @@ import { $app, cleanup, LABEL, shownVerdict, PURPOSE, USE, CATEGORY, CATEGORY_GR
   rememberHome, forgetHome, uiState, saveUiState, saveHomeThumb } from "./core.js";
 import { makeViewer, setProductSurfaces } from "./viewer.js";
 import { setCabinetKinds } from "./cabinet3d.js";
-import { CAB_PREFIX, cabKindOf, cabPanelHtml, doorReport, kitchenLibHtml, wireCabPanel } from "./kitchen.js";
+import { CAB_PREFIX, cabKindOf, cabPanelHtml, doorReport, islandPassage, kitchenLibHtml, wireCabPanel } from "./kitchen.js";
+import { nearestWall, openRunEditor } from "./wallrun.js";
 import { gapNotes } from "./gapnote.js";
 import { energyBadge } from "./energy.js";
 import { materialLabel } from "./surface.js";
@@ -106,6 +107,7 @@ export async function customer(pid) {
       <section class="stage" aria-label="우리 집">
         <section class="pd-modal" id="pdModal" role="dialog" aria-label="제품 상세" hidden></section>
         <section class="order-sheet" id="orderSheet" role="dialog" aria-label="구매 및 설치 신청" hidden></section>
+        <section class="run-ed" id="runEd" aria-label="벽면 맞춤가구 편집" hidden></section>
         <div class="toolbar">
           <button class="furn-btn combo-btn" id="comboBtn" aria-expanded="false" aria-controls="comboPop" title="가전과 목표 가격을 고르면 이 집에 맞춘 조합을 놓아 봐요">추천 배치</button>
           <button class="furn-btn live-btn" id="liveBtn" aria-pressed="false" title="실제로 살아 보듯 둘러보고, 볕·와이파이·동선을 봐요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 12 4l9 7v9H3z"/><path d="M9 20v-6h6v6"/></svg>살아 보기</button>
@@ -490,10 +492,10 @@ export async function customer(pid) {
   };
   const viewer = makeViewer(document.getElementById("viewer"), {
     onWalkStop: () => setTouring(false), // 직접 걷거나 화면을 누르면 이어 보기를 멈춘다
-    canDrag: (id) => mode === "move" && !armed && !armedRouter && !armedStart && id === selPl && !isLocked(id) && !hungId(id),
+    canDrag: (id) => !runEd && mode === "move" && !armed && !armedRouter && !armedStart && id === selPl && !isLocked(id) && !hungId(id),
     // 고른 물건만 누른 채 끌면 잡힌다 (IKEA·Planner 5D처럼 먼저 눌러 고르고 옮긴다). 안 고른 물건 위에서 끌면 화면이 돈다
     // 고정한 물건은 끌어도 안 움직인다. 잡은 채 휠이나 E+마우스로 돌린다
-    canGrab: (hit) => mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !measuring && !furnPick
+    canGrab: (hit) => !runEd && mode === "move" && !armed && !armedRouter && !armedStart && !wallDraw && !wallPicking && !measuring && !furnPick
       && (hit.type === "placement" ? hit.id === selPl : hit.id === selObj) && !isLocked(hit.id),
     onGrab: (hit, point) => {
       hit = cabHost(hit);
@@ -519,6 +521,11 @@ export async function customer(pid) {
       if (!project || !room) return; // 집을 다 받기 전에 누른 것은 넘긴다
       if (measuring) { if (hit?.type === "wall") measureWall(hit.id); return; }
       hit = cabHost(hit);
+      if (runEd) { // 벽면 맞춤가구 편집 중: 벽을 누르면 그 벽, 세트 장을 누르면 그 장을 고른다
+        if (hit?.type === "wall" && runEd.picking()) runEd.pickWall(hit.id);
+        else if (hit?.type === "placement" && runEd.has(hit.id)) runEd.select(hit.id);
+        return;
+      }
       if (wallPicking) { if (hit?.type === "wall") removeWall(hit.id); return; }
       if (wallMatPick) { if (hit?.type === "wall") chooseWallMat(hit.id); return; }
       if (point && floorAction(point)) return;
@@ -619,6 +626,7 @@ export async function customer(pid) {
   const nameOf = (sku) => prodOf(sku)?.name || decorOf(sku)?.name || sku;
   // 받침 있으면 "을", 없으면 "를" (한글이 아니면 "을(를)")
   const eul = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c < 0 || c > 11171 ? "을(를)" : c % 28 ? "을" : "를"; };
+  const gwa = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c < 0 || c > 11171 ? "와(과)" : c % 28 ? "과" : "와"; };
   // ---- 벽·가전 옆에 착 붙기 (js/snap.js). 장·소파·침대·책상과 바닥에 세우는 LG 가전만 붙는다 ----
   const SNAP_MORE = new Set(["decor:sofa", "decor:bed", "decor:desk"]);
   const HOOD_SKUS = new Set(["decor:hood", "decor:islandhood"]); // 인덕션 위에 다는 것: 바닥 가구처럼 벽·옆에 붙이지 않는다
@@ -738,6 +746,9 @@ export async function customer(pid) {
   setCabinetKinds(cabInfo);
   const ruleSkus = new Set(cabInfo.rules.flatMap((r) => r.skus));
   const cabKind = (k) => cabInfo.kinds.find((q) => q.kind === k);
+  // 벽면 맞춤가구: 프리셋(IKEA 공개 치수 / HouseTwin 시작값)과 시작 세트
+  const cabPresets = await api("/api/cabinet/presets").catch(() => null);
+  let runEd = null, realState = null; // 편집 중인 세트와 편집 전 장면 (취소하면 이것으로 돌아간다)
   let cabSku = null; // 제품 상세에서 '맞춤장 만들기'로 고른 가전: 장을 놓으면 그 안에 넣는다
   let cabAlso = []; // 마감을 같이 바꿀 다른 장
   const doorReports = new Map(); // 장 id → 문 열림 3D 근사 검사 (그릴 때마다 다시)
@@ -749,6 +760,67 @@ export async function customer(pid) {
     return catalog.filter((p) => hosts.includes(p.category) && ["built_in", "built_in_look"].includes(p.install_type) && p.sale_status !== "discontinued" && p.product_dims_mm?.w)
       .map((p) => ({ sku: p.sku, name: p.name, rule: ruleSkus.has(p.sku) }))
       .sort((a, b) => b.rule - a.rule || a.name.localeCompare(b.name, "ko"));
+  };
+  // ---- 벽면 맞춤가구 편집기 (wallrun.js): 미리보기는 화면에만, 확정해야 저장 ----
+  const BAY_PRESET = { fridge: "bay_fridge", dishwasher: "bay_dishwasher", oven_tall: "bay_oven", cooktop_base: "bay_cooktop", tvwall: "tvwall" };
+  // 브라우저 점검(tests/e2e)용: 지금 화면 장면과 고르기
+  window.__lgbScene = () => project?.scene_state.placements || [];
+  window.__lgbSelect = (id) => { if (!project) return; selPl = id; selObj = null; draw(); renderInspector(); };
+  const endRun = () => { runEd = null; realState = null; studio.classList.remove("run-on"); setHint(); };
+  const openRun = (start = {}) => {
+    if (!cabPresets || !project || !room) { toast("맞춤가구 목록을 아직 못 불러왔어요", true); return; }
+    if (runEd) runEd.cancel();
+    if (walking) setWalking(false);
+    realState = project.scene_state;
+    selPl = null; selObj = null;
+    studio.classList.add("run-on");
+    renderInspector();
+    runEd = openRunEditor(document.getElementById("runEd"), {
+      pid, room, presets: cabPresets, finishes: cabInfo.finishes, kinds: Object.fromEntries(cabInfo.kinds.map((k) => [k.kind, k])),
+      api, toast, nameOf, candidates: cabCandidates, category: (sku) => prodOf(sku)?.category,
+      placed: () => (realState || project.scene_state).placements,
+      preview: (ss) => { project.scene_state = ss; draw(); },
+      restore: (end) => { if (realState) project.scene_state = realState; draw(); if (end) endRun(); },
+      confirmed: async (_resp, msg) => {
+        if (realState) project.scene_state = realState;
+        endRun();
+        toast(msg || "배치를 확정했어요");
+        await refresh(true);
+      },
+      // 미리보기 장면으로 그린 뒤의 문 열림 근사 (장 안 가전 문 · 아일랜드 서랍)
+      doors: (ss) => ss.placements.filter((x) => x.cab && doorReports.has(x.placement_id)).map((x) => {
+        const app = ss.placements.find((q) => q.in_cab === x.placement_id);
+        return { id: x.placement_id, label: `${nameOf(app?.sku)} 문`, ...doorReports.get(x.placement_id) };
+      }),
+      wallPick: (on) => setHint(on ? "3D에서 맞춤가구를 만들 벽을 눌러 주세요" : undefined),
+      lookWall: (wid) => { const w = room.walls.find((q) => q.wall_id === wid); if (w) viewer.lookAt([(w.start[0] + w.end[0]) / 2, (w.start[1] + w.end[1]) / 2]); },
+    }, start);
+  };
+  // 제품 상세의 '맞춤장 만들기': 이미 놓은 가전이면 그 자리에서 감싸고(새로 놓지 않음), 아니면 벽을 골라 같이 미리 본다
+  const cabForProduct = (p) => {
+    const kind = cabHostKind(p), preset = BAY_PRESET[kind];
+    if (!preset) { toast("이 제품은 맞춤장을 만들 수 없어요", true); return; }
+    const pls = project.scene_state.placements;
+    const mine = pls.find((q) => q.sku === p.sku && !q.in_cab);
+    const held = pls.find((q) => q.sku === p.sku && q.in_cab);
+    if (!mine && held) { // 이미 장에 들어 있으면 그 장을 고른다
+      selPl = held.in_cab; draw(); renderInspector(); viewer.lookAt(held.center_xz);
+      toast("이미 맞춤장 안에 있어요. 그 장을 골랐어요");
+      return;
+    }
+    if (mine) {
+      const nw = nearestWall(room, mine.center_xz);
+      if (nw) {
+        const w = (p.product_dims_mm?.w || mine.size_m[0] * 1000) + 36;
+        const s0 = Math.max(0, Math.round(nw.ax.sOf(mine.center_xz) - w / 2));
+        openRun({ wall_id: nw.w.wall_id, room: "kitchen", start_mm: { base: s0, wall: 0 },
+          rows: { base: [{ uid: "fridge0", preset, gap_mm: 0, app: { id: mine.placement_id } }], wall: [] },
+          note: `이미 놓은 ${p.name}${eul(p.name)} 그 자리에서 감싸요. 새로 놓지 않아요` });
+        return;
+      }
+    }
+    openRun({ room: kind === "tvwall" ? "living" : "kitchen", rows: { base: [{ uid: "fridge0", preset, gap_mm: 0, app: { sku: p.sku } }], wall: [] },
+      note: `벽을 고르면 ${p.name}${gwa(p.name)} 맞춤장을 같이 미리 보여 줘요` });
   };
   // ---- 공간 꾸미기 라이브러리: 전체 / LG 가전 / 가구 / 수납 / 소품. 벽체·구조 변경은 전체 맨 위 ----
   // 벽지·바닥 색 (탭을 집이 다 열리기 전에 눌러도 되게 탭보다 먼저 둔다)
@@ -794,6 +866,10 @@ export async function customer(pid) {
     const wr = document.getElementById("wallRm");
     if (wr) wr.onclick = () => { openLib(false); if (wallDraw) setWallDraw(false); setWallPick(!wallPicking); };
     box.querySelector("[data-go]")?.addEventListener("click", () => setLibTab("lg"));
+    if (["all", "furniture", "kitchen"].includes(libTab) && cabPresets) {
+      box.insertAdjacentHTML("afterbegin", `<button class="run-cta" data-run-new><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M4 20V11h7v9M13 20V4h7v16M4 15h7M16 9v2M7 13v1"/></svg><span><b>벽면 맞춤가구 만들기</b><small>벽을 고르고 주방장·TV장·수납장을 늘어놓아요</small></span></button>`);
+      box.querySelector("[data-run-new]").onclick = () => { openLib(false); openRun(); };
+    }
   }
   const setLibTab = (t) => {
     libTab = t;
@@ -1140,7 +1216,7 @@ export async function customer(pid) {
       <table class="pd-spec"><tbody>${rows.map(([k, val]) => `<tr><th>${k}</th><td>${val}</td></tr>`).join("")}</tbody></table>
       <div class="pd-actions">
         <button class="primary" id="pdPlace" ${sized ? "" : "disabled"}>${sized ? "넣어 보기" : "치수가 없어 놓을 수 없어요"}</button>
-        ${sized && cabHostKind(p) ? `<button class="ghost" id="pdCab" title="${ruleSkus.has(sku) ? "LG 공식 설치 기준으로 판정해요" : "공식 설치 기준이 없어 외형만 견줘요"}">맞춤장에 넣기</button>` : ""}
+        ${sized && cabHostKind(p) && cabPresets ? `<button class="ghost" id="pdCab" title="${ruleSkus.has(sku) ? "LG 공식 설치 기준으로 판정해요" : "공식 설치 기준이 없어 외형만 견줘요"}">맞춤장 만들기</button>` : ""}
         ${p.source_url ? `<a class="btn ghost" href="${esc(p.source_url)}" target="_blank" rel="noopener">LGE.COM에서 보기</a>` : ""}
       </div>`;
     pdModal.hidden = false;
@@ -1160,8 +1236,7 @@ export async function customer(pid) {
       closeDetail();
       if (walking) setWalking(false);
       openLib(false);
-      cabSku = sku;
-      autoPlace(CAB_PREFIX + cabHostKind(p)); // 빈 자리에 장을 만들고 그 안에 넣는다. 새 장은 공식 권장 안쪽 치수로
+      cabForProduct(p);
     };
     place.focus({ preventScroll: true });
     pdModal.scrollTop = 0;
@@ -2135,6 +2210,18 @@ export async function customer(pid) {
       finish: (part, finish) => cabCall(() => post(`/api/projects/${pid}/cabinets/finish`, { ids: [x.placement_id, ...cabAlso], part, finish })),
       also: (ids) => { cabAlso = ids; },
     });
+    // 벽면 세트 장이면 세트 편집으로, 아일랜드면 서랍을 연 통로를 같이 보여 준다
+    const run = x.cab.run && (project.scene_state.cab_runs || []).find((r) => r.run_id === x.cab.run.id);
+    const head = box.querySelector(".cab-head");
+    if (run && head) {
+      head.insertAdjacentHTML("afterend", `<button class="run-cta slim" id="cabRunEdit"><span><b>벽면 세트 편집</b><small>순서·폭·색을 정면도에서 바꿔요</small></span></button>`);
+      box.querySelector("#cabRunEdit").onclick = () => openRun({ run });
+    }
+    if (x.cab.kind === "island_storage" && head) {
+      const r = islandPassage(x, pls, room, { walls: project.scene_state.hidden_walls || [], objects: project.scene_state.hidden_objects || [] });
+      if (r) head.insertAdjacentHTML("afterend", `<section class="cab-door ${r.ok ? "ok" : "bad"}" aria-label="서랍을 연 통로"><h3>서랍을 연 통로 <span>${r.ok ? "지나갈 수 있음" : "좁음"}</span></h3>
+        <p>${esc(r.text)}</p><small>서랍을 끝까지 뺀 끝에서 벽·가구까지 잰 3D 근사예요. 통로 ${r.need_mm} mm는 일반 기준값이에요</small></section>`);
+    }
     // 숫자를 고칠 때마다 다시 그려도 보던 자리·펼친 칸은 그대로 (같은 장일 때만)
     if (scroller) {
       if (keep) box.querySelectorAll("details").forEach((d, i) => { if (open[i] !== undefined) d.open = open[i]; });
@@ -3088,7 +3175,7 @@ export async function customer(pid) {
     return (chain = chain.catch((e) => console.error("다시 읽기 실패", e)).then(() => load(force)));
   };
   const load = async (force) => {
-    if (drag || drag3d) return;
+    if (drag || drag3d || runEd) return; // 맞춤가구 미리보기 중에는 저장된 장면으로 덮지 않는다
     const seen = editSeq;
     const v = (await api(`/api/projects/${pid}/version`)).version;
     if (!force && v === version) return;

@@ -5,7 +5,7 @@ import { esc } from "./core.js";
 
 export const CAB_PREFIX = "decor:cab_";
 export const cabKindOf = (sku) => (typeof sku === "string" && sku.startsWith(CAB_PREFIX) ? sku.slice(CAB_PREFIX.length) : null);
-const HOST_KINDS = new Set(["fridge", "dishwasher"]);
+const HOST_KINDS = new Set(["fridge", "dishwasher", "oven_tall", "cooktop_base", "tvwall"]);
 const VERDICT_KO = { fit: "적합", conditional: "조건부", no_fit: "불가", unknown: "판정 불가" };
 const MARK = { fit: "✓", conditional: "!", no_fit: "✕", unknown: "?" };
 const CHECK_KO = { ok: "맞음", blocked: "불가", check: "확인 필요", site: "현장 확인", none: "공식 자료 없음" };
@@ -24,6 +24,17 @@ const ICON = {
   counter: `<path d="M4 20h40v5H4z"/><path d="M8 25v16M40 25v16"/>`,
   filler: `<path d="M20 6v36M28 6v36M20 6h8M20 42h8"/>`,
   end_panel: `<path d="M18 6h4v36h-4zM22 6l8 4v30l-8 2"/>`,
+  base: `<path d="M6 16h36"/><rect x="9" y="18" width="30" height="22" rx="1"/><path d="M24 18v22M20 24v4M28 24v4M9 40v2M39 40v2"/>`,
+  tall: `<rect x="14" y="4" width="20" height="40" rx="1"/><path d="M14 22h20M30 12v5M30 27v5"/>`,
+  glass_tall: `<rect x="14" y="4" width="20" height="40" rx="1"/><path d="M17 7h14v34H17zM17 16h14M17 26h14"/>`,
+  low: `<rect x="5" y="26" width="38" height="14" rx="1"/><path d="M24 26v14M20 31h0M7 40v2M41 40v2"/><rect x="14" y="10" width="20" height="13" rx="1"/>`,
+  low_wall: `<rect x="5" y="24" width="38" height="12" rx="1"/><path d="M5 30h38M21 27h6M21 33h6"/><rect x="14" y="8" width="20" height="12" rx="1"/>`,
+  corner: `<path d="M6 16h36v16H24v12H6z"/><path d="M6 20h18v20M24 20v12"/>`,
+  island_storage: `<path d="M4 18h40v4H4z"/><rect x="8" y="22" width="32" height="18" rx="1"/><path d="M8 28h32M8 34h32"/>`,
+  tvwall: `<rect x="3" y="6" width="42" height="36" rx="1"/><path d="M12 6v36M36 6v36M12 14h24M12 32h24"/><rect x="15" y="17" width="18" height="12" rx="1"/>`,
+  oven_tall: `<rect x="14" y="4" width="20" height="40" rx="1"/><path d="M14 16h20M14 30h20M17 19h14v8H17zM14 37h20"/>`,
+  cooktop_base: `<path d="M6 16h36"/><rect x="9" y="18" width="30" height="22" rx="1"/><circle cx="18" cy="14" r="2.5"/><circle cx="30" cy="14" r="2.5"/><path d="M9 29h30"/>`,
+  hood_cab: `<rect x="12" y="6" width="24" height="12" rx="1"/><path d="M16 18h16l6 10H10z"/>`,
 };
 export function kitchenLibHtml(kinds) {
   const tile = (k) => `<button class="dtile cab-tile" data-decor="${CAB_PREFIX}${k.kind}" title="${esc(k.label)} 놓기">
@@ -31,9 +42,11 @@ export function kitchenLibHtml(kinds) {
   const one = kinds.filter((k) => k.stage === 1);
   const sec = (title, list, note = "") => `<section class="dsec"><h3>${title}</h3>${note}<div class="dgrid">${list.map(tile).join("")}</div></section>`;
   const next = kinds.filter((k) => k.stage === 2).map((k) => k.label).join(" · ");
-  return sec("가전 맞춤장", one.filter((k) => HOST_KINDS.has(k.kind)), `<p class="hint-sm cab-lead">LG 가전을 고르면 그 가전이 들어갈 빈 공간을 가진 장을 만들어요</p>`)
-    + sec("주방 가구", one.filter((k) => ["sink", "drawer", "wall", "glass_wall", "pantry", "counter"].includes(k.kind)))
-    + sec("마감 부재", one.filter((k) => ["filler", "end_panel"].includes(k.kind)))
+  const pick = (ids) => ids.map((id) => one.find((k) => k.kind === id)).filter(Boolean);
+  return sec("가전 맞춤장", pick(["fridge", "dishwasher", "oven_tall", "cooktop_base", "hood_cab"]), `<p class="hint-sm cab-lead">LG 가전을 고르면 그 가전이 들어갈 빈 공간을 가진 장을 만들어요</p>`)
+    + sec("주방 가구", pick(["base", "sink", "drawer", "wall", "glass_wall", "pantry", "tall", "glass_tall", "corner", "island_storage", "counter"]))
+    + sec("거실 가구", pick(["low", "low_wall", "tvwall"]))
+    + sec("마감 부재", pick(["filler", "end_panel"]))
     + (next ? `<p class="hint-sm cab-next">다음 단계: ${esc(next)}</p>` : "");
 }
 
@@ -69,16 +82,68 @@ export function doorReport({ cab, app, product, placements, room, hidden = {} })
   return { ...res, warn, show: ds.map((d) => ({ corners: leafCorners(a, d, OPEN_DEG), hit: false })) };
 }
 
+/** 아일랜드 서랍을 끝까지 뺐을 때 앞(수납 쪽)으로 남는 통로 (3D 근사). 통로 600 mm는 fit-rules의 일반 통행 기준 */
+export const PASSAGE_MM = 600;
+export function islandPassage(x, placements, room, hidden = {}) {
+  if (!x?.cab || x.cab.kind !== "island_storage") return null;
+  const c = x.cab, W = c.outer_mm.w, D = c.outer_mm.d, st = c.parts?.storage || "front", oh = c.parts?.overhang || 0;
+  const body = D - (st === "both" ? 40 : oh + 20);
+  const pull = Math.min(500, Math.round((st === "both" ? body / 2 : body) * 0.85));
+  const yaw = x.yaw_rad, f = [Math.cos(yaw), Math.sin(yaw)], u = [Math.cos(yaw - Math.PI / 2), Math.sin(yaw - Math.PI / 2)];
+  const segs = [];
+  const goneW = new Set(hidden.walls || []), goneO = new Set(hidden.objects || []);
+  for (const w of room?.walls || []) if (!goneW.has(w.wall_id)) segs.push([w.start, w.end]);
+  const box = (cx, cz, yw, w, d) => {
+    const a = [Math.cos(yw - Math.PI / 2), Math.sin(yw - Math.PI / 2)], b = [Math.cos(yw), Math.sin(yw)];
+    const P = (s, t) => [cx + a[0] * s + b[0] * t, cz + a[1] * s + b[1] * t];
+    const q = [P(-w / 2, -d / 2), P(w / 2, -d / 2), P(w / 2, d / 2), P(-w / 2, d / 2)];
+    for (let i = 0; i < 4; i++) segs.push([q[i], q[(i + 1) % 4]]);
+  };
+  for (const q of placements) if (q.placement_id !== x.placement_id && q.size_m && !q.hung && q.sku !== "decor:rug" && q.in_cab !== x.placement_id) box(q.center_xz[0], q.center_xz[1], q.yaw_rad, q.size_m[0], q.size_m[2]);
+  for (const o of room?.objects || []) if (!goneO.has(o.object_id)) box(o.position[0], o.position[2], o.yaw_rad, o.bbox_m.w, o.bbox_m.d);
+  const ray = (p, d) => { // 가장 가까운 선분까지 (m)
+    let best = Infinity;
+    for (const [a, b] of segs) {
+      const e = [b[0] - a[0], b[1] - a[1]], den = d[0] * e[1] - d[1] * e[0];
+      if (Math.abs(den) < 1e-9) continue;
+      const t = ((a[0] - p[0]) * e[1] - (a[1] - p[1]) * e[0]) / den, s2 = ((a[0] - p[0]) * d[1] - (a[1] - p[1]) * d[0]) / den;
+      if (t > 1e-4 && s2 >= 0 && s2 <= 1) best = Math.min(best, t);
+    }
+    return best;
+  };
+  const sides = st === "both" ? [1, -1] : st === "front" ? [1] : [-1];
+  let worst = Infinity;
+  for (const sg of sides) {
+    const face = sg > 0 ? D / 2 - (st === "front" ? 20 : 20) : -D / 2 + 20;
+    for (const k of [-0.4, 0, 0.4]) {
+      const p = [x.center_xz[0] + u[0] * k * W / 1000 + f[0] * sg * face / 1000, x.center_xz[1] + u[1] * k * W / 1000 + f[1] * sg * face / 1000];
+      worst = Math.min(worst, ray(p, [f[0] * sg, f[1] * sg]) * 1000 - pull);
+    }
+  }
+  if (!Number.isFinite(worst)) return { ok: true, gap_mm: null, need_mm: PASSAGE_MM, text: "서랍 앞으로 막는 것이 없어요" };
+  const gap = Math.round(worst);
+  const ok = gap >= PASSAGE_MM;
+  return { ok, gap_mm: gap, need_mm: PASSAGE_MM, pull_mm: pull,
+    text: gap < 0 ? "서랍을 끝까지 열면 벽이나 가구에 닿아요" : ok ? `서랍을 끝까지 열어도 앞으로 ${gap.toLocaleString("ko-KR")} mm 남아 지나갈 수 있어요` : `서랍을 끝까지 열면 앞으로 ${gap.toLocaleString("ko-KR")} mm만 남아 지나가기 좁아요` };
+}
+
 // ---------- 오른쪽 패널 ----------
 const PART_ROWS = [
   ["side_l", "왼쪽 측판"], ["side_r", "오른쪽 측판"], ["upper_h", "위 수납장 높이"], ["counter", "상판 두께"], ["back", "뒷판 (0 = 없음)"],
   ["toe_kick", "걸레받이 높이"], ["toe_recess", "걸레받이 들임"], ["filler_l", "왼쪽 틈막이판"], ["filler_r", "오른쪽 틈막이판"],
   ["end_l", "왼쪽 측면 마감판"], ["end_r", "오른쪽 측면 마감판"],
+  ["leg_b", "꺾인 쪽 길이"], ["overhang", "상판 돌출 (앉는 쪽)"], ["side_w", "좌우 수납 폭"], ["media_h", "아래 미디어장 높이"],
+  ["niche_y", "가운데 칸 밑 높이"], ["niche_h", "가운데 칸 높이"], ["vent", "통풍 여유"], ["cutout_w", "상판 타공 폭 (공식 값)"], ["cutout_d", "상판 타공 깊이 (공식 값)"],
+];
+const ENUM_ROWS = [
+  ["style", "문짝", { door: "여닫이", drawer: "서랍", open: "오픈", pullout: "인출", flap: "플랩", homecafe: "홈카페 칸" }],
+  ["hinge", "경첩", { r: "오른쪽", l: "왼쪽" }], ["corner", "꺾이는 쪽", { r: "오른쪽", l: "왼쪽" }],
+  ["door_leg", "문 달린 쪽", { a: "이 벽 쪽", b: "꺾인 쪽" }], ["storage", "수납 방향", { front: "앞", back: "뒤", both: "양쪽" }],
 ];
 const COUNT_ROWS = [["shelves", "선반"], ["drawers", "서랍"], ["doors", "문짝"]];
-const TOGGLES = [["kick_across", "걸레받이를 식기세척기 앞까지 잇기"], ["bowl", "싱크볼·수전"]];
+const TOGGLES = [["kick_across", "걸레받이를 식기세척기 앞까지 잇기"], ["bowl", "싱크볼·수전"], ["attach_wall", "한쪽을 벽에 붙이기 (반도형)"], ["cable", "TV 뒤 배선 통로"]];
 const FIN_ROWS = [["front", "도어·서랍 앞판", "panel"], ["body", "몸통·측면 마감판", "panel"], ["top", "상판", "top"], ["handle", "손잡이·프레임", "handle"]];
-const STONE_KINDS = new Set(["sink", "drawer", "dishwasher", "counter"]);
+const STONE_KINDS = new Set(["sink", "drawer", "dishwasher", "counter", "base", "corner", "cooktop_base", "island_storage"]);
 
 const swatch = (f, on, part) => `<button class="cab-sw k-${esc(f.kind)}${on ? " on" : ""}" data-fpart="${part}" data-fin="${esc(f.id)}" role="radio" aria-checked="${on}"
   title="${esc(f.label)}" aria-label="${esc(f.label)}" style="--sw:${esc(f.hex || "transparent")}"><i></i></button>`;
@@ -123,6 +188,7 @@ export function cabPanelHtml({ x, app, product, kind, finishes, candidates = [],
   const parts = PART_ROWS.filter(([k]) => k in c.parts);
   const counts = COUNT_ROWS.filter(([k]) => k in c.parts);
   const toggles = TOGGLES.filter(([k]) => k in c.parts);
+  const enums = ENUM_ROWS.filter(([k]) => k in c.parts).map(([k, l, o]) => [k, l, k === "style" && kind?.styles?.length ? Object.fromEntries(kind.styles.map((v) => [v, o[v]])) : o]);
   const inside = x.cab_check?.inside_mm;
   const numIn = (name, v, label, opt = "") => `<label class="cab-num"><span>${label}</span><input type="number" inputmode="numeric" min="0" step="1" data-${name} value="${v ?? ""}" ${opt}><i>mm</i></label>`;
   const rule = (s) => candidates.find((q) => q.sku === s)?.rule;
@@ -152,6 +218,7 @@ export function cabPanelHtml({ x, app, product, kind, finishes, candidates = [],
       ${host && !existing && app && rule(app.sku) ? `<button class="ghost small cab-fitbtn" id="cabSuggest">이 가전 권장 치수로 맞추기</button>` : ""}
       ${parts.length ? `<div class="cab-grid parts">${parts.map(([k, l]) => numIn(`p-${k}`, c.parts[k], l)).join("")}</div>` : ""}
       ${counts.length ? `<div class="cab-grid parts">${counts.map(([k, l]) => `<label class="cab-num"><span>${l}</span><input type="number" min="0" max="8" step="1" data-p-${k} value="${c.parts[k]}"><i>개</i></label>`).join("")}</div>` : ""}
+      ${enums.length ? `<div class="cab-grid parts">${enums.map(([k, l, o]) => `<label class="cab-num"><span>${l}</span><select data-e-${k}>${Object.entries(o).map(([v, t]) => `<option value="${v}" ${c.parts[k] === v ? "selected" : ""}>${t}</option>`).join("")}</select></label>`).join("")}</div>` : ""}
       ${toggles.map(([k, l]) => `<label class="cab-tog"><input type="checkbox" data-t-${k} ${c.parts[k] ? "checked" : ""}><span>${l}</span></label>`).join("")}
       ${"base_mm" in c && c.kind !== "counter" ? `<div class="cab-grid">${numIn("base", c.base_mm, "바닥에서 밑면까지")}</div>` : ""}
     </details>
@@ -183,6 +250,10 @@ export function wireCabPanel(box, x, on) {
   box.querySelectorAll("input[type=number]").forEach((el) => {
     const key = [...el.attributes].map((a) => a.name).find((n) => n.startsWith("data-p-"));
     if (key) el.addEventListener("change", () => { const v = num(el); if (v !== null && v >= 0) on.patch({ parts: { [key.slice(7)]: v } }); });
+  });
+  box.querySelectorAll("select").forEach((el) => {
+    const key = [...el.attributes].map((a) => a.name).find((n) => n.startsWith("data-e-"));
+    if (key) el.addEventListener("change", () => on.patch({ parts: { [key.slice(7)]: el.value } }));
   });
   box.querySelectorAll("input[type=checkbox]").forEach((el) => {
     const key = [...el.attributes].map((a) => a.name).find((n) => n.startsWith("data-t-"));

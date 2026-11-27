@@ -14,6 +14,8 @@ const PAIR_MIN_W = 800;
 export const KIND_LABEL = {
   fridge: "냉장고장", dishwasher: "식기세척기 자리", sink: "싱크 하부장", drawer: "서랍형 하부장", wall: "상부장",
   pantry: "키큰 팬트리장", glass_wall: "유리 상부장", counter: "연속 상판", filler: "틈막이판", end_panel: "측면 마감판",
+  base: "하부장", tall: "키큰장", glass_tall: "유리 키큰장", low: "낮은 수납장", low_wall: "벽걸이 하부장", corner: "코너장",
+  island_storage: "수납형 아일랜드", tvwall: "TV월", oven_tall: "오븐·전자레인지 키큰장", cooktop_base: "인덕션 하부장", hood_cab: "후드 상부장",
 };
 const BASE_KINDS = new Set(["sink", "drawer", "dishwasher"]);
 
@@ -111,6 +113,7 @@ export function layout(cab) {
     if (cab.parts?.kick_across) out.push(bx("kick", "kick", [xl, 0, D / 2 - KICK_RECESS - PANEL, xr, P(cab, "toe_kick"), D / 2 - KICK_RECESS]));
     return { parts: out, cavity: [xl, 0, zb + back, xr, H - ct, D / 2] };
   }
+  if (NEW_KINDS.has(kind)) return layoutMore(cab);
   const base = BASE_KINDS.has(kind);
   const ct = base ? P(cab, "counter") : 0;
   const tk = kind === "wall" || kind === "glass_wall" ? 0 : P(cab, "toe_kick");
@@ -160,6 +163,217 @@ export function layout(cab) {
     }
   }
   return { parts: out, cavity: null };
+}
+
+// ---------- 벽면 맞춤가구 모듈 (하부장·키큰장·상부장·낮은장·코너·아일랜드·TV월·가전 매입부) ----------
+const NEW_KINDS = new Set(["base", "wall", "tall", "glass_tall", "low", "low_wall", "corner", "island_storage", "tvwall", "oven_tall",
+  "cooktop_base", "hood_cab"]);
+const COUNTER_KINDS = new Set(["base", "cooktop_base", "corner"]);
+const HANG_KINDS = new Set(["wall", "hood_cab", "low_wall"]);
+
+// 손잡이: 문 앞면(z)에서 앞으로 나온다. dir = -1이면 뒤쪽 면(아일랜드 뒤 수납)
+function grip(cab, out, name, x, y, z, vertical, dir = 1) {
+  if (cab.finish?.handle === "push") return;
+  const L = 160, T = 12, z0 = dir > 0 ? z : z - HANDLE_OUT, z1 = dir > 0 ? z + HANDLE_OUT : z;
+  out.push(bx(name, "handle", vertical ? [x - T / 2, y - L / 2, z0, x + T / 2, y + L / 2, z1] : [x - L / 2, y - T / 2, z0, x + L / 2, y + T / 2, z1]));
+}
+
+// 몸통 상자: 좌우 측판(장 틀이 이미 있으면 생략)·바닥·천판·뒷판
+function carcass(out, pre, x0, x1, y0, y1, zb, zf, { back = 9, sides = true, top = true } = {}) {
+  if (sides) {
+    out.push(bx(`${pre}side_l`, "body", [x0, y0, zb, x0 + PANEL, y1, zf]));
+    out.push(bx(`${pre}side_r`, "body", [x1 - PANEL, y0, zb, x1, y1, zf]));
+  }
+  const a = sides ? x0 + PANEL : x0, b = sides ? x1 - PANEL : x1;
+  out.push(bx(`${pre}bottom`, "body", [a, y0, zb + back, b, y0 + PANEL, zf]));
+  if (top) out.push(bx(`${pre}top_panel`, "body", [a, y1 - PANEL, zb + back, b, y1, zf]));
+  if (back > 0) out.push(bx(`${pre}back`, "body", [a, y0, zb, b, y1, zb + back]));
+  return [a, b];
+}
+
+// 앞면 구성: door(여닫이) · drawer(서랍) · open(문 없음) · pullout(인출 한 판) · flap(위로 여는 한 판)
+function fronts(cab, out, style, x0, x1, y0, y1, zf, { pre = "", n = 1, drawers = 3, handleLow = false, glass = false, dir = 1 } = {}) {
+  const zA = dir > 0 ? zf - DOOR : zf, zB = dir > 0 ? zf : zf + DOOR, zH = dir > 0 ? zf : zf + DOOR;
+  if (style === "open") return;
+  if (style === "drawer") {
+    const k = Math.max(1, drawers);
+    const first = k > 1 ? (y1 - y0) * (k >= 3 ? 0.24 : 0.4) : y1 - y0, rest = k > 1 ? (y1 - y0 - first) / (k - 1) : 0;
+    let y = y1;
+    for (let i = 0; i < k; i++) {
+      const h = i === 0 ? first : rest;
+      out.push(bx(`${pre}drawer${i + 1}`, "front", [x0, y - h + GAP / 2, zA, x1, y - GAP / 2, zB], { door: true, open: "drawer", dir }));
+      grip(cab, out, `${pre}drawer${i + 1}_handle`, (x0 + x1) / 2, y - Math.min(60, h / 2), zH, false, dir);
+      y -= h;
+    }
+    return;
+  }
+  if (style === "pullout" || style === "flap") {
+    out.push(bx(`${pre}door1`, "front", [x0 + GAP / 2, y0, zA, x1 - GAP / 2, y1, zB], { door: true, open: style, dir }));
+    grip(cab, out, `${pre}door1_handle`, (x0 + x1) / 2, style === "flap" ? y0 + 50 : y1 - 60, zH, false, dir);
+    return;
+  }
+  const k = Math.max(1, n), wEach = (x1 - x0) / k, hinge = cab.parts?.hinge;
+  for (let i = 0; i < k; i++) {
+    const a = x0 + i * wEach + GAP / 2, b = x0 + (i + 1) * wEach - GAP / 2, name = `${pre}door${i + 1}`;
+    // 한 짝: 경첩 쪽(hinge) 반대편에 손잡이. 두 짝 이상: 가운데 쪽
+    const side = k === 1 ? (hinge === "l" ? "l" : "r") : i < k / 2 ? "l" : "r";
+    const meta = { door: true, open: "door", hinge: side, dir };
+    if (glass) {
+      const R = 22;
+      out.push(bx(`${name}_frame_l`, "frame", [a, y0, zA, a + R, y1, zB], meta));
+      out.push(bx(`${name}_frame_r`, "frame", [b - R, y0, zA, b, y1, zB], meta));
+      out.push(bx(`${name}_frame_b`, "frame", [a + R, y0, zA, b - R, y0 + R, zB], meta));
+      out.push(bx(`${name}_frame_t`, "frame", [a + R, y1 - R, zA, b - R, y1, zB], meta));
+      out.push(bx(`${name}_glass`, "glass", [a + R, y0 + R, (zA + zB) / 2 - 2, b - R, y1 - R, (zA + zB) / 2 + 2], meta));
+    } else {
+      out.push(bx(name, "front", [a, y0, zA, b, y1, zB], meta));
+    }
+    const hx = side === "l" ? b - 40 : a + 40;
+    const hy = handleLow ? y0 + 120 : y1 - y0 > 1200 ? y0 + Math.min(1000, (y1 - y0) / 2) : y1 - 120;
+    grip(cab, out, `${name}_handle`, hx, hy, zH, true, dir);
+  }
+}
+
+function shelfRow(out, pre, n, x0, x1, y0, y1, zb, zf) {
+  for (let i = 1; i <= n; i++) {
+    const y = y0 + ((y1 - y0) * i) / (n + 1);
+    out.push(bx(`${pre}shelf${i}`, "shelf", [x0, y - PANEL / 2, zb, x1, y + PANEL / 2, zf]));
+  }
+}
+
+const doorCount = (cab, w) => (P(cab, "doors") > 0 ? P(cab, "doors") : w > 650 ? 2 : 1);
+
+function mirrorX(parts) {
+  for (const p of parts) {
+    const [x0, y0, z0, x1, y1, z1] = p.box;
+    p.box = [-x1, y0, z0, -x0, y1, z1];
+    if (p.hinge) p.hinge = p.hinge === "l" ? "r" : "l";
+  }
+  return parts;
+}
+
+function layoutMore(cab) {
+  const { w: W, h: H, d: D } = cab.outer_mm;
+  const kind = cab.kind, out = [], zb = -D / 2;
+  const style = cab.parts?.style || (kind === "low_wall" ? "drawer" : "door");
+  const back = P(cab, "back");
+  if (kind === "corner") {
+    // ㄱ자: 이 벽(A)을 따라 폭 W, 꺾인 쪽(B)은 앞으로 leg_b. 겹치지 않게 A는 B 몸통 앞에서 끝난다 (오른쪽 꺾임 기준으로 그린 뒤 왼쪽이면 뒤집는다)
+    const LB = Math.max(P(cab, "leg_b"), D + 100), ct = P(cab, "counter"), tk = P(cab, "toe_kick"), top = H - ct;
+    const zf = D / 2 - OVERHANG, xB = W / 2 - D, zEnd = zb + LB, zEndF = zEnd - OVERHANG;
+    carcass(out, "a_", -W / 2, xB, tk, top, zb, zf - DOOR, { back, top: false });
+    carcass(out, "b_", xB, W / 2, tk, top, zb, zEndF, { back, top: false });
+    if (tk > 0) {
+      const r = P(cab, "toe_recess") || KICK_RECESS;
+      out.push(bx("a_kick", "kick", [-W / 2, 0, zf - r - PANEL, xB + D - r, tk, zf - r]));
+      out.push(bx("b_kick", "kick", [xB + r, 0, zf - r, xB + r + PANEL, tk, zEndF - r]));
+    }
+    if (ct > 0) {
+      out.push(bx("counter", "top", [-W / 2, top, zb, xB, H, D / 2]));
+      out.push(bx("counter_b", "top", [xB, top, zb, W / 2, H, zEnd]));
+    }
+    const fy0 = tk + GAP, fy1 = top - GAP;
+    if (cab.parts?.door_leg === "b") {
+      // 꺾인 쪽 문: 왼쪽(-x)을 보는 면
+      out.push(bx("door1", "front", [xB - DOOR, fy0, D / 2 + GAP, xB, fy1, zEndF], { door: true, open: "door", face: "x-", hinge: "r" }));
+      if (cab.finish?.handle !== "push") out.push(bx("door1_handle", "handle", [xB - DOOR - HANDLE_OUT, fy1 - 200, zEndF - 52, xB - DOOR, fy1 - 40, zEndF - 40]));
+    } else {
+      fronts(cab, out, "door", -W / 2 + 1, xB - 1, fy0, fy1, zf, { n: doorCount(cab, W - D) });
+    }
+    shelfRow(out, "a_", P(cab, "shelves"), -W / 2 + PANEL, xB - PANEL, tk + PANEL, top, zb + back, zf - DOOR - 4);
+    return { parts: cab.parts?.corner === "l" ? mirrorX(out) : out, cavity: null, legB: { mm: LB, side: cab.parts?.corner === "l" ? "l" : "r" } };
+  }
+  if (kind === "island_storage") {
+    const ct = P(cab, "counter"), tk = P(cab, "toe_kick"), oh = P(cab, "overhang"), top = H - ct, st = cab.parts?.storage || "front";
+    const zf0 = st === "back" ? zb + OVERHANG : st === "both" ? zb + OVERHANG : zb + oh;
+    const zf1 = st === "front" ? D / 2 - OVERHANG : st === "both" ? D / 2 - OVERHANG : D / 2 - oh;
+    const wall = cab.parts?.attach_wall;
+    const x0 = -W / 2 + (wall ? 20 : 0), x1 = W / 2;
+    carcass(out, "", x0, x1, tk, top, zf0 + DOOR, zf1 - DOOR, { back: 0, top: false });
+    if (tk > 0) out.push(bx("kick", "kick", [x0 + 50, 0, zf0 + 50, x1 - 50, tk, zf1 - 50]));
+    if (wall) out.push(bx("end_l", "body", [-W / 2, 0, zb, -W / 2 + 20, H, D / 2])); // 벽에 붙는 쪽 마감판 (반도형)
+    if (ct > 0) out.push(bx("counter", "top", [wall ? -W / 2 + 20 : -W / 2, top, zb, W / 2, H, D / 2]));
+    const cols = Math.max(1, Math.round((x1 - x0) / 600)), cw = (x1 - x0 - 2 * PANEL) / cols;
+    for (let i = 0; i < cols; i++) {
+      const a = x0 + PANEL + i * cw, b = a + cw;
+      if (st !== "back") fronts(cab, out, "drawer", a + 1, b - 1, tk + GAP, top - GAP, zf1, { pre: `f${i + 1}_`, drawers: P(cab, "drawers") || 3 });
+      if (st !== "front") fronts(cab, out, "drawer", a + 1, b - 1, tk + GAP, top - GAP, zf0, { pre: `b${i + 1}_`, drawers: P(cab, "drawers") || 3, dir: -1 });
+    }
+    return { parts: out, cavity: null, seat: st === "both" ? null : st === "front" ? "back" : "front" };
+  }
+  if (kind === "tvwall") {
+    // 가운데 TV 칸은 비우고, 좌우 키큰 수납·아래 미디어장·위 수납장
+    const sw = P(cab, "side_w"), mh = P(cab, "media_h"), uh = P(cab, "upper_h"), zf = D / 2;
+    const cx0 = -W / 2 + sw, cx1 = W / 2 - sw;
+    for (const [pre, a, b] of [["l_", -W / 2, cx0], ["r_", cx1, W / 2]]) {
+      if (b - a < 2 * PANEL + 10) continue;
+      const [ia, ib] = carcass(out, pre, a, b, 0, H, zb, zf - DOOR, { back });
+      shelfRow(out, pre, P(cab, "shelves"), ia, ib, PANEL, H - PANEL, zb + back, zf - DOOR - 4);
+      fronts({ ...cab, parts: { ...cab.parts, hinge: pre === "l_" ? "r" : "l" } }, out, "door", a + 1, b - 1, GAP, H - GAP, zf, { pre, n: b - a > 650 ? 2 : 1 });
+    }
+    if (mh > 0) {
+      carcass(out, "m_", cx0, cx1, 0, mh, zb, zf - DOOR, { back });
+      fronts(cab, out, "drawer", cx0 + 1, cx1 - 1, GAP, mh - GAP, zf, { pre: "m_", drawers: 1 });
+    }
+    if (uh > 0) {
+      carcass(out, "u_", cx0, cx1, H - uh, H, zb, zf - DOOR, { back });
+      fronts(cab, out, "door", cx0 + 1, cx1 - 1, H - uh + GAP, H - GAP, zf, { pre: "u_", n: Math.max(2, Math.round((cx1 - cx0) / 600)), handleLow: true });
+    }
+    if (back > 0) out.push(bx("tv_back", "body", [cx0, mh, zb, cx1, H - uh, zb + back]));
+    if (cab.parts?.cable) out.push(bx("cable", "cable", [-40, mh, zb + back, 40, H - uh, zb + back + 25]));
+    return { parts: out, cavity: [cx0, mh, zb + back, cx1, H - uh, D / 2], vent: P(cab, "vent") };
+  }
+  const counter = COUNTER_KINDS.has(kind), hung = HANG_KINDS.has(kind);
+  const ct = counter ? P(cab, "counter") : 0, tk = hung ? 0 : P(cab, "toe_kick");
+  const zf = counter ? D / 2 - OVERHANG : D / 2, top = H - ct;
+  const [xl, xr] = frame(cab, out, 0, top, zb, zf - DOOR);
+  out.push(bx("bottom", "body", [xl, tk, zb + back, xr, tk + PANEL, zf - DOOR]));
+  if (!counter) out.push(bx("top_panel", "body", [xl, top - PANEL, zb + back, xr, top, zf - DOOR]));
+  if (back > 0) out.push(bx("back", "body", [xl, tk, zb, xr, top, zb + back]));
+  if (tk > 0) { const r = P(cab, "toe_recess") || KICK_RECESS; out.push(bx("kick", "kick", [xl, 0, zf - r - PANEL, xr, tk, zf - r])); }
+  const fx0 = -W / 2 + P(cab, "filler_l") + P(cab, "end_l") + 1, fx1 = W / 2 - P(cab, "filler_r") - P(cab, "end_r") - 1;
+  const fy0 = tk + GAP, fy1 = top - GAP, inZ = zf - DOOR - 4;
+  const glass = kind === "glass_tall";
+  let cavity = null;
+  if (kind === "oven_tall" || (kind === "tall" && style === "homecafe")) {
+    // 가운데 칸: 오븐장은 가전 자리(뒷판 없음), 홈카페장은 열린 칸. 아래·위는 문이나 서랍
+    const ny = Math.max(tk + PANEL, P(cab, "niche_y")), nh = Math.min(P(cab, "niche_h"), top - PANEL - ny);
+    out.push(bx("niche_bottom", "body", [xl, ny - PANEL, zb + back, xr, ny, zf - DOOR]));
+    out.push(bx("niche_top", "body", [xl, ny + nh, zb + back, xr, ny + nh + PANEL, zf - DOOR]));
+    if (kind === "oven_tall") fronts(cab, out, "drawer", fx0, fx1, fy0, ny - PANEL - GAP, zf, { pre: "low_", drawers: P(cab, "drawers") || 2 });
+    else {
+      fronts(cab, out, "door", fx0, fx1, fy0, ny - PANEL - GAP, zf, { pre: "low_", n: doorCount(cab, W) });
+      shelfRow(out, "low_", 1, xl, xr, tk + PANEL, ny - PANEL, zb + back, inZ);
+    }
+    if (top - PANEL - (ny + nh + PANEL) > 60) {
+      fronts(cab, out, "door", fx0, fx1, ny + nh + PANEL + GAP, fy1, zf, { pre: "up_", n: doorCount(cab, W), handleLow: true });
+      shelfRow(out, "up_", 1, xl, xr, ny + nh + PANEL, top - PANEL, zb + back, inZ);
+    }
+    if (kind === "oven_tall") cavity = [xl, ny, zb + back, xr, ny + nh, zf];
+  } else if (kind === "cooktop_base") {
+    fronts(cab, out, "drawer", fx0, fx1, fy0, fy1, zf, { drawers: P(cab, "drawers") || 2 });
+  } else {
+    const st = kind === "glass_tall" || kind === "hood_cab" ? "door" : style;
+    const handleLow = kind === "wall" || kind === "hood_cab";
+    if (st !== "drawer") {
+      const nS = kind === "hood_cab" ? 0 : P(cab, "shelves");
+      shelfRow(out, "", nS, xl, xr, tk + PANEL, top - PANEL, zb + back, inZ);
+    }
+    fronts(cab, out, st, fx0, fx1, fy0, fy1, zf, { n: doorCount(cab, fx1 - fx0), drawers: P(cab, "drawers") || 3, handleLow, glass });
+  }
+  if (ct > 0) {
+    const cw = P(cab, "cutout_w"), cd = P(cab, "cutout_d");
+    if (kind === "cooktop_base" && cw > 0 && cd > 0 && cw < W - 40 && cd < D - 40) {
+      // 공식 타공 치수를 넣은 경우만 상판에 구멍
+      const a = -cw / 2, b = cw / 2, c = (zb + D / 2) / 2 - cd / 2 + 20, e = c + cd;
+      out.push(bx("counter_back", "top", [-W / 2, top, zb, W / 2, H, c]));
+      out.push(bx("counter_front", "top", [-W / 2, top, e, W / 2, H, D / 2]));
+      out.push(bx("counter_l", "top", [-W / 2, top, c, a, H, e]));
+      out.push(bx("counter_r", "top", [b, top, c, W / 2, H, e]));
+      cavity = [a, top, c, b, H, e];
+    } else out.push(bx("counter", "top", [-W / 2, top, zb, W / 2, H, D / 2]));
+  }
+  return { parts: out, cavity };
 }
 
 // ---------- 세계 좌표 ----------

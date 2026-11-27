@@ -105,7 +105,7 @@ function matFor(cab, role) {
   if (role === "handle" || role === "frame") return finishMat(find("handle", fin.handle === "push" ? "steel" : fin.handle), "handle");
   if (role === "glass") return finishMat(find("glass", cab.glass || "clear"), "glass");
   if (role === "bowl" || role === "faucet") return finishMat(STEEL, "metal");
-  if (role === "gap") return finishMat(SHADOW_GAP, "gap");
+  if (role === "gap" || role === "cable") return finishMat(SHADOW_GAP, "gap");
   return finishMat(find("panel", fin.body), "body"); // 몸통·측판·마감판·틈막이·선반·걸레받이
 }
 
@@ -140,14 +140,14 @@ export function buildCabinet(cab, { preview = false } = {}) {
     m.userData = { cabPart: p.name, role: p.role, shared: false, ownMaterial: preview };
     g.add(m);
   }
-  // 문짝 사이 그림자 줄: 문과 문 사이가 살짝 어둡게 보이게 몸통 앞에 얇은 어두운 판 (유리장은 안이 보여야 하니 뺀다)
-  if (cab.kind !== "glass_wall" && parts.some((p) => p.door)) {
-    const fronts = parts.filter((p) => p.door);
-    const zMin = Math.min(...fronts.map((p) => p.box[2])) / 1000;
-    const xs0 = Math.min(...fronts.map((p) => p.box[0])) / 1000, xs1 = Math.max(...fronts.map((p) => p.box[3])) / 1000;
-    const ys0 = Math.min(...fronts.map((p) => p.box[1])) / 1000, ys1 = Math.max(...fronts.map((p) => p.box[4])) / 1000;
-    const back = new THREE.Mesh(new THREE.PlaneGeometry(xs1 - xs0, ys1 - ys0), matFor(cab, "gap"));
-    back.position.set((xs0 + xs1) / 2, (ys0 + ys1) / 2, zMin - 0.0015);
+  // 문짝 사이 그림자 줄: 문짝마다 바로 뒤에 조금 큰 어두운 판 (유리문·옆을 보는 문은 빼고). TV월 빈 칸처럼 문 사이가 넓어도 칸을 덮지 않는다
+  for (const p of parts) {
+    if (!p.door || p.role !== "front" || p.face) continue;
+    const [x0, y0, z0, x1, y1, z1] = p.box.map((v) => v / 1000);
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0 + 0.003, y1 - y0 + 0.003), matFor(cab, "gap"));
+    const zBack = (p.dir ?? 1) > 0 ? z0 - 0.0015 : z1 + 0.0015;
+    back.position.set((x0 + x1) / 2, (y0 + y1) / 2, zBack);
+    if ((p.dir ?? 1) < 0) back.rotation.y = Math.PI;
     back.userData = { cabPart: "gap", role: "gap" };
     g.add(back);
   }

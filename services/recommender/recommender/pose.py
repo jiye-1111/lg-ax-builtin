@@ -21,6 +21,7 @@ from . import geometry as g
 from .fit import DOOR_CATEGORIES, FitConfig, Verdict, front_space, worst
 from .mount import BUILTIN, CABINET_SCANNED, CABINET_SKUS, TOUCH_M, WALL, clamp_base, default_base, mount_kind
 from .mount import LABELS as MOUNT_LABELS
+from .cabinet import KINDS as CAB_KINDS
 
 DEFAULT_WALL_THICKNESS_M = 0.1
 EPS = 1e-6
@@ -296,8 +297,9 @@ HOODS = frozenset({WALL_HOOD, ISLAND_HOOD})
 HOOD_GAP_M = 0.7    # 인덕션 윗면에서 후드 밑면까지 (화면 기본값. 제품마다 설치 설명서 값이 다르다)
 HOOD_BASE_M = 1.6   # 인덕션 없이 벽에 걸 때의 밑면 높이 (조리대 0.9 + 0.7)
 # 맞춤장 중 벽에 거는 상부장·유리 상부장 (recommender/cabinet.py hang). 밑면 기본 1.45 m (하부장 0.85 + 0.6)
-WALL_CABS = frozenset({"decor_cab_wall", "decor_cab_glass_wall"})
+WALL_CABS = frozenset(f"decor_cab_{k}" for k, v in CAB_KINDS.items() if v.get("hang"))
 WALL_CAB_BASE_M = 1.45
+WALL_CAB_BASE = {f"decor_cab_{k}": v["hang"] / 1000 for k, v in CAB_KINDS.items() if v.get("hang")}
 
 
 def is_hood(p: Product) -> bool:
@@ -343,7 +345,7 @@ def check_pose(room: Room, product: Product, pose: Pose, cfg: FitConfig | None =
     base = float(host["top_m"]) if host else SILL_M.get(product.category, 0.0)
     if hung or hood:  # 벽에 건 높이. 바닥과 천장 사이로 맞춘다
         ceiling = _wall_height(_nearest_wall(room, c)[0]) if room.walls else h_m
-        first = HOOD_BASE_M if hood else WALL_CAB_BASE_M if product.category in WALL_CABS else default_base(product, ceiling)
+        first = HOOD_BASE_M if hood else WALL_CAB_BASE.get(product.category, WALL_CAB_BASE_M) if product.category in WALL_CABS else default_base(product, ceiling)
         base = clamp_base(first if base_m is None else float(base_m), h_m, ceiling)
     F = rect(c, yaw, w_m, d_m)
     R = rect(c, yaw, w_m, d_m, left=side, right=side, back=back)

@@ -80,10 +80,11 @@ const check = (name, ok, info = "") => {
     await page.evaluate((sku) => document.querySelector(`[data-sugg="${sku}"]`)?.click(), FRIDGE);
     await wait(800);
   }
-  check("빌트인 냉장고 상세에 '맞춤장에 넣기'가 있다", !!(await page.$("#pdCab")));
-  if (await page.$("#pdCab")) await page.$eval("#pdCab", (b) => b.click());
-  else await api(`/api/projects/${pid}/cabinets`, { kind: "fridge", sku: FRIDGE });
-  await wait(3000);
+  check("빌트인 냉장고 상세에 '맞춤장 만들기'가 있다", !!(await page.$("#pdCab")));
+  // 카드 버튼은 벽면 편집기로 이어진다 (tests/e2e/wall_run.js). 여기서는 장 하나를 바로 놓고 패널을 본다
+  await page.evaluate(() => document.getElementById("pdClose")?.click());
+  await api(`/api/projects/${pid}/cabinets`, { kind: "fridge", sku: FRIDGE });
+  await loaded();
   let pls = await placements(pid);
   let cab = pls.find((q) => q.cab?.kind === "fridge");
   let fr = cab && pls.find((q) => q.in_cab === cab.placement_id);
