@@ -80,3 +80,25 @@ def test_unlike_wall_is_not_treated_as_opposite():
     e = estimate(walls)
     assert e.lengths["b"] == pytest.approx(4.0 * e.scale, abs=1e-3)
     assert e.lengths["b"] < 4.04
+
+
+# ---- 도면으로 만든 집: 집 전체 배율이 크게 틀릴 수 있다 (치수가 없으면 방문 폭 90 cm로 어림) ----
+
+def test_plan_home_takes_the_scale_from_one_wall_almost_fully():
+    # 도면 어림으로 5 m였던 벽이 실제로 5.6 m (12% 길다): 스캔이면 그 벽만 고치지만 도면 집은 전체가 커져야 한다
+    e = estimate(rect(w1=5.6), plan=True)
+    assert e.used == ["w1"]
+    assert e.scale == pytest.approx(1.12, abs=0.002)
+    assert e.lengths["w2"] == pytest.approx(4.0 * e.scale, abs=1e-3)
+
+
+def test_plan_home_still_skips_a_wall_far_off_from_the_rest():
+    # 두 벽을 쟀는데 하나만 크게 다르면 그 벽이 도면에서 잘못 읽힌 것
+    e = estimate(rect(w1=5.6, w2=6.0), plan=True)
+    assert e.skipped == ["w2"] and e.used == ["w1"]
+
+
+def test_plan_home_refuses_nothing_reasonable():
+    from recommender.reference import off_limit
+    assert off_limit(5.0, plan=True) > 5.0 * 0.4
+    assert off_limit(5.0, plan=False) == pytest.approx(1.0)

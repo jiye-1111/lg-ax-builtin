@@ -21,7 +21,8 @@ import { GTAOPass } from "three/addons/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { clone as cloneSkinned } from "three/addons/utils/SkeletonUtils.js";
 import { toast } from "./core.js";
-import { WALK_SPEED, pathLength, poseAt, routeClock, smoothPath } from "./walker.js";
+import { WALK_SPEED, pathLength, poseAt, smoothPath, tourClock } from "./walker.js";
+import { makeWifiLayer } from "./wifi/heat3d.js";
 import { dressRoom, furnish, shadowShell, cutWalls, furnitureTemplate, fitFurniture, tintFurniture, glassLook, WIDE_DOOR_M, WIDE_WINDOW_M } from "./room3d.js";
 
 const VERDICT_HEX = { fit: 0x1e7a4f, conditional: 0x1e7a4f, no_fit: 0xb3261e, unknown: 0x5b6370 };
@@ -49,8 +50,7 @@ const loadAsset = (url) => {
 const ROUTER_URL = "models/devices/router.glb", PERSON_URL = "models/people/walker.glb";
 const MAX_TURN_RAD_S = 3.2; // 사람이 제자리에서 도는 빠르기 (반 바퀴에 1초쯤)
 const WALK_EASE_S = 0.6, LOOK_AHEAD_M = 0.35, TURN_S = 0.3; // 출발·정지 가감속, 몸이 보는 앞쪽, 도는 시간
-const STRIDE_M = 1.3 * 32 / 30; // build_person.py: walk 한 주기(32프레임, 30 fps)에 1.3 m/s로 가는 거리
-const MAX_WALKERS = 4;
+const STRIDE_M = 1.3823; // walker.glb에 적어 둔 값(stride_m)이 없을 때: walk 한 주기(모션 캡처 두 걸음)에 가는 거리
 const GLAZED = new Set(["decor:window", "decor:glassdoor"]); // 벽에 다는 창: 그 자리 벽을 뚫고 유리는 비치게
 // 넓게 늘린 창은 네 짝짜리 모델로 그린다 (두 짝을 늘리면 한 짝이 너무 넓어진다)
 const modelKey = (p) => (p.sku === "decor:glassdoor" && p.size_m?.[0] >= WIDE_DOOR_M ? "decor:glassdoor4"
@@ -235,29 +235,58 @@ export function makeViewer(el, handlers = {}) {
   let overlayTurn = 0;
   overlay.renderOrder = 1;
   scene.add(overlay);
+  const wifiLayer = makeWifiLayer(scene); // 와이파이: 연속 히트맵 + 등고선 + 탐침 (wifi/heat3d.js)
   const products = new THREE.Group();
-  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box:[x0,y0,x1,y1]}] (0~1, 위가 0). 카메라 뒤나 화면 밖은 뺀다 */
+  /** 3D 상자 → 화면 자리 [x0,y0,x1,y1] (0~1, 위가 0). 카메라 뒤거나 너무 작으면 null */
+  const screenBox = (bb) => {
+    const v = new THREE.Vector3();
+    let x0 = 1, y0 = 1, x1 = 0, y1 = 0;
+    for (let i = 0; i < 8; i++) {
+      v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
+      if (v.z > 1) return null;
+      const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
+      x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+    const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
+    [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
+    return x1 - x0 < 0.01 || y1 - y0 < 0.01 ? null : [x0, y0, x1, y1];
+  };
+  const meshBox = (g) => {
+    const bb = new THREE.Box3();
+    g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
+    return bb.isEmpty() ? null : screenBox(bb);
+  };
+  /** 화면에 보이는 LG 제품의 화면 자리 [{sku, box}]. 서버가 그 제품의 LGE.COM 사진을 이미지 AI에 참고로 보낸다 */
   const productBoxes = () => {
-    const out = [], v = new THREE.Vector3(), bb = new THREE.Box3();
+    const out = [];
     for (const g of products.children) {
       const sku = g.userData.sku;
       if (!g.visible || !sku || sku.startsWith("decor:")) continue;
-      bb.makeEmpty();
-      g.traverse((o) => { if (o.isMesh && o.visible && !o.userData.verdictPlate) bb.expandByObject(o); });
-      if (bb.isEmpty()) continue;
-      let x0 = 1, y0 = 1, x1 = 0, y1 = 0, behind = false;
-      for (let i = 0; i < 8; i++) {
-        v.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(cam);
-        if (v.z > 1) { behind = true; break; }
-        const x = (v.x + 1) / 2, y = (1 - v.y) / 2;
-        x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
-      }
-      const c = (n) => Math.round(Math.max(0, Math.min(1, n)) * 1e4) / 1e4;
-      [x0, y0, x1, y1] = [c(x0), c(y0), c(x1), c(y1)];
-      if (behind || x1 - x0 < 0.01 || y1 - y0 < 0.01) continue;
-      out.push({ sku, box: [x0, y0, x1, y1] });
+      const box = meshBox(g);
+      if (box) out.push({ sku, box });
     }
     return out.slice(0, 24);
+  };
+  /** 화면에 보이는 물건 전부 [{ref, box}]: 놓은 것(배치 id), 스캔 가구("obj:id"), 공유기("router").
+   *  서버가 이 목록을 이미지 AI에 적어 준다 (목록 밖은 빈 바닥, 더하지도 빼지도 않게) */
+  const objectBoxes = () => {
+    const out = [];
+    for (const g of products.children) {
+      const ref = g.userData.placementId;
+      if (!g.visible || !ref) continue;
+      const box = meshBox(g);
+      if (box) out.push({ ref, box });
+    }
+    model?.traverse((o) => { // 스캔 가구: 고르기용 단위 상자 (크기 = scale)
+      if (!o.isMesh || o.userData.kind !== "object" || o.userData.shared || !o.visible || !/^[A-Za-z0-9_-]{1,40}$/.test(o.name)) return;
+      const box = screenBox(new THREE.Box3().setFromObject(o));
+      if (box) out.push({ ref: `obj:${o.name}`, box });
+    });
+    if (routerG.visible && routerG.children.length) {
+      const box = meshBox(routerG);
+      if (box) out.push({ ref: "router", box });
+    }
+    return out.slice(0, 120);
   };
   scene.add(products);
   const ghost = new THREE.Group();
@@ -1254,7 +1283,8 @@ export function makeViewer(el, handlers = {}) {
     if (walkersPaused) return;
     for (const w of walkers) {
       w.t += dt;
-      const { s, moving, v, dir = 1 } = w.clock(w.t);
+      const { leg, s, moving, v, dir = 1 } = w.clock(w.t);
+      if (leg !== w.leg) { w.leg = leg; w.path = w.paths[leg]; w.len = w.lens[leg]; w.onLeg?.(leg); }
       const p = poseAt(w.path, s);
       w.node.position.set(p.xz[0], 0, p.xz[1]);
       // 몸은 발밑이 아니라 조금 앞(0.35 m)을 보고 0.3초쯤에 걸쳐 돈다 (모퉁이에서 휙 돌지 않게)
@@ -1428,30 +1458,32 @@ export function makeViewer(el, handlers = {}) {
         } else routerG.visible = false;
       });
     },
-    /** 동선 경로들([[x,y],...] 목록)을 사람이 하나씩 걷는다. 빈 목록이면 지운다 */
-    setWalkers(paths) {
-      const list = (paths || []).filter((p) => p?.length >= 2 && pathLength(p) > 0.3).slice(0, MAX_WALKERS);
-      const key = JSON.stringify(list);
-      if (key === walkersKey) return;
+    /** 동선 경로들([[x,y],...] 목록)을 사람 한 명이 차례로 걷는다 (가전 앞까지 갔다가 출발 자리로).
+     *  onLeg(i): 사람이 i번째 길을 걷기 시작할 때 (지금 걷는 길만 바닥에 그리려고). 빈 목록이면 지운다 */
+    setWalkers(paths, onLeg) {
+      const keep = (paths || []).map((p, i) => [p, i]).filter(([p]) => p?.length >= 2 && pathLength(p) > 0.3);
+      const key = JSON.stringify(keep);
+      if (key === walkersKey) { if (walkers[0]) walkers[0].onLeg = onLeg && ((k) => onLeg(keep[k][1])); return; }
       walkersKey = key;
       clearWalkers();
-      if (!list.length) return;
+      if (!keep.length) return;
       loadAsset(PERSON_URL).then((g) => {
         if (!g || !alive || walkersKey !== key) return;
         const walkClip = g.animations.find((a) => a.name === "walk"), idleClip = g.animations.find((a) => a.name === "idle");
-        list.forEach((path, i) => {
-          const node = cloneSkinned(g.scene);
-          node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
-          const mixer = new THREE.AnimationMixer(node);
-          const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
-          const stepRate = walkClip.duration / STRIDE_M; // 1 m 갈 때 도는 동작 길이: 발이 미끄러지지 않게 빠르기에 맞춘다
-          walk.timeScale = WALK_SPEED * stepRate;
-          idle.play();
-          walkersG.add(node);
-          const smooth = smoothPath(path), len = pathLength(smooth); // 격자 계단을 펴고 모퉁이는 둥글게
-          walkers.push({ node, mixer, walk, idle, path: smooth, len, moving: false, heading: poseAt(smooth, 0.3).heading, stepRate,
-            clock: routeClock(len, { speed: WALK_SPEED, pause: 1.6, ease: WALK_EASE_S, roundTrip: true }), t: -i * 1.2 });
-        });
+        const node = cloneSkinned(g.scene);
+        node.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.frustumCulled = false; } });
+        const mixer = new THREE.AnimationMixer(node);
+        const walk = mixer.clipAction(walkClip), idle = mixer.clipAction(idleClip);
+        let stride = STRIDE_M;
+        g.scene.traverse((o) => { if (o.userData?.stride_m > 0.5) stride = o.userData.stride_m; });
+        const stepRate = walkClip.duration / stride; // 1 m 갈 때 도는 동작 길이: 발이 미끄러지지 않게 빠르기에 맞춘다
+        walk.timeScale = WALK_SPEED * stepRate;
+        idle.play();
+        walkersG.add(node);
+        const paths = keep.map(([p]) => smoothPath(p)), lens = paths.map(pathLength); // 격자 계단을 펴고 모퉁이는 둥글게
+        walkers.push({ node, mixer, walk, idle, paths, lens, path: paths[0], len: lens[0], leg: -1, moving: false,
+          heading: poseAt(paths[0], 0.3).heading, stepRate, onLeg: onLeg && ((k) => onLeg(keep[k][1])),
+          clock: tourClock(lens, { speed: WALK_SPEED, pause: 1.6, ease: WALK_EASE_S }), t: 0 });
       });
     },
     /** 동선 출발 자리 고르기: 마우스를 따라오는 사람. null이면 숨긴다 */
@@ -1474,9 +1506,13 @@ export function makeViewer(el, handlers = {}) {
     /** 걷는 사람 멈추기/다시 걷기 (화면 캡처용) */
     pauseWalkers(on = true) { walkersPaused = !!on; },
     /** 걷는 사람 (E2E 확인용) */
-    walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving })); },
-    routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], yaw: +(-routerG.rotation.y).toFixed(3) }; },
+    walkersInfo() { return walkers.map((w) => ({ pos: [+w.node.position.x.toFixed(3), +w.node.position.z.toFixed(3)], moving: w.moving, leg: w.leg, legs: w.paths.length })); },
+    routerInfo() { return { visible: routerG.visible && routerG.children.length > 0, pos: [+routerG.position.x.toFixed(3), +routerG.position.z.toFixed(3)], y: +routerG.position.y.toFixed(3), yaw: +(-routerG.rotation.y).toFixed(3) }; },
     /** 평면 오버레이(SVG, 단위 m)를 바닥 텍스처로 깐다. svg가 비면 끈다. */
+    /** 와이파이 히트맵 (wifi/heat3d.js setHeat). f가 null이면 끈다 */
+    setWifiHeat(f, values, opts) { if (!f) wifiLayer.clear(); else wifiLayer.setHeat(f, values, opts); },
+    setWifiProbe(p) { wifiLayer.setProbe(p); },
+    setWifiPins(list) { wifiLayer.setPins(list); },
     setOverlay(inner, box) {
       const turn = ++overlayTurn; // 그림은 늦게 뜬다: 그 사이 지우거나 새로 그렸으면 늦게 온 것은 버린다 (끈 동선이 다시 뜨던 문제)
       if (!inner || !box) { overlay.visible = false; return; }
@@ -1607,16 +1643,17 @@ export function makeViewer(el, handlers = {}) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
       const hide = (o) => { if (o?.visible) { o.visible = false; hidden.push(o); } };
-      [overlay, ghost, need, walkersG, starter, grid].forEach(hide);
+      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid, rotRing, stretchG, carveG].forEach(hide); // 채광·와이파이·동선 표시와 고르기 손잡이는 빼고
       products.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) hide(o); });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
-      let image, mask, boxes = [];
+      let image, mask, boxes = [], objects = [];
       try {
         composer.render();
         image = renderer.domElement.toDataURL("image/png");
         boxes = productBoxes();
+        objects = objectBoxes();
         const black = new THREE.MeshBasicMaterial({ color: 0x000000 }), white = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const lgOf = (o) => { for (let q = o; q && q !== scene; q = q.parent) if (q.parent === products) return !!q.userData.sku && !q.userData.sku.startsWith("decor:"); return false; };
         const swapped = [];
@@ -1642,13 +1679,13 @@ export function makeViewer(el, handlers = {}) {
         cam.aspect = aspect; cam.updateProjectionMatrix();
         renderer.setSize(size.x, size.y); composer.setSize(size.x, size.y);
       }
-      return { image, mask, products: boxes };
+      return { image, mask, products: boxes, objects };
     },
     /** 첫 화면 카드에 쓰는 작은 미리보기 (지금 시점, JPEG). 표시용 선·사람은 빼고 찍는다 */
     thumb(W = 480, H = 320) {
       const size = renderer.getSize(new THREE.Vector2()), pr = renderer.getPixelRatio(), aspect = cam.aspect;
       const hidden = [];
-      [overlay, ghost, need, walkersG, starter, grid].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+      [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
       renderer.setPixelRatio(1); composer.setPixelRatio(1);
       renderer.setSize(W, H, false); composer.setSize(W, H);
       cam.aspect = W / H; cam.updateProjectionMatrix();
@@ -1681,7 +1718,7 @@ export function makeViewer(el, handlers = {}) {
           g.traverse((o) => { if (o.userData.verdictPlate || o.isLineSegments) o.visible = false; });
           products.add(g); temp.push(g);
         }
-        [overlay, ghost, need, walkersG, starter, grid, routerG, rotRing, stretchG, carveG].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
+        [overlay, wifiLayer.group, ghost, need, walkersG, starter, grid, routerG, rotRing, stretchG, carveG].forEach((o) => { if (o?.visible) { o.visible = false; hidden.push(o); } });
         model.traverse((o) => {
           const tone = o.isMesh && tones[o.userData?.kind];
           if (!tone || !o.material?.color) return;

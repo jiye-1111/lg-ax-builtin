@@ -15,7 +15,7 @@ from recommender.pose import inside_room
 Pt = tuple[float, float]
 
 # 1 m 자유공간 손실: 20·log10(4π·1m/λ). 2.4 GHz ≈ 40.0 dB, 5 GHz(5.25) ≈ 46.8 → 흔히 쓰는 46.4 사용
-PL0 = {"2.4": 40.0, "5": 46.4}
+PL0 = {"2.4": 40.0, "5": 46.4, "6": 48.2}
 
 
 @dataclass(frozen=True)
@@ -33,10 +33,11 @@ class WifiConfig:
     @classmethod
     def from_env(cls, band: str = "5") -> "WifiConfig":
         if band not in PL0:
-            raise ValueError("band는 2.4 또는 5")
+            raise ValueError("band는 2.4, 5, 6")
         g = lambda k, d: float(os.getenv(k, d))  # noqa: E731
+        wall = {"2.4": ("WIFI_WALL_DB_24G", 8), "5": ("WIFI_WALL_DB_5G", 12), "6": ("WIFI_WALL_DB_6G", 14)}[band]
         return cls(band=band, tx_dbm=g("WIFI_TX_DBM", 20), pl0_db=PL0[band], n=g("WIFI_PATH_N", 2.0),
-                   wall_db=g("WIFI_WALL_DB_5G" if band == "5" else "WIFI_WALL_DB_24G", 12 if band == "5" else 8),
+                   wall_db=g(*wall),
                    glass_db=g("WIFI_GLASS_DB", 4), metal_db=g("WIFI_METAL_DB", 10))
 
     def assumptions(self) -> list[str]:

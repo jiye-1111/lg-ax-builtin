@@ -447,13 +447,13 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         (self.root / p["scan"]["room_json"]).write_text(room.model_dump_json(indent=2), encoding="utf-8")
 
     # ---- F3 실측 보정 ----
-    MEASURE_OFF_M = 0.5        # 잰 길이가 스캔과 이만큼(또는 20%) 넘게 다르면 벽을 잘못 골랐거나 잘못 넣은 것으로 본다
-    MEASURE_OFF_RATIO = 0.2
-
     @staticmethod
     def _reestimate(room: Room) -> None:
-        """잰 벽을 기준으로 나머지 벽 길이를 다시 바로잡는다 (recommender.reference). 잰 벽이 없으면 바로잡은 값을 지운다."""
-        est = reference.estimate(room.walls)
+        """잰 벽을 기준으로 나머지 벽 길이를 다시 바로잡는다 (recommender.reference). 잰 벽이 없으면 바로잡은 값을 지운다.
+
+        도면으로 만든 집은 그림에서 읽은 길이라 집 전체 배율이 크게 틀릴 수 있어서 도면용 기준을 쓴다.
+        """
+        est = reference.estimate(room.walls, plan=room.source == "floorplan_image")
         for w in room.walls:
             m = w.measured
             if m is not None and m.length_m is not None and m.by != reference.ESTIMATED_BY:
@@ -483,8 +483,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         old = w.measured or MeasuredDims()
         if length_m is not None:
             scan = w.scanned.length_m
-            if abs(length_m - scan) > max(self.MEASURE_OFF_M, self.MEASURE_OFF_RATIO * scan):
-                raise Invalid("스캔한 길이와 너무 달라요. 고른 벽과 넣은 값을 다시 확인해 주세요")
+            plan = room.source == "floorplan_image"
+            if abs(length_m - scan) > reference.off_limit(scan, plan=plan):
+                raise Invalid(f"{'도면에서 읽은' if plan else '스캔한'} 길이와 너무 달라요. 고른 벽과 넣은 값을 다시 확인해 주세요")
         elif old.by in ("floorplan", reference.ESTIMATED_BY):
             # 높이·깊이만 잰 벽: 길이는 여전히 도면·기준 벽에서 온 값이다
             w.measured = old.model_copy(update={"height_m": height_m if height_m is not None else old.height_m,
@@ -1917,9 +1918,20 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
                             (x.get("base_m") or 0.0) + x["size_m"][1]))
         return out
 
-    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None) -> dict:
-        if band not in ("2.4", "5"):
-            raise Invalid("band는 2.4 또는 5")
+    WIFI_BANDS = ("2.4", "5", "6")
+    CHANNEL_MHZ = (20, 40, 80, 160)
+    ENCLOSURES = ("open", "cabinet", "metal")
+    # 웹 apps/web/js/wifi/materials.js의 MATERIALS와 같은 이름
+    WALL_MATERIALS = ("drywall", "wood", "glass", "double_glass", "lowe_glass", "brick", "concrete", "reinforced_concrete", "bathroom", "metal")
+
+    def set_router(self, pid: str, center_xz, band: str = "5", yaw_rad: float | None = None,
+                   channel_mhz: int | None = None, enclosure: str | None = None) -> dict:
+        if band not in self.WIFI_BANDS:
+            raise Invalid("band는 2.4, 5, 6")
+        if channel_mhz is not None and channel_mhz not in self.CHANNEL_MHZ:
+            raise Invalid("채널 폭은 20, 40, 80, 160 MHz")
+        if enclosure is not None and enclosure not in self.ENCLOSURES:
+            raise Invalid("설치 상태는 open, cabinet, metal")
         if len(center_xz) != 2:
             raise Invalid("center_xz는 [x, z]")
         p = self.get_project(pid)
@@ -1927,7 +1939,26 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         # 방향은 화면 표시용 (신호 계산은 무지향). 자리만 옮기면 원래 방향을 그대로 둔다
         yaw = float(yaw_rad) if yaw_rad is not None else float(prev.get("yaw_rad", 0.0))
         xz = (float(center_xz[0]), float(center_xz[1]))
-        p["scene_state"]["router"] = {"center_xz": list(xz), "band": band, "yaw_rad": yaw, "height_m": 0.0}  # 높이는 저장할 때 채운다
+        rt = {"center_xz": list(xz), "band": band, "yaw_rad": yaw, "height_m": 0.0}  # 높이는 저장할 때 채운다
+        for k, v in (("channel_mhz", channel_mhz), ("enclosure", enclosure)):  # 안 주면 전에 정한 값
+            if v is not None or prev.get(k) is not None:
+                rt[k] = v if v is not None else prev[k]
+        p["scene_state"]["router"] = rt
+        return self._save_project(p)
+
+    def set_wall_material(self, pid: str, wall_id: str, material: str | None) -> dict:
+        """와이파이 계산에 쓰는 벽 재질. 스캔으로는 알 수 없어서 고르지 않으면 바깥벽 철근콘크리트·안쪽 콘크리트로 본다."""
+        room, p = self.get_room(pid), self.get_project(pid)
+        added = {x["placement_id"] for x in p["scene_state"].get("placements", []) if x.get("sku") in ("decor:wall", "decor:partition")}
+        if wall_id not in {w.wall_id for w in room.walls} | added:
+            raise NotFound(f"벽 없음: {wall_id}")
+        if material is not None and material not in self.WALL_MATERIALS:
+            raise Invalid(f"모르는 벽 재질: {material}")
+        wm = p["scene_state"].setdefault("wall_materials", {})
+        if material is None:
+            wm.pop(wall_id, None)
+        else:
+            wm[wall_id] = material
         return self._save_project(p)
 
     # 공유기를 올려 둘 수 있는 것: 놓은 것(가전·가구) 중 윗면이 2.2 m 이하인 것(웹 3D도 같은 규칙),
@@ -1938,13 +1969,17 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
 
     def _surface_top(self, p: dict, xz: tuple[float, float]) -> float:
         """그 자리 아래 가구 윗면 높이(m). 아무것도 없으면 바닥(0). 겹치면 가장 높은 윗면."""
+        return self._surface_under(p, xz)[0]
+
+    def _surface_under(self, p: dict, xz: tuple[float, float]) -> tuple[float, str | None]:
+        """그 자리 아래 가장 높은 윗면 (높이 m, 배치 id 또는 스캔 가구 id). 바닥이면 (0, None)."""
         def inside(c, yaw, w, d):
             dx, dz = xz[0] - c[0], xz[1] - c[1]
             u = dx * math.cos(yaw) + dz * math.sin(yaw)
             v = -dx * math.sin(yaw) + dz * math.cos(yaw)
             return abs(u) <= w / 2 and abs(v) <= d / 2
 
-        tops = [0.0]
+        tops: list[tuple[float, str | None]] = [(0.0, None)]
         for x in p["scene_state"].get("placements", []):
             if x["sku"] in self.NOT_SURFACE or not x.get("size_m"):
                 continue
@@ -1952,7 +1987,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             # 놓은 제품은 폭 방향이 yaw - 90° (웹 3D·동선과 같은 규칙)
             top = float(x.get("base_m") or 0.0) + h  # 식탁 위에 올려 둔 가전이면 그 가전 윗면
             if top <= self.SURFACE_MAX_M and inside(x["center_xz"], x.get("yaw_rad", math.pi / 2) - math.pi / 2, w, d):
-                tops.append(top)
+                tops.append((top, x["placement_id"]))
         hidden = set(p["scene_state"].get("hidden_objects") or [])
         poses = p["scene_state"].get("object_poses") or {}  # 지금 저장하려는 자리 (DB의 옛 자리 말고)
         for o in self._load_room(p["project_id"]).objects:
@@ -1961,8 +1996,9 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
             q = poses.get(o.object_id)
             c, yaw = ((q["center_xz"][0], q["center_xz"][1]), q["yaw_rad"]) if q else ((o.position[0], o.position[2]), o.yaw_rad)
             if inside(c, yaw, o.bbox_m.w, o.bbox_m.d):
-                tops.append(o.position[1] + o.bbox_m.h / 2)
-        return round(max(tops), 3)
+                tops.append((o.position[1] + o.bbox_m.h / 2, o.object_id))
+        top, ref = max(tops, key=lambda t: t[0])
+        return round(top, 3), ref
 
     def wifi(self, pid: str, band: str | None = None) -> dict:
         from sim.wifi import WifiConfig, coverage, grade
@@ -2068,6 +2104,7 @@ class Service(ComboMixin, PhotorealMixin, LifeMixin, AddonMixin):
         out = plan_routes(room, targets, FlowConfig.from_env(), hidden=p["scene_state"].get("hidden_objects") or [],
                           extra=extra, triangle=tri, start=marks.get("start"), gaps=gaps)
         out["names"] = names
+        out["cats"] = cats  # 웹이 "냉장고 앞까지 걸어가요"처럼 종류 이름으로 말하게
         out["marks"] = marks
         return out
 

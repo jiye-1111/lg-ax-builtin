@@ -1,7 +1,8 @@
 """동선을 걷는 사람 모델 (apps/web/models/people/walker.glb).
 
 몸은 MakeHuman 기본 메시·뼈대·가중치(CC0, github.com/makehumancommunity/makehuman)를 쓰고,
-옷·신발은 MakeHuman 보조 메시(helper-tights)를, 머리카락은 두피 면을 떼어 띄워 만든다. 걷기 동작은 여기서 키프레임으로 만든다.
+옷·신발은 MakeHuman 보조 메시(helper-tights)를, 머리카락은 두피 면을 떼어 띄워 만든다.
+걷기는 --bvh로 CMU 모션 캡처를 옮겨 쓴다(mocap_walk.py). 없으면 예전처럼 키프레임 걷기.
 가져온 에셋은 없다 (MakeHuman 데이터는 scripts/fetch_makehuman.sh로 받는다).
 
 실행:
@@ -125,7 +126,7 @@ def vnormals(V: np.ndarray, faces) -> np.ndarray:
     return N
 
 
-def main(mh: Path, out: Path):
+def main(mh: Path, out: Path, bvh: Path | None = None):
     bpy.ops.wm.read_factory_settings(use_empty=True)
     bpy.context.scene.render.fps = FPS
 
@@ -297,12 +298,28 @@ def main(mh: Path, out: Path):
             for b, w in vw.get(old_i, {}).items():
                 ob.vertex_groups[b].add([new_i], w, "REPLACE")
 
-    animate(rig)
+    if bvh:
+        # 걷기는 모션 캡처를 옮겨 쓰고, 서 있는 동작만 여기서 만든다
+        from mocap_walk import plant_feet, retarget_walk
+
+        animate(rig, only=("idle",))
+        pose(rig, 0.0, walking=False)  # 손가락 굽힘을 걷기에도 쓴다
+        info = retarget_walk(rig, bvh, FPS)
+        shoes = next(ob for ob, _ in objs if ob.name == "shoes")
+        lift = plant_feet(rig, shoes, info["frames"])
+        info["feet_lift_cm"] = [round(min(lift) * 100, 1), round(max(lift) * 100, 1)]
+        bpy.context.view_layer.objects.active = rig
+        rig["stride_m"] = round(info["stride_m"], 4)
+        rig["walk_speed_mps"] = round(info["speed_mps"], 3)
+        print("walk", json.dumps(info, ensure_ascii=False))
+    else:
+        animate(rig)
+        rig["stride_m"] = round(STRIDE_M, 4)
     out.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.export_scene.gltf(filepath=str(out), export_format="GLB", use_selection=True, export_animations=True,
-                              export_animation_mode="ACTIONS", export_force_sampling=True, export_frame_step=2,
-                              export_optimize_animation_size=True, export_def_bones=False, export_yup=True,
+                              export_animation_mode="ACTIONS", export_force_sampling=True, export_frame_step=1 if bvh else 2,
+                              export_optimize_animation_size=True, export_def_bones=False, export_yup=True, export_extras=True,
                               export_apply=False, export_skins=True, export_morph=False)
     print("saved", out, out.stat().st_size // 1024, "KB")
 
@@ -377,11 +394,13 @@ def pose(rig, phase, walking=True):
     _ = q
 
 
-def animate(rig):
+def animate(rig, only=("walk", "idle")):
     bpy.context.view_layer.objects.active = rig
     bpy.ops.object.mode_set(mode="POSE")
     rig.animation_data_create()
     for name, frames, walking in (("walk", CYCLE_FRAMES, True), ("idle", 30, False)):
+        if name not in only:
+            continue
         act = bpy.data.actions.new(name)
         act.use_fake_user = True
         rig.animation_data.action = act
@@ -407,5 +426,7 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--mh", type=Path, required=True, help="MakeHuman data 폴더 (3dobjs, rigs, targets)")
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--bvh", type=Path, help="걷기 모션 캡처(CMU BVH). 없으면 키프레임 걷기")
     a = ap.parse_args(argv)
-    main(a.mh, a.out)
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    main(a.mh, a.out, a.bvh)

@@ -28,13 +28,17 @@ def test_no_step_indicator_and_familiar_file_buttons():
 
 
 def test_live_panels_ask_for_as_little_as_possible():
-    """지예: 채광은 주소만 넣고 어느 향인지, 와이파이는 공유기 종류 고르고 놓기만, 동선은 '어디서 출발할까요?'."""
+    """지예: 채광은 주소만 넣고 어느 향인지, 동선은 '어디서 출발할까요?'.
+    와이파이는 (2026-11-26 새 요청) 주파수 고르고 공유기를 놓으면 끊김 없는 색 + 등고선, 자세한 원인·설정은 접어 둔다."""
     sims = REMODEL.split("const runDaylight", 1)[1].split("const SIMS", 1)[0]
+    wifi = sims.split("// ---- 살아 보기: 와이파이 ----", 1)[1].split("// ---- 가구 치우기", 1)[0]
+    rest = sims.replace(wifi, "")
     for gone in ('id="north"', 'id="region"', 'id="sdate"', 'id="stime"', 'id="sheat"', "bestRouter", "가장 약한 곳",
                  "mkEnt", "mkSink", "현관 지정", "싱크 위치 지정", "작업 삼각형", "dBm"):
-        assert gone not in sims, gone
+        assert gone not in rest, gone
     assert 'id="addr"' in sims and "집이에요" in sims
-    assert sims.count("data-band=") == 2 and 'id="putRouter"' in sims and "잘 통해요" in sims
+    assert 'data-band="${k}"' in wifi and '["6", "최신"]' in wifi and 'id="putRouter"' in wifi
+    assert "viewer.setWifiHeat" in wifi and "probeWifi" in wifi and '<details class="wifi-more"' in wifi
     assert "어디서 출발할까요?" in sims and "viewer.personFollow" in REMODEL and "/marks/start" in REMODEL
     # 길이 막힌 제품에는 ✕, 누르면 뺀다
     assert 'class="flow-x"' in sims and 'method: "DELETE"' in sims.split("drawFlowX", 1)[1].split("trackFlowX", 1)[0]

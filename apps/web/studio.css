@@ -1122,3 +1122,63 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 .bot-log .combo-lg b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .bot-prods li.best .nm b { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .bot-prods li.best .nm small { display: block; line-height: 1.45; }
+
+/* ---- 와이파이: 끊김 없는 색 + 등고선, 왜 약한지 (2026-11-26) ---- */
+.seg3 { display: flex; gap: 3px; padding: 3px; border-radius: 12px; background: var(--warm-grey); }
+.seg3 button { flex: 1; padding: 0 8px; height: 32px; border: 0; border-radius: 9px; background: none; color: var(--ink); font-size: 13px; font-weight: 600; box-shadow: none; white-space: nowrap; }
+.seg3 button:hover:not(.on) { background: rgba(255, 255, 255, .7); }
+.seg3 button .n { font-weight: 500; opacity: .7; }
+.seg3 button.on, .seg3 button.on:hover { background: var(--ink); color: #fff; }
+.seg3.band button.on { background: var(--lg); }
+.seg3.sm button { height: 28px; font-size: 12.5px; padding: 0 6px; }
+.sim-row .seg3.band { flex: 1; }
+.wl { margin: 2px 0 4px; }
+.wl-bar { height: 10px; border-radius: 5px; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .06); }
+.wl-ticks { position: relative; height: 30px; margin: 0 6px; font-size: 11px; color: var(--graphite); }
+.wl-ticks span { position: absolute; top: 4px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; line-height: 1.25; white-space: nowrap; }
+.wl-ticks .edge-l { transform: none; align-items: flex-start; }
+.wl-ticks .edge-r { transform: translateX(-100%); align-items: flex-end; }
+.wifi-sum .muted { display: block; margin-top: 2px; font-size: 12px; color: var(--graphite); }
+.wl-ticks b { font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.wifi-sum { margin: 2px 0 8px; font-size: 13px; color: var(--ink); text-wrap: pretty; }
+.wifi-sum b { font-weight: 700; }
+.wifi-row .seg3 { flex: 1; }
+.wifi-spots { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.wifi-more { margin-top: 10px; border-top: 1px solid var(--line-soft); padding-top: 8px; }
+.wifi-more > summary { cursor: pointer; width: fit-content; font-size: 13px; font-weight: 600; color: var(--ink); list-style: none; display: flex; align-items: center; gap: 6px; }
+.wifi-more > summary::-webkit-details-marker { display: none; }
+.wifi-more > summary::after { content: ""; width: 7px; height: 7px; border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .15s; }
+.wifi-more[open] > summary::after { transform: rotate(-135deg) translateY(-1px); }
+.sim-note { margin: 8px 0 0; font-size: 12px; color: var(--graphite); text-wrap: pretty; }
+.wifi-causes { margin-top: 8px; }
+.wifi-causes .chip { padding: 4px 11px; font-size: 12.5px; }
+.wifi-causes .chip.on { background: #2b2f33; border-color: #2b2f33; color: #fff; }
+.wifi-causes .chip:not(.on) { text-decoration: line-through; text-decoration-color: rgba(0, 0, 0, .35); }
+.wifi-set { display: grid; gap: 8px; margin-top: 10px; }
+.wifi-set label { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: 4px 8px; font-size: 12.5px; color: var(--ink); }
+.wifi-set label output { grid-column: 2; grid-row: 1; justify-self: end; font-size: 12px; color: var(--graphite); font-variant-numeric: tabular-nums; }
+.wifi-set label input[type="range"] { grid-column: 1 / -1; margin: 0; accent-color: var(--ink); }
+.wifi-set .wifi-mw .simsw { justify-self: start; border: 0; background: none; padding: 0; box-shadow: none; }
+.wifi-set .simsw .sw-track { display: inline-block; position: relative; width: 28px; height: 16px; border-radius: 8px; background: var(--line); }
+.wifi-set .simsw .sw-track i { position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.wifi-set .simsw.on .sw-track { background: var(--ink); }
+.wifi-set .simsw.on .sw-track i { transform: translateX(12px); }
+.wifi-set > button { justify-self: start; }
+.wifi-wallpick { margin-bottom: 10px; padding: 10px; border-radius: 12px; background: var(--warm-grey); }
+.wifi-wallpick .chips { margin-top: 6px; }
+/* 바닥에 마우스를 올리면 뜨는 막대 */
+.wifi-tip { position: fixed; left: 0; top: 0; z-index: 1000; width: 272px; padding: 11px 13px; border-radius: 14px; background: rgba(255, 255, 255, .97);
+  box-shadow: 0 10px 30px rgba(28, 32, 36, .16), 0 0 0 1px rgba(28, 32, 36, .06); pointer-events: none; font-size: 12.5px; color: var(--ink); }
+.wt-head { margin: 0 0 8px; font-size: 13px; line-height: 1.35; }
+.wt-head b { font-size: 16px; margin-right: 4px; font-variant-numeric: tabular-nums; }
+.wt-fall { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.wt-fall li { display: grid; grid-template-columns: 104px minmax(0, 1fr) 34px; align-items: center; gap: 8px; }
+.wt-fall .n { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--graphite); }
+.wt-fall .bar { height: 7px; border-radius: 4px; background: var(--line-soft); overflow: hidden; }
+.wt-fall .bar i { display: block; height: 100%; border-radius: 4px; background: #d24f45; }
+.wt-fall .gain .bar i { background: #0f7576; }
+.wt-fall .tx .bar i { background: #1c2024; }
+.wt-fall b { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+.wt-foot { margin: 8px 0 0; padding-top: 7px; border-top: 1px solid var(--line-soft); color: var(--graphite); font-size: 12px; }
+.wt-foot b { color: var(--ink); }
+.studio.app .wifi-tip { width: 240px; }

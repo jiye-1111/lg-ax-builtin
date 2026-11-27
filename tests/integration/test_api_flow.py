@@ -274,3 +274,21 @@ def test_measurement_far_from_the_scan_is_refused(client):
     r = client.put(f"/api/projects/{pid}/walls/w1/measured", json={"length_m": round(scan * 1.5, 3), "by": "customer"})
     assert r.status_code == 422
     assert "다시" in r.json()["detail"]
+
+
+def test_plan_home_is_corrected_from_one_measured_wall(client):
+    # 치수 없는 도면을 방문 폭으로 어림해 5.2 m로 읽은 벽이 실제로는 5.8 m (12% 길다)
+    _reader(client, _plan().model_copy(update={"scale_from": "door_width"}))
+    pid = client.post("/api/projects/from-plan", files={"file": ("우리집.png", PNG_1PX, "image/png")}).json()["project_id"]
+    walls = _walls(client, pid)
+    long = max(walls.values(), key=lambda w: w["scanned"]["length_m"])
+    target = round(long["scanned"]["length_m"] * 1.12, 3)
+    r = client.put(f"/api/projects/{pid}/walls/{long['wall_id']}/measured", json={"length_m": target, "by": "customer"})
+    assert r.status_code == 200, r.text
+    after = _walls(client, pid)
+    short = min(after.values(), key=lambda w: w["scanned"]["length_m"])
+    assert short["measured"]["by"] == "reference"
+    assert short["measured"]["length_m"] == pytest.approx(short["scanned"]["length_m"] * 1.12, rel=0.01)
+    # 도면 집도 말이 안 되게 다른 값은 받지 않는다
+    assert client.put(f"/api/projects/{pid}/walls/{long['wall_id']}/measured",
+                      json={"length_m": round(long["scanned"]["length_m"] * 3, 3), "by": "customer"}).status_code == 422

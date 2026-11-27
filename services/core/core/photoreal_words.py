@@ -73,7 +73,18 @@ def sun_words(sun: dict | None, camera: dict | None, time: str | None, facing: s
             "every object, including the appliances.").replace("  ", " ")
 
 
-def product_words(no: int, product, box, ref_no: int | None) -> str:
+def rest_words(on: int | str | None) -> str:
+    """무엇 위에 있는지. on = 그 아래 물건 번호, 'wall'(벽에 건 것), 'below'(화면 밖 가구 위), None(바닥)"""
+    if on == "wall":
+        return "It hangs on the wall."
+    if on == "below":
+        return "It sits on top of the furniture under it, not in the air."
+    if on:
+        return f"It sits on top of object {on}, not in the air."
+    return "It stands on the floor."
+
+
+def product_words(no: int, product, box, ref_no: int | None, on: int | str | None = None) -> str:
     """제품 한 줄. box = 화면에서 차지하는 자리 (0~1, x0 y0 x1 y1)."""
     cmf = product.cmf_options[0] if getattr(product, "cmf_options", None) else None
     color = getattr(cmf, "color", None)
@@ -82,11 +93,11 @@ def product_words(no: int, product, box, ref_no: int | None) -> str:
 
     kind = surface_kind(material_label(product), color)
     x0, y0, x1, y1 = (round(v * 100) for v in box)
-    bits = [f"Appliance {no} (occupies x {x0}-{x1}% and y {y0}-{y1}% of the first image) is the real {product.name}"]
+    bits = [f"Object {no} (x {x0}-{x1}%, y {y0}-{y1}% of the first image) is an LG appliance, the real {product.name}"]
     if color:
         bits.append(f"in the colour '{color}'" + (f" (about {hexv})" if hexv else ""))
     look = material_words(kind)
-    line = " ".join(bits) + "."
+    line = " ".join(bits) + ". " + rest_words(on)
     if look:
         line += f" It has {look}."
     if ref_no:
@@ -96,3 +107,56 @@ def product_words(no: int, product, box, ref_no: int | None) -> str:
     else:
         line += " Keep its outline, size and position exactly as in the first image."
     return line
+
+
+# ---- 장면 목록: 화면에 보이는 물건을 하나씩 (이름·화면 자리·무엇 위에 있는지). 목록 밖은 빈 바닥 ----
+# 꾸미기 가구(decor:) → 사진에서 그 물건을 부르는 말
+DECOR_WORDS = {
+    "sofa": "a sofa", "table": "a dining table", "chair": "a chair", "islandtable": "a kitchen island table",
+    "coffee": "a low coffee table", "bed": "a bed", "desk": "a desk", "wardrobe": "a tall wardrobe",
+    "tallcab": "a tall kitchen cabinet", "storage": "a storage cabinet", "shelf": "an open shelf", "dresser": "a chest of drawers",
+    "sink": "a kitchen sink cabinet", "basecab": "a kitchen base cabinet with a countertop", "island": "a kitchen island",
+    "hood": "a wall-mounted cooker hood", "islandhood": "a ceiling-hung island cooker hood", "tvstand": "a low TV stand",
+    "rug": "a flat rug", "lamp": "a floor lamp", "plant": "a potted plant", "partition": "a room partition",
+}
+# 벽·문·창은 방 모양이라 목록에 넣지 않는다 (그대로 두라고 따로 말한다)
+STRUCTURE = frozenset({"wall", "door", "window", "glassdoor"})
+# 스캔한 가구 (RoomPlan 종류) → 사진에서 부르는 말
+SCAN_WORDS = {
+    "storage": "a storage cabinet", "chair": "a chair", "table": "a table", "sofa": "a sofa", "bed": "a bed",
+    "television": "a TV", "refrigerator": "a refrigerator", "stove": "a stove", "oven": "an oven", "sink": "a sink",
+    "dishwasher": "a dishwasher", "washerDryer": "a washing machine", "toilet": "a toilet", "bathtub": "a bathtub",
+    "fireplace": "a fireplace", "stairs": "stairs",
+}
+
+
+def thing_words(no: int, what: str, box, on: int | str | None = None) -> str:
+    """물건 한 줄. on = 그 아래 물건 번호, 'wall'(벽에 건 것), None(바닥)"""
+    x0, y0, x1, y1 = (round(v * 100) for v in box)
+    return f"Object {no} (x {x0}-{x1}%, y {y0}-{y1}% of the first image): {what}. {rest_words(on)}"
+
+
+def scene_words(count: int) -> str:
+    return (f"OBJECTS: the room holds exactly {count} objects, listed below. Nothing else exists in the room. "
+            "Every part of the floor that is empty in the first image stays empty: draw only bare floor there "
+            "(the same goes for empty walls and countertops). Each object keeps its own type and stays where it is.")
+
+
+_FIX = {
+    "added": "Remove {what} ({where}): it is not in the room. Draw bare floor or wall there.",
+    "missing": "Put back {what} ({where}) exactly as it is in the first image.",
+    "duplicated": "Draw {what} ({where}) only once, in its place from the first image. Remove the extra copy.",
+    "changed": "{what} ({where}) must keep the same type and shape as in the first image.",
+    "moved": "{what} ({where}) must stay exactly where it is in the first image.",
+    "floating": "{what} ({where}) must rest on the floor or on the object under it, as in the first image, never in the air.",
+    "overlap": "{what} ({where}) must not overlap or merge with other objects: keep them apart as in the first image.",
+}
+
+
+def fix_words(problems: list[dict]) -> str:
+    """앞서 그린 그림에서 틀린 것 → 고치라는 문장 (다시 그릴 때 프롬프트 끝에)"""
+    lines = [_FIX[p["kind"]].format(what=p["what"], where=p["where"]) for p in problems if p.get("kind") in _FIX]
+    if not lines:
+        return ""
+    lines = [s[0].upper() + s[1:] for s in lines]
+    return "The previous attempt got these wrong. Fix them:\n- " + "\n- ".join(lines)
