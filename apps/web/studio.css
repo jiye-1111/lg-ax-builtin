@@ -1253,7 +1253,7 @@ body:has(.studio.app :is(.order-sheet, .pd-modal):not([hidden])) .bot { display:
 /* 넓은 화면은 오른쪽 패널이 없다. 맞춤장을 고르면 치수·판정·마감을 조절해야 해서 3D 오른쪽에 카드로 띄운다
    (보기 버튼 줄 왼쪽, 살아 보기 스위치 아래. 3D 가운데는 가리지 않는다) */
 .studio:not(.app).cab-sel .side { margin-right: 92px; }
-.studio:not(.app).cab-sel .side .side-body { display: flex; pointer-events: auto; width: 340px; margin-left: -40px; max-height: calc(100vh - 290px); min-height: 0; overflow-y: auto;
+.studio:not(.app).cab-sel .side .side-body { display: flex; pointer-events: auto; width: 340px; margin-left: -40px; max-height: calc(100vh - 400px); min-height: 0; overflow-y: auto;
   overscroll-behavior: contain; scrollbar-width: thin; margin-bottom: 10px; padding: 14px; border-radius: 16px; background: var(--sheet); box-shadow: var(--shadow-float); }
 .studio:not(.app).cab-sel .side #mapSlot, .studio:not(.app).cab-sel .side #suggSlot { display: none; }
 /* 장을 고치는 동안은 합계 카드를 접어 패널이 3D 위쪽 스위치를 가리지 않게 한다 (닫으면 돌아온다) */

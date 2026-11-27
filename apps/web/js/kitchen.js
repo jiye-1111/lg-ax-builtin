@@ -145,7 +145,7 @@ export function cabPanelHtml({ x, app, product, kind, finishes, candidates = [],
       ${appRow}${picker}` : ""}
     ${x.cab_check ? verdictHtml(x.cab_check) : ""}
     ${doorHtml(report)}
-    <details class="cab-sec" open><summary>장 치수·부재</summary>
+    <details class="cab-sec"${existing ? " open" : ""}><summary>장 치수·부재</summary>
       <div class="cab-grid">${numIn("ow", c.outer_mm.w, "외경 폭")}${numIn("oh", c.outer_mm.h, "외경 높이")}${numIn("od", c.outer_mm.d, "외경 깊이")}</div>
       ${host && existing ? `<p class="cab-sub">장 안쪽 실측 <span class="muted">비워 두면 판정 불가</span></p><div class="cab-grid">${numIn("mw", c.measured_mm?.w, "안쪽 폭")}${numIn("mh", c.measured_mm?.h, "안쪽 높이")}${numIn("md", c.measured_mm?.d, "안쪽 깊이")}</div>` : ""}
       ${host && !existing && inside ? `<p class="cab-inside">가전이 들어가는 안쪽 <b>${mm(inside.w)} × ${mm(inside.h)} × ${mm(inside.d)} mm</b> <span class="muted">설계값</span></p>` : ""}

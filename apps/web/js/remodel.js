@@ -2990,7 +2990,7 @@ export async function customer(pid) {
   let chain = Promise.resolve();
   const refresh = (force = false) => {
     if (force) document.dispatchEvent(new Event("lgb:changed")); // 저장 표시: 다음 자동 저장 전까지 '저장 안 된 변경'
-    return (chain = chain.catch(() => {}).then(() => load(force)));
+    return (chain = chain.catch((e) => console.error("다시 읽기 실패", e)).then(() => load(force)));
   };
   const load = async (force) => {
     if (drag || drag3d) return;

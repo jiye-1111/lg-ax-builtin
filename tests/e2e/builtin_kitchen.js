@@ -1,4 +1,5 @@
 // 빌트인 주방 점검: 가전 맞춤장(냉장고·식기세척기), 측판 두께에 따른 판정, 기존 장 크기 유지, 문 열림 3D 근사,
+// 헤드리스(소프트웨어 그리기)에서는 3D가 메인 스레드를 오래 잡아 다시 읽기가 10초쯤 걸린다. 그래서 기다림을 넉넉히 둔다
 // 유리 상부장, 마감 바꾸기, 저장 후 다시 열기. 서버를 켠 뒤 실행:
 //   uv run lgb-api            (다른 창)
 //   node tests/e2e/builtin_kitchen.js [http://localhost:8000] [스크린샷 폴더]
@@ -23,7 +24,7 @@ const check = (name, ok, info = "") => {
   const page = await ctx.newPage();
   const errors = [];
   page.on("pageerror", (e) => errors.push(String(e.stack || e).split("\n").slice(0, 3).join(" ")));
-  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+  page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); if (process.env.DEBUG && m.text().startsWith("DBGL")) console.log("   ", m.text()); });
   const wait = (ms) => page.waitForTimeout(ms);
   const api = (url, body, method = "POST") => page.evaluate(async ([u, b, m]) => {
     const r = await fetch(u, { method: m, headers: { "Content-Type": "application/json" }, body: b ? JSON.stringify(b) : undefined });
@@ -51,7 +52,7 @@ const check = (name, ok, info = "") => {
   };
   // 패널을 고친 뒤 서버 응답으로 패널이 다시 그려질 때까지 (느린 헤드리스에서는 3D 그리기가 몇 초 걸린다)
   const panelNode = () => page.evaluate(() => { const p = document.querySelector(".cab-panel"); if (p) p.dataset.old = "1"; });
-  const freshPanel = () => page.waitForFunction(() => { const p = document.querySelector(".cab-panel"); return p && !p.dataset.old; }, null, { timeout: 20000 }).catch(() => {});
+  const freshPanel = () => page.waitForFunction(() => { const p = document.querySelector(".cab-panel"); return p && !p.dataset.old; }, null, { timeout: 45000 }).catch(() => {});
   const act = async (fn) => { await panelNode(); await fn(); await freshPanel(); await wait(300); };
   const setNum = (sel, v) => act(() => page.$eval(sel, (el, v) => { el.value = String(v); el.dispatchEvent(new Event("change", { bubbles: true })); }, v));
   const tap = (sel) => act(() => page.$eval(sel, (b) => b.click()));
@@ -89,7 +90,7 @@ const check = (name, ok, info = "") => {
   check("냉장고장이 생기고 냉장고가 장 안에 들어간다", !!(cab && fr && fr.sku === FRIDGE));
   check("새 장은 공식 권장 안쪽(설계값)으로 적합", cab?.cab_check?.verdict === "fit" && cab.cab_check.axes[0].source === "designed", JSON.stringify(cab?.cab_check?.axes?.map((a) => a.have_mm)));
   check("가전 3D 크기는 카탈로그 그대로", fr && Math.abs(fr.size_m[0] - 0.914) < 1e-6);
-  await page.waitForSelector(".cab-panel .cab-verdict", { timeout: 25000 }).catch(() => {}); // 놓으면 그 장을 고른 채로 패널이 뜬다
+  await page.waitForSelector(".cab-panel .cab-verdict", { timeout: 45000 }).catch(() => {}); // 놓으면 그 장을 고른 채로 패널이 뜬다
   if (!(await page.$(".cab-panel"))) { console.log("  (놓은 뒤 패널이 안 떠서 3D에서 다시 고름)"); await pickPl(cab, 1.0); }
   check("오른쪽에 맞춤장 패널과 공식 판정이 뜬다", !!(await page.$(".cab-panel .cab-verdict.v-fit")));
   await shot("fridge_fit.png");
@@ -101,7 +102,7 @@ const check = (name, ok, info = "") => {
   cab = pls.find((q) => q.placement_id === cab.placement_id);
   const w = cab.cab_check.axes.find((a) => a.axis === "w");
   check("측판을 두껍게 하면 외경은 그대로, 판정이 불가로 바뀐다", cab.cab.outer_mm.w === 958 && cab.cab_check.verdict === "no_fit" && w.short_mm === 7, `${cab.cab_check.verdict} short ${w.short_mm}`);
-  await page.waitForSelector(".cab-verdict.v-no_fit", { timeout: 8000 }).catch(() => {});
+  await page.waitForSelector(".cab-verdict.v-no_fit", { timeout: 30000 }).catch(() => {});
   const shortTxt = await page.$eval(".cab-verdict", (el) => el.textContent);
   check("패널에 부족 mm가 보인다", /7 mm 부족/.test(shortTxt) && !!(await page.$(".cab-verdict.v-no_fit")));
   await shot("fridge_nofit.png", ".cab-panel");
@@ -109,7 +110,10 @@ const check = (name, ok, info = "") => {
 
   // 4. 기존 장에 넣기: 실측값 그대로, 가전을 바꿔도 장 크기는 그대로
   await tap('.cab-mode [data-mode="existing"]');
-  if (process.env.DEBUG) console.log("DBG", await page.evaluate(() => [document.querySelector(".cab-modehint")?.textContent, [...document.querySelectorAll(".toast,#toast")].map((t) => t.textContent).join("|")]), errors);
+  if (!(await page.waitForSelector("[data-md]", { state: "attached", timeout: 45000 }).catch(() => null))) {
+    const now = (await placements(pid)).find((q) => q.placement_id === cab.placement_id);
+    console.log("  기존 장 입력칸이 안 뜸 · 서버 mode", now.cab.mode, await page.evaluate(() => [...document.querySelectorAll(".toast,#toast")].map((t) => t.textContent).join("|")), errors);
+  }
   await setNum("[data-md]", 715);
   pls = await placements(pid);
   cab = pls.find((q) => q.placement_id === cab.placement_id);
@@ -125,7 +129,7 @@ const check = (name, ok, info = "") => {
   if (noRule.length) {
     await choose(noRule[0]);
     cab = (await placements(pid)).find((q) => q.placement_id === cab.placement_id);
-    await page.waitForSelector(".cab-verdict.v-unknown", { timeout: 8000 }).catch(() => {});
+    await page.waitForSelector(".cab-verdict.v-unknown", { timeout: 30000 }).catch(() => {});
     check("공식 기준이 없는 가전은 판정 불가, 외형 비교는 보인다", cab.cab_check.verdict === "unknown" && !!(await page.$(".cab-verdict.v-unknown .cab-tbl")));
   } else check("공식 기준이 없는 가전 후보가 목록에 있다", false);
   await tap('.cab-mode [data-mode="new"]');
