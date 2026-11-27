@@ -25,7 +25,8 @@ MAX_BYTES = 8 * 1024 * 1024
 # 처음 된 모델을 기억한다
 MODELS = [m for m in [os.getenv("PHOTOREAL_MODEL")] if m] or ["gpt-image-1.5", "gpt-image-1", "gpt-image-1-mini"]
 MODEL = MODELS[0]
-QUALITY = os.getenv("PHOTOREAL_QUALITY", "medium")
+QUALITY = os.getenv("PHOTOREAL_QUALITY", "high")  # 한 장 실사는 high (재질·빛이 확실히 낫다)
+TOUR_QUALITY = os.getenv("PHOTOREAL_TOUR_QUALITY", "medium")  # 둘러보기는 곳마다 한 장이라 medium
 _DATA_URL = re.compile(r"^data:image/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$")
 
 PROMPT = """Turn this 3D interior render into a realistic interior photograph of exactly the same room with exactly the
@@ -47,9 +48,16 @@ Must stay identical (most important):
   ovens, microwaves, stoves or dishwashers).
 - No people, no text, no watermarks, no logos except the real LG logo on LG appliances.
 
-Make it look real:
-- Real surfaces: wall paint or wallpaper texture, real wood or stone floor, soft fabric, natural daylight through the
-  windows with soft shadows and bounce light, gentle depth like a real camera.
+Make it look like a real photograph, not a render (realism only, no styling, no staging):
+- A professional interior photograph shot on a full-frame camera, natural exposure, true white balance, soft natural
+  colour, gentle contrast. No CG look: no plastic or flat surfaces, no uniform lighting, no over-sharpening.
+- Physically correct light: daylight from the windows, soft global illumination and bounce light, soft ambient
+  occlusion in corners and under furniture, real contact shadows, correct reflections on glossy and metal surfaces.
+- Real material detail on what is already there: paint or wallpaper texture on walls, real wood grain or stone on the
+  floor in the same colour, fabric weave on soft furniture, real wood or lacquer on cabinets. Keep every colour close
+  to the 3D view.
+- Do not add light effects that the scene does not have: no leaf or curtain shadows, no lens flare, no haze, no
+  dramatic sunset unless the sun described below is low.
 - The LG appliances are real products, described below. Make each one look like a real photograph of that exact
   product (true material, reflections of the room, the sunlight and shadows falling on it), matching its official
   product photo when one is given. Never change an appliance's outline, size, position or colour.
@@ -263,7 +271,7 @@ def edit_any_model(client, **kw):
 
 
 def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "", refs=None, boxes=None,
-               notes: dict | None = None) -> Image.Image:
+               notes: dict | None = None, quality: str | None = None) -> Image.Image:
     """refs = 제품 사진 [(이름, bytes, mime)] (첫 그림 다음에 붙는다), boxes = 제품마다 화면 자리 [x0, y0, x1, y1] (픽셀).
     notes를 주면 AI가 그린 그대로의 그림(ai)과 제품마다 판단(products)을 담아 준다 (결과가 이상할 때 보려고)"""
     alpha = drop_specks(product_alpha(mask))
@@ -271,7 +279,7 @@ def make_photo(view: Image.Image, mask: Image.Image, client, extra: str = "", re
     # 참고 그림으로 주고 (input_fidelity high: 구도·가구 유지), 제품 자리는 아래에서 다시 맞춘다
     first = ("view.png", png_bytes(view), "image/png")
     kw = {"image": [first, *refs] if refs else first, "prompt": PROMPT.format(extra=extra).strip(),
-          "size": f"{SIZE[0]}x{SIZE[1]}", "quality": QUALITY, "n": 1}
+          "size": f"{SIZE[0]}x{SIZE[1]}", "quality": quality or QUALITY, "n": 1}
     try:
         r = edit_any_model(client, input_fidelity="high", **kw)
     except Exception as e:  # noqa: BLE001

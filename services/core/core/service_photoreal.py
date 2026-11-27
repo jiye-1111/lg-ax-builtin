@@ -263,7 +263,8 @@ class PhotorealMixin:
                 fix = fix_words(tries[-1]["problems"]) if tries else ""
                 notes: dict = {}
                 out = photoreal.make_photo(view, m, client, "\n".join(x for x in [extra, fix] if x), refs=refs or None,
-                                           boxes=boxes or None, notes=notes)
+                                           boxes=boxes or None, notes=notes,
+                                           quality=photoreal.TOUR_QUALITY if spot else photoreal.QUALITY)
                 problems = check(view, out, lines) if check else None
                 tries.append({"out": out, "ai": notes.pop("ai", None), "notes": notes, "problems": problems or [], "fix": fix})
                 if not problems:

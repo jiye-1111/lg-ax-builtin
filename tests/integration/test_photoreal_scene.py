@@ -167,3 +167,11 @@ def test_a_retry_counts_once_against_the_limit(c, svc, pid, scene):
     svc.photo_checker = Checker([{"kind": "added", "what": "a sofa", "where": "left"}], [])
     codes = [c.post(f"/api/projects/{pid}/photoreal", json=shot(objects=scene)).status_code for _ in range(3)]
     assert codes == [200, 200, 200]
+
+
+def test_photo_realism_words_but_no_staging(c, svc, pid, scene):
+    r = c.post(f"/api/projects/{pid}/photoreal", json=shot(objects=scene))
+    assert r.status_code == 200
+    p = svc.image_client.prompts[-1]
+    assert "not a render" in p and "no styling" in p and "no leaf or curtain shadows" in p
+    assert "plants" in p  # 식물·소품도 더하지 않는다
